@@ -16,8 +16,10 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
-AGENT_OS_RULES="/home/romen/Proyectos/agent-os/.agents/rules/global"
+AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
+AGENT_OS_SCRIPTS="$AGENT_OS_PATH/scripts/agent"
 TARGET_RULES="$TARGET_PROJECT/.agents/rules"
+TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
 
 echo "🔄 Sincronizando Agent OS con $TARGET_PROJECT..."
 
@@ -27,10 +29,21 @@ if [ ! -d "$TARGET_RULES" ]; then
 fi
 
 # Sincronizar solo los archivos que existen en Agent OS (sin borrar locales)
+echo "  Sincronizando reglas..."
 for rule in "$AGENT_OS_RULES"/*.md; do
     filename=$(basename "$rule")
     cp "$rule" "$TARGET_RULES/$filename"
-    echo "  [sync] $filename"
+    echo "    [sync] $filename"
 done
+
+if [ -d "$TARGET_SCRIPTS" ]; then
+    echo "  Sincronizando scripts..."
+    for script in "$AGENT_OS_SCRIPTS"/*.sh; do
+        filename=$(basename "$script")
+        cp "$script" "$TARGET_SCRIPTS/$filename"
+        chmod +x "$TARGET_SCRIPTS/$filename"
+        echo "    [sync] $filename"
+    done
+fi
 
 echo "✅ Sincronización completada."

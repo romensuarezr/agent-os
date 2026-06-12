@@ -26,13 +26,15 @@ TARGET_AGENTS="$TARGET_PROJECT/.agents"
 TARGET_RULES="$TARGET_AGENTS/rules"
 TARGET_WORKFLOWS="$TARGET_AGENTS/workflows"
 TARGET_SKILLS="$TARGET_AGENTS/skills"
+TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
 
 echo "🚀 Instalando Agent OS en $TARGET_PROJECT..."
 
-# 1. Crear estructura de agentes
+# 1. Crear estructura de agentes y scripts
 mkdir -p "$TARGET_RULES"
 mkdir -p "$TARGET_WORKFLOWS"
 mkdir -p "$TARGET_SKILLS"
+mkdir -p "$TARGET_SCRIPTS"
 
 # 2. Crear estructura de documentación
 mkdir -p "$TARGET_PROJECT/docs/sprints"
@@ -64,7 +66,14 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
     echo "✅ Skills instaladas (sin sobreescribir)."
 fi
 
-# 6. Copiar templates de documentos (sin sobreescribir)
+# 6. Copiar scripts (sin sobreescribir)
+if [ -d "$AGENT_OS_PATH/scripts/agent" ]; then
+    cp -n "$AGENT_OS_PATH/scripts/agent"/*.sh "$TARGET_SCRIPTS/"
+    chmod +x "$TARGET_SCRIPTS"/*.sh
+    echo "✅ Scripts de agente instalados (sin sobreescribir)."
+fi
+
+# 7. Copiar templates de documentos (sin sobreescribir)
 if [ -d "$AGENT_OS_TEMPLATES" ]; then
     # Copiar recursivamente sin sobreescribir archivos existentes
     # Usamos un truco con cp -n y subcarpetas
