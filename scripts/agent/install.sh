@@ -54,7 +54,7 @@ if [ -d "$AGENT_OS_WORKFLOWS" ]; then
     echo "✅ Workflows instalados (sin sobreescribir)."
 fi
 
-# 5. Copiar skills (sin sobreescribir)
+# 5. Copiar skills (sin sobreescribir las existentes del proyecto destino)
 if [ -d "$AGENT_OS_SKILLS" ]; then
     for skill in "$AGENT_OS_SKILLS"/*; do
         if [ -d "$skill" ]; then
@@ -63,7 +63,7 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
             cp -n "$skill" "$TARGET_SKILLS/"
         fi
     done
-    echo "✅ Skills instaladas (sin sobreescribir)."
+    echo "✅ Skills globales instaladas (sin sobreescribir)."
 fi
 
 # 6. Copiar scripts (sin sobreescribir)
