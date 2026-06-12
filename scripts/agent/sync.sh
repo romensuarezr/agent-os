@@ -18,8 +18,10 @@ fi
 
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_SCRIPTS="$AGENT_OS_PATH/scripts/agent"
+AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
 TARGET_RULES="$TARGET_PROJECT/.agents/rules"
 TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
+TARGET_SKILLS="$TARGET_PROJECT/.agents/skills"
 
 echo "🔄 Sincronizando Agent OS con $TARGET_PROJECT..."
 
@@ -43,6 +45,23 @@ if [ -d "$TARGET_SCRIPTS" ]; then
         cp "$script" "$TARGET_SCRIPTS/$filename"
         chmod +x "$TARGET_SCRIPTS/$filename"
         echo "    [sync] $filename"
+    done
+fi
+
+if [ -d "$AGENT_OS_SKILLS" ]; then
+    echo "  Sincronizando skills..."
+    mkdir -p "$TARGET_SKILLS"
+    for skill in "$AGENT_OS_SKILLS"/*; do
+        if [ -d "$skill" ]; then
+            skill_name=$(basename "$skill")
+            # Copiar la skill de agent-os al proyecto (fusionando/sobrescribiendo)
+            cp -r "$skill" "$TARGET_SKILLS/"
+            echo "    [sync] skill: $skill_name"
+        elif [ -f "$skill" ]; then
+            filename=$(basename "$skill")
+            cp "$skill" "$TARGET_SKILLS/$filename"
+            echo "    [sync] skill file: $filename"
+        fi
     done
 fi
 
