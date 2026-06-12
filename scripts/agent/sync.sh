@@ -16,6 +16,7 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
+AGENT_OS_PATH="/home/romen/Proyectos/agent-os"
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_SCRIPTS="$AGENT_OS_PATH/scripts/agent"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
