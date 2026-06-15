@@ -24,7 +24,7 @@ fi
 
 # 2. Sprint más reciente (excluye research y _archived)
 LAST_SPRINT=$(find "$SPRINTS_DIR" -name "sprint-[0-9][0-9].md" \
-  | grep -v "research" | sort -V | tail -1 || true)
+  | grep -v -E "research|_archived" | sort -V | tail -1 || true)
 
 if [ -z "$LAST_SPRINT" ]; then
   echo "SPRINT_ACTUAL: ninguno"

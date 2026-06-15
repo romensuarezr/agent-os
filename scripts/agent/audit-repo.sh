@@ -259,15 +259,20 @@ if [ "$1" == "--apply" ]; then
         fi
     fi
 
-    # 5. Crear docs/sprints/sprint-00-historical.md
-    if grep -q "\- \[ \] Crear docs/sprints/sprint-00-historical.md" "$AUDIT_FILE"; then
-        mkdir -p docs/sprints
-        sprint_file="docs/sprints/sprint-00-historical.md"
+    # 5. Crear docs/sprints/_archived/sprint-00-historical.md
+    if grep -q "\- \[ \] Crear docs/sprints/_archived/sprint-00-historical.md" "$AUDIT_FILE" || grep -q "\- \[ \] Crear docs/sprints/sprint-00-historical.md" "$AUDIT_FILE"; then
+        mkdir -p docs/sprints/_archived
+        sprint_file="docs/sprints/_archived/sprint-00-historical.md"
         
         echo "# Sprint 00: Histórico de Desarrollo" > "$sprint_file"
-        echo -e "\n## Tareas Completadas (Extraídas del historial de Git)\n" >> "$sprint_file"
+        echo -e "\n## Objetivos del Sprint" >> "$sprint_file"
+        echo "- Reconstruir el historial de desarrollo previo al onboarding de Agent OS." >> "$sprint_file"
+        echo -e "\n## Tabla de Tareas" >> "$sprint_file"
+        echo "| ID | Tarea | Estado | Responsable | Notas |" >> "$sprint_file"
+        echo "|---|---|---|---|---|" >> "$sprint_file"
         
         in_sprint_section=false
+        task_idx=1
         while IFS= read -r line || [ -n "$line" ]; do
             if [[ "$line" == "## Sprint-00 sugerido" ]]; then
                 in_sprint_section=true
@@ -277,13 +282,56 @@ if [ "$1" == "--apply" ]; then
                 if [[ "$line" == "## "* ]]; then
                     break
                 fi
-                echo "$line" >> "$sprint_file"
+                if [[ "$line" == "- [x] Commit "* ]]; then
+                    commit_info=$(echo "$line" | sed 's/- \[x\] Commit //')
+                    task_id=$(printf "T-00-%02d" "$task_idx")
+                    echo "| $task_id | Commit $commit_info | ✅ | Agente | Histórico |" >> "$sprint_file"
+                    task_idx=$((task_idx + 1))
+                elif [[ "$line" == "#### "* ]]; then
+                    week_label=$(echo "$line" | sed 's/#### //')
+                    echo "| | **$week_label** | | | |" >> "$sprint_file"
+                fi
             fi
         done < "$AUDIT_FILE"
         
         git add "$sprint_file"
-        echo "✅ Creado $sprint_file con commits agrupados por semana."
+        echo "✅ Creado $sprint_file con commits agrupados por semana como tabla de tareas completada."
         applied_changes=$((applied_changes + 1))
+    fi
+
+    # 5.5 Sincronizar con docs/implemented.md
+    if grep -q "\- \[ \] Actualizar docs/implemented.md con los hitos históricos" "$AUDIT_FILE"; then
+        implemented_file="docs/implemented.md"
+        if [ -f "$implemented_file" ]; then
+            echo "⚙️ Actualizando $implemented_file con hitos históricos..."
+            # Si no contiene una sección de Sprint 00, la añadimos
+            if ! grep -q "Sprint 00" "$implemented_file"; then
+                echo -e "\n## Sprint 00 (Histórico)" >> "$implemented_file"
+                echo "- [x] Sincronización inicial de commits históricos" >> "$implemented_file"
+                # Añadir los 5 commits más recientes como hitos
+                task_idx=1
+                in_sprint_section=false
+                while IFS= read -r line || [ -n "$line" ]; do
+                    if [[ "$line" == "## Sprint-00 sugerido" ]]; then
+                        in_sprint_section=true
+                        continue
+                    fi
+                    if $in_sprint_section; then
+                        if [[ "$line" == "## "* ]]; then
+                            break
+                        fi
+                        if [[ "$line" == "- [x] Commit "* ]] && [ "$task_idx" -le 5 ]; then
+                            commit_msg=$(echo "$line" | sed -E 's/- \[x\] Commit `[0-9a-f]+` \([0-9-]+\): //')
+                            echo "- [x] $commit_msg" >> "$implemented_file"
+                            task_idx=$((task_idx + 1))
+                        fi
+                    fi
+                done < "$AUDIT_FILE"
+                echo "✅ $implemented_file actualizado con hitos del Sprint 00."
+                git add "$implemented_file"
+                applied_changes=$((applied_changes + 1))
+            fi
+        fi
     fi
 
     # 6. Actualizar roadmap.md con secciones requeridas
@@ -515,7 +563,8 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     rm -f "$tmp_log"
     
     if [ -n "$sprint_sugerido" ]; then
-        propuestas+="- [ ] Crear docs/sprints/sprint-00-historical.md con los commits agrupados por semana\n"
+        propuestas+="- [ ] Crear docs/sprints/_archived/sprint-00-historical.md con los commits agrupados por semana\n"
+        propuestas+="- [ ] Actualizar docs/implemented.md con los hitos históricos identificados en el Sprint 00\n"
     fi
 else
     incompatibilidades+="- ⚠️ El directorio no es un repositorio Git válido.\n"
