@@ -6,8 +6,10 @@ Historial de cambios y releases del núcleo de Agent OS.
 ### Añadido
 - **Biblioteca de Detección de Stack (`detect-stack.sh`)**: Creado un componente centralizado para identificar el framework/lenguaje (Python, TypeScript, JavaScript) y exportar rutas, extensiones, patrones de complejidad y excepciones.
 - **Configuración de Stack Manual (`stack.env`)**: Opción de override manual a través de `.agents/context/stack.env` para evitar falsos positivos en proyectos híbridos o con tooling mixto.
+- **Gestión de `.gitignore` en la Instalación**: Creado el template `templates/.gitignore-agent-os` y modificado `install.sh` para incorporar de manera automatizada las exclusiones de archivos generados, de sincronización y del session lock en el proyecto destino.
 
 ### Modificado
+- `scripts/agent/install.sh`: Modificado para verificar la existencia del marcador de Agent OS e inyectar el bloque de exclusiones de forma no destructiva si no existe.
 - `scripts/agent/inventory-check.sh`: Refactorizado para usar variables y arrays dinámicos de stack, y salida limpia con código `0` en proyectos vacíos.
 - `scripts/agent/generate-digest.sh`: Refactorizado para etiquetar código e indexar extensiones de forma dinámica basándose en el stack del proyecto.
 
