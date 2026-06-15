@@ -41,6 +41,17 @@ bash scripts/agent/close-sprint.sh --auto
 - Si `check-session.sh` devuelve un JSON → hay una sesión anterior sin cerrar. Ejecutar el **Modo Rescate** de `/session-start` antes de continuar.
 - `close-sprint.sh --auto` detecta y archiva en `docs/sprints/_archived/` cualquier sprint cuyo estado sea `✅ Completado`. Si no hay ninguno, continúa sin error.
 
+### 1b. Verificación de actualización del core (offline)
+
+Antes de continuar con la lectura de estado:
+1. Comprobar si existe el archivo `.agents/context/last-sync.md`.
+2. Si el archivo **NO existe** o si la fecha registrada en él es de hace **más de 7 días** respecto a la fecha actual:
+   * Recomendar explícitamente al usuario ejecutar la sincronización del core de Agent OS ejecutando:
+     ```bash
+     bash scripts/agent/sync.sh .
+     ```
+   * Esto garantiza que el agente trabaje con la última versión de los scripts, reglas y habilidades globales.
+
 ### 2. Lectura de estado (con script — no navegación manual)
 
 Ejecutar:
