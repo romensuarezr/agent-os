@@ -31,125 +31,172 @@ if [ "$1" == "--apply" ]; then
     echo "📖 Leyendo propuestas de $AUDIT_FILE..."
     
     applied_changes=0
+    mkdir -p docs
 
-    # 1. Renombrar archivos de casing incorrecto
-    if grep -q "\- \[ \] Renombrar ROADMAP.md a roadmap.md" "$AUDIT_FILE"; then
+    # 1. Renombrar archivos de casing incorrecto en la raíz
+    if grep -q "\- \[ \] Renombrar ROADMAP.md a roadmap.md en la raíz" "$AUDIT_FILE"; then
         if [ -f "ROADMAP.md" ]; then
             git mv ROADMAP.md roadmap.md
-            echo "✅ Renombrado ROADMAP.md a roadmap.md"
+            echo "✅ Renombrado ROADMAP.md a roadmap.md en la raíz"
             applied_changes=$((applied_changes + 1))
         fi
     fi
-    if grep -q "\- \[ \] Renombrar CHANGELOG.md a changelog.md" "$AUDIT_FILE"; then
+    if grep -q "\- \[ \] Renombrar CHANGELOG.md a changelog.md en la raíz" "$AUDIT_FILE"; then
         if [ -f "CHANGELOG.md" ]; then
             git mv CHANGELOG.md changelog.md
-            echo "✅ Renombrado CHANGELOG.md a changelog.md"
+            echo "✅ Renombrado CHANGELOG.md a changelog.md en la raíz"
             applied_changes=$((applied_changes + 1))
         fi
     fi
-    if grep -q "\- \[ \] Renombrar MVP-TRACKER.md a mvp-tracker.md" "$AUDIT_FILE"; then
+
+    # 2. Mover o renombrar mvp-tracker e implemented
+    if grep -q "\- \[ \] Mover mvp-tracker.md de la raíz a docs/mvp-tracker.md" "$AUDIT_FILE"; then
+        if [ -f "mvp-tracker.md" ]; then
+            git mv mvp-tracker.md docs/mvp-tracker.md
+            echo "✅ Movido mvp-tracker.md de la raíz a docs/mvp-tracker.md"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+    if grep -q "\- \[ \] Mover MVP-TRACKER.md de la raíz a docs/mvp-tracker.md" "$AUDIT_FILE"; then
         if [ -f "MVP-TRACKER.md" ]; then
-            git mv MVP-TRACKER.md mvp-tracker.md
-            echo "✅ Renombrado MVP-TRACKER.md a mvp-tracker.md"
+            git mv MVP-TRACKER.md docs/mvp-tracker.md
+            echo "✅ Movido MVP-TRACKER.md de la raíz a docs/mvp-tracker.md"
             applied_changes=$((applied_changes + 1))
         fi
     fi
-    if grep -q "\- \[ \] Renombrar IMPLEMENTED.md a implemented.md" "$AUDIT_FILE"; then
+    if grep -q "\- \[ \] Mover implemented.md de la raíz a docs/implemented.md" "$AUDIT_FILE"; then
+        if [ -f "implemented.md" ]; then
+            git mv implemented.md docs/implemented.md
+            echo "✅ Movido implemented.md de la raíz a docs/implemented.md"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+    if grep -q "\- \[ \] Mover IMPLEMENTED.md de la raíz a docs/implemented.md" "$AUDIT_FILE"; then
         if [ -f "IMPLEMENTED.md" ]; then
-            git mv IMPLEMENTED.md implemented.md
-            echo "✅ Renombrado IMPLEMENTED.md a implemented.md"
+            git mv IMPLEMENTED.md docs/implemented.md
+            echo "✅ Movido IMPLEMENTED.md de la raíz a docs/implemented.md"
             applied_changes=$((applied_changes + 1))
         fi
     fi
 
-    # 2. Mover external-inbox de la raíz a docs/external-inbox/
+    if grep -q "\- \[ \] Renombrar docs/MVP-TRACKER.md a docs/mvp-tracker.md" "$AUDIT_FILE"; then
+        if [ -f "docs/MVP-TRACKER.md" ]; then
+            git mv docs/MVP-TRACKER.md docs/mvp-tracker.md
+            echo "✅ Renombrado docs/MVP-TRACKER.md a docs/mvp-tracker.md"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+    if grep -q "\- \[ \] Renombrar docs/IMPLEMENTED.md a docs/implemented.md" "$AUDIT_FILE"; then
+        if [ -f "docs/IMPLEMENTED.md" ]; then
+            git mv docs/IMPLEMENTED.md docs/implemented.md
+            echo "✅ Renombrado docs/IMPLEMENTED.md a docs/implemented.md"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+
+    # 3. Mover external-inbox de la raíz a docs/external-inbox/
     if grep -q "\- \[ \] Mover external-inbox de la raíz a docs/external-inbox/" "$AUDIT_FILE"; then
-        if [ -d "external-inbox" ]; then
+        inbox_name=""
+        if [ -d "external-inbox" ] || [ -f "external-inbox" ]; then inbox_name="external-inbox"
+        elif [ -d "EXTERNAL-INBOX" ] || [ -f "EXTERNAL-INBOX" ]; then inbox_name="EXTERNAL-INBOX"; fi
+        
+        if [ -n "$inbox_name" ]; then
             mkdir -p docs/external-inbox
-            git mv external-inbox/* docs/external-inbox/ 2>/dev/null || true
-            git rm -rf external-inbox 2>/dev/null || true
-            echo "✅ Movido external-inbox de raíz a docs/external-inbox/"
-            applied_changes=$((applied_changes + 1))
-        elif [ -f "external-inbox" ]; then
-            mkdir -p docs/external-inbox
-            git mv external-inbox docs/external-inbox/external-inbox.md
-            echo "✅ Movido archivo external-inbox de raíz a docs/external-inbox/"
+            if [ -d "$inbox_name" ]; then
+                git mv "$inbox_name"/* docs/external-inbox/ 2>/dev/null || true
+                git rm -rf "$inbox_name" 2>/dev/null || true
+            else
+                git mv "$inbox_name" docs/external-inbox/external-inbox.md
+            fi
+            echo "✅ Movido external-inbox de la raíz a docs/external-inbox/"
             applied_changes=$((applied_changes + 1))
         fi
     fi
 
-    # 3. Migrar MVP-TRACKER.md (añadiendo Peso y TOTAL si faltan)
-    if grep -q "\- \[ \] Migrar MVP-TRACKER.md" "$AUDIT_FILE"; then
-        tracker_file="mvp-tracker.md"
-        [ -f "MVP-TRACKER.md" ] && tracker_file="MVP-TRACKER.md"
+    # 4. Migrar formato del tracker
+    if grep -q "\- \[ \] Migrar el archivo .* para incorporar columnas estándar" "$AUDIT_FILE"; then
+        tracker_file=""
+        if [ -f "docs/mvp-tracker.md" ]; then tracker_file="docs/mvp-tracker.md"
+        elif [ -f "docs/MVP-TRACKER.md" ]; then tracker_file="docs/MVP-TRACKER.md"
+        elif [ -f "mvp-tracker.md" ]; then tracker_file="mvp-tracker.md"
+        elif [ -f "MVP-TRACKER.md" ]; then tracker_file="MVP-TRACKER.md"; fi
         
-        if [ -f "$tracker_file" ]; then
-            # Crear copia temporal
+        if [ -n "$tracker_file" ] && [ -f "$tracker_file" ]; then
             tmp_tracker=$(mktemp)
-            has_peso=$(grep -i "peso" "$tracker_file")
+            has_peso=$(grep -i "peso" "$tracker_file" || true)
             
             if [ -z "$has_peso" ]; then
-                # Añadir columna Peso y fila TOTAL
                 echo "⚙️ Migrando formato de $tracker_file..."
                 
-                # Procesar línea a línea para insertar columna Peso
+                in_capacidades_table=false
                 while IFS= read -r line || [ -n "$line" ]; do
-                    if echo "$line" | grep -q "ID.*Capacidad.*Estado"; then
-                        # Cabecera de la tabla
-                        echo "| ID | Capacidad | Peso | Estado |" >> "$tmp_tracker"
-                    elif echo "$line" | grep -q "\-\-\-.*|.*\-\-\-"; then
-                        # Separador de cabecera
-                        echo "| --- | --- | --- | --- |" >> "$tmp_tracker"
-                    elif echo "$line" | grep -q "^|"; then
-                        # Fila de tabla
-                        if echo "$line" | grep -q "TOTAL"; then
-                            # Saltar la fila TOTAL si ya existiera en otro formato
-                            continue
+                    if echo "$line" | grep -q "ID.*Capacidad"; then
+                        in_capacidades_table=true
+                        if echo "$line" | grep -q "Criterios"; then
+                            echo "| ID | Capacidad | Peso | Estado | Avance% | Criterios de Done para MVP |" >> "$tmp_tracker"
                         else
-                            # Insertar columna Peso vacía (entre Capacidad y Estado)
-                            # Suponemos formato: | ID | Capacidad | Estado | ...
-                            id_val=$(echo "$line" | cut -d'|' -f2)
-                            cap_val=$(echo "$line" | cut -d'|' -f3)
-                            est_val=$(echo "$line" | cut -d'|' -f4)
-                            echo "|${id_val}|${cap_val}| |${est_val}|" >> "$tmp_tracker"
+                            echo "| ID | Capacidad | Peso | Estado | Avance% |" >> "$tmp_tracker"
+                        fi
+                    elif echo "$line" | grep -q "^## "; then
+                        in_capacidades_table=false
+                        echo "$line" >> "$tmp_tracker"
+                    elif echo "$line" | grep -q "\-\-\-.*|.*\-\-\-"; then
+                        if $in_capacidades_table; then
+                            cols=$(echo "$line" | tr -cd '|' | wc -c)
+                            if [ "$cols" -eq 7 ]; then
+                                echo "|---|---|---|---|---|---|" >> "$tmp_tracker"
+                            else
+                                echo "|---|---|---|---|---|---|---|---|---|---|" >> "$tmp_tracker"
+                            fi
+                        else
+                            echo "$line" >> "$tmp_tracker"
+                        fi
+                    elif echo "$line" | grep -q "^|"; then
+                        if $in_capacidades_table; then
+                            if echo "$line" | grep -q "TOTAL"; then
+                                continue
+                            else
+                                id_val=$(echo "$line" | cut -d'|' -f2)
+                                cap_val=$(echo "$line" | cut -d'|' -f3)
+                                pct_val=$(echo "$line" | cut -d'|' -f4 | tr -d '% ')
+                                crit_val=$(echo "$line" | cut -d'|' -f5)
+                                
+                                echo "|${id_val}|${cap_val}| 100 | 🔴 | ${pct_val:-0} |${crit_val:-}|" >> "$tmp_tracker"
+                            fi
+                        else
+                            echo "$line" >> "$tmp_tracker"
                         fi
                     else
+                        in_capacidades_table=false
                         echo "$line" >> "$tmp_tracker"
                     fi
                 done < "$tracker_file"
                 
-                # Añadir fila TOTAL antes de la sección de historial si no existe
-                # Buscamos la última fila de la tabla
-                # Para simplificar, insertamos la fila TOTAL al final del archivo antes de ## Historial
                 if ! grep -q "TOTAL" "$tmp_tracker"; then
-                    # Encontrar línea de ## Historial
                     hist_line=$(grep -n "## Historial" "$tmp_tracker" | cut -d':' -f1)
                     if [ -n "$hist_line" ]; then
-                        # Insertar fila TOTAL justo antes de ## Historial
-                        sed -i "${hist_line}i | **TOTAL** | | | | \n" "$tmp_tracker"
+                        sed -i "${hist_line}i | **TOTAL** | | **100** | | **0%** | | |\n" "$tmp_tracker"
                     else
-                        echo -e "\n| **TOTAL** | | | |\n" >> "$tmp_tracker"
+                        echo -e "\n| **TOTAL** | | **100** | | **0%** | | |\n" >> "$tmp_tracker"
                     fi
                 fi
                 
                 cat "$tmp_tracker" > "$tracker_file"
                 rm -f "$tmp_tracker"
-                echo "✅ Formato de MVP-TRACKER.md actualizado con columna Peso y fila TOTAL."
+                echo "✅ Formato de $tracker_file actualizado con columnas estándar (Peso) y fila TOTAL."
                 applied_changes=$((applied_changes + 1))
             fi
         fi
     fi
 
-    # 4. Crear docs/sprints/sprint-00-historical.md
+    # 5. Crear docs/sprints/sprint-00-historical.md
     if grep -q "\- \[ \] Crear docs/sprints/sprint-00-historical.md" "$AUDIT_FILE"; then
         mkdir -p docs/sprints
         sprint_file="docs/sprints/sprint-00-historical.md"
         
-        # Extraer la sección del Sprint-00 propuesta en el audit
         echo "# Sprint 00: Histórico de Desarrollo" > "$sprint_file"
         echo -e "\n## Tareas Completadas (Extraídas del historial de Git)\n" >> "$sprint_file"
         
-        # Leer líneas del audit a partir de la sección Sprint-00
         in_sprint_section=false
         while IFS= read -r line || [ -n "$line" ]; do
             if [[ "$line" == "## Sprint-00 sugerido" ]]; then
@@ -158,7 +205,6 @@ if [ "$1" == "--apply" ]; then
             fi
             if $in_sprint_section; then
                 if [[ "$line" == "## "* ]]; then
-                    # Si empieza otra sección principal, paramos
                     break
                 fi
                 echo "$line" >> "$sprint_file"
@@ -170,7 +216,7 @@ if [ "$1" == "--apply" ]; then
         applied_changes=$((applied_changes + 1))
     fi
 
-    # 5. Actualizar ROADMAP.md con secciones requeridas
+    # 6. Actualizar roadmap.md con secciones requeridas
     if grep -q "\- \[ \] Añadir secciones requeridas a roadmap.md" "$AUDIT_FILE"; then
         roadmap_file="roadmap.md"
         [ -f "ROADMAP.md" ] && roadmap_file="ROADMAP.md"
@@ -182,13 +228,12 @@ if [ "$1" == "--apply" ]; then
                     echo -e "\n$sec\n- [ ] Tareas iniciales por categorizar" >> "$roadmap_file"
                 fi
             done
-            echo "✅ ROADMAP.md actualizado con secciones estándar."
+            echo "✅ roadmap.md actualizado con secciones estándar."
             applied_changes=$((applied_changes + 1))
         fi
     fi
 
     if [ $applied_changes -gt 0 ]; then
-        # Agregar todos los cambios y hacer commit
         git add -A
         git commit -m "chore(agent-os): apply audit adaptations to existing repo"
         echo "🎉 Adaptaciones de Agent OS aplicadas y confirmadas en Git."
@@ -208,50 +253,70 @@ incompatibilidades=""
 propuestas=""
 sprint_sugerido=""
 
-# 1. Comprobar existencia y casing de archivos clave
-for file in "roadmap.md" "changelog.md" "mvp-tracker.md" "implemented.md"; do
-    # Buscar de forma insensible a mayúsculas
+# 1. Comprobar existencia y casing de archivos clave en la raíz
+for file in "roadmap.md" "changelog.md"; do
     real_file=$(find . -maxdepth 1 -iname "$file" | head -n 1 | sed 's|^\./||')
     if [ -n "$real_file" ]; then
         if [ "$real_file" != "$file" ]; then
-            incompatibilidades+="- ⚠️ Archivo clave con casing incorrecto: \`$real_file\` (debería ser \`$file\`)\n"
-            # Generar propuesta exacta
-            upper_name=$(echo "$file" | tr '[:lower:]' '[:upper:]')
-            propuestas+="- [ ] Renombrar $real_file a $file\n"
+            incompatibilidades+="- ⚠️ Archivo clave con casing incorrecto en la raíz: \`$real_file\` (debería ser \`$file\`)\n"
+            propuestas+="- [ ] Renombrar $real_file a $file en la raíz\n"
         fi
-    else
-        # Si no existe, los scripts lo crearán o el roadmap-a-tarea lo requerirá, no es un error de casing
-        true
     fi
 done
 
-# 2. Comprobar ubicación de external-inbox
+# 2. Comprobar existencia, ubicación y casing de mvp-tracker.md e implemented.md
+for file in "mvp-tracker.md" "implemented.md"; do
+    in_root=$(find . -maxdepth 1 -iname "$file" | head -n 1 | sed 's|^\./||')
+    in_docs=""
+    if [ -d "docs" ]; then
+        in_docs=$(find docs -maxdepth 1 -iname "$file" | head -n 1)
+    fi
+
+    if [ -n "$in_root" ]; then
+        incompatibilidades+="- ⚠️ Archivo \`$in_root\` en la raíz (debería estar en \`docs/$file\`)\n"
+        propuestas+="- [ ] Mover $in_root de la raíz a docs/$file\n"
+    elif [ -n "$in_docs" ]; then
+        filename=$(basename "$in_docs")
+        if [ "$filename" != "$file" ]; then
+            incompatibilidades+="- ⚠️ Archivo en docs/ con casing incorrecto: \`$in_docs\` (debería ser \`docs/$file\`)\n"
+            propuestas+="- [ ] Renombrar $in_docs a docs/$file\n"
+        fi
+    fi
+done
+
+# 3. Comprobar ubicación de external-inbox
 if [ -d "external-inbox" ] || [ -f "external-inbox" ]; then
     incompatibilidades+="- ⚠️ El directorio/archivo \`external-inbox\` está en la raíz (estándar de Agent OS requiere que esté en \`docs/external-inbox/\`)\n"
     propuestas+="- [ ] Mover external-inbox de la raíz a docs/external-inbox/\n"
 elif [ ! -d "docs/external-inbox" ]; then
-    # No existe en ningún sitio, proponer crear la estructura
     propuestas+="- [ ] Crear carpeta vacía docs/external-inbox/\n"
 fi
 
-# 3. Validar estructura de MVP-TRACKER.md
+# 4. Validar estructura del MVP Tracker usando find_tracker
 tracker_file=""
-if [ -f "mvp-tracker.md" ]; then
-    tracker_file="mvp-tracker.md"
-elif [ -f "MVP-TRACKER.md" ]; then
-    tracker_file="MVP-TRACKER.md"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/find-tracker.sh" ]; then
+    source "$SCRIPT_DIR/lib/find-tracker.sh"
+    tracker_file=$(find_tracker "$PROJECT_ROOT")
 fi
 
-if [ -n "$tracker_file" ]; then
-    has_peso=$(grep -i "peso" "$tracker_file")
+if [ -z "$tracker_file" ]; then
+    if [ -f "mvp-tracker.md" ]; then tracker_file="mvp-tracker.md"
+    elif [ -f "MVP-TRACKER.md" ]; then tracker_file="MVP-TRACKER.md"
+    elif [ -f "docs/mvp-tracker.md" ]; then tracker_file="docs/mvp-tracker.md"
+    elif [ -f "docs/MVP-TRACKER.md" ]; then tracker_file="docs/MVP-TRACKER.md"; fi
+fi
+
+if [ -n "$tracker_file" ] && [ -f "$tracker_file" ]; then
+    has_peso=$(grep -i "peso" "$tracker_file" || true)
     has_total=$(grep -q "TOTAL" "$tracker_file"; echo $?)
     if [ -z "$has_peso" ] || [ $has_total -ne 0 ]; then
         incompatibilidades+="- ⚠️ Estructura de \`$tracker_file\` desactualizada (falta columna 'Peso' o fila 'TOTAL')\n"
-        propuestas+="- [ ] Migrar MVP-TRACKER.md para incorporar columnas estándar y fila de control de sumas\n"
+        propuestas+="- [ ] Migrar el archivo $tracker_file para incorporar columnas estándar y fila de control de sumas\n"
     fi
 fi
 
-# 4. Comprobar secciones en roadmap.md
+# 5. Comprobar secciones en roadmap.md
 roadmap_file=""
 if [ -f "roadmap.md" ]; then
     roadmap_file="roadmap.md"
@@ -272,24 +337,17 @@ if [ -n "$roadmap_file" ]; then
     fi
 fi
 
-# 5. Analizar git log para sugerir sprint-00-historical.md
+# 6. Analizar git log para sugerir sprint-00-historical.md
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     sprint_sugerido+="\n### Agrupación semanal de commits históricos\n\n"
     
-    # Procesar commits (hasta 100) agrupándolos por número de semana
-    # Usamos date -d para agrupar
-    # Formato intermedio: semana | hash | subject
     current_week=""
-    
-    # Creamos un archivo temporal para procesar
     tmp_log=$(mktemp)
     git log --date=short --format="%ad|%h|%s" -100 > "$tmp_log"
     
     while IFS='|' read -r date hash subject || [ -n "$date" ]; do
-        # Saltar si la línea está vacía
         [ -z "$date" ] && continue
         
-        # Convertir fecha a semana
         week_num=$(date -d "$date" +%Y-W%V 2>/dev/null)
         [ -z "$week_num" ] && continue
         
@@ -298,14 +356,12 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             sprint_sugerido+="\n#### Semana $current_week\n"
         fi
         
-        # Eliminar posibles corchetes o caracteres extraños que rompan markdown
         clean_subject=$(echo "$subject" | sed 's/|/\\|/g')
         sprint_sugerido+="- [x] Commit \`$hash\` ($date): $clean_subject\n"
     done < "$tmp_log"
     
     rm -f "$tmp_log"
     
-    # Añadir propuesta de creación si hay commits históricos
     if [ -n "$sprint_sugerido" ]; then
         propuestas+="- [ ] Crear docs/sprints/sprint-00-historical.md con los commits agrupados por semana\n"
     fi

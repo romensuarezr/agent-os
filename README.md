@@ -7,20 +7,33 @@ Este repositorio contiene las reglas, skills y workflows universales que compart
 
 ## Estructura
 - `.agents/rules/global/`: Reglas de comportamiento y estándares de ingeniería universales.
-- `.agents/skills/global/`: Habilidades transversales (auditoría, planificación).
+- `.agents/skills/`: Habilidades transversales (auditoría, planificación, onboarding).
 - `.agents/workflows/`: Plantillas para el ciclo de vida de las sesiones y sprints.
-- `.agents/templates/`: Estructuras base para nuevos proyectos (onboarding, DoD).
+- `scripts/agent/`: Scripts del núcleo para instalación, sincronización y auditoría.
 
 ## Cómo Usar
-Para instalar este sistema en un nuevo repositorio, usa el script `install.sh` (próximamente):
+
+### 1. Inicialización en Proyecto Nuevo
+Para instalar este sistema en un nuevo repositorio vacío:
 ```bash
-bash install.sh /ruta/al/proyecto
+bash scripts/agent/install.sh /ruta/al/proyecto
 ```
 
-Para sincronizar actualizaciones:
+### 2. Onboarding en Proyecto Existente (Con Vida Previa)
+Si el repositorio ya tiene desarrollo, commits e historial, ejecuta la auditoría inteligente en modo de detección:
 ```bash
-bash sync.sh /ruta/al/proyecto
+# Fase 1: Detección (Solo lectura, genera docs/agent-os-audit.md)
+bash /ruta/a/agent-os/scripts/agent/audit-repo.sh
+
+# Fase 2: Aplicación (Aplica renames, migra trackers y crea sprint-00)
+bash /ruta/a/agent-os/scripts/agent/audit-repo.sh --apply
+```
+
+### 3. Sincronización de Actualizaciones
+Para propagar mejoras del núcleo de `agent-os` a un proyecto ya configurado:
+```bash
+bash scripts/agent/sync.sh /ruta/al/proyecto
 ```
 
 ---
-*Core version: 1.0*
+*Core version: 1.1*
