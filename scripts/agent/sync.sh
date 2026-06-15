@@ -39,6 +39,17 @@ for rule in "$AGENT_OS_RULES"/*.md; do
     echo "    [sync] $filename"
 done
 
+if [ -d "$TARGET_PROJECT/.agents/workflows" ]; then
+    echo "  Sincronizando workflows..."
+    AGENT_OS_WORKFLOWS="$AGENT_OS_PATH/.agents/workflows"
+    TARGET_WORKFLOWS="$TARGET_PROJECT/.agents/workflows"
+    for wf in "$AGENT_OS_WORKFLOWS"/*.md; do
+        filename=$(basename "$wf")
+        cp -n "$wf" "$TARGET_WORKFLOWS/$filename"
+        echo "    [sync] $filename"
+    done
+fi
+
 if [ -d "$TARGET_SCRIPTS" ]; then
     echo "  Sincronizando scripts..."
     for script in "$AGENT_OS_SCRIPTS"/*.sh; do
