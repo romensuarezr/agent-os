@@ -4,7 +4,7 @@
 # Ejemplo: bash scripts/agent/generate-digest.sh --filter src/components/propuestas
 #
 # Formato de nombre del digest:
-#   kanarii_YYYYMMDD_<rama>_<sha7>_<slug-del-commit>.txt
+#   [project-name]_YYYYMMDD_<rama>_<sha7>_<slug-del-commit>.txt
 #   Ejemplo: kanarii_20260529_main_a3f7c2b_fix-auth-roles.txt
 #
 # Salida: docs/llm-context/<nombre>.txt
@@ -15,8 +15,16 @@ set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 OUT_DIR="$ROOT/docs/llm-context"
-FILTER="src"
-EXCLUDE_PATTERNS=("*.test.*" "*.spec.*" "*.stories.*")
+
+# Cargar biblioteca de detección de stack
+source "$(dirname "$0")/lib/detect-stack.sh"
+detect_stack "$ROOT"
+
+FILTER="${SRC_DIR#$ROOT/}"
+# Quitar barras al inicio si quedan
+FILTER="${FILTER#/}"
+
+EXCLUDE_PATTERNS=("${DIGEST_EXCLUDE[@]}")
 
 # ── Parsear argumentos ────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -48,7 +56,7 @@ COMMIT_SLUG=$(echo "$COMMIT_MSG" | tr '[:upper:]' '[:lower:]' \
   | sed 's/^-//;s/-$//' \
   | cut -c1-40)
 
-FILENAME="kanarii_${DATE}_${BRANCH}_${SHA}_${COMMIT_SLUG}.txt"
+FILENAME="${PROJECT_NAME}_${DATE}_${BRANCH}_${SHA}_${COMMIT_SLUG}.txt"
 mkdir -p "$OUT_DIR"
 OUT_FILE="$OUT_DIR/$FILENAME"
 
@@ -87,8 +95,8 @@ fi
 
 # ── Fallback local: árbol + contenido filtrado ───────────────────────────────
 TARGET_PATH="$ROOT/$FILTER"
-if [ ! -d "$TARGET_PATH" ]; then
-  echo "❌ Directorio no encontrado: $TARGET_PATH"
+if [ ! -d "$TARGET_PATH" ] && [ ! -f "$TARGET_PATH" ]; then
+  echo "❌ Directorio o archivo no encontrado: $TARGET_PATH"
   exit 1
 fi
 
@@ -109,25 +117,35 @@ done
   echo ""
   echo "## Directory Structure"
   echo '```'
-  find "$TARGET_PATH" -type f \( -name "*.ts" -o -name "*.tsx" \) \
-    "${FIND_EXCLUDES[@]}" 2>/dev/null \
-    | sed "s|$ROOT/||" | sort
+  if [ -f "$TARGET_PATH" ]; then
+    echo "$FILTER"
+  else
+    find "$TARGET_PATH" -type f \( "${CODE_EXTS_FIND[@]}" \) \
+      "${FIND_EXCLUDES[@]}" 2>/dev/null \
+      | sed "s|$ROOT/||" | sort
+  fi
   echo '```'
   echo ""
   echo "## File Contents"
-  find "$TARGET_PATH" -type f \( -name "*.ts" -o -name "*.tsx" \) \
-    "${FIND_EXCLUDES[@]}" 2>/dev/null | sort | while IFS= read -r f; do
-    REL="${f#$ROOT/}"
+  if [ -f "$TARGET_PATH" ]; then
     echo ""
-    echo "### $REL"
-    echo '```typescript'
-    cat "$f"
-    echo '```'
-  done
+    echo "### $FILTER"
+    echo "\`\`\`${DIGEST_LANG}"
+    cat "$TARGET_PATH"
+    echo "\`\`\`"
+  else
+    find "$TARGET_PATH" -type f \( "${CODE_EXTS_FIND[@]}" \) \
+      "${FIND_EXCLUDES[@]}" 2>/dev/null | sort | while IFS= read -r f; do
+      REL="${f#$ROOT/}"
+      echo ""
+      echo "### $REL"
+      echo "\`\`\`${DIGEST_LANG}"
+      cat "$f"
+      echo "\`\`\`"
+    done
+  fi
 } > "$OUT_FILE"
 
 TOKEN_ESTIMATE=$(wc -w < "$OUT_FILE" | awk '{printf "%dk", $1/750}')
 echo "✅ Digest local generado: $FILENAME (~$TOKEN_ESTIMATE tokens estimados)"
-echo "   Ruta: $OUT_FILE"
-ados)"
 echo "   Ruta: $OUT_FILE"

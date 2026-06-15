@@ -79,3 +79,21 @@ El archivo `sprint-00-historical.md` tiene como objetivo encapsular el trabajo p
 
 *   **Peligro de pérdida de datos**: El script utiliza `git mv` para renombrar archivos. Si hay conflictos con archivos no rastreados con nombres similares, Git podría presentar advertencias. Trabaja siempre sobre una rama limpia y aislada.
 *   **Colaboración en Equipo**: Si otros desarrolladores están trabajando en el mismo repositorio, la migración de casing (mayúsculas a minúsculas) puede ocasionar conflictos de Git en sistemas operativos que no distinguen mayúsculas de minúsculas de forma nativa (como macOS o Windows con sistemas de archivos por defecto). Advierte al usuario sobre esto antes de aplicar.
+
+---
+
+## ⚙️ Configuración del Stack Tecnológico (Override)
+
+Los scripts del núcleo de Agent OS (`inventory-check.sh`, `generate-digest.sh`) autodetectan el stack del proyecto (Python, TypeScript, JavaScript) basándose en la presencia de archivos clave como `pyproject.toml`, `requirements.txt`, `tsconfig.json` o `package.json`.
+
+### Cómo forzar un Stack
+Si trabajas en un proyecto híbrido o con una estructura no estándar que confunde a la autodetección, puedes forzar el stack del proyecto de forma manual:
+
+1. Crea el archivo de configuración `.agents/context/stack.env` en la raíz del proyecto destino.
+2. Define la variable `AGENT_OS_STACK` con uno de los siguientes valores:
+   ```env
+   # Valores válidos: python | typescript | javascript
+   AGENT_OS_STACK="python"
+   ```
+
+Esto saltará las heurísticas de detección y aplicará las variables, rutas y extensiones correctas para ese stack en particular de forma inmediata.

@@ -23,18 +23,32 @@ if [ -z "$KEYWORDS" ]; then
   exit 1
 fi
 
+# Cargar biblioteca de detección de stack
+source "$(dirname "$0")/lib/detect-stack.sh"
+detect_stack "$ROOT"
+
+# Salvaguarda: si el directorio de código no existe, salir limpio con 0
+if [ ! -d "$SRC_DIR" ]; then
+  echo "=== INVENTORY CHECK ==="
+  echo "Palabras clave: $KEYWORDS"
+  echo "⚠️  El directorio de código '$SRC_DIR' no existe en este proyecto."
+  echo "✅ Sin coincidencias. Puedes describir la tarea desde cero."
+  echo "=== FIN INVENTORY CHECK ==="
+  exit 0
+fi
+
 echo "=== INVENTORY CHECK ==="
 echo "Palabras clave: $KEYWORDS"
-echo "Directorio: $ROOT/src"
+echo "Directorio: $SRC_DIR"
 echo ""
 
 FOUND_COUNT=0
 ALL_MATCHES=""
 
-# 1. Buscar archivos cuyo NOMBRE contiene alguna keyword (más barato que grep de contenido)
+# 1. Buscar archivos cuyo NOMBRE contiene alguna keyword
 echo "📁 Archivos cuyo nombre coincide:"
 for keyword in $KEYWORDS; do
-  MATCHES=$(find "$ROOT/src" -type f \( -name "*.ts" -o -name "*.tsx" \) \
+  MATCHES=$(find "$SRC_DIR" -type f \( "${CODE_EXTS_FIND[@]}" \) \
     -iname "*${keyword}*" 2>/dev/null | head -5 || true)
   if [ -n "$MATCHES" ]; then
     while IFS= read -r f; do
@@ -53,7 +67,7 @@ done
 echo ""
 echo "🔍 Archivos que contienen las keywords en su código:"
 for keyword in $KEYWORDS; do
-  MATCHES=$(grep -rl -i "$keyword" "$ROOT/src" --include="*.ts" --include="*.tsx" \
+  MATCHES=$(grep -rl -i "$keyword" "$SRC_DIR" "${CODE_EXTS_GREP[@]}" \
     2>/dev/null | head -5 || true)
   if [ -n "$MATCHES" ]; then
     echo "  '$keyword':"
@@ -68,32 +82,35 @@ for keyword in $KEYWORDS; do
   fi
 done
 
-# 3. Buscar interfaces/tipos en archivos _types.ts
+# 3. Buscar interfaces/tipos en archivos de definición/datos
 echo ""
-echo "📄 Tipos relacionados en archivos _types.ts:"
-TYPES_FILES=$(find "$ROOT/src" -name "_types.ts" 2>/dev/null || true)
-if [ -n "$TYPES_FILES" ]; then
-  for TYPES_FILE in $TYPES_FILES; do
-    for keyword in $KEYWORDS; do
-      MATCHES=$(grep -i "$keyword" "$TYPES_FILE" 2>/dev/null | head -3 || true)
-      if [ -n "$MATCHES" ]; then
-        echo "  '$keyword' en $(basename "$TYPES_FILE"):"
-        echo "$MATCHES" | sed 's|^|    ↳ |'
-        FOUND_COUNT=$((FOUND_COUNT + 1))
-        ALL_MATCHES="$ALL_MATCHES\n$TYPES_FILE"
-      fi
+echo "📄 Tipos/modelos relacionados:"
+found_types_files=0
+for pat in "${TYPES_PATTERNS[@]}"; do
+  TYPES_FILES=$(find "$SRC_DIR" -name "$pat" 2>/dev/null || true)
+  if [ -n "$TYPES_FILES" ]; then
+    found_types_files=1
+    for TYPES_FILE in $TYPES_FILES; do
+      for keyword in $KEYWORDS; do
+        MATCHES=$(grep -i "$keyword" "$TYPES_FILE" 2>/dev/null | head -3 || true)
+        if [ -n "$MATCHES" ]; then
+          echo "  '$keyword' en $(basename "$TYPES_FILE"):"
+          echo "$MATCHES" | sed 's|^|    ↳ |'
+          FOUND_COUNT=$((FOUND_COUNT + 1))
+          ALL_MATCHES="$ALL_MATCHES\n$TYPES_FILE"
+        fi
+      done
     done
-  done
-else
-  echo "    (sin archivos _types.ts encontrados)"
-fi
+  fi
+done
+[ $found_types_files -eq 0 ] && echo "    (sin archivos de definición de datos/tipos)"
 
-# 4. Hooks relacionados
+# 4. Servicios/Hooks relacionados
 echo ""
-echo "🪝 Hooks relacionados en src/hooks:"
-if [ -d "$ROOT/src/hooks" ]; then
+echo "🪝 $SERVICES_LABEL:"
+if [ -d "$SERVICES_DIR" ]; then
   KEYWORD_PATTERN=$(echo "$KEYWORDS" | tr ' ' '\|')
-  MATCHES=$(grep -rl -i "$KEYWORD_PATTERN" "$ROOT/src/hooks" --include="*.ts" \
+  MATCHES=$(grep -rl -i "$KEYWORD_PATTERN" "$SERVICES_DIR" "${CODE_EXTS_GREP[@]}" \
     2>/dev/null | head -5 || true)
   if [ -n "$MATCHES" ]; then
     echo "$MATCHES" | sed "s|$ROOT/||" | sed 's|^|    ↳ |'
@@ -103,7 +120,7 @@ if [ -d "$ROOT/src/hooks" ]; then
     echo "    (ninguno)"
   fi
 else
-  echo "    (src/hooks no existe)"
+  echo "    ($SERVICES_DIR no existe)"
 fi
 
 echo ""
@@ -115,15 +132,15 @@ echo ""
 # 1. Archivos únicos detectados
 UNIQUE_FILES=$(printf "%b" "$ALL_MATCHES" | grep -v '^$' | sort -u | grep -c . 2>/dev/null || echo 0)
 
-# 2. Capas distintas afectadas (componentes, hooks, tipos)
+# 2. Capas distintas afectadas
 LAYERS=0
-printf "%b" "$ALL_MATCHES" | grep -qi "\.tsx\|component" && LAYERS=$((LAYERS + 1)) || true
-printf "%b" "$ALL_MATCHES" | grep -qi "use[A-Z]\|hook" && LAYERS=$((LAYERS + 1)) || true
-printf "%b" "$ALL_MATCHES" | grep -qi "_types\|interface\|type " && LAYERS=$((LAYERS + 1)) || true
+for layer_pat in "${COMPLEXITY_LAYERS[@]}"; do
+  printf "%b" "$ALL_MATCHES" | grep -qi "$layer_pat" && LAYERS=$((LAYERS + 1)) || true
+done
 
 # 3. Subcarpeta caliente (>=2 archivos en la misma ruta de 2 niveles)
 HOT_FOLDER=$(printf "%b" "$ALL_MATCHES" | grep -v '^$' \
-  | grep -oP "src/[^/]+/[^/]+" 2>/dev/null \
+  | grep -oE "$HOT_FOLDER_REGEX" 2>/dev/null \
   | sort | uniq -c | sort -rn \
   | awk '$1 >= 2 {print $2; exit}' || echo "")
 
@@ -135,21 +152,22 @@ SIGNAL=0
 
 echo "=== EVALUACIÓN DE COMPLEJIDAD ==="
 echo "  Archivos únicos:  $UNIQUE_FILES"
-echo "  Capas afectadas:  $LAYERS / 3 (componentes / hooks / tipos)"
+echo "  Capas afectadas:  $LAYERS / ${#COMPLEXITY_LAYERS[@]} ($COMPLEXITY_LABELS)"
 echo "  Carpeta caliente: ${HOT_FOLDER:-(ninguna)}"
 echo "  Señal total:      $SIGNAL / 3"
 echo ""
 
 if [ "$SIGNAL" -ge 2 ]; then
   echo "⚠️  Señal de complejidad alta. Generando digest de contexto compacto..."
-  DIGEST_FILTER="${HOT_FOLDER:-src}"
+  DIGEST_FILTER="${HOT_FOLDER:-$SRC_DIR}"
   EXCLUDE_OPTS=""
-  if [ "$DIGEST_FILTER" = "src" ]; then
-    echo "   (sin subcarpeta clara → digest de src/ excluyendo tests y stories)"
-    EXCLUDE_OPTS="--exclude-pattern '*.test.* *.spec.* *.stories.*'"
+  if [ "$DIGEST_FILTER" = "$SRC_DIR" ]; then
+    echo "   (sin subcarpeta clara → digest de $SRC_DIR excluyendo ficheros del stack)"
+    # Expandir los patrones de exclusión de digest
+    EXCLUDE_OPTS="--exclude-pattern $(echo "${DIGEST_EXCLUDE[@]}")"
   fi
   echo ""
-  bash "$(dirname "$0")/generate-digest.sh" --filter "$DIGEST_FILTER" $EXCLUDE_OPTS
+  bash "$(dirname "$0")/generate-digest.sh" --filter "${DIGEST_FILTER#$ROOT/}" $EXCLUDE_OPTS
   echo ""
   echo "💡 Usa el digest para redactar '## Código existente detectado' en el task file."
   echo "   El test -f en session-start sigue siendo el firewall determinista final."
