@@ -41,9 +41,23 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/find-tracker.sh" ]; then
+  source "$SCRIPT_DIR/lib/find-tracker.sh"
+else
+  echo "❌ No se encuentra el helper lib/find-tracker.sh"
+  exit 1
+fi
+
 ROOT="$(git rev-parse --show-toplevel)"
 SRC="$ROOT/src"
-TRACKER="$ROOT/docs/MVP-TRACKER.md"
+TRACKER="$(find_tracker "$ROOT")"
+
+if [ -z "$TRACKER" ]; then
+  # Por defecto si no existe ninguno
+  TRACKER="$ROOT/docs/mvp-tracker.md"
+fi
+
 DIGEST_SCRIPT="$ROOT/scripts/agent/generate-digest.sh"
 MODE="fast"
 

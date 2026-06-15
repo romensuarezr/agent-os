@@ -69,16 +69,44 @@ fi
 # 6. Copiar scripts (sin sobreescribir)
 if [ -d "$AGENT_OS_PATH/scripts/agent" ]; then
     cp -n "$AGENT_OS_PATH/scripts/agent"/*.sh "$TARGET_SCRIPTS/"
-    chmod +x "$TARGET_SCRIPTS"/*.sh
+    cp -rn "$AGENT_OS_PATH/scripts/agent/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
+    chmod +x "$TARGET_SCRIPTS"/*.sh 2>/dev/null || true
+    chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
     echo "✅ Scripts de agente instalados (sin sobreescribir)."
 fi
 
-# 7. Copiar templates de documentos (sin sobreescribir)
+# 7. Copiar templates de documentos en docs (sin sobreescribir)
 if [ -d "$AGENT_OS_TEMPLATES" ]; then
-    # Copiar recursivamente sin sobreescribir archivos existentes
-    # Usamos un truco con cp -n y subcarpetas
-    cp -rn "$AGENT_OS_TEMPLATES/"* "$TARGET_PROJECT/docs/"
-    echo "✅ Templates de documentación instalados (sin sobreescribir)."
+    mkdir -p "$TARGET_PROJECT/docs"
+    for template_path in "$AGENT_OS_TEMPLATES"/*; do
+        if [ -f "$template_path" ]; then
+            filename=$(basename "$template_path")
+            # Buscar en docs/ (casing insensible)
+            existing_docs=$(find "$TARGET_PROJECT/docs" -maxdepth 1 -iname "$filename" 2>/dev/null | head -n 1)
+            # Buscar en la raíz (casing insensible)
+            existing_root=$(find "$TARGET_PROJECT" -maxdepth 1 -iname "$filename" 2>/dev/null | head -n 1)
+            
+            if [ -z "$existing_docs" ] && [ -z "$existing_root" ]; then
+                cp "$template_path" "$TARGET_PROJECT/docs/$filename"
+            fi
+        fi
+    done
+    echo "✅ Templates de documentación en docs/ instalados (sin sobreescribir)."
+fi
+
+# 8. Copiar templates de documentos en la raíz (sin sobreescribir)
+AGENT_OS_ROOT_TEMPLATES="$AGENT_OS_PATH/templates/root"
+if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
+    for template_path in "$AGENT_OS_ROOT_TEMPLATES"/*; do
+        if [ -f "$template_path" ]; then
+            filename=$(basename "$template_path")
+            existing=$(find "$TARGET_PROJECT" -maxdepth 1 -iname "$filename" 2>/dev/null | head -n 1)
+            if [ -z "$existing" ]; then
+                cp "$template_path" "$TARGET_PROJECT/$filename"
+            fi
+        fi
+    done
+    echo "✅ Templates de documentación en la raíz instalados (sin sobreescribir)."
 fi
 
 echo "✨ Instalación de Agent OS completada en $TARGET_PROJECT"

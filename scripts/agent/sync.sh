@@ -47,6 +47,11 @@ if [ -d "$TARGET_SCRIPTS" ]; then
         chmod +x "$TARGET_SCRIPTS/$filename"
         echo "    [sync] $filename"
     done
+    if [ -d "$AGENT_OS_SCRIPTS/lib" ]; then
+        cp -r "$AGENT_OS_SCRIPTS/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
+        chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
+        echo "    [sync] folder: lib"
+    fi
 fi
 
 if [ -d "$AGENT_OS_SKILLS" ]; then
