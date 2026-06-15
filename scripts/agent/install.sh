@@ -138,5 +138,20 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
     echo "✅ Templates de documentación en la raíz instalados (sin sobreescribir)."
 fi
 
+# 9. Configurar .gitignore
+GITIGNORE="$TARGET_PROJECT/.gitignore"
+AGENT_OS_MARKER="# Agent OS — generated context files"
+
+# Crear .gitignore si no existe
+[ ! -f "$GITIGNORE" ] && touch "$GITIGNORE"
+
+if grep -q "$AGENT_OS_MARKER" "$GITIGNORE" 2>/dev/null; then
+    echo "✅ .gitignore ya contiene entradas de Agent OS."
+else
+    echo "" >> "$GITIGNORE"
+    cat "$AGENT_OS_PATH/templates/.gitignore-agent-os" >> "$GITIGNORE"
+    echo "✅ Entradas de Agent OS añadidas a .gitignore."
+fi
+
 echo "✨ Instalación de Agent OS completada en $TARGET_PROJECT"
 echo "💡 Recuerda configurar el AGENT_ONBOARDING.md del proyecto."

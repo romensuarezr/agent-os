@@ -1,0 +1,18 @@
+# Agent OS — generated context files
+
+# Digests LLM — generados bajo demanda, no se versionan
+docs/llm-context/*
+!docs/llm-context/.gitkeep
+!docs/llm-context/README.md
+
+# Estado de sincronización — local de cada máquina
+.agents/context/last-sync.md
+.agents/context/agent-os-changelog.md
+
+# Session lock — nunca commitear con status=open
+# Para forzar reset: editar status a "template" o borrar el archivo
+.agent-session.lock
+
+# External inbox — se trackea la carpeta vacía, no el contenido
+docs/external-inbox/*
+!docs/external-inbox/.gitkeep
