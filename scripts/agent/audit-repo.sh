@@ -33,6 +33,76 @@ if [ "$1" == "--apply" ]; then
     applied_changes=0
     mkdir -p docs
 
+    # Validar ambigüedad en propuestas de migración difusa
+    roadmap_mig_count=$(grep -E "\- \[[ x]\] Migrar y renombrar .* a roadmap.md" "$AUDIT_FILE" | wc -l)
+    if [ "$roadmap_mig_count" -gt 1 ]; then
+        echo "⚠️ AMBIGÜEDAD: Se encontraron $roadmap_mig_count candidatos para roadmap:"
+        grep -E "\- \[[ x]\] Migrar y renombrar .* a roadmap.md" "$AUDIT_FILE" | sed -E 's/- \[[ x]\] Migrar y renombrar (.*) a roadmap.md.*/   - \1/'
+        echo "Edita docs/agent-os-audit.md y deja solo el candidato correcto antes de ejecutar --apply."
+        exit 1
+    fi
+
+    changelog_mig_count=$(grep -E "\- \[[ x]\] Migrar y renombrar .* a changelog.md" "$AUDIT_FILE" | wc -l)
+    if [ "$changelog_mig_count" -gt 1 ]; then
+        echo "⚠️ AMBIGÜEDAD: Se encontraron $changelog_mig_count candidatos para changelog:"
+        grep -E "\- \[[ x]\] Migrar y renombrar .* a changelog.md" "$AUDIT_FILE" | sed -E 's/- \[[ x]\] Migrar y renombrar (.*) a changelog.md.*/   - \1/'
+        echo "Edita docs/agent-os-audit.md y deja solo el candidato correcto antes de ejecutar --apply."
+        exit 1
+    fi
+
+    tracker_mig_count=$(grep -E "\- \[[ x]\] Migrar y renombrar .* a docs/mvp-tracker.md" "$AUDIT_FILE" | wc -l)
+    if [ "$tracker_mig_count" -gt 1 ]; then
+        echo "⚠️ AMBIGÜEDAD: Se encontraron $tracker_mig_count candidatos para mvp-tracker:"
+        grep -E "\- \[[ x]\] Migrar y renombrar .* a docs/mvp-tracker.md" "$AUDIT_FILE" | sed -E 's/- \[[ x]\] Migrar y renombrar (.*) a docs\/mvp-tracker.md.*/   - \1/'
+        echo "Edita docs/agent-os-audit.md y deja solo el candidato correcto antes de ejecutar --apply."
+        exit 1
+    fi
+
+    impl_mig_count=$(grep -E "\- \[[ x]\] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE" | wc -l)
+    if [ "$impl_mig_count" -gt 1 ]; then
+        echo "⚠️ AMBIGÜEDAD: Se encontraron $impl_mig_count candidatos para implemented:"
+        grep -E "\- \[[ x]\] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE" | sed -E 's/- \[[ x]\] Migrar y renombrar (.*) a docs\/implemented.md.*/   - \1/'
+        echo "Edita docs/agent-os-audit.md y deja solo el candidato correcto antes de ejecutar --apply."
+        exit 1
+    fi
+
+    # Aplicar migraciones difusas (fuzzy matching)
+    if [ "$roadmap_mig_count" -eq 1 ] && grep -q "\- \[ \] Migrar y renombrar .* a roadmap.md" "$AUDIT_FILE"; then
+        legacy_file=$(grep "\- \[ \] Migrar y renombrar .* a roadmap.md" "$AUDIT_FILE" | head -n 1 | sed -E 's/- \[ \] Migrar y renombrar (.*) a roadmap.md.*/\1/')
+        if [ -f "$legacy_file" ]; then
+            git mv "$legacy_file" roadmap.md
+            echo "✅ Migrado y renombrado $legacy_file a roadmap.md en la raíz"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+
+    if [ "$changelog_mig_count" -eq 1 ] && grep -q "\- \[ \] Migrar y renombrar .* a changelog.md" "$AUDIT_FILE"; then
+        legacy_file=$(grep "\- \[ \] Migrar y renombrar .* a changelog.md" "$AUDIT_FILE" | head -n 1 | sed -E 's/- \[ \] Migrar y renombrar (.*) a changelog.md.*/\1/')
+        if [ -f "$legacy_file" ]; then
+            git mv "$legacy_file" changelog.md
+            echo "✅ Migrado y renombrado $legacy_file a changelog.md en la raíz"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+
+    if [ "$tracker_mig_count" -eq 1 ] && grep -q "\- \[ \] Migrar y renombrar .* a docs/mvp-tracker.md" "$AUDIT_FILE"; then
+        legacy_file=$(grep "\- \[ \] Migrar y renombrar .* a docs/mvp-tracker.md" "$AUDIT_FILE" | head -n 1 | sed -E 's/- \[ \] Migrar y renombrar (.*) a docs\/mvp-tracker.md.*/\1/')
+        if [ -f "$legacy_file" ]; then
+            git mv "$legacy_file" docs/mvp-tracker.md
+            echo "✅ Migrado y renombrado $legacy_file a docs/mvp-tracker.md"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+
+    if [ "$impl_mig_count" -eq 1 ] && grep -q "\- \[ \] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE"; then
+        legacy_file=$(grep "\- \[ \] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE" | head -n 1 | sed -E 's/- \[ \] Migrar y renombrar (.*) a docs\/implemented.md.*/\1/')
+        if [ -f "$legacy_file" ]; then
+            git mv "$legacy_file" docs/implemented.md
+            echo "✅ Migrado y renombrado $legacy_file a docs/implemented.md"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+
     # 1. Renombrar archivos de casing incorrecto en la raíz
     if grep -q "\- \[ \] Renombrar ROADMAP.md a roadmap.md en la raíz" "$AUDIT_FILE"; then
         if [ -f "ROADMAP.md" ]; then
@@ -253,36 +323,118 @@ incompatibilidades=""
 propuestas=""
 sprint_sugerido=""
 
-# 1. Comprobar existencia y casing de archivos clave en la raíz
-for file in "roadmap.md" "changelog.md"; do
-    real_file=$(find . -maxdepth 1 -iname "$file" | head -n 1 | sed 's|^\./||')
-    if [ -n "$real_file" ]; then
-        if [ "$real_file" != "$file" ]; then
-            incompatibilidades+="- ⚠️ Archivo clave con casing incorrecto en la raíz: \`$real_file\` (debería ser \`$file\`)\n"
-            propuestas+="- [ ] Renombrar $real_file a $file en la raíz\n"
+# 1. Comprobar existencia y casing de archivos clave en la raíz (con fuzzy matching seguro)
+# Para roadmap.md
+roadmap_exists=$(find . -maxdepth 1 -iname "roadmap.md" 2>/dev/null | head -n 1 | sed 's|^\./||')
+if [ -z "$roadmap_exists" ]; then
+    # Buscar candidatos fuzzy seguros (-maxdepth 1 en raíz y docs/)
+    roadmap_cands=$( (find . -maxdepth 1 -type f \( -iname "*road*" -o -iname "*map*" \) 2>/dev/null; [ -d "docs" ] && find docs -maxdepth 1 -type f \( -iname "*road*" -o -iname "*map*" \) 2>/dev/null) | grep -v "agent-os-audit" | sed 's|^\./||' )
+    cand_count=$(echo "$roadmap_cands" | grep -c . || true)
+    if [ "$cand_count" -eq 1 ]; then
+        cand=$(echo "$roadmap_cands" | head -n 1)
+        incompatibilidades+="- ⚠️ Archivo candidato a ser el roadmap detectado con nombre no estándar: \`$cand\` (se sugiere renombrar a \`roadmap.md\` en la raíz)\n"
+        propuestas+="- [ ] Migrar y renombrar $cand a roadmap.md en la raíz\n"
+    elif [ "$cand_count" -gt 1 ]; then
+        cand_list=$(echo "$roadmap_cands" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+        incompatibilidades+="- ⚠️ AMBIGÜEDAD: Se encontraron múltiples candidatos para roadmap.md: $cand_list. Edita docs/agent-os-audit.md dejando solo el candidato correcto antes de ejecutar --apply.\n"
+        while IFS= read -r cand || [ -n "$cand" ]; do
+            propuestas+="- [ ] Migrar y renombrar $cand a roadmap.md en la raíz\n"
+        done <<< "$roadmap_cands"
+    fi
+else
+    if [ "$roadmap_exists" != "roadmap.md" ]; then
+        incompatibilidades+="- ⚠️ Archivo clave con casing incorrecto en la raíz: \`$roadmap_exists\` (debería ser \`roadmap.md\`)\n"
+        propuestas+="- [ ] Renombrar $roadmap_exists a roadmap.md en la raíz\n"
+    fi
+fi
+
+# Para changelog.md
+changelog_exists=$(find . -maxdepth 1 -iname "changelog.md" 2>/dev/null | head -n 1 | sed 's|^\./||')
+if [ -z "$changelog_exists" ]; then
+    changelog_cands=$( (find . -maxdepth 1 -type f \( -iname "*change*" -o -iname "*log*" -o -iname "*history*" \) 2>/dev/null; [ -d "docs" ] && find docs -maxdepth 1 -type f \( -iname "*change*" -o -iname "*log*" -o -iname "*history*" \) 2>/dev/null) | grep -v "agent-os-audit" | sed 's|^\./||' )
+    cand_count=$(echo "$changelog_cands" | grep -c . || true)
+    if [ "$cand_count" -eq 1 ]; then
+        cand=$(echo "$changelog_cands" | head -n 1)
+        incompatibilidades+="- ⚠️ Archivo candidato a ser el changelog detectado con nombre no estándar: \`$cand\` (se sugiere renombrar a \`changelog.md\` en la raíz)\n"
+        propuestas+="- [ ] Migrar y renombrar $cand a changelog.md en la raíz\n"
+    elif [ "$cand_count" -gt 1 ]; then
+        cand_list=$(echo "$changelog_cands" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+        incompatibilidades+="- ⚠️ AMBIGÜEDAD: Se encontraron múltiples candidatos para changelog.md: $cand_list. Edita docs/agent-os-audit.md dejando solo el candidato correcto antes de ejecutar --apply.\n"
+        while IFS= read -r cand || [ -n "$cand" ]; do
+            propuestas+="- [ ] Migrar y renombrar $cand a changelog.md en la raíz\n"
+        done <<< "$changelog_cands"
+    fi
+else
+    if [ "$changelog_exists" != "changelog.md" ]; then
+        incompatibilidades+="- ⚠️ Archivo clave con casing incorrecto en la raíz: \`$changelog_exists\` (debería ser \`changelog.md\`)\n"
+        propuestas+="- [ ] Renombrar $changelog_exists a changelog.md en la raíz\n"
+    fi
+fi
+
+# 2. Comprobar existencia, ubicación y casing de mvp-tracker.md e implemented.md (con fuzzy matching seguro)
+# Para mvp-tracker.md
+mvp_exists_root=$(find . -maxdepth 1 -iname "mvp-tracker.md" 2>/dev/null | head -n 1 | sed 's|^\./||')
+mvp_exists_docs=""
+[ -d "docs" ] && mvp_exists_docs=$(find docs -maxdepth 1 -iname "mvp-tracker.md" 2>/dev/null | head -n 1)
+
+if [ -z "$mvp_exists_root" ] && [ -z "$mvp_exists_docs" ]; then
+    mvp_cands=$( (find . -maxdepth 1 -type f \( -iname "*mvp*" -o -iname "*track*" \) 2>/dev/null; [ -d "docs" ] && find docs -maxdepth 1 -type f \( -iname "*mvp*" -o -iname "*track*" \) 2>/dev/null) | grep -v "agent-os-audit" | sed 's|^\./||' )
+    cand_count=$(echo "$mvp_cands" | grep -c . || true)
+    if [ "$cand_count" -eq 1 ]; then
+        cand=$(echo "$mvp_cands" | head -n 1)
+        incompatibilidades+="- ⚠️ Archivo candidato a ser el tracker detectado con nombre no estándar: \`$cand\` (se sugiere mover y renombrar a \`docs/mvp-tracker.md\`)\n"
+        propuestas+="- [ ] Migrar y renombrar $cand a docs/mvp-tracker.md\n"
+    elif [ "$cand_count" -gt 1 ]; then
+        cand_list=$(echo "$mvp_cands" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+        incompatibilidades+="- ⚠️ AMBIGÜEDAD: Se encontraron múltiples candidatos para mvp-tracker.md: $cand_list. Edita docs/agent-os-audit.md dejando solo el candidato correcto antes de ejecutar --apply.\n"
+        while IFS= read -r cand || [ -n "$cand" ]; do
+            propuestas+="- [ ] Migrar y renombrar $cand a docs/mvp-tracker.md\n"
+        done <<< "$mvp_cands"
+    fi
+else
+    if [ -n "$mvp_exists_root" ]; then
+        incompatibilidades+="- ⚠️ Archivo \`$mvp_exists_root\` en la raíz (debería estar en \`docs/mvp-tracker.md\`)\n"
+        propuestas+="- [ ] Mover $mvp_exists_root de la raíz a docs/mvp-tracker.md\n"
+    elif [ -n "$mvp_exists_docs" ]; then
+        filename=$(basename "$mvp_exists_docs")
+        if [ "$filename" != "mvp-tracker.md" ]; then
+            incompatibilidades+="- ⚠️ Archivo en docs/ con casing incorrecto: \`$mvp_exists_docs\` (debería ser \`docs/mvp-tracker.md\`)\n"
+            propuestas+="- [ ] Renombrar $mvp_exists_docs a docs/mvp-tracker.md\n"
         fi
     fi
-done
+fi
 
-# 2. Comprobar existencia, ubicación y casing de mvp-tracker.md e implemented.md
-for file in "mvp-tracker.md" "implemented.md"; do
-    in_root=$(find . -maxdepth 1 -iname "$file" | head -n 1 | sed 's|^\./||')
-    in_docs=""
-    if [ -d "docs" ]; then
-        in_docs=$(find docs -maxdepth 1 -iname "$file" | head -n 1)
+# Para implemented.md
+impl_exists_root=$(find . -maxdepth 1 -iname "implemented.md" 2>/dev/null | head -n 1 | sed 's|^\./||')
+impl_exists_docs=""
+[ -d "docs" ] && impl_exists_docs=$(find docs -maxdepth 1 -iname "implemented.md" 2>/dev/null | head -n 1)
+
+if [ -z "$impl_exists_root" ] && [ -z "$impl_exists_docs" ]; then
+    impl_cands=$( (find . -maxdepth 1 -type f \( -iname "*implement*" -o -iname "*hito*" -o -iname "*milestone*" \) 2>/dev/null; [ -d "docs" ] && find docs -maxdepth 1 -type f \( -iname "*implement*" -o -iname "*hito*" -o -iname "*milestone*" \) 2>/dev/null) | grep -v "agent-os-audit" | sed 's|^\./||' )
+    cand_count=$(echo "$impl_cands" | grep -c . || true)
+    if [ "$cand_count" -eq 1 ]; then
+        cand=$(echo "$impl_cands" | head -n 1)
+        incompatibilidades+="- ⚠️ Archivo candidato a ser el registro de hitos detectado con nombre no estándar: \`$cand\` (se sugiere mover y renombrar a \`docs/implemented.md\`)\n"
+        propuestas+="- [ ] Migrar y renombrar $cand a docs/implemented.md\n"
+    elif [ "$cand_count" -gt 1 ]; then
+        cand_list=$(echo "$impl_cands" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+        incompatibilidades+="- ⚠️ AMBIGÜEDAD: Se encontraron múltiples candidatos para implemented.md: $cand_list. Edita docs/agent-os-audit.md dejando solo el candidato correcto antes de ejecutar --apply.\n"
+        while IFS= read -r cand || [ -n "$cand" ]; do
+            propuestas+="- [ ] Migrar y renombrar $cand a docs/implemented.md\n"
+        done <<< "$impl_cands"
     fi
-
-    if [ -n "$in_root" ]; then
-        incompatibilidades+="- ⚠️ Archivo \`$in_root\` en la raíz (debería estar en \`docs/$file\`)\n"
-        propuestas+="- [ ] Mover $in_root de la raíz a docs/$file\n"
-    elif [ -n "$in_docs" ]; then
-        filename=$(basename "$in_docs")
-        if [ "$filename" != "$file" ]; then
-            incompatibilidades+="- ⚠️ Archivo en docs/ con casing incorrecto: \`$in_docs\` (debería ser \`docs/$file\`)\n"
-            propuestas+="- [ ] Renombrar $in_docs a docs/$file\n"
+else
+    if [ -n "$impl_exists_root" ]; then
+        incompatibilidades+="- ⚠️ Archivo \`$impl_exists_root\` en la raíz (debería estar en \`docs/implemented.md\`)\n"
+        propuestas+="- [ ] Mover $impl_exists_root de la raíz a docs/implemented.md\n"
+    elif [ -n "$impl_exists_docs" ]; then
+        filename=$(basename "$impl_exists_docs")
+        if [ "$filename" != "implemented.md" ]; then
+            incompatibilidades+="- ⚠️ Archivo en docs/ con casing incorrecto: \`$impl_exists_docs\` (debería ser \`docs/implemented.md\`)\n"
+            propuestas+="- [ ] Renombrar $impl_exists_docs a docs/implemented.md\n"
         fi
     fi
-done
+fi
 
 # 3. Comprobar ubicación de external-inbox
 if [ -d "external-inbox" ] || [ -f "external-inbox" ]; then
