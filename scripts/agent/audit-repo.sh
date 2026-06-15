@@ -13,6 +13,14 @@ mkdir -p "docs"
 # MODO APLICACIÓN
 # ==========================================
 if [ "$1" == "--apply" ]; then
+    ONBOARDING_MARK_FILE=".agents/context/onboarding-complete.md"
+    if [ -f "$ONBOARDING_MARK_FILE" ]; then
+        echo "✅ INFO: El proceso de onboarding y adaptación ya fue completado previamente en este repositorio."
+        echo "Consulta $ONBOARDING_MARK_FILE para ver el historial."
+        echo "No es necesario ejecutar --apply."
+        exit 0
+    fi
+
     echo "⚙️ Iniciando modo aplicación en $PROJECT_ROOT..."
     
     # Salvaguarda: verificar que el working tree está limpio
@@ -352,8 +360,20 @@ if [ "$1" == "--apply" ]; then
     fi
 
     if [ $applied_changes -gt 0 ]; then
+        # Generar el archivo de marca de onboarding completado
+        mkdir -p .agents/context
+        {
+            echo "# Onboarding de Agent OS Completado"
+            echo -e "\nFecha: $(date '+%Y-%m-%d %H:%M:%S')"
+            echo -e "\n## Resumen de Adaptaciones Aplicadas\n"
+            grep -E "\- \[ \] " "$AUDIT_FILE" | sed 's/- \[ \] /- [x] /' || echo "Ninguna adaptación pendiente."
+            echo -e "\n## Trazabilidad Histórica"
+            echo "El repositorio ha sido integrado con éxito al ecosistema de Agent OS."
+        } > "$ONBOARDING_MARK_FILE"
+        git add "$ONBOARDING_MARK_FILE"
+
         git add -A
-        git commit -m "chore(agent-os): apply audit adaptations to existing repo"
+        git commit -m "chore(agent-os): apply audit adaptations to existing repo and mark onboarding complete"
         echo "🎉 Adaptaciones de Agent OS aplicadas y confirmadas en Git."
     else
         echo "ℹ️ No se detectaron cambios pendientes por aplicar en el informe de auditoría."
