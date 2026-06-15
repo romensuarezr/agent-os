@@ -8,17 +8,21 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 SPRINTS_DIR="$ROOT/docs/sprints"
 INBOX_DIR="$ROOT/docs/idea-inbox"
-ROADMAP_PATH="$ROOT/ROADMAP.md"
+ROADMAP_PATH=""
+if [ -f "$ROOT/roadmap.md" ]; then
+  ROADMAP_PATH="$ROOT/roadmap.md"
+elif [ -f "$ROOT/ROADMAP.md" ]; then
+  ROADMAP_PATH="$ROOT/ROADMAP.md"
+fi
 
 echo "=== SPRINT CONTEXT ==="
 
-# 1. ROADMAP — ruta hardcodeada por convención del proyecto
-if [ -f "$ROADMAP_PATH" ]; then
+if [ -n "$ROADMAP_PATH" ]; then
   PENDING_GLOBAL=$(grep -c "^- \\[ \\]" "$ROADMAP_PATH" 2>/dev/null || echo "0")
   echo "ROADMAP: $ROADMAP_PATH (✅ Detectado — $PENDING_GLOBAL tareas pendientes)"
 else
-  echo "ROADMAP: ❌ CRÍTICO — NO ENCONTRADO en $ROADMAP_PATH"
-  echo "ACTION_REQUIRED: Crea ROADMAP.md en la raíz antes de continuar."
+  echo "ROADMAP: ❌ CRÍTICO — NO ENCONTRADO (debe ser roadmap.md o ROADMAP.md)"
+  echo "ACTION_REQUIRED: Crea roadmap.md en la raíz antes de continuar."
   exit 1
 fi
 
