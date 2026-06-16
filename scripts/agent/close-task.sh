@@ -14,8 +14,10 @@ BRANCH=$(git -C "$ROOT" branch --show-current)
 # Derivar TASK_NUM desde la rama (feat/T-026-... → 026)
 TASK_NUM=$(echo "$BRANCH" | grep -oP '(?<=T-)\d+')
 if [ -z "$TASK_NUM" ]; then
-  echo "❌ No se puede derivar el TASK_ID desde la rama: $BRANCH"
-  echo "   Formato esperado: feat/T-026-descripcion"
+  RED='\033[0;31m'
+  NC='\033[0m'
+  echo -e "${RED}❌ ERROR: No se puede derivar el TASK_ID desde la rama: $BRANCH${NC}"
+  echo -e "${RED}Guía: Cambia el nombre de la rama actual usando: git branch -m feat/T-XXX-descripcion${NC}"
   exit 1
 fi
 TASK_ID="T-${TASK_NUM}"
@@ -33,8 +35,10 @@ echo "🔄 Cerrando $TASK_ID desde rama $BRANCH..."
 
 # 1. Verificar que el task file existe
 if [ ! -f "$TASK_FILE" ]; then
-  echo "❌ No encontrado: $TASK_FILE"
-  echo "   Verifica que el task file existe y no fue archivado ya."
+  RED='\033[0;31m'
+  NC='\033[0m'
+  echo -e "${RED}❌ ERROR: No encontrado: $TASK_FILE${NC}"
+  echo -e "${RED}Guía: Verifica si la tarea ya fue archivada en .agents/tasks/_archived/ o si el número en el nombre de la rama es correcto.${NC}"
   exit 1
 fi
 
@@ -45,10 +49,11 @@ if [ "${SKIP_SPRINT_CHECK:-0}" != "1" ]; then
   if [ -n "$SPRINT_ACTIVE" ]; then
     if grep -q "^| ${TASK_ID}" "$SPRINT_ACTIVE" 2>/dev/null; then
       if ! grep "^| ${TASK_ID}" "$SPRINT_ACTIVE" | grep -qE "✅|🟢 Completada"; then
+        YELLOW='\033[0;33m'
+        NC='\033[0m'
         echo ""
-        echo "⚠️  GUARDIA SPRINT: $TASK_ID no está marcada como completada en $(basename $SPRINT_ACTIVE)"
-        echo "   Edita el sprint y marca la tarea con ✅ Completada antes de cerrar."
-        echo "   Para saltar esta guardia: SKIP_SPRINT_CHECK=1 bash scripts/agent/close-task.sh"
+        echo -e "${YELLOW}⚠️  GUARDIA SPRINT: $TASK_ID no está marcada como completada en $(basename $SPRINT_ACTIVE)${NC}"
+        echo -e "${YELLOW}Guía: Abre el sprint file y marca la tarea con ✅ en lugar de ⬜ o ⏸. Si es intencionadamente, ejecuta: SKIP_SPRINT_CHECK=1 bash scripts/agent/close-task.sh${NC}"
         echo ""
         exit 1
       else
@@ -57,7 +62,9 @@ if [ "${SKIP_SPRINT_CHECK:-0}" != "1" ]; then
     fi
   fi
 else
-  echo "⚠️  SKIP_SPRINT_CHECK=1 activo — guardia de sprint omitida."
+  YELLOW='\033[0;33m'
+  NC='\033[0m'
+  echo -e "${YELLOW}⚠️  SKIP_SPRINT_CHECK=1 activo — guardia de sprint omitida.${NC}"
 fi
 
 # 1c. Eliminar lock ANTES del stage (evita que quede incluido en el commit)
@@ -70,8 +77,11 @@ fi
 git -C "$ROOT" add -A
 
 # 3. Verificar que hay algo que commitear
-if git -C "$ROOT" diff --cached --quiet; then
-  echo "❌ Nada en stage. ¿Ya está todo commitado?"
+if git -C "$ROOT" diff --quiet --cached; then
+  RED='\033[0;31m'
+  NC='\033[0m'
+  echo -e "${RED}❌ ERROR: Nada en stage. ¿Ya está todo commitado?${NC}"
+  echo -e "${RED}Guía: Realiza cambios en los archivos autorizados y asegúrate de que no se hayan commiteado previamente de forma manual.${NC}"
   exit 1
 fi
 
@@ -99,7 +109,10 @@ FILES_TOUCHED=$(git -C "$ROOT" diff --cached --name-only \
 
 # Añadir línea al registro
 if [ ! -f "$IMPLEMENTED_FILE" ]; then
-  echo "❌ docs/IMPLEMENTED.md no encontrado. Créalo primero."
+  RED='\033[0;31m'
+  NC='\033[0m'
+  echo -e "${RED}❌ ERROR: docs/IMPLEMENTED.md no encontrado.${NC}"
+  echo -e "${RED}Guía: Crea un archivo docs/IMPLEMENTED.md en la raíz del proyecto para registrar las características implementadas.${NC}"
   exit 1
 fi
 

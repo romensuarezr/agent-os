@@ -24,14 +24,17 @@ else
     UNSTAGED=$(git diff --name-only 2>/dev/null | grep '^src/' | head -5)
     STAGED=$(git diff --cached --name-only 2>/dev/null | grep '^src/' | head -5)
     if [ -n "$UNSTAGED" ] || [ -n "$STAGED" ]; then
-      echo "WARNING: Hay cambios en src/ sin lock activo — el agente puede haber actuado sin aprobación."
+      YELLOW='\033[0;33m'
+      NC='\033[0m'
+      echo -e "${YELLOW}WARNING: Hay cambios en src/ sin lock activo — el agente puede haber actuado sin aprobación.${NC}"
       echo "Archivos afectados:"
       [ -n "$UNSTAGED" ] && echo "  Sin stagear: $UNSTAGED"
       [ -n "$STAGED" ]   && echo "  Stageados:   $STAGED"
-      echo "Revisa con 'git diff' antes de continuar."
+      echo -e "${YELLOW}Guía: Revisa con 'git diff' antes de continuar. Si los cambios son válidos, crea la sesión mediante /session-start.${NC}"
       echo "---"
     fi
   fi
   echo "NO_ACTIVE_SESSION"
   exit 0
 fi
+

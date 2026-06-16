@@ -21,8 +21,10 @@ if [ -n "$ROADMAP_PATH" ]; then
   PENDING_GLOBAL=$(grep -c "^- \\[ \\]" "$ROADMAP_PATH" 2>/dev/null || true)
   echo "ROADMAP: $ROADMAP_PATH (✅ Detectado — $PENDING_GLOBAL tareas pendientes)"
 else
-  echo "ROADMAP: ❌ CRÍTICO — NO ENCONTRADO (debe ser roadmap.md o ROADMAP.md)"
-  echo "ACTION_REQUIRED: Crea roadmap.md en la raíz antes de continuar."
+  RED='\033[0;31m'
+  NC='\033[0m'
+  echo -e "${RED}ROADMAP: ❌ CRÍTICO — NO ENCONTRADO (debe ser roadmap.md o ROADMAP.md)${NC}"
+  echo -e "${RED}Guía: Crea un archivo roadmap.md o ROADMAP.md en la raíz del proyecto para definir la dirección del backlog antes de continuar.${NC}"
   exit 1
 fi
 
@@ -62,7 +64,9 @@ else
     echo "(Ninguna — sprint anterior limpio ✅)"
   else
     echo "$PENDIENTES"
-    echo "⚠️  INSTRUCCIÓN: Decide si arrastrar al nuevo sprint o devolver al backlog."
+    YELLOW='\033[0;33m'
+    NC='\033[0m'
+    echo -e "${YELLOW}⚠️  INSTRUCCIÓN: Decide si arrastrar al nuevo sprint o devolver al backlog.${NC}"
   fi
 fi
 
@@ -95,16 +99,19 @@ echo "=== SYSTEM CHECK ==="
 LOCK="$ROOT/.agent-session.lock"
 WARNINGS=0
 
+YELLOW='\033[0;33m'
+NC='\033[0m'
+
 if [ -f "$LOCK" ]; then
   if grep -q '"status"[[:space:]]*:[[:space:]]*"active"' "$LOCK" 2>/dev/null; then
-    echo "⚠️  ALERTA: Sesión activa en .agent-session.lock — ejecuta check-session.sh primero"
+    echo -e "${YELLOW}⚠️  ALERTA: Sesión activa en .agent-session.lock — ejecuta check-session.sh primero${NC}"
     WARNINGS=$((WARNINGS + 1))
   fi
 fi
 
 UNSTAGED=$(git -C "$ROOT" diff --name-only 2>/dev/null | grep '^src/' | head -3 || true)
 if [ -n "$UNSTAGED" ]; then
-  echo "⚠️  GIT: Cambios sin commitear en src/:"
+  echo -e "${YELLOW}⚠️  GIT: Cambios sin commitear en src/:${NC}"
   echo "$UNSTAGED" | sed 's/^/   /'
   WARNINGS=$((WARNINGS + 1))
 fi
