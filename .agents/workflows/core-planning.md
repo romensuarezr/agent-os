@@ -64,7 +64,7 @@ Crea `docs/sprints/sprint-NN-core.md` usando esta estructura:
 
 ## Tareas
 
-- [ ] CORE-NN: [descripción] — [categoría]
+- [ ] T-XXX: [descripción] — [categoría]
 
 ## Criterio de éxito
 
@@ -104,7 +104,7 @@ git commit -m "chore(self): open sprint-NN-core"
 bash scripts/agent/check-sprint.sh
 
 # Cerrar una tarea
-bash scripts/agent/close-task.sh CORE-NN
+bash scripts/agent/close-task.sh T-XXX
 
 # Generar digest del estado
 bash scripts/agent/generate-digest.sh
@@ -116,6 +116,6 @@ bash scripts/agent/close-sprint.sh
 ## Reglas
 
 - NUNCA planifiques un nuevo sprint del core si existen cambios locales sin commitear en Git.
-- Asegúrate de que las tareas del core sigan el formato de identificador `CORE-NN`.
+- Asegúrate de que las tareas del core sigan el formato de identificador estándar `T-XXX`.
 - Toda nueva herramienta o cambio estructural en los scripts del core debe planificar la redacción de su correspondiente ADR (Architecture Decision Record) en `docs/adrs/`.
 - No alteres ni elimines scripts existentes en el sprint sin justificación técnica documentada previamente.
