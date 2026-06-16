@@ -22,6 +22,20 @@ if [ ! -d "$TARGET_PROJECT" ]; then
 fi
 
 AGENT_OS_PATH="/home/romen/Proyectos/agent-os"
+
+# Validar que no se intente sincronizar el core sobre sí mismo
+REAL_AGENT_OS=$(realpath "$AGENT_OS_PATH" 2>/dev/null || echo "$AGENT_OS_PATH")
+REAL_TARGET=$(realpath "$TARGET_PROJECT" 2>/dev/null || echo "$TARGET_PROJECT")
+
+if [ "$REAL_AGENT_OS" = "$REAL_TARGET" ]; then
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: AGENT_OS_PATH y TARGET_PROJECT apuntan al mismo directorio.${NC}"
+    echo -e "${RED}Guía: sync.sh sincroniza el core hacia proyectos hijos, nunca sobre sí mismo.${NC}"
+    echo -e "${RED}Abortando.${NC}"
+    exit 1
+fi
+
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_SCRIPTS="$AGENT_OS_PATH/scripts/agent"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
