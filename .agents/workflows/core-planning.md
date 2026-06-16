@@ -1,19 +1,25 @@
-# Workflow: /core-planning
-
-> Equivalente a `/sprint-planning` pero para el propio core de agent-os.
-> Úsalo cuando vayas a planificar el siguiente sprint de evolución del sistema.
-
+---
+description: Planifica y abre el siguiente sprint de evolución del núcleo de Agent OS.
 ---
 
-## Cuándo usar este workflow
+# core-planning
 
-- Al cerrar un sprint del core y arrancar el siguiente
-- Cuando hay acumulación de mejoras pendientes (ideas de proyectos hijos, bugs reportados, universalizaciones)
-- Al inicio de una sesión de trabajo sobre agent-os
+Este workflow define el ritual para planificar el siguiente sprint de evolución del núcleo de Agent OS (self-hosted). Úsalo al cerrar un sprint, al acumular mejoras pendientes de proyectos hijos, o al inicio de una sesión de desarrollo sobre el propio core.
 
----
+## Objetivo
 
-## Pasos
+- Cerrar el sprint anterior del core y evaluar el spillover.
+- Recolectar e incorporar mejoras o bugs provenientes de proyectos hijos.
+- Inicializar de forma consistente el nuevo archivo de sprint del core.
+
+## Archivos y rutas a revisar
+
+- [last-sync.md](file:///.agents/context/last-sync.md) — Marca de estado actual y sprint activo.
+- [docs/sprints/](file:///docs/sprints/) — Sprints históricos del core (`sprint-NN-core.md`).
+- [docs/external-inbox/](file:///docs/external-inbox/) — Sugerencias promocionadas por proyectos hijos.
+- [roadmap.md](file:///roadmap.md) — Hoja de ruta general del sistema.
+
+## Protocolo
 
 ### 1. Revisar estado actual
 
@@ -106,3 +112,10 @@ bash scripts/agent/generate-digest.sh
 # Cerrar el sprint
 bash scripts/agent/close-sprint.sh
 ```
+
+## Reglas
+
+- NUNCA planifiques un nuevo sprint del core si existen cambios locales sin commitear en Git.
+- Asegúrate de que las tareas del core sigan el formato de identificador `CORE-NN`.
+- Toda nueva herramienta o cambio estructural en los scripts del core debe planificar la redacción de su correspondiente ADR (Architecture Decision Record) en `docs/adrs/`.
+- No alteres ni elimines scripts existentes en el sprint sin justificación técnica documentada previamente.
