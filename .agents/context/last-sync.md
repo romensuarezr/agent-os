@@ -7,7 +7,7 @@
 ## Estado actual
 
 - **Modo**: self-hosted (agent-os operando sobre sí mismo)
-- **Sprint activo**: sprint-01-core
+- **Sprint activo**: sprint-02-core
 - **Último bootstrap**: 2026-06-16
 - **Versión del core**: ver changelog.md
 
