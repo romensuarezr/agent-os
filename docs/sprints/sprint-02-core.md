@@ -8,7 +8,7 @@
 ## Tareas
 
 - [x] T-018: Universalizaciones pendientes (eliminar hardcodes de paths en scripts) — Universalización
-- [ ] T-019: Soporte multi-stack documentado en `lib/detect-stack.sh` — Universalización
+- [x] T-019: Soporte multi-stack documentado en `lib/detect-stack.sh` — Universalización
 - [ ] T-020: Redactar ADRs de las decisiones clave de arquitectura tomadas — Documentación
 - [ ] T-021: Mejoras de DX del agente (mensajes de error claros y guías inline) — DX del agente
 - [ ] T-022: Validar la compatibilidad del script `sync.sh` tras el bootstrap self-hosted — Universalización

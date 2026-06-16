@@ -11,17 +11,17 @@ Archivos autorizados para modificación:
 - `scripts/agent/lib/detect-stack.sh`
 
 ## Criterios de done
-- [ ] Documentación inline detallada en la cabecera de `detect-stack.sh` sobre el diseño del componente.
-- [ ] Documentación inline de la lógica de detección de stack por prioridad (override de stack.env -> dependencias/carpetas).
-- [ ] Documentación inline en las funciones de parsing y exportación de variables.
-- [ ] Verificación de sintaxis del script bash sin errores (`bash -n`).
+- [x] Documentación inline detallada en la cabecera de `detect-stack.sh` sobre el diseño del componente.
+- [x] Documentación inline de la lógica de detección de stack por prioridad (override de stack.env -> dependencias/carpetas).
+- [x] Documentación inline en las funciones de parsing y exportación de variables.
+- [x] Verificación de sintaxis del script bash sin errores (`bash -n`).
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-06-16T11:36:46Z
+- [x] Rama creada: feat/T-019-document-multi-stack
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente
