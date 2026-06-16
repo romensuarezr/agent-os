@@ -7,7 +7,7 @@
 
 ## Tareas
 
-- [ ] CORE-18: Universalizaciones pendientes (eliminar hardcodes de paths en scripts) — Universalización
+- [x] CORE-18: Universalizaciones pendientes (eliminar hardcodes de paths en scripts) — Universalización
 - [ ] CORE-19: Soporte multi-stack documentado en `lib/detect-stack.sh` — Universalización
 - [ ] CORE-20: Redactar ADRs de las decisiones clave de arquitectura tomadas — Documentación
 - [ ] CORE-21: Mejoras de DX del agente (mensajes de error claros y guías inline) — DX del agente

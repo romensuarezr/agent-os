@@ -18,7 +18,7 @@ fi
 echo "=== SPRINT CONTEXT ==="
 
 if [ -n "$ROADMAP_PATH" ]; then
-  PENDING_GLOBAL=$(grep -c "^- \\[ \\]" "$ROADMAP_PATH" 2>/dev/null || echo "0")
+  PENDING_GLOBAL=$(grep -c "^- \\[ \\]" "$ROADMAP_PATH" 2>/dev/null || true)
   echo "ROADMAP: $ROADMAP_PATH (✅ Detectado — $PENDING_GLOBAL tareas pendientes)"
 else
   echo "ROADMAP: ❌ CRÍTICO — NO ENCONTRADO (debe ser roadmap.md o ROADMAP.md)"
@@ -27,7 +27,7 @@ else
 fi
 
 # 2. Sprint más reciente (excluye research y _archived)
-LAST_SPRINT=$(find "$SPRINTS_DIR" -name "sprint-[0-9][0-9].md" \
+LAST_SPRINT=$(find "$SPRINTS_DIR" -name "sprint-[0-9][0-9]*.md" \
   | grep -v -E "research|_archived" | sort -V | tail -1 || true)
 
 if [ -z "$LAST_SPRINT" ]; then
@@ -36,15 +36,15 @@ if [ -z "$LAST_SPRINT" ]; then
   echo "SPRINT_MODE: INICIALIZACIÓN"
 else
   SPRINT_NAME=$(basename "$LAST_SPRINT" .md)
-  SPRINT_NUM=$(echo "$SPRINT_NAME" | grep -oE '[0-9]+$')
+  SPRINT_NUM=$(echo "$SPRINT_NAME" | grep -oE '[0-9]+' | head -1)
   NEXT_NUM=$(printf "%02d" $((10#$SPRINT_NUM + 1)))
 
   echo "SPRINT_ACTUAL: $LAST_SPRINT"
   echo "SPRINT_SIGUIENTE: sprint-$NEXT_NUM"
 
   # Conteo real de tareas completadas vs total
-  TOTAL=$(grep -c "^| T-" "$LAST_SPRINT" 2>/dev/null || echo "0")
-  DONE=$(grep "^| T-" "$LAST_SPRINT" 2>/dev/null | grep -cE "✅|🟢 Completada" || echo "0")
+  TOTAL=$(grep -cE "^\| T-|^-[[:space:]]*\[[ x/]\]" "$LAST_SPRINT" 2>/dev/null || true)
+  DONE=$(grep -E "^\| T-|^-[[:space:]]*\[[ x/]\]" "$LAST_SPRINT" 2>/dev/null | grep -cE "✅|🟢 Completada|\[x\]" || true)
   if [ "$DONE" -eq "$TOTAL" ] && [ "$TOTAL" -gt 0 ]; then
     echo "SPRINT_ESTADO: COMPLETADO ($DONE/$TOTAL ✅)"
   elif [ "$DONE" -gt 0 ]; then
@@ -56,8 +56,8 @@ else
   # 3. Spillover — tareas no completadas
   echo ""
   echo "=== SPILLOVER (tareas no completadas) ==="
-  PENDIENTES=$(grep "^| T-" "$LAST_SPRINT" 2>/dev/null \
-    | grep -vE "✅|🟢 Completada" || true)
+  PENDIENTES=$(grep -E "^\| T-|^-[[:space:]]*\[[ /]\]" "$LAST_SPRINT" 2>/dev/null \
+    | grep -vE "✅|🟢 Completada|\[x\]" || true)
   if [ -z "$PENDIENTES" ]; then
     echo "(Ninguna — sprint anterior limpio ✅)"
   else
