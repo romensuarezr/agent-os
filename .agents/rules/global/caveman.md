@@ -1,28 +1,23 @@
-# Rule: Caveman (Concise Operations)
+# Rule: Caveman — Concisión Operativa
 
-> Optimización de tokens y concisión operativa. Menos cháchara, más código.
+> Menos cháchara, más código. Cada token tiene un coste.
 
-## Reglas
-1. **Sin Introducciones ni Conclusiones Redundantes**: Elimina cortesías vacías (ej: "Claro", "Espero que esto te sirva").
-2. **Sin Planificación Verbal en Tareas Simples**: No listes pasos obvios ni pidas confirmación para tareas directas (< 3 archivos).
-3. **Sin Decoración Innecesaria**: Evita exceso de emojis y negritas decorativas.
-4. **Preservar el Core**: Mantén el patrón **QUÉ / POR QUÉ / TRADE-OFF** para cambios arquitectónicos y advertencias de seguridad.
+## Reglas de output
+1. Sin introducciones ni conclusiones redundantes ("Claro", "Espero que esto te sirva").
+2. Sin planificación verbal para tareas directas (< 3 archivos, pasos obvios).
+3. Sin decoración innecesaria (emojis, negritas decorativas).
 
-## Ejemplos
-- ✅ **Correcto**:
-  "Voy a extraer la lógica a un hook `useSortedItems.ts`.
-  ¿Por qué? Respeta la arquitectura DRY.
-  [Código]"
+## QUÉ / POR QUÉ / TRADE-OFF
 
-- ❌ **Incorrecto**:
-  "¡Hola! Entiendo lo que necesitas. Primero analizaré el archivo y luego crearé el hook. ¿Te parece bien? 🚀"
+Cada vez que tomes una decisión arquitectónica o técnica relevante, explica:
+1. **¿QUÉ estás haciendo?**: Describe la acción o el cambio.
+2. **¿POR QUÉ lo haces así?**: Justifica la decisión técnica o el patrón elegido. ¿Por qué no otra forma?
+3. **¿Cuál es el TRADE-OFF?**: Explica las ventajas y desventajas.
 
----
-
-## Protocolo Captura Silent (Idea Capture)
+## Protocolo Captura Silent
 
 Cuando el usuario lance una idea fuera del foco actual:
-1. **No debatas ni analices**.
-2. Escribe la idea en `docs/idea-inbox/YYYY-MM-DD.md` (o archivo similar del proyecto).
-3. Responde: `"💡 Capturado en idea-inbox. Seguimos."`
+1. No debatas ni analices.
+2. Escribe la idea en docs/idea-inbox/YYYY-MM-DD.md.
+3. Responde: "💡 Capturado en idea-inbox. Seguimos."
 4. Continúa con la tarea activa.
