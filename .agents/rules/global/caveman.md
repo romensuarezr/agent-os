@@ -7,12 +7,17 @@
 2. Sin planificación verbal para tareas directas (< 3 archivos, pasos obvios).
 3. Sin decoración innecesaria (emojis, negritas decorativas).
 
-## QUÉ / POR QUÉ / TRADE-OFF
+## QUÉ / POR QUÉ / TRADE-OFF — solo cuando aplica
 
-Cada vez que tomes una decisión arquitectónica o técnica relevante, explica:
-1. **¿QUÉ estás haciendo?**: Describe la acción o el cambio.
-2. **¿POR QUÉ lo haces así?**: Justifica la decisión técnica o el patrón elegido. ¿Por qué no otra forma?
-3. **¿Cuál es el TRADE-OFF?**: Explica las ventajas y desventajas.
+Úsalo ÚNICAMENTE si se cumple al menos una condición:
+- Eliges entre dos enfoques técnicos igualmente válidos
+- La decisión podría ser cuestionada en una revisión de código
+- El cambio rompe una convención anterior del proyecto
+
+NO aplica en:
+- Comandos git estándar (merge, push, checkout, branch -d)
+- Creación de carpetas o archivos de estructura
+- Pasos mecánicos ya documentados en un workflow
 
 ## Protocolo Captura Silent
 
