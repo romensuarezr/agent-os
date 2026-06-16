@@ -7,3 +7,4 @@ Este archivo contiene el inventario de todas las capacidades y características 
 | Característica | ID Tarea | Sprint | Archivos tocados |
 |---|---|---|---|
 | Task-019: Soporte multi-stack documentado en lib/detect-stack.sh | T-019 | sprint-?? | — |
+| Task-020: Redactar ADRs de las decisiones clave de arquitectura tomadas | T-020 | sprint-?? | — |
