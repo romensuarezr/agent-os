@@ -12,14 +12,18 @@ SELF_MODE=false
 [[ "${1:-}" == "--self" || "${2:-}" == "--self" ]] && SELF_MODE=true
 
 if [ -z "$TARGET_PROJECT" ]; then
-    echo "❌ Error: Debes proporcionar la ruta al proyecto destino."
-    echo "Uso: ./install.sh /home/romen/Proyectos/mi-proyecto"
-    echo "Uso (self): bash scripts/agent/install.sh . --self"
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: Debes proporcionar la ruta al proyecto destino.${NC}"
+    echo -e "${RED}Guía: Proporciona la ruta al directorio destino (ej: bash scripts/agent/install.sh ../mi-proyecto) o usa --self si es bootstrapping del core.${NC}"
     exit 1
 fi
 
 if [ ! -d "$TARGET_PROJECT" ]; then
-    echo "❌ Error: El directorio destino no existe: $TARGET_PROJECT"
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: El directorio destino no existe: $TARGET_PROJECT${NC}"
+    echo -e "${RED}Guía: Verifica la ruta provista y asegúrate de crear el directorio antes de ejecutar el instalador.${NC}"
     exit 1
 fi
 

@@ -6,13 +6,18 @@
 TARGET_PROJECT=$1
 
 if [ -z "$TARGET_PROJECT" ]; then
-    echo "❌ Error: Debes proporcionar la ruta al proyecto destino."
-    echo "Uso: ./sync.sh /home/romen/Proyectos/mi-proyecto"
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: Debes proporcionar la ruta al proyecto destino.${NC}"
+    echo -e "${RED}Guía: Proporciona la ruta al directorio destino (ej: bash scripts/agent/sync.sh ../otro-proyecto).${NC}"
     exit 1
 fi
 
 if [ ! -d "$TARGET_PROJECT" ]; then
-    echo "❌ Error: El directorio destino no existe: $TARGET_PROJECT"
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: El directorio destino no existe: $TARGET_PROJECT${NC}"
+    echo -e "${RED}Guía: Verifica la ruta provista y asegúrate de que el proyecto existe antes de sincronizar.${NC}"
     exit 1
 fi
 
@@ -31,14 +36,19 @@ if [ -d "$AGENT_OS_PATH/.git" ]; then
     AGENT_OS_LOCAL=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null)
     AGENT_OS_REMOTE=$(timeout 3 git -C "$AGENT_OS_PATH" ls-remote origin HEAD 2>/dev/null | cut -f1)
     if [[ -n "$AGENT_OS_REMOTE" && "$AGENT_OS_LOCAL" != "$AGENT_OS_REMOTE" ]]; then
-        echo "⚠️  AGENT OS CORE: El núcleo tiene actualizaciones pendientes en GitHub."
-        echo "   Haz 'git pull' en $AGENT_OS_PATH y vuelve a ejecutar sync.sh."
+        YELLOW='\033[0;33m'
+        NC='\033[0m'
+        echo -e "${YELLOW}⚠️  WARNING: AGENT OS CORE: El núcleo tiene actualizaciones pendientes en GitHub.${NC}"
+        echo -e "${YELLOW}Guía: Haz 'git pull' en $AGENT_OS_PATH para tener la última versión del core antes de sincronizar.${NC}"
         echo "---"
     fi
 fi
 
 if [ ! -d "$TARGET_RULES" ]; then
-    echo "⚠️ La carpeta $TARGET_RULES no existe. ¿Has ejecutado install.sh primero?"
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: La carpeta $TARGET_RULES no existe.${NC}"
+    echo -e "${RED}Guía: Ejecuta 'bash scripts/agent/install.sh $TARGET_PROJECT' primero para configurar la estructura base.${NC}"
     exit 1
 fi
 
