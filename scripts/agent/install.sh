@@ -2,12 +2,19 @@
 
 # install.sh - Instala Agent OS en un proyecto destino
 # Uso: ./install.sh /ruta/al/proyecto
+# Uso (bootstrapping del core): ./install.sh . --self
 
 TARGET_PROJECT=$1
+
+# Modo self-hosted: install.sh apuntando al propio core
+# Solo crea carpetas operativas, omite la copia de scripts sobre sí mismos
+SELF_MODE=false
+[[ "${1:-}" == "--self" || "${2:-}" == "--self" ]] && SELF_MODE=true
 
 if [ -z "$TARGET_PROJECT" ]; then
     echo "❌ Error: Debes proporcionar la ruta al proyecto destino."
     echo "Uso: ./install.sh /home/romen/Proyectos/mi-proyecto"
+    echo "Uso (self): bash scripts/agent/install.sh . --self"
     exit 1
 fi
 
@@ -28,12 +35,17 @@ TARGET_WORKFLOWS="$TARGET_AGENTS/workflows"
 TARGET_SKILLS="$TARGET_AGENTS/skills"
 TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
 
-echo "🚀 Instalando Agent OS en $TARGET_PROJECT..."
+if [[ "$SELF_MODE" == true ]]; then
+    echo "🔄 Modo self-hosted: bootstrapping del propio core agent-os..."
+else
+    echo "🚀 Instalando Agent OS en $TARGET_PROJECT..."
+fi
 
 # 1. Crear estructura de agentes y scripts
 mkdir -p "$TARGET_RULES"
 mkdir -p "$TARGET_WORKFLOWS"
 mkdir -p "$TARGET_SKILLS"
+mkdir -p "$TARGET_PROJECT/.agents/context"
 mkdir -p "$TARGET_SCRIPTS"
 
 # 2. Crear estructura de documentación
@@ -41,6 +53,13 @@ mkdir -p "$TARGET_PROJECT/docs/sprints"
 mkdir -p "$TARGET_PROJECT/docs/adrs"
 mkdir -p "$TARGET_PROJECT/docs/idea-inbox"
 mkdir -p "$TARGET_PROJECT/docs/external-inbox"
+
+if [[ "$SELF_MODE" == true ]]; then
+    echo "✅ Estructura de carpetas operativas creada (modo self: scripts omitidos)."
+    echo "✨ Bootstrapping del core completado."
+    echo "💡 Puedes verificar el estado con: bash scripts/agent/check-sprint.sh"
+    exit 0
+fi
 
 # 3. Copiar reglas globales (plano)
 if [ -d "$AGENT_OS_RULES" ]; then
