@@ -1,0 +1,44 @@
+[active]
+.agents/rules/global/mvp-code-quality.md
+.agents/rules/global/response-checklist.md
+.agents/rules/global/no-destructive-without-audit.md
+.agents/rules/global/tool-decision-flow.md
+.agents/rules/global/dry-architecture.md
+.agents/rules/global/caveman.md
+.agents/rules/global/maximum-autonomy.md
+.agents/rules/global/strict-workflow.md
+.agents/rules/global/language-protocol.md
+.agents/rules/global/mvp-focus-redirect.md
+.agents/rules/global/deployment-safety.md
+.agents/rules/global/analysis-principles.md
+.agents/rules/global/audit-before-refactor.md
+.agents/workflows/session-close.md
+.agents/workflows/honesto.md
+.agents/workflows/sprint-planning.md
+.agents/workflows/sprint-inicial.md
+.agents/workflows/changelog.md
+.agents/workflows/session-start.md
+.agents/context/agent-os-changelog.md
+scripts/agent/contribute.sh
+scripts/agent/update-mvp-tracker.sh
+scripts/agent/check-inbox.sh
+scripts/agent/audit-repo.sh
+scripts/agent/close-sprint.sh
+scripts/agent/check-sprint.sh
+scripts/agent/sync.sh
+scripts/agent/lib/detect-stack.sh
+scripts/agent/lib/find-tracker.sh
+scripts/agent/inventory-check.sh
+scripts/agent/check-session.sh
+scripts/agent/close-task.sh
+scripts/agent/update-changelog.sh
+scripts/agent/install.sh
+scripts/agent/audit-mvp-tracker.sh
+scripts/agent/check-lazy-planning.sh
+scripts/agent/generate-digest.sh
+scripts/agent/assets-manifest.txt
+
+[deprecated]
+# fecha       archivo                              motivo
+2026-06-17    docs/IMPLEMENTED.md                  redundante con changelog.md
+2026-06-17    .agents/workflows/core-planning.md   absorbido en AGENTS.md
