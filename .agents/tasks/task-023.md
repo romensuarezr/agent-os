@@ -20,6 +20,7 @@ Archivos autorizados para modificación:
 - [ ] Redefinir `roadmap.md` como documento de intención de alto nivel con secciones: `## En curso`, `## Próximo`, `## Descartado` (sin IDs ni checkboxes).
 - [ ] Eliminar/deprecar `docs/IMPLEMENTED.md` y remover cualquier referencia a este archivo en los scripts que escriben en él (ej. `close-task.sh`).
 - [ ] Modificar `close-sprint.sh` (y/o `close-task.sh`) para que no escriban en `roadmap.md`. El roadmap solo reflejará líneas de trabajo amplias, no tareas individuales.
+- [ ] Corregir el bug sintáctico de `close-sprint.sh` provocado por la tubería `grep -c` cuando no hay coincidencias de tareas (devolviendo `0\n0`).
 - [ ] Actualizar el template de sprint planning para mover la línea correspondiente de `roadmap.md` a `## En curso` durante la fase de planning, no de ejecución.
 - [ ] El agente puede ejecutar el flujo completo de cierre y archivado sin inconsistencias.
 
