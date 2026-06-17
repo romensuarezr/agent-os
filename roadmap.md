@@ -1,14 +1,12 @@
 # Roadmap — agent-os
 
-## Estado actual
-Sistema base funcional. Scripts instalados y validados en proyectos hijos.
+## En curso
+- Consolidación de la universalidad del core (soporte multi-stack, ADRs y rediseño de flujos de ciclo de vida del agente).
+- Detección interactiva de actualizaciones del core desde proyectos hijos.
 
-## Sprint activo
-→ ver docs/sprints/sprint-02-core.md (pendiente de crear)
+## Próximo
+- Auditorías automáticas del estado de salud de los scripts en proyectos hijos.
+- Refinamiento de workflows globales y estandarización de logs de ejecución.
 
-## Próximas líneas de trabajo
-- [ ] Universalizaciones pendientes (hardcodes de paths en scripts)
-- [ ] Soporte multi-stack documentado en lib/detect-stack.sh  
-- [ ] ADRs de decisiones de diseño tomadas hasta ahora
-- [ ] Mejoras de DX del agente (mensajes de error, guías inline)
-- [ ] Validar compatibilidad de sync.sh tras el bootstrap self-hosted
+## Descartado
+- (Sin líneas descartadas por el momento)

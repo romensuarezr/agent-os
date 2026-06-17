@@ -66,13 +66,7 @@ if [ "$1" == "--apply" ]; then
         exit 1
     fi
 
-    impl_mig_count=$(grep -E "\- \[[ x]\] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE" | wc -l)
-    if [ "$impl_mig_count" -gt 1 ]; then
-        echo "⚠️ AMBIGÜEDAD: Se encontraron $impl_mig_count candidatos para implemented:"
-        grep -E "\- \[[ x]\] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE" | sed -E 's/- \[[ x]\] Migrar y renombrar (.*) a docs\/implemented.md.*/   - \1/'
-        echo "Edita docs/agent-os-audit.md y deja solo el candidato correcto antes de ejecutar --apply."
-        exit 1
-    fi
+
 
     # Aplicar migraciones difusas (fuzzy matching)
     if [ "$roadmap_mig_count" -eq 1 ] && grep -q "\- \[ \] Migrar y renombrar .* a roadmap.md" "$AUDIT_FILE"; then
@@ -102,14 +96,7 @@ if [ "$1" == "--apply" ]; then
         fi
     fi
 
-    if [ "$impl_mig_count" -eq 1 ] && grep -q "\- \[ \] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE"; then
-        legacy_file=$(grep "\- \[ \] Migrar y renombrar .* a docs/implemented.md" "$AUDIT_FILE" | head -n 1 | sed -E 's/- \[ \] Migrar y renombrar (.*) a docs\/implemented.md.*/\1/')
-        if [ -f "$legacy_file" ]; then
-            git mv "$legacy_file" docs/implemented.md
-            echo "✅ Migrado y renombrado $legacy_file a docs/implemented.md"
-            applied_changes=$((applied_changes + 1))
-        fi
-    fi
+
 
     # 1. Renombrar archivos de casing incorrecto en la raíz
     if grep -q "\- \[ \] Renombrar ROADMAP.md a roadmap.md en la raíz" "$AUDIT_FILE"; then
@@ -142,20 +129,7 @@ if [ "$1" == "--apply" ]; then
             applied_changes=$((applied_changes + 1))
         fi
     fi
-    if grep -q "\- \[ \] Mover implemented.md de la raíz a docs/implemented.md" "$AUDIT_FILE"; then
-        if [ -f "implemented.md" ]; then
-            git mv implemented.md docs/implemented.md
-            echo "✅ Movido implemented.md de la raíz a docs/implemented.md"
-            applied_changes=$((applied_changes + 1))
-        fi
-    fi
-    if grep -q "\- \[ \] Mover IMPLEMENTED.md de la raíz a docs/implemented.md" "$AUDIT_FILE"; then
-        if [ -f "IMPLEMENTED.md" ]; then
-            git mv IMPLEMENTED.md docs/implemented.md
-            echo "✅ Movido IMPLEMENTED.md de la raíz a docs/implemented.md"
-            applied_changes=$((applied_changes + 1))
-        fi
-    fi
+
 
     if grep -q "\- \[ \] Renombrar docs/MVP-TRACKER.md a docs/mvp-tracker.md" "$AUDIT_FILE"; then
         if [ -f "docs/MVP-TRACKER.md" ]; then
@@ -164,13 +138,7 @@ if [ "$1" == "--apply" ]; then
             applied_changes=$((applied_changes + 1))
         fi
     fi
-    if grep -q "\- \[ \] Renombrar docs/IMPLEMENTED.md a docs/implemented.md" "$AUDIT_FILE"; then
-        if [ -f "docs/IMPLEMENTED.md" ]; then
-            git mv docs/IMPLEMENTED.md docs/implemented.md
-            echo "✅ Renombrado docs/IMPLEMENTED.md a docs/implemented.md"
-            applied_changes=$((applied_changes + 1))
-        fi
-    fi
+
 
     # 3. Mover external-inbox de la raíz a docs/external-inbox/
     if grep -q "\- \[ \] Mover external-inbox de la raíz a docs/external-inbox/" "$AUDIT_FILE"; then
@@ -307,40 +275,7 @@ if [ "$1" == "--apply" ]; then
         applied_changes=$((applied_changes + 1))
     fi
 
-    # 5.5 Sincronizar con docs/implemented.md
-    if grep -q "\- \[ \] Actualizar docs/implemented.md con los hitos históricos" "$AUDIT_FILE"; then
-        implemented_file="docs/implemented.md"
-        if [ -f "$implemented_file" ]; then
-            echo "⚙️ Actualizando $implemented_file con hitos históricos..."
-            # Si no contiene una sección de Sprint 00, la añadimos
-            if ! grep -q "Sprint 00" "$implemented_file"; then
-                echo -e "\n## Sprint 00 (Histórico)" >> "$implemented_file"
-                echo "- [x] Sincronización inicial de commits históricos" >> "$implemented_file"
-                # Añadir los 5 commits más recientes como hitos
-                task_idx=1
-                in_sprint_section=false
-                while IFS= read -r line || [ -n "$line" ]; do
-                    if [[ "$line" == "## Sprint-00 sugerido" ]]; then
-                        in_sprint_section=true
-                        continue
-                    fi
-                    if $in_sprint_section; then
-                        if [[ "$line" == "## "* ]]; then
-                            break
-                        fi
-                        if [[ "$line" == "- [x] Commit "* ]] && [ "$task_idx" -le 5 ]; then
-                            commit_msg=$(echo "$line" | sed -E 's/- \[x\] Commit `[0-9a-f]+` \([0-9-]+\): //')
-                            echo "- [x] $commit_msg" >> "$implemented_file"
-                            task_idx=$((task_idx + 1))
-                        fi
-                    fi
-                done < "$AUDIT_FILE"
-                echo "✅ $implemented_file actualizado con hitos del Sprint 00."
-                git add "$implemented_file"
-                applied_changes=$((applied_changes + 1))
-            fi
-        fi
-    fi
+
 
     # 6. Actualizar roadmap.md con secciones requeridas
     if grep -q "\- \[ \] Añadir secciones requeridas a roadmap.md" "$AUDIT_FILE"; then
@@ -472,37 +407,7 @@ else
     fi
 fi
 
-# Para implemented.md
-impl_exists_root=$(find . -maxdepth 1 -iname "implemented.md" 2>/dev/null | head -n 1 | sed 's|^\./||')
-impl_exists_docs=""
-[ -d "docs" ] && impl_exists_docs=$(find docs -maxdepth 1 -iname "implemented.md" 2>/dev/null | head -n 1)
 
-if [ -z "$impl_exists_root" ] && [ -z "$impl_exists_docs" ]; then
-    impl_cands=$( (find . -maxdepth 1 -type f \( -iname "*implement*" -o -iname "*hito*" -o -iname "*milestone*" \) 2>/dev/null; [ -d "docs" ] && find docs -maxdepth 1 -type f \( -iname "*implement*" -o -iname "*hito*" -o -iname "*milestone*" \) 2>/dev/null) | grep -v "agent-os-audit" | sed 's|^\./||' )
-    cand_count=$(echo "$impl_cands" | grep -c . || true)
-    if [ "$cand_count" -eq 1 ]; then
-        cand=$(echo "$impl_cands" | head -n 1)
-        incompatibilidades+="- ⚠️ Archivo candidato a ser el registro de hitos detectado con nombre no estándar: \`$cand\` (se sugiere mover y renombrar a \`docs/implemented.md\`)\n"
-        propuestas+="- [ ] Migrar y renombrar $cand a docs/implemented.md\n"
-    elif [ "$cand_count" -gt 1 ]; then
-        cand_list=$(echo "$impl_cands" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
-        incompatibilidades+="- ⚠️ AMBIGÜEDAD: Se encontraron múltiples candidatos para implemented.md: $cand_list. Edita docs/agent-os-audit.md dejando solo el candidato correcto antes de ejecutar --apply.\n"
-        while IFS= read -r cand || [ -n "$cand" ]; do
-            propuestas+="- [ ] Migrar y renombrar $cand a docs/implemented.md\n"
-        done <<< "$impl_cands"
-    fi
-else
-    if [ -n "$impl_exists_root" ]; then
-        incompatibilidades+="- ⚠️ Archivo \`$impl_exists_root\` en la raíz (debería estar en \`docs/implemented.md\`)\n"
-        propuestas+="- [ ] Mover $impl_exists_root de la raíz a docs/implemented.md\n"
-    elif [ -n "$impl_exists_docs" ]; then
-        filename=$(basename "$impl_exists_docs")
-        if [ "$filename" != "implemented.md" ]; then
-            incompatibilidades+="- ⚠️ Archivo en docs/ con casing incorrecto: \`$impl_exists_docs\` (debería ser \`docs/implemented.md\`)\n"
-            propuestas+="- [ ] Renombrar $impl_exists_docs a docs/implemented.md\n"
-        fi
-    fi
-fi
 
 # 3. Comprobar ubicación de external-inbox
 if [ -d "external-inbox" ] || [ -f "external-inbox" ]; then
@@ -584,7 +489,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     
     if [ -n "$sprint_sugerido" ]; then
         propuestas+="- [ ] Crear docs/sprints/_archived/sprint-00-historical.md con los commits agrupados por semana\n"
-        propuestas+="- [ ] Actualizar docs/implemented.md con los hitos históricos identificados en el Sprint 00\n"
+        propuestas+="- [ ] Actualizar CHANGELOG.md con los hitos históricos identificados en el Sprint 00\n"
     fi
 else
     incompatibilidades+="- ⚠️ El directorio no es un repositorio Git válido.\n"

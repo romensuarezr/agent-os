@@ -59,14 +59,14 @@ if [ ! -f "$SPRINT_FILE" ]; then
 fi
 
 # --- Verificar que el sprint está completado antes de archivar ---
-TOTAL=$(grep -c "^| T-" "$SPRINT_FILE" 2>/dev/null || echo "0")
-DONE=$(grep "^| T-" "$SPRINT_FILE" 2>/dev/null | grep -cE "✅|🟢 Completada" || echo "0")
+TOTAL=$(grep -E "^\| T-|^-[[:space:]]*\[[ x/]\]" "$SPRINT_FILE" 2>/dev/null | wc -l || echo "0")
+DONE=$(grep -E "^\| T-|^-[[:space:]]*\[[ x/]\]" "$SPRINT_FILE" 2>/dev/null | grep -E "✅|🟢 Completada|\[x\]" 2>/dev/null | wc -l || echo "0")
 
 if [ "$TOTAL" -eq 0 ]; then
   YELLOW='\033[0;33m'
   NC='\033[0m'
-  echo -e "${YELLOW}⚠️  WARNING: No se encontraron tareas (filas | T-XXX |) en $SPRINT_NAME.${NC}"
-  echo -e "${YELLOW}Guía: Verifica que las tareas estén formateadas en tablas usando '| T-XXX |' en el archivo del sprint.${NC}"
+  echo -e "${YELLOW}⚠️  WARNING: No se encontraron tareas (filas | T-XXX | o items - [ ] T-XXX) en $SPRINT_NAME.${NC}"
+  echo -e "${YELLOW}Guía: Verifica que las tareas estén formateadas en tablas o listas en el archivo del sprint.${NC}"
   exit 1
 fi
 

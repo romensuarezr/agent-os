@@ -1,17 +1,13 @@
 # Roadmap — {{PROJECT_NAME}}
 
-Este archivo contiene la visión general y hoja de ruta del proyecto. Es un documento vivo mantenido por el desarrollador y el agente.
+Este archivo contiene la visión general y hoja de ruta del proyecto. Es un documento de intención de alto nivel editable de manera manual durante la planificación de sprints.
 
-## Objetivos MVP
-- [ ] Definir el alcance mínimo viable del producto.
-- [ ] Validar las capacidades clave.
+## En curso
+- Inicialización del repositorio y configuración de Agent OS.
 
-## En progreso
-- [ ] Inicialización del repositorio y configuración de Agent OS.
+## Próximo
+- Configuración del flujo de despliegue continuo.
+- Capacidad de pruebas automatizadas iniciales.
 
-## Completado
-*Ningún hito completado todavía.*
-
-## Backlog
-- [ ] Capacidad de pruebas automatizadas iniciales.
-- [ ] Configuración del flujo de despliegue continuo.
+## Descartado
+- (Sin líneas descartadas por el momento)
