@@ -8,7 +8,7 @@
 ## Tareas
 
 - [x] T-023: Rediseñar el flujo roadmap ↔ sprint ↔ changelog — Flujo de Trabajo
-- [ ] T-024: Detección automática de actualizaciones del core en check-session.sh — DX del agente
+- [x] T-024: Detección automática de actualizaciones del core en check-session.sh — DX del agente
 
 ## Criterio de éxito
 
