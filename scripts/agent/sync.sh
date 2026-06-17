@@ -3,7 +3,25 @@
 # sync.sh - Sincroniza las reglas globales de Agent OS con un proyecto
 # Uso: ./sync.sh /ruta/al/proyecto
 
-TARGET_PROJECT=$1
+TARGET_PROJECT=""
+CLEANUP=false
+FORCE=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --cleanup)
+            CLEANUP=true
+            ;;
+        --force)
+            FORCE=true
+            ;;
+        *)
+            if [ -z "$TARGET_PROJECT" ]; then
+                TARGET_PROJECT="$arg"
+            fi
+            ;;
+    esac
+done
 
 if [ -z "$TARGET_PROJECT" ]; then
     RED='\033[0;31m'
@@ -126,5 +144,121 @@ fi
 
 # Guardar marca de fecha de última sincronización
 echo "$(date -u +%Y-%m-%d)" > "$TARGET_PROJECT/.agents/context/last-sync.md"
+
+# Sincronizar manifiesto de assets
+if [ -f "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" ]; then
+    cp "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" "$TARGET_PROJECT/.agents/context/assets-manifest.txt"
+    echo "  Sincronizando manifiesto de assets..."
+fi
+
+# ==============================================================================
+# DETECCIÓN Y GESTIÓN DE ARCHIVOS DEPRECADOS
+# ==============================================================================
+MANIFEST_FILE="$AGENT_OS_PATH/scripts/agent/assets-manifest.txt"
+DEPRECATED_FILES=()
+DEPRECATED_MOTIVES=()
+
+if [ -f "$MANIFEST_FILE" ]; then
+    in_deprecated=false
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Limpiar espacios en blanco de la línea
+        line=$(echo "$line" | xargs)
+        if [ "$line" = "[deprecated]" ]; then
+            in_deprecated=true
+            continue
+        elif [[ "$line" =~ ^\[.*\]$ ]]; then
+            in_deprecated=false
+            continue
+        fi
+        
+        if [ "$in_deprecated" = "true" ]; then
+            # Omitir comentarios y líneas vacías
+            if [[ -z "$line" || "$line" =~ ^# ]]; then
+                continue
+            fi
+            
+            # Formato: FECHA FILE MOTIVO
+            read -r dep_date dep_file dep_motive <<< "$line"
+            if [ -n "$dep_file" ]; then
+                DEPRECATED_FILES+=("$dep_file")
+                DEPRECATED_MOTIVES+=("$dep_motive")
+            fi
+        fi
+    done < "$MANIFEST_FILE"
+fi
+
+DETECTED_DEPRECATED=()
+DETECTED_MOTIVES=()
+for i in "${!DEPRECATED_FILES[@]}"; do
+    dep_file="${DEPRECATED_FILES[$i]}"
+    dep_motive="${DEPRECATED_MOTIVES[$i]}"
+    if [ -f "$TARGET_PROJECT/$dep_file" ]; then
+        DETECTED_DEPRECATED+=("$dep_file")
+        DETECTED_MOTIVES+=("$dep_motive")
+    fi
+done
+
+if [ "${#DETECTED_DEPRECATED[@]}" -gt 0 ]; then
+    if [ "$CLEANUP" = "false" ]; then
+        YELLOW='\033[0;33m'
+        NC='\033[0m'
+        echo -e ""
+        echo -e "${YELLOW}⚠️  ARCHIVOS DEPRECADOS DETECTADOS en este proyecto:${NC}"
+        for i in "${!DETECTED_DEPRECATED[@]}"; do
+            echo -e "    - ${DETECTED_DEPRECATED[$i]} (${DETECTED_MOTIVES[$i]})"
+        done
+        echo ""
+        echo "Estos archivos ya no forman parte de agent-os."
+        echo "Si no los usas, puedes eliminarlos con:"
+        echo "    bash scripts/agent/sync.sh $TARGET_PROJECT --cleanup"
+        echo ""
+        echo "Para ver qué contienen antes de decidir:"
+        echo "    cat ${DETECTED_DEPRECATED[0]}"
+    else
+        # Validar interactividad si no hay --force
+        if [ "$FORCE" = "false" ] && [ ! -t 0 ]; then
+            RED='\033[0;31m'
+            NC='\033[0m'
+            echo -e "${RED}❌ ERROR: El entorno no es interactivo y no se ha especificado el flag --force.${NC}"
+            echo -e "${RED}Guía: Para ejecutar la limpieza de forma no interactiva (CI, pipes), usa: bash scripts/agent/sync.sh $TARGET_PROJECT --cleanup --force${NC}"
+            exit 1
+        fi
+        
+        # Eliminar interactivamente o con force
+        for i in "${!DETECTED_DEPRECATED[@]}"; do
+            dep_file="${DETECTED_DEPRECATED[$i]}"
+            full_path="$TARGET_PROJECT/$dep_file"
+            if [ -f "$full_path" ]; then
+                echo ""
+                echo "Primeras 5 líneas de $dep_file:"
+                head -n 5 "$full_path"
+                echo "--------------------------------------"
+                
+                confirm="n"
+                if [ "$FORCE" = "true" ]; then
+                    confirm="s"
+                else
+                    echo -n "¿Eliminar $dep_file? (s/N): "
+                    read confirm
+                fi
+                
+                confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
+                if [ "$confirm" = "s" ] || [ "$confirm" = "si" ]; then
+                    # Intentar borrar con git rm si es repo git
+                    if git -C "$TARGET_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+                        git -C "$TARGET_PROJECT" rm -f "$dep_file" >/dev/null 2>&1
+                    fi
+                    # Fallback por si git rm falló o no estaba trackeado
+                    if [ -f "$full_path" ]; then
+                        rm -f "$full_path"
+                    fi
+                    echo "✅ Eliminado: $dep_file"
+                else
+                    echo "Omitido: $dep_file"
+                fi
+            fi
+        done
+    fi
+fi
 
 echo "✅ Sincronización completada."

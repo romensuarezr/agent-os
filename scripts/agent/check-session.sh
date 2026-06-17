@@ -104,6 +104,27 @@ if [ "$is_core" = "false" ]; then
     fi
     echo "--------------------------------------------------------"
   fi
+
+  # 5. Comprobar si existen archivos deprecados conocidos
+  DEPRECATED_KNOWN=("docs/IMPLEMENTED.md" ".agents/workflows/core-planning.md")
+  FOUND_DEPRECATED_KNOWN=()
+  for dep_k in "${DEPRECATED_KNOWN[@]}"; do
+    if [ -f "$dep_k" ]; then
+      FOUND_DEPRECATED_KNOWN+=("$dep_k")
+    fi
+  done
+
+  if [ "${#FOUND_DEPRECATED_KNOWN[@]}" -gt 0 ]; then
+    YELLOW='\033[0;33m'
+    NC='\033[0m'
+    echo -e "${YELLOW}⚠️  WARNING: Se detectaron archivos deprecados de Agent OS en este proyecto:${NC}"
+    for dep_k in "${FOUND_DEPRECATED_KNOWN[@]}"; do
+      echo "    - $dep_k"
+    done
+    echo "Guía: Ejecuta la sincronización con limpieza para eliminarlos de forma segura:"
+    echo "    bash scripts/agent/sync.sh . --cleanup"
+    echo "---"
+  fi
 fi
 
 LOCK_FILE=".agent-session.lock"

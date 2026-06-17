@@ -9,6 +9,7 @@
 
 - [x] T-023: Rediseñar el flujo roadmap ↔ sprint ↔ changelog — Flujo de Trabajo
 - [x] T-024: Detección automática de actualizaciones del core en check-session.sh — DX del agente
+- [x] T-025: assets-manifest.txt — gestión de eliminaciones en sync.sh — Flujo de Trabajo
 
 ## Criterio de éxito
 
