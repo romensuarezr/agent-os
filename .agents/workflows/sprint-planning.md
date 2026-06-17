@@ -19,7 +19,7 @@ description: Ritual de inicio de semana. Lee el roadmap, vacía el idea-inbox, g
 - `docs/idea-inbox/`
 - `external-inbox/`
 - `docs/MVP-TRACKER.md`
-- `docs/IMPLEMENTED.md`
+- `CHANGELOG.md`
 
 ## Prerrequisitos
 - `ROADMAP.md` en la raíz del proyecto (mayúsculas exactas).
@@ -96,10 +96,10 @@ Al cerrar el sprint anterior:
 
 **Paso previo obligatorio — leer el registro de features:**
 
-Antes de ejecutar `inventory-check.sh`, leer `docs/IMPLEMENTED.md`.  
+Antes de ejecutar `inventory-check.sh`, leer `CHANGELOG.md`.  
 Si la feature candidata ya aparece en ese archivo → **no entra al sprint, se marca directamente como `✅ Hecho` en el roadmap**. No hace falta ejecutar inventory-check para esa tarea.
 
-Para cada tarea candidata que NO aparezca en `docs/IMPLEMENTED.md`:
+Para cada tarea candidata que NO aparezca en `CHANGELOG.md`:
 
 1. **Ejecutar inventory check:**
    ```bash
@@ -115,12 +115,12 @@ Para cada tarea candidata que NO aparezca en `docs/IMPLEMENTED.md`:
 
 | Resultado | Acción |
 |---|---|
-| ✅ en `docs/IMPLEMENTED.md` | Marcar `✅ Hecho` en roadmap; no entra al sprint. |
+| ✅ en `CHANGELOG.md` | Marcar `✅ Hecho` en roadmap; no entra al sprint. |
 | ✅ >70% ya implementado (inventory) | Marcar `✅ Hecho` en el sprint anterior; no arrastrar. Informar al usuario con evidencia de archivo. |
 | ⚠️ 30–70% implementado | Preguntar al usuario si refinar la tarea para lo que falta |
 | ⬜ <30% o sin implementar | Proceder normalmente |
 
-4. **Presentar tabla al usuario** con: tarea, fuente de verificación (IMPLEMENTED.md o inventory), archivos encontrados, % estimado, acción propuesta.
+4. **Presentar tabla al usuario** con: tarea, fuente de verificación (CHANGELOG.md o inventory), archivos encontrados, % estimado, acción propuesta.
 
 5. **Esperar confirmación del usuario antes de continuar al paso 3.**
 
@@ -213,7 +213,7 @@ El script recalcula el **% global** leyendo los valores de `% cap.` de la tabla 
 
 **A continuación, revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:**
 
-- Leer `docs/IMPLEMENTED.md` y el sprint recién cerrado.
+- Leer `CHANGELOG.md` y el sprint recién cerrado.
 - Para cada capacidad, evaluar si el trabajo completado desde el último planning mueve el % de esa capacidad.
 - Actualizar los valores en la tabla de `docs/MVP-TRACKER.md` si procede.
 - Ejecutar de nuevo `update-mvp-tracker.sh` para recalcular el total con los valores actualizados.
@@ -307,7 +307,7 @@ Justo antes del mensaje de pausa del paso 6, mostrar al usuario:
 - Equilibrio de tamaños: no más de 1 tarea L por sprint.
 - Prioridad: tareas arrastradas del sprint anterior primero, luego ítems bloqueantes, luego por orden del roadmap.
 - Tamaños: **S** = < 1h, **M** = 1-3h, **L** = 3h+.
-- **Solo entran tareas verificadas como no implementadas** (resultado del paso 2c — ni en `docs/IMPLEMENTED.md` ni en inventory check).
+- **Solo entran tareas verificadas como no implementadas** (resultado del paso 2c — ni en `CHANGELOG.md` ni en inventory check).
 
 ### Escala de Progreso del MVP
 Para la actualización manual de las capacidades en `docs/MVP-TRACKER.md`, aplicar esta escala:

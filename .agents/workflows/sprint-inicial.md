@@ -10,7 +10,7 @@ description: Ritual de Onboarding y Adaptación Inicial. Ejecutar una única vez
 
 - Diagnosticar el repositorio actual para detectar incompatibilidades estructurales.
 - Alinear el casing de archivos clave (`roadmap.md`, `changelog.md`).
-- Agrupar commits históricos en un Sprint 00 de control de progreso y sincronizar hitos con `docs/implemented.md`.
+- Agrupar commits históricos en un Sprint 00 de control de progreso y sincronizar hitos con `CHANGELOG.md`.
 - Generar el archivo de marca `.agents/context/onboarding-complete.md` que garantiza la idempotencia del proceso.
 
 ## Archivos y rutas a revisar
@@ -18,7 +18,6 @@ description: Ritual de Onboarding y Adaptación Inicial. Ejecutar una única vez
 - `ROADMAP.md` / `roadmap.md`
 - `CHANGELOG.md` / `changelog.md`
 - `docs/MVP-TRACKER.md` / `docs/mvp-tracker.md`
-- `docs/IMPLEMENTED.md` / `docs/implemented.md`
 - `docs/sprints/`
 - `.agents/context/onboarding-complete.md`
 
@@ -75,7 +74,7 @@ bash scripts/agent/audit-repo.sh --apply
 El script ejecutará de forma automática:
 - Los renombres y migraciones estructurales necesarios en Git.
 - La creación de `docs/sprints/_archived/sprint-00-historical.md` en formato de tabla markdown completada (`T-00-XX` con `✅`).
-- La actualización de `docs/implemented.md` con los hitos del Sprint 00.
+- La actualización de `CHANGELOG.md` con los hitos del Sprint 00.
 - La creación del archivo de marca de trazabilidad `.agents/context/onboarding-complete.md`.
 - Un commit automático: `chore(agent-os): apply audit adaptations to existing repo and mark onboarding complete`.
 
