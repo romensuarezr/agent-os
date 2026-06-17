@@ -85,7 +85,11 @@ bash scripts/agent/check-sprint.sh
 bash scripts/agent/check-session.sh
 
 # Planificar el próximo sprint del core
-# → usar workflow: .agents/workflows/core-planning.md
+# Al planificar un sprint del core, usa el mismo workflow sprint-planning.md pero con estas categorías de tareas:
+# Universalización / Bug del sistema / Nueva herramienta / DX / Documentación
+#
+# Fuentes del inbox: docs/external-inbox/ y docs/idea-inbox/
+# No hay MVP tracker — el producto son los propios scripts.
 ```
 
 ### Bootstrapping inicial (una sola vez)
