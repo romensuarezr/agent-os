@@ -44,7 +44,7 @@ bash scripts/agent/check-session.sh
    No continuar hasta recibir respuesta explícita.
 3. Identificar primera tarea `⬜ Pendiente` o `⏸ Pausada`. Mostrar: `"Tarea activa: [T-XXX] — [descripción]"`.
 
-> ⚠️ **Una sola tarea activa por sesión.** El task file identificado aquí (ej: `task-029.md`) es el **ÚNICO** que puede leerse durante las Fases 0–2. Cualquier otro task file del sprint (`task-028.md`, `task-030.md`, etc.) está **prohibido** hasta después de la aprobación del plan. Leerlos antes constituye una **violación lazy-planning** aunque el motivo sea entender contexto.
+> ⚠️ **Una sola tarea activa por sesión.** El task file identificado aquí (ej: `task-029.md`) es el **Único** que puede leerse durante las Fases 0–2. Cualquier otro task file del sprint está **prohibido** hasta después de la aprobación del plan. Leerlos antes constituye una **violación lazy-planning**.
 
 **Sin tareas pendientes:** mostrar y detenerse:
 ```
@@ -63,14 +63,7 @@ bash scripts/agent/check-session.sh
      - Error → volver a Fase 1.
    - No encontrado → crear con `doe-framework` desde `_template.md`.
 
-> 🔒 **LÍMITE FASE 2**: Solo leer documentos de planificación del task activo (sprint file, research, task file activo). **Prohibido:**
-> - Leer, buscar o listar `src/`, `lib/` u otro directorio de código fuente
-> - `Searched for`, `Listed directory` y `Viewed` sobre archivos `.ts`/`.tsx`/`.js`
-> - Leer documentos de referencia estáticos: `SKILL.md`, `_template.md`, `naming-convention.md` u otros `.md` fuera de `docs/sprints/` y `.agents/tasks/task-XXX.md`
-> - `Listed directory` en `.agents/tasks/` o `.agents/tasks/_archived/` — para verificar existencia usar `test -f` únicamente
-> - Leer cualquier `task-YYY.md` donde `YYY ≠ XXX` (tarea activa)
->
-> Excepción: archivos citados explícitamente por el usuario en su petición, o verificación de existencia con `test -f` sin leer contenido.
+> 🔒 **LÍMITE FASE 2**: Solo leer documentos de planificación del task activo. Ver lista completa de prohibiciones en FASE 3.5.
 
 3. **Investigación previa:** buscar `docs/sprints/sprint-{{SPRINT_ACTIVE}}-research.md`.
    - Existe → integrar en `## Contexto técnico` del task file. Informar: `"📚 Research integrado."`
@@ -87,7 +80,7 @@ bash scripts/agent/check-session.sh
 
 El agente DEBE generar y mostrar el siguiente bloque completo **antes de realizar cualquier acción operativa**. Este bloque es obligatorio. No hay excepción posible.
 
-El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERANDO` al final — es la señal que indica que el agente está en pausa activa:
+El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERANDO` al final:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -101,15 +94,8 @@ El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERAND
   - src/ruta/archivo1.ts  → [qué se cambia y por qué]
   - src/ruta/archivo2.tsx → [qué se cambia y por qué]
 
-🆕 ARCHIVOS NUEVOS A CREAR (firewall anti-sobreescritura):
-  Para cada archivo listado como nuevo, verificar existencia antes de continuar:
-  ```
-  test -f src/ruta/archivo.tsx && echo "⚠️ YA EXISTE" || echo "✅ NUEVO"
-  wc -c src/ruta/archivo.tsx 2>/dev/null || echo "0 bytes"
-  ```
-  ⛔ Si devuelve "⚠️ YA EXISTE" con > 500 bytes:
-     El plan DEBE cambiar "crear" por "extender/revisar".
-     Presentar nuevo plan corregido. No ejecutar el plan original.
+🆕 ARCHIVOS NUEVOS: verificar existencia con `test -f` antes de crear.
+⛔ Si >500 bytes: cambiar "crear" por "extender/revisar" y presentar plan corregido.
 
 📌 PASOS DEL PLAN (en orden):
   1. [paso concreto]
@@ -123,24 +109,21 @@ El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERAND
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-#### Regla dura (no negociable)
-
-Hasta recibir `APROBADO` o `APROBADO CON CAMBIOS` en este chat, el agente tiene prohibido de forma absoluta:
+#### Prohibiciones absolutas hasta recibir APROBADO
 
 - ❌ Crear `.agent-session.lock`
 - ❌ Crear o cambiar de rama (`git checkout`, `git branch`)
 - ❌ Editar, crear o borrar cualquier archivo del proyecto
 - ❌ Ejecutar `git add`, `git commit`, `git push`
 - ❌ Ejecutar `npm`, `yarn`, `pnpm` o cualquier comando que modifique estado
-- ❌ Ejecutar comandos que escriban en disco
 - ❌ `Searched for`, `Listed directory` o `Viewed` en código fuente (`src/`, `lib/`)
 - ❌ `Listed directory` en `.agents/tasks/` o `.agents/tasks/_archived/`
 - ❌ Leer `task-YYY.md` donde `YYY ≠ XXX` (tarea activa)
 - ❌ Leer `SKILL.md`, `_template.md` u otros documentos de referencia estáticos
 
-✅ Está permitido leer **exclusivamente** el task file activo (`task-XXX.md`), el sprint file y el research file. Para construir el plan, inferir desde la descripción del task file sin explorar código ni otros task files.
+✅ Permitido: leer **exclusivamente** el task file activo (`task-XXX.md`), el sprint file y el research file.
 
-Si el agente detecta que ha ejecutado cualquier acción operativa sin haber recibido `APROBADO`, debe:
+Si el agente detecta que ha ejecutado cualquier acción operativa sin haber recibido `APROBADO`:
 1. Detenerse inmediatamente.
 2. Informar al usuario de qué ejecutó.
 3. Proponer el rollback correspondiente.
@@ -167,17 +150,7 @@ Mostrar: `"🔒 Sesión abierta. Ejecución autorizada para [T-XXX]."`
 2. Ejecutar plan aprobado paso a paso.
 3. Si hay que salir de la Caja o cambiar enfoque: detener, presentar mini-plan (mismo formato Fase 3.5), esperar nueva aprobación.
 
-### FASE 5b — 🔴 BLOQUEADO (tarea completada)
-
-Al completar todos los criterios de done:
-
-1. Detener execution. No leer más archivos ni preparar planes.
-2. Mostrar: `"✅ Tarea completada. ¿Confirmas commit y cierre?"`
-3. Respuestas válidas: `sí, commitea` / `cierra` → Fase 6. `no, primero…` → escuchar sin actuar.
-4. Petición nueva en el mismo mensaje: capturar en `docs/idea-inbox/YYYY-MM-DD.md`. Responder: `"💡 Capturada. Primero cierro. ¿Confirmas?"` No leer ni preparar nada nuevo.
-5. Solo tras cerrar la sesión (Fase 6 completa) se puede `/session-start` para la petición nueva.
-
-> ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.
+> Si completas todos los criterios de done antes de que el usuario lo indique: ver **Fase 5b** en Casos especiales.
 
 ### FASE 6 — Cierre de sesión
 
@@ -215,11 +188,25 @@ bash scripts/agent/close-sprint.sh sprint-{{SPRINT_ACTIVE}}
 El script archiva el sprint file y su research asociado en `docs/sprints/_archived/`.
 
 #### C6. Borrar el lock
-El script `close-task.sh` lo elimina automáticamente. Si por algún motivo persiste:
+El script `close-task.sh` lo elimina automáticamente. Si por alguna razón persiste:
 ```bash
 rm .agent-session.lock
 ```
 Mostrar: `"✅ Sesión cerrada. Hasta la próxima."`
+
+## Casos especiales
+
+### Fase 5b — 🔴 BLOQUEADO (tarea completada)
+
+Al completar todos los criterios de done:
+
+1. Detener ejecución. No leer más archivos ni preparar planes.
+2. Mostrar: `"✅ Tarea completada. ¿Confirmas commit y cierre?"`
+3. Respuestas válidas: `sí, commitea` / `cierra` → Fase 6. `no, primero…` → escuchar sin actuar.
+4. Petición nueva en el mismo mensaje: capturar en `docs/idea-inbox/YYYY-MM-DD.md`. Responder: `"💡 Capturada. Primero cierro. ¿Confirmas?"` No leer ni preparar nada nuevo.
+5. Solo tras cerrar la sesión (Fase 6 completa) se puede `/session-start` para la petición nueva.
+
+> ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.
 
 ## Reglas
 
@@ -229,3 +216,6 @@ Antes de cerrar cualquier tarea que corrija un bug en producción o modifique pe
 - Añadir el caso de borde detectado al flujo correspondiente
 - Actualizar el estado de cobertura (⬜ / 🟡 / ✅)
 - Incluir `docs/critical-flows.md` en el commit de cierre
+
+### Protocolo de comunicación por fase
+Durante Fases 4–6 aplica `silent-execution`. Ver `.agents/rules/global/silent-execution.md`.
