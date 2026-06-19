@@ -4,6 +4,8 @@
 
 - [ ] ¿Está en **español**?
 - [ ] ¿He explicado el **QUÉ, POR QUÉ y TRADE-OFF**?
+      → Solo en respuestas técnicas y propuestas al usuario.
+      → No aplica en fases de ejecución (ver `silent-execution`).
 - [ ] ¿He documentado las ideas fuera de MVP en el **roadmap/backlog**?
 - [ ] ¿He propuesto **automatización** en lugar de trabajo manual?
 - [ ] ¿He respetado la **jerarquía de herramientas** (OSS > Free > Premium)?
