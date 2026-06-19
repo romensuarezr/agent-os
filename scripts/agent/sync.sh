@@ -98,7 +98,7 @@ if [ -d "$TARGET_PROJECT/.agents/workflows" ]; then
     TARGET_WORKFLOWS="$TARGET_PROJECT/.agents/workflows"
     for wf in "$AGENT_OS_WORKFLOWS"/*.md; do
         filename=$(basename "$wf")
-        cp -n "$wf" "$TARGET_WORKFLOWS/$filename"
+        cp "$wf" "$TARGET_WORKFLOWS/$filename"
         echo "    [sync] $filename"
     done
 fi
