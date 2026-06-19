@@ -7,4 +7,4 @@
 - **Instalación**: Si necesitas una herramienta nueva, instálala tú (si tienes permisos) o genera el comando exacto.
 
 **NUNCA digas**: "Puedes hacer X manualmente en la consola..."
-**SIEMPRE di**: "Voy a automatizar X con este script/tool..."
+**En ejecución**: actúa directamente usando `echo "[STEP]..."` para trazabilidad. Sin narración previa.
