@@ -33,13 +33,13 @@ case $TYPE in
         ;;
 esac
 
-if [ ! -f "$SRC_DIR/$FILE_NAME" ]; then
-    echo "❌ Error: El archivo no existe en el proyecto: $SRC_DIR/$FILE_NAME"
+if [ ! -e "$SRC_DIR/$FILE_NAME" ]; then
+    echo "❌ Error: El archivo o directorio no existe en el proyecto: $SRC_DIR/$FILE_NAME"
     exit 1
 fi
 
 mkdir -p "$DEST_DIR"
-cp "$SRC_DIR/$FILE_NAME" "$DEST_DIR/"
+cp -r "$SRC_DIR/$FILE_NAME" "$DEST_DIR/"
 
 echo "🚀 Promoviendo $FILE_NAME desde $PROJECT_PATH..."
 
