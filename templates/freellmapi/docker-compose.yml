@@ -1,0 +1,26 @@
+services:
+  freellmapi:
+    image: ghcr.io/tashfeenahmed/freellmapi:latest
+    container_name: freellmapi
+    restart: unless-stopped
+    ports:
+      - "${HOST_BIND_IP:-<ip-nodo-principal>}:${PORT:-3001}:3001"
+    environment:
+      - PORT=3001
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - FREEAPI_CONFIG_PATH=${FREEAPI_CONFIG_PATH:-/app/config/freellmapi.config.json}
+    volumes:
+      - freellmapi-data:/app/server/data
+      - ./config:/app/config
+    networks:
+      - default
+      - <nodo>_default
+
+networks:
+  default:
+  <nodo>_default:
+    external: true
+
+volumes:
+  freellmapi-data:
+    driver: local
