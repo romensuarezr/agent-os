@@ -3,6 +3,7 @@
 ## En curso
 - Consolidación de la universalidad del core (soporte multi-stack, ADRs y rediseño de flujos de ciclo de vida del agente).
 - Detección interactiva de actualizaciones del core desde proyectos hijos.
+- Integración de FreeLLMAPI en VPS datamanager y universalización de la skill `remote-admin`.
 
 ## Próximo
 - Auditorías automáticas del estado de salud de los scripts en proyectos hijos.

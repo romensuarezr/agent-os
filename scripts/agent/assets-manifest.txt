@@ -18,6 +18,7 @@
 .agents/workflows/sprint-inicial.md
 .agents/workflows/changelog.md
 .agents/workflows/session-start.md
+.agents/skills/remote-admin/SKILL.md
 .agents/context/agent-os-changelog.md
 scripts/agent/contribute.sh
 scripts/agent/update-mvp-tracker.sh
