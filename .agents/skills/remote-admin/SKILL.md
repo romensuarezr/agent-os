@@ -21,13 +21,17 @@ ssh <alias-servidor> "<comando>"
 
 > **Recomendación de robustez**: Añadir `-o ConnectTimeout=5` en scripts o comandos automatizados para evitar bloqueos por problemas de red.
 
-### Servidores conocidos en el ecosistema
+### Descubrimiento de Servidores (Optimizado en tokens)
 
-| Alias | Red / Tipo | Usuario | Uso principal |
-|---|---|---|---|
-| `<nodo-inferencia>` | Tailscale (`<ip-nodo-principal>`) | `ubuntu` | Inferencia LLM, Ollama, Qdrant, FreeLLMAPI |
-| `<nodo-orquestacion>` | Pública (`<ip-vps-secundario>`) | `ubuntu` | Producción bots (Polybot, etc.) |
-| `bot3-clouding` | Pública (`187.33.146.24`) | `romen` | Servicios Clouding |
+Para listar los alias SSH disponibles en cualquier entorno sin tener que leer archivos extensos de configuración:
+
+```bash
+# Listado ultracompacto (alias, usuario, host/IP)
+bash .agents/skills/remote-admin/scripts/list-hosts.sh
+
+# Listado con verificación de conectividad activa
+bash .agents/skills/remote-admin/scripts/list-hosts.sh --check
+```
 
 ## Operaciones Comunes
 
