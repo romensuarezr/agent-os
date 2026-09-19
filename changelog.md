@@ -2,6 +2,17 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.3.0] — 2026-09-19
+### Añadido
+- **Skill Universal `remote-admin`**: Promovida al core (`.agents/skills/remote-admin`) para administración segura de servidores remotos vía SSH (`~/.ssh/config`), inspección de Docker y diagnóstico rápido de latencia/conectividad con el script `scripts/list-hosts.sh`.
+- **Plantillas de Despliegue de FreeLLMAPI (`templates/freellmapi/`)**: Plantillas reutilizables de `docker-compose.yml`, `.env.example` y `config/freellmapi.config.json` para desplegar la pasarela de inferencia unificada con backend Ollama y proveedores gratuitos.
+- **Runbook Operativo de FreeLLMAPI (`docs/freellmapi-vps-runbook.md`)**: Guía detallada de arquitectura, binding seguro en Tailscale (`100.77.82.13:3001`), autenticación con Unified Key y ejemplos de consumo E2E (`curl`, OpenAI SDK).
+
+### Infraestructura / Integración
+- **Despliegue de FreeLLMAPI en `datamanager`**: Contenedor Docker configurado en `/home/ubuntu/freellmapi/`, conectado a la red compartida `datamanager_default` con acceso directo a los modelos de Ollama (`llama3.1:8b`, `qwen2.5:7b`, `qwen2.5:3b`, `mistral-nemo:12b`) y enrutamiento automático a proveedores cloud gratuitos.
+
+---
+
 ## [1.2.0] — 2026-06-15
 ### Añadido
 - **Biblioteca de Detección de Stack (`detect-stack.sh`)**: Creado un componente centralizado para identificar el framework/lenguaje (Python, TypeScript, JavaScript) y exportar rutas, extensiones, patrones de complejidad y excepciones.
