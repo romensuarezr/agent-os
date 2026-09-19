@@ -16,6 +16,8 @@ ROOT="$(git rev-parse --show-toplevel)"
 SPRINTS_DIR="$ROOT/docs/sprints"
 ARCHIVE_DIR="$ROOT/docs/sprints/_archived"
 CHANGELOG="$ROOT/CHANGELOG.md"
+[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/changelog.md"
+
 
 # --- Validar argumento ---
 if [ -z "${1:-}" ]; then
