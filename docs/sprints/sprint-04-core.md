@@ -9,7 +9,7 @@
 
 - [x] T-026: Universalizar y promover la skill `remote-admin` al core (soporte multi-host SSH: `datamanager`, `oracle`, etc.) — Universalización
 - [x] T-027: Desplegar FreeLLMAPI en el VPS `datamanager` vía Docker Compose — Infraestructura / Integración
-- [ ] T-028: Configurar proveedores gratuitos y backend local Ollama en FreeLLMAPI — Integración / DX
+- [x] T-028: Configurar proveedores gratuitos y backend local Ollama en FreeLLMAPI — Integración / DX
 - [ ] T-029: Validación E2E del endpoint OpenAI `/v1` y redacción de `docs/freellmapi-vps-runbook.md` — Documentación
 
 ## Criterio de éxito
