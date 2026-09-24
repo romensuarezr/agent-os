@@ -1,0 +1,79 @@
+# ==========================================
+# Agent OS — Model Routing & Fallback Policy
+# ==========================================
+version: "1.0.0"
+updated_at: "2026-09-24"
+
+endpoints:
+  primary-reliable:
+    description: "Modelos de alta fidelidad, razonamiento profundo y arquitectura (comerciales/premium)"
+    engine_affinity:
+      - antigravity
+    cost_tier: "paid_commercial"
+
+  freellmapi:
+    description: "Pasarela unificada de inferencia gratuita sobre Tailscale en datamanager"
+    base_url: "http://100.77.82.13:3001/v1"
+    cost_tier: "free_cloud_routed"
+    routing_modes:
+      - auto
+      - custom
+
+  ollama-local:
+    description: "Backend local en VPS datamanager para inferencia 100% privada y offline"
+    base_url: "http://127.0.0.1:11434/v1"
+    cost_tier: "zero_cost_local_compute"
+    verified_models:
+      - "llama3.1:8b"
+      - "qwen2.5:7b"
+      - "qwen2.5:3b"
+      - "mistral-nemo:12b"
+      - "nomic-embed-text:latest"
+
+task_routing_matrix:
+  critical_tasks:
+    description: "Diseño de arquitectura, cambios de seguridad, migraciones y refactors de alto impacto"
+    primary: "primary-reliable"
+    fallback: null
+    allow_unverified_fallback: false
+    reason: "Errores o alucinaciones en cambios críticos pueden comprometer la integridad o seguridad del sistema."
+
+  code_implementation:
+    description: "Generación de código, tests unitarios y corrección de bugs en worktrees aislados"
+    primary: "primary-reliable"
+    secondary: "freellmapi"
+    fallback: "ollama-local"
+    preferred_local_model: "mistral-nemo:12b"
+
+  read_only_operations:
+    description: "Auditorías de logs, comprobación de estado de contenedores, inspección de git"
+    primary: "freellmapi"
+    secondary: "ollama-local"
+    fallback: "primary-reliable"
+    preferred_local_model: "llama3.1:8b"
+
+  marketing_and_seo:
+    description: "Generación de copys, changelogs públicos, documentación y metadatos SEO"
+    primary: "freellmapi"
+    secondary: "ollama-local"
+    fallback: "primary-reliable"
+    preferred_local_model: "qwen2.5:7b"
+
+  summaries_and_triage:
+    description: "Clasificación de mensajes, triage de alertas, extracción de entidades y resúmenes"
+    primary: "freellmapi"
+    secondary: "ollama-local"
+    fallback: null
+    preferred_local_model: "qwen2.5:3b"
+
+  private_data_tasks:
+    description: "Procesamiento de datos sensibles, logs confidenciales o información identificable (PII)"
+    primary: "ollama-local"
+    fallback: null
+    allow_cloud_routing: false
+    reason: "Los datos sensibles nunca deben enviarse a proveedores externos ni salir de la red privada."
+
+  general_fallback:
+    description: "Ruta de supervivencia cuando fallan conexiones cloud o internet"
+    primary: "ollama-local"
+    preferred_local_model: "qwen2.5:3b"

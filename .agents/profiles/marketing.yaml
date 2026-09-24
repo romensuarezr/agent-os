@@ -1,0 +1,26 @@
+id: marketing
+name: "Content & Marketing Strategist"
+purpose: "Generación y redacción de copys, documentación orientada a usuario, newsletters, anuncios de lanzamientos y changelogs públicos."
+version: "1.0.0"
+
+allowed_tools:
+  - doc-maintainer
+  - tech-scout
+  - read_url_content
+
+allowed_hosts:
+  - local
+
+preferred_model_tier: "freellmapi-auto"
+fallback_model_tier: "ollama-local"
+
+forbidden_actions:
+  - "Modificar código fuente ejecutable, scripts bash o configuraciones de servidor"
+  - "Publicar contenido externo de forma autónoma sin revisión humana previa"
+  - "Alterar políticas de privacidad o términos de servicio"
+
+escalation_triggers:
+  - "Validación de mensajes clave de marca o posicionamiento"
+  - "Aprobación final de campañas o comunicaciones públicas masivas"
+
+human_approval_required: true

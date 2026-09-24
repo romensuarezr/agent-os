@@ -1,0 +1,86 @@
+# ==========================================
+# Agent OS — Central Agent Registry
+# ==========================================
+version: "1.0.0"
+updated_at: "2026-09-24"
+
+execution_engines:
+  antigravity:
+    role: "Senior Architecture & Core Development"
+    host: "local"
+    binary: "agy"
+    active_profile_default: "developer"
+  hermes:
+    role: "Front Door 24/7, Triage & Operational Memory"
+    host: "datamanager"
+    service: "hermes-gateway.service"
+    active_profile_default: "coordinator"
+  orca:
+    role: "Supervised Execution Plane & Decision Gates"
+    host: "local"
+    relays:
+      - "datamanager"
+      - "oracle"
+    active_profile_default: "ops-auditor"
+  opencode:
+    role: "Autonomous Code Implementer & ACP Worker"
+    host: "local"
+    binary: "opencode"
+    active_profile_default: "developer"
+
+profiles:
+  - id: coordinator
+    name: "Hermes Coordinator & Front Door"
+    path: ".agents/profiles/coordinator.yaml"
+    category: "coordination"
+    assigned_engine: "hermes"
+    target_host: "datamanager"
+    human_approval_required: true
+
+  - id: ops-auditor
+    name: "Infrastructure & Security Auditor"
+    path: ".agents/profiles/ops-auditor.yaml"
+    category: "operations"
+    assigned_engine: "orca"
+    target_host: "all"
+    human_approval_required: false
+
+  - id: developer
+    name: "Lead Software Engineer & Code Implementer"
+    path: ".agents/profiles/developer.yaml"
+    category: "engineering"
+    assigned_engine: "antigravity"
+    target_host: "local"
+    human_approval_required: true
+
+  - id: reviewer
+    name: "Code Reviewer & Quality Gate"
+    path: ".agents/profiles/reviewer.yaml"
+    category: "quality"
+    assigned_engine: "antigravity"
+    target_host: "local"
+    human_approval_required: false
+
+  - id: marketing
+    name: "Content & Marketing Strategist"
+    path: ".agents/profiles/marketing.yaml"
+    category: "content"
+    assigned_engine: "opencode"
+    target_host: "local"
+    human_approval_required: true
+
+  - id: seo
+    name: "Technical SEO & Metadata Auditor"
+    path: ".agents/profiles/seo.yaml"
+    category: "content"
+    assigned_engine: "opencode"
+    target_host: "local"
+    human_approval_required: false
+
+  - id: researcher
+    name: "Technical & Architecture Researcher"
+    path: ".agents/profiles/researcher.yaml"
+    category: "research"
+    assigned_engine: "antigravity"
+    target_host: "local"
+    human_approval_required: false

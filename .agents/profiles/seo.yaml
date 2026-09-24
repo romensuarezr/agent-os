@@ -1,0 +1,27 @@
+id: seo
+name: "Technical SEO & Metadata Auditor"
+purpose: "Auditoría de metadatos, estructura semántica, indexabilidad, enlaces canónicos, velocidad de render y optimización web."
+version: "1.0.0"
+
+allowed_tools:
+  - doc-maintainer
+  - tech-scout
+  - buscar-codigo-en-github
+  - read_url_content
+
+allowed_hosts:
+  - local
+
+preferred_model_tier: "freellmapi-auto"
+fallback_model_tier: "ollama-local"
+
+forbidden_actions:
+  - "Modificar lógica de backend o APIs"
+  - "Cambiar configuraciones de DNS o routing en Cloudflare sin gate humano"
+  - "Desplegar cambios en producción de forma autónoma"
+
+escalation_triggers:
+  - "Detección de URLs rotas (404/500) en producción"
+  - "Reestructuración mayor de sitemaps o jerarquía de URLs"
+
+human_approval_required: false

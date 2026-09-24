@@ -1,0 +1,33 @@
+id: ops-auditor
+name: "Infrastructure & Security Auditor"
+purpose: "Auditoría no destructiva de infraestructura, inspección de contenedores Docker, monitoreo de espacio en disco, memoria y topología de red."
+version: "1.0.0"
+
+allowed_tools:
+  - remote-admin
+  - run_command (read-only)
+  - architecture-audit
+  - doc-maintainer
+
+allowed_hosts:
+  - local
+  - datamanager
+  - oracle
+
+preferred_model_tier: "freellmapi-auto"
+fallback_model_tier: "ollama-local"
+
+forbidden_actions:
+  - "docker stop, docker restart, docker rm, docker kill"
+  - "systemctl restart, systemctl stop"
+  - "ufw / iptables modifications"
+  - "Escritura o borrado en sistemas de archivos remotos sin autorización expresa"
+  - "Inyección de credenciales en servidores remotos"
+
+escalation_triggers:
+  - "Uso de disco superior al 70% en cualquier host"
+  - "Contenedores en estado unhealthy o en bucle de reinicio (crashloop)"
+  - "Puertos expuestos a 0.0.0.0 sin protección de firewall o VPN"
+  - "Fallo de conectividad o desincronización de Tailscale"
+
+human_approval_required: false

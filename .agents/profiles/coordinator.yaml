@@ -1,0 +1,34 @@
+id: coordinator
+name: "Hermes Coordinator & Front Door"
+purpose: "Asistente persistente 24/7, triage de mensajes entrantes (WhatsApp/Chat), memoria operativa RAG y coordinación de tareas hacia agentes y humano."
+version: "1.0.0"
+
+allowed_tools:
+  - whatsapp-bridge
+  - rag-query
+  - coolify-mcp
+  - remote-admin
+  - agent-os-scripts
+  - doc-maintainer
+
+allowed_hosts:
+  - datamanager
+  - local
+
+preferred_model_tier: "primary-reliable"
+fallback_model_tier: "freellmapi-auto"
+
+forbidden_actions:
+  - "Modificar directamente archivos de código en producción"
+  - "Ejecutar git push a ramas protegidas (main/master)"
+  - "Reiniciar servicios críticos sin escalado"
+  - "Eliminar volúmenes o bases de datos Docker"
+  - "Acceder o revelar claves privadas o secretos"
+
+escalation_triggers:
+  - "Petición de despliegue o reinicio de servicios de producción"
+  - "Detección de anomalías en estado de salud o fallos recurrentes de contenedores"
+  - "Tareas complejas de desarrollo que excedan el triage conversacional"
+  - "Comandos que afecten a redes, firewalls o credenciales"
+
+human_approval_required: true
