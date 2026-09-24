@@ -15,7 +15,7 @@
 | ID | Descripción | Tamaño | Estado | Dependencias / Bloqueos | Task file |
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | T-039 | Validación y configuración local de OpenCode con FreeLLMAPI ($0 inferencia) | M | ✅ Completada | FreeLLMAPI en `datamanager` activo vía Tailscale | [.agents/tasks/task-039.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-039.md) |
-| T-040 | Inventario Activo de Herramientas de la Flota (`tool-inventory`) y registro de capacidades | S | ⬜ Pendiente | T-035, T-037 | [.agents/tasks/task-040.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-040.md) |
+| T-040 | Inventario Activo de Herramientas de la Flota (`tool-inventory`) y registro de capacidades | S | ✅ Completada | T-035, T-037 | [.agents/tasks/task-040.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-040.md) |
 | T-041 | Integración Hermes Agent → Cola de tareas Orca en estado `pending_approval` | M | ⬜ Pendiente | T-037, T-039 | [.agents/tasks/task-041.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-041.md) |
 
 ---

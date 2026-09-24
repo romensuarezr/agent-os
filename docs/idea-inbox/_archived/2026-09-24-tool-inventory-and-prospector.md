@@ -1,7 +1,7 @@
 # Idea: Inventario Activo de Herramientas Multi-Entorno y Prospección Automatizada
 
 **Fecha**: 2026-09-24  
-**Estado**: 💡 Capturada en Idea Inbox  
+**Estado**: 🟡 Parcialmente Implementada (Componente A en Sprint 07 / T-040)  
 **Área**: Capacidades / Agentes / Herramientas / DX  
 
 ---
@@ -46,3 +46,11 @@ Integrar un script o cron ligero que, apoyándose en la prospección determinist
 ## 4. Criterio de Éxito
 - Cualquier agente que opere en el sistema puede responder en un solo paso qué herramientas tiene disponibles en cada nodo (local, VPS, web, MCPs).
 - El agente aprovecha de inmediato capacidades ya existentes (como el MCP de Coolify en Hermes para autoalojar servicios) sin duplicar esfuerzos humanos.
+
+---
+
+## 5. Trazabilidad e Implementación
+- **Componente A (Registro y Skill)**: ✅ Completado en T-040 (Sprint 07).
+  - Documento base: `docs/architecture/tool-inventory.md`
+  - Habilidad activa: `.agents/skills/tool-inventory/SKILL.md`
+- **Componente B (Prospección periódica)**: ⏸ Planificado para T-043 (Sprint 08).
