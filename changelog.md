@@ -2,6 +2,19 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.4.0] — 2026-09-24
+### Añadido
+- **Perfiles Declarativos de Agentes (`.agents/profiles/`)**: Registro de perfiles YAML para `coordinator`, `ops-auditor`, `developer`, `reviewer`, `marketing`, `seo` y `researcher` con definición estricta de herramientas, hosts, modelos preferidos y condiciones de escalado.
+- **Registro Central (`config/agent-registry.yaml`)**: Catálogo maestro que asocia cada perfil a sus motores de ejecución (`antigravity`, `hermes`, `orca`, `opencode`) y asignación de hosts.
+- **Política de Routing de Modelos (`config/routing-policy.yaml`)**: Matriz abstracta de enrutamiento por criticidad y clase de tarea (`critical_tasks`, `code_implementation`, `read_only_operations`, `marketing_and_seo`, `summaries_and_triage`, `private_data_tasks`, `general_fallback`) con fallbacks a FreeLLMAPI y Ollama local.
+- **Política Global de Permisos (`.agents/rules/global/agent-permissions.md`)**: Regla de gobernanza que tipifica permisos en niveles L1 (Autonomía), L2 (Plan Aprobado) y L3 (Decision Gate Humano Obligatorio) para prevenir acciones destructivas en producción.
+- **ADR 004 y Topología de Red (`docs/adrs/adr-004-agent-control-plane-architecture.md`, `docs/architecture/control-plane-topology.md`)**: Arquitectura de federación (`agent-os` core vs `hermes-vps-config` infra), asignación de roles (Hermes front door, Orca execution plane) y salvaguardas de disco.
+- **Runbook de Auditoría de Orca (`docs/runbooks/orca-read-only-audit.md`)**: Procedimiento estándar de inspección no destructiva de Orca Desktop, sockets de relé remoto en VPS y base de datos relacional.
+- **Suite de Validación (`tests/validate-control-plane.sh`)**: Validador no destructivo de sintaxis YAML, esquema de perfiles, consistencia de hosts y detección de secretos.
+- **Endurecimiento de `.gitignore` raíz**: Bloqueo activo de variables de entorno, claves criptográficas, logs, caches, worktrees y bases de datos runtime.
+
+---
+
 ## [1.3.0] — 2026-09-19
 ### Añadido
 - **Skill Universal `remote-admin`**: Promovida al core (`.agents/skills/remote-admin`) para administración segura de servidores remotos vía SSH (`~/.ssh/config`), inspección de Docker y diagnóstico rápido de latencia/conectividad con el script `scripts/list-hosts.sh`.
