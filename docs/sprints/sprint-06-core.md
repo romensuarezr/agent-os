@@ -16,6 +16,7 @@
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | T-035 | Auditoría no destructiva de capacidad de disco y exposición de puertos en `oracle` | M | ✅ Completada | Solo lectura; informe generado en docs/runbooks/ | [.agents/tasks/task-035.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-035.md) |
 | T-036 | Diseño y normalización de autenticación GitHub SSH en `datamanager` y `oracle` | M | ✅ Completada | Solo lectura; runbook en docs/runbooks/ y check script en remote-admin | [.agents/tasks/task-036.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-036.md) |
+| T-038 | Prospección determinista pre-código: script `scout.sh` e integración con `tech-scout` y `tool-decision-flow` | S | ✅ Completada | Ninguna; script en scripts/agent/ y skill tech-scout | [.agents/tasks/task-038.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-038.md) |
 | T-037 | Primer Run Orca read-only y prueba de Decision Gates (L3) | M | ⬜ Pendiente | Requiere T-035; gate humano interactivo en Orca Desktop | — |
 
 ---
@@ -24,7 +25,7 @@
 
 > Tareas técnicas planificadas para el Sprint 07 (Fase 2: Conexión y Validación de Agentes).
 
-### T-038: Validación local de OpenCode con FreeLLMAPI
+### T-039: Validación local de OpenCode con FreeLLMAPI
 - **Estado**: ⏸ Bloqueada en Backlog
 - **Dependencias**: Cierre de Sprint 06.
 - **Riesgos**: Consumo accidental de saldo si OpenCode se desvía a proveedores cloud de pago; fallos de streaming en tool calling.
@@ -32,9 +33,9 @@
 - **Rollback**: `opencode providers logout` y eliminación de la configuración de test en `~/.config/opencode/`.
 - **Gate humano requerido**: Aprobación del repositorio de prueba y del scope del prompt antes de ejecutar OpenCode.
 
-### T-039: Integración Hermes -> cola de tareas Orca en estado pending_approval
+### T-040: Integración Hermes -> cola de tareas Orca en estado pending_approval
 - **Estado**: ⏸ Bloqueada en Backlog
-- **Dependencias**: T-037, T-038.
+- **Dependencias**: T-037, T-039.
 - **Riesgos**: Apertura de superficie de ejecución desde WhatsApp; riesgo de saturación de la cola de Orca por mensajes externos.
 - **Criterio de aceptación**: Handler o skill en Hermes que ante una instrucción validada en WhatsApp inserte una tarea en `orchestration.db` en estado `pending_approval`, requiriendo confirmación humana obligatoria en la consola antes de cualquier ejecución.
 - **Rollback**: Deshabilitar el handler en Hermes y reiniciar `hermes-gateway.service` en `datamanager`.
