@@ -15,7 +15,7 @@
 | ID | Descripción | Tamaño | Estado | Dependencias / Bloqueos | Task file |
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | T-035 | Auditoría no destructiva de capacidad de disco y exposición de puertos en `oracle` | M | ✅ Completada | Solo lectura; informe generado en docs/runbooks/ | [.agents/tasks/task-035.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-035.md) |
-| T-036 | Diseño y normalización de autenticación GitHub SSH en `datamanager` y `oracle` | M | ⬜ Pendiente | Requiere T-035; gate humano previo para instalación de claves | — |
+| T-036 | Diseño y normalización de autenticación GitHub SSH en `datamanager` y `oracle` | M | ✅ Completada | Solo lectura; runbook en docs/runbooks/ y check script en remote-admin | [.agents/tasks/task-036.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-036.md) |
 | T-037 | Primer Run Orca read-only y prueba de Decision Gates (L3) | M | ⬜ Pendiente | Requiere T-035; gate humano interactivo en Orca Desktop | — |
 
 ---
