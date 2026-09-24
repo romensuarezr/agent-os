@@ -12,9 +12,19 @@
 
 ---
 
-## 2. Paso 1: Auditoría del Entorno Orca Local
+## 2. Paso 1: Auditoría Rápida Determinista en 1 Llamada (Recomendado)
 
-### 1.1 Comprobar proceso de Orca Desktop
+Para auditar el estado global de Orca (proceso local, base de datos de orquestación, compuertas de decisión pendientes y estado de relés remotos) con **0 tokens de inferencia**:
+
+```bash
+bash scripts/agent/audit-orca.sh
+```
+
+---
+
+## 3. Diagnóstico Paso a Paso Manual (Inspección en Profundidad)
+
+### 3.1 Comprobar proceso de Orca Desktop
 Verifica que el entorno Electron de Orca está activo y saludable:
 ```bash
 ps aux | grep -E 'orca-ide' | grep -v grep
@@ -97,11 +107,47 @@ ssh -o BatchMode=yes oracle "df -h / && ls -la /home/ubuntu/.orca-remote/ 2>/dev
 
 ---
 
-## 5. Resumen de Salida para el Agente
+## 5. Protocolo de Decision Gates (Nivel L3)
 
-Al finalizar la auditoría, genera un resumen conciso:
-- **Orca Local**: [Activo / Inactivo]
-- **Decision Gates Pendientes**: [Número de gates]
-- **Relay datamanager**: [Conectado (PID) / Desconectado]
-- **Relay oracle**: [Conectado (PID) / Desconectado]
-- **Espacio en disco oracle**: [Porcentaje %]
+De acuerdo con la directiva declarativa [.agents/rules/global/agent-permissions.md](file:///home/romen/Proyectos/agent-os/.agents/rules/global/agent-permissions.md), el control plane clasifica las operaciones de Orca en 3 niveles:
+- **L1 (Solo Lectura / Diagnóstico)**: Ejecución autónoma sin interrupción (`audit-orca.sh`, `scout.sh`, inspección de procesos).
+- **L2 (Plan Previo Aprobado)**: Edición de código dentro de un workspace o rama git dedicada.
+- **L3 (Decision Gate Obligatorio)**: Mutaciones de infraestructura en servidores remotos, comandos de borrado, alteración de firewalls o despliegues en producción.
+
+### Mecanismo de Bloqueo en Orca:
+1. Cuando un worker o runner detecta una acción clasificada como **L3**, suspende la ejecución y registra una entrada en la tabla `decision_gates`:
+   - `status = 'pending'`
+   - `question`: Descripción del impacto y comando propuesto.
+   - `options`: Opciones disponibles para el operador humano.
+2. La interfaz gráfica de **Orca Desktop** despliega una notificación modal bloqueante requiriendo la confirmación explícita del usuario.
+3. El proceso queda en espera (`await`) hasta que el usuario aprueba o cancela la acción desde la UI.
+4. El agente supervisor puede comprobar en cualquier momento si hay compuertas abiertas ejecutando `bash scripts/agent/audit-orca.sh`.
+
+---
+
+## 6. Resultados Validados del Primer Run de Auditoría
+
+En la verificación realizada para **T-037**, el estado auditado arrojó:
+
+```text
+=== 🐳 AUDITORÍA DEL ORQUESTADOR ORCA ===
+🖥️  ORCA LOCAL PROCESS:
+  Status: ACTIVO ✅ (Main PID: 9642, Subprocesos: 12)
+  Memoria: 67.6 MB | Uptime: 6-04:16:29
+
+💾 BASE DE DATOS DE ORQUESTACIÓN:
+  Ubicación: /home/romen/.config/orca/orchestration.db (Modo Solo Lectura ✅)
+  Runs: 1 | Tareas: 0 | Dispatches: 0
+  Decision Gates: 0 totales | 0 PENDIENTES 🔒
+
+🌐 RELAYS REMOTOS:
+  datamanager (100.77.82.13): ONLINE ✅ (PID: 1078790)
+  oracle (100.96.20.7):       ONLINE ✅ (PID: 2014091)
+
+📁 ESPACIO EN WORKSPACES:
+  Local (/home/romen/orca/workspaces): 2.9G
+  oracle (~/.orca-remote): 67M
+=== FIN AUDITORÍA ORCA ===
+```
+
+- **Veredicto**: Orca Desktop se encuentra en estado óptimo y listo para la orquestación de agentes con relés activos y compuertas de decisión operativas.
