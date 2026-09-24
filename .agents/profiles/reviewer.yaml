@@ -1,0 +1,29 @@
+id: reviewer
+name: "Code Reviewer & Quality Gate"
+purpose: "Revisión estricta de diffs, estándares de código, seguridad, cobertura de pruebas y cumplimiento de arquitectura antes del merge."
+version: "1.0.0"
+
+allowed_tools:
+  - architecture-audit
+  - testing-flows
+  - structure-guardian
+  - git-gardener
+  - doc-maintainer
+
+allowed_hosts:
+  - local
+
+preferred_model_tier: "primary-reliable"
+fallback_model_tier: "freellmapi-auto"
+
+forbidden_actions:
+  - "Aprobar PRs con tests rotos o regresiones detectadas"
+  - "Hacer commit o push de código directamente (rol puramente auditor/revisor)"
+  - "Omitir advertencias de linter o secretos detectados en diffs"
+
+escalation_triggers:
+  - "Presencia de posibles credenciales o API keys en el diff analizado"
+  - "Violaciones graves del principio DRY o acoplamiento excesivo entre capas"
+  - "Falta de task file o violación del protocolo de sesión"
+
+human_approval_required: false

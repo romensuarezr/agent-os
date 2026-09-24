@@ -1,0 +1,95 @@
+# ==========================================
+# Agent OS — Root .gitignore
+# ==========================================
+
+# --- Secretos y Variables de Entorno ---
+*.env
+*.env.*
+!*.env.example
+.env
+.env.*
+api_keys.env
+secrets/
+*.secret
+*.secrets
+
+# --- Tokens, Autenticación y Credenciales ---
+*token*.json
+!*token*.example.json
+*credential*
+auth.json
+auth.lock
+account-session*.json
+account-session*.json.enc
+google_token.json
+google_client_secret.json
+*oauth*
+
+# --- Claves Criptográficas y Certificados ---
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+*e2ee-keypair*.json
+
+# --- Logs y Salidas Temporales ---
+*.log
+*.log.*
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Caches y Runtimes de Lenguaje ---
+.cache/
+*.cache
+*.pyc
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+node_modules/
+.pnpm-store/
+.npm/
+
+# --- Worktrees y Entornos de Trabajo Efímeros ---
+.worktrees/
+worktrees/
+*.worktree
+.parcel-cache/
+
+# --- Estados Runtime de Orquestadores (Orca & Hermes) ---
+.orca/
+.orca-remote/
+.orca-relay/
+.hermes/
+orchestration.db*
+state.db*
+kanban.db*
+shared-state.db*
+projects.db*
+verification_evidence.db*
+*.sock
+sessions/
+terminal-history/
+terminal-scrollback/
+
+# --- Contextos Generados y Bloqueos de Sesión (Agent OS) ---
+.agent-session.lock
+docs/llm-context/*
+!docs/llm-context/.gitkeep
+!docs/llm-context/README.md
+
+# External inbox transitorio
+docs/external-inbox/*
+!docs/external-inbox/.gitkeep
+!docs/external-inbox/README.md
+
+# Archivos de SO
+.DS_Store
+Thumbs.db

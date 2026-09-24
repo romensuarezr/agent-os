@@ -20,12 +20,14 @@ agent-os/
 ├── README.md                    ← intro pública
 ├── changelog.md                 ← historial de cambios del core
 ├── .agents/
+│   ├── profiles/                ← registro declarativo de perfiles de agentes
 │   ├── rules/                   ← reglas globales (agnósticas de stack)
 │   ├── skills/                  ← skills globales instalables en proyectos hijos
 │   ├── workflows/               ← workflows globales + core-planning.md
 │   ├── templates/               ← plantillas de tareas y sprints
 │   └── context/
 │       └── last-sync.md         ← marca de estado del core
+├── config/                      ← agent-registry.yaml, routing-policy.yaml
 ├── scripts/agent/
 │   ├── install.sh               ← instalación en proyectos hijos (--self para bootstrapping)
 │   ├── sync.sh                  ← sincroniza assets globales → proyectos hijos
@@ -39,11 +41,16 @@ agent-os/
 │   └── lib/                     ← utilidades compartidas (detect-stack.sh, etc.)
 ├── docs/
 │   ├── sprints/                 ← sprints del core (sprint-01-core.md, ...)
-│   └── adrs/                    ← Architecture Decision Records
-└── templates/
-    ├── docs/                    ← plantillas de mvp-tracker, implemented, etc.
-    └── root/                    ← plantillas de changelog, roadmap
+│   ├── adrs/                    ← Architecture Decision Records
+│   ├── architecture/            ← topología y diseño de sistemas
+│   └── runbooks/                ← guías operativas paso a paso
+├── templates/
+│   ├── docs/                    ← plantillas de mvp-tracker, implemented, etc.
+│   ├── freellmapi/              ← plantillas docker-compose y config freellmapi
+│   └── root/                    ← plantillas de changelog, roadmap
+└── tests/                       ← suite de validación no destructiva (validate-control-plane.sh)
 ```
+
 
 ---
 
