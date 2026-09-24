@@ -33,6 +33,16 @@ bash .agents/skills/remote-admin/scripts/list-hosts.sh
 bash .agents/skills/remote-admin/scripts/list-hosts.sh --check
 ```
 
+### Auditoría Remota Integral en 1 Llamada (Ahorro de tokens)
+
+Para auditar un servidor remoto completo (salud, memoria, disco, contenedores y volúmenes Docker, clasificación de sockets expuestos y firewall) en **una única llamada SSH** evitando múltiples turnos de conversación:
+
+```bash
+bash .agents/skills/remote-admin/scripts/audit-host.sh <alias-servidor>
+```
+
+El script genera directamente una salida markdown estructurada con secciones parseadas, optimizando el consumo de contexto.
+
 ## Operaciones Comunes
 
 ### 1. Diagnóstico de Salud y Recursos
