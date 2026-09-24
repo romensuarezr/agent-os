@@ -43,6 +43,14 @@ bash .agents/skills/remote-admin/scripts/audit-host.sh <alias-servidor>
 
 El script genera directamente una salida markdown estructurada con secciones parseadas, optimizando el consumo de contexto.
 
+### Diagnóstico de Conectividad Git/GitHub SSH en 1 Llamada (Ahorro de tokens)
+
+Para verificar si un host remoto tiene `github.com` en su `known_hosts`, inventario de claves SSH públicas en `~/.ssh/*.pub` (sin exponer privadas) y resultado del handshake contra `git@github.com`:
+
+```bash
+bash .agents/skills/remote-admin/scripts/check-git-remote.sh <alias-servidor>
+```
+
 ## Operaciones Comunes
 
 ### 1. Diagnóstico de Salud y Recursos
