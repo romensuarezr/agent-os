@@ -20,14 +20,27 @@ Antes de buscar, define los criterios técnicos del stack leyendo el archivo `.a
 - **Funcionalidad Clave**: ¿Qué debe hacer exactamente la dependencia?
 
 ### 2. Ejecución de Búsqueda
-Usa las herramientas disponibles en este orden de preferencia:
 
+#### 2.1 Prospección Determinista Previa (Paso 0 — 0 Tokens de Inferencia)
+**Obligatorio antes de utilizar cualquier herramienta de búsqueda web o LLM:**
+Ejecuta el script de prospección CLI para obtener un digest compacto e instantáneo del ecosistema OSS, registros de paquetes y debates comunitarios:
+
+```bash
+bash scripts/agent/scout.sh "<funcionalidad o palabras clave>"
+```
+
+- Si el digest devuelve una solución OSS consolidada (licencia permisiva MIT/Apache, mantenimiento activo):
+  - Prioriza adaptar o instalar esa solución frente a desarrollos propios.
+  - Salta directamente a la **Matriz de Calidad (Paso 3)**.
+- Solo si el digest resulta vacío o insuficiente para un requerimiento complejo, recurre a herramientas de búsqueda externa:
+
+#### 2.2 Búsqueda Externa Complementaria
 1.  **Perplexity**:
     - Prompt: "Find best packages/libraries for [task] in a [stack] environment. Prioritize active maintenance and TypeScript/language support. Compare top 3 options."
-2.  **Web Search (Reddit & StackOverflow)**:
-    - Query: "best [language] library for [task] reddit"
+2.  **Web Search (Hacker News / StackOverflow)**:
+    - Query: "best [language] library for [task]"
     - Query: "[library-A] vs [library-B] [framework] 2025/2026"
-3.  **Búsqueda Técnica (NPM Trends / Bundlephobia / PyPI Stats)**:
+3.  **Búsqueda Técnica (NPM / PyPI Stats / Bundlephobia)**:
     - Investiga el volumen de descargas, vulnerabilidades de seguridad y el peso del bundle si la información no es clara.
 
 ### 3. Evaluación (Matriz de Calidad)
