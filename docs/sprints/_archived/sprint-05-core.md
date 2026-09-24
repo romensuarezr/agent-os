@@ -6,7 +6,7 @@
 ---
 
 ## Estado
-✅ Fase 1A completada y aprobada (Commit atómico y merge a main); backlog preparado para Fase 1B
+✅ Completado
 
 ---
 
@@ -14,11 +14,11 @@
 
 | ID | Descripción | Tamaño | Estado | Dependencias / Bloqueos |
 | :--- | :--- | :---: | :---: | :--- |
-| **T-030** | Arquitectura y ADR de control plane (`docs/adrs/adr-004-agent-control-plane-architecture.md`) | M | ✅ Completada | Aprobada por el usuario |
-| **T-031** | Perfiles declarativos, agent registry y routing policy (`.agents/profiles/`, `config/agent-registry.yaml`, `config/routing-policy.yaml`) | M | ✅ Completada | Aprobada por el usuario |
-| **T-032** | Políticas, runbooks y topología (`.agents/rules/global/agent-permissions.md`, `docs/architecture/control-plane-topology.md`, `docs/runbooks/`) | M | ✅ Completada | Aprobada por el usuario |
-| **T-033** | Validación automatizada y compatibilidad con skills/symlinks de Hermes (`tests/validate-control-plane.sh`, `.gitignore`) | S | ✅ Completada | Aprobada por el usuario |
-| **T-034** | Revisión de diff, validación final y preparación de commit atómico de Fase 1A | S | ✅ Completada | Aprobada por el usuario; lista para merge |
+| T-030 | Arquitectura y ADR de control plane (`docs/adrs/adr-004-agent-control-plane-architecture.md`) | M | ✅ Completada | Aprobada por el usuario |
+| T-031 | Perfiles declarativos, agent registry y routing policy (`.agents/profiles/`, `config/agent-registry.yaml`, `config/routing-policy.yaml`) | M | ✅ Completada | Aprobada por el usuario |
+| T-032 | Políticas, runbooks y topología (`.agents/rules/global/agent-permissions.md`, `docs/architecture/control-plane-topology.md`, `docs/runbooks/`) | M | ✅ Completada | Aprobada por el usuario |
+| T-033 | Validación automatizada y compatibilidad con skills/symlinks de Hermes (`tests/validate-control-plane.sh`, `.gitignore`) | S | ✅ Completada | Aprobada por el usuario |
+| T-034 | Revisión de diff, validación final y preparación de commit atómico de Fase 1A | S | ✅ Completada | Aprobada por el usuario; merge realizado |
 
 ---
 
