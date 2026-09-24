@@ -6,7 +6,7 @@
 ---
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ---
 
@@ -17,7 +17,7 @@
 | T-035 | Auditoría no destructiva de capacidad de disco y exposición de puertos en `oracle` | M | ✅ Completada | Solo lectura; informe generado en docs/runbooks/ | [.agents/tasks/task-035.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-035.md) |
 | T-036 | Diseño y normalización de autenticación GitHub SSH en `datamanager` y `oracle` | M | ✅ Completada | Solo lectura; runbook en docs/runbooks/ y check script en remote-admin | [.agents/tasks/task-036.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-036.md) |
 | T-038 | Prospección determinista pre-código: script `scout.sh` e integración con `tech-scout` y `tool-decision-flow` | S | ✅ Completada | Ninguna; script en scripts/agent/ y skill tech-scout | [.agents/tasks/task-038.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-038.md) |
-| T-037 | Primer Run Orca read-only y prueba de Decision Gates (L3) | M | ⬜ Pendiente | Requiere T-035; gate humano interactivo en Orca Desktop | — |
+| T-037 | Primer Run Orca read-only y prueba de Decision Gates (L3) | M | ✅ Completada | Solo lectura; script audit-orca.sh y runbook actualizado | [.agents/tasks/task-037.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-037.md) |
 
 ---
 
