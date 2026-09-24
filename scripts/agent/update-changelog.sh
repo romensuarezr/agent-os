@@ -11,6 +11,7 @@
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 CHANGELOG="$ROOT/CHANGELOG.md"
+[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/changelog.md"
 DATE=$(date +%Y-%m-%d)
 
 # ─── 1. Argumento obligatorio ────────────────────────────────────────────────
