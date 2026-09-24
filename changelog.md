@@ -2,6 +2,27 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.5.0] — 2026-09-24
+### Añadido
+- **Auditoría Integral de Infraestructura en `oracle` (T-035)**:
+  - Creado `scripts/agent/audit-host.sh` en `remote-admin` para diagnóstico rápido en 1 sola llamada SSH (0 tokens de inferencia).
+  - Elaborado runbook exhaustivo en `docs/runbooks/oracle-disk-and-ports-audit.md` detectando 83 GB en descargas huérfanas de seedbox, 31 GB de imágenes Docker recuperables y ausencia de UFW con bypass de `DOCKER-USER`.
+- **Normalización de Autenticación GitHub SSH en Servidores Remotos (T-036)**:
+  - Creado `scripts/agent/check-git-remote.sh` en `remote-admin` para auditar `known_hosts` y claves públicas en servidores remotos sin exponer claves privadas.
+  - Elaborado runbook en `docs/runbooks/github-ssh-setup-remote.md` con estrategia de Deploy Keys de solo lectura y aprovisionamiento determinista vía `ssh-keyscan`.
+- **Prospección Determinista Pre-Código (T-038)**:
+  - Creado `scripts/agent/scout.sh` para consultar repositorios en GitHub REST API, paquetes en NPM Registry y debates de arquitectura en Hacker News Algolia con coste 0 tokens de inferencia.
+  - Integrado en `.agents/skills/tech-scout/SKILL.md` como paso 0 obligatorio antes de búsquedas web o Perplexity.
+  - Formalizada regla pre-código en `.agents/rules/global/tool-decision-flow.md`.
+- **Diagnóstico y Decision Gates de Orca (T-037)**:
+  - Creado `scripts/agent/audit-orca.sh` para auditar proceso local de Orca, integridad de `orchestration.db` en modo solo lectura, y conectividad de relés remotos en `datamanager` y `oracle`.
+  - Actualizado runbook `docs/runbooks/orca-read-only-audit.md` con el protocolo de compuertas de decisión humanas (L3) ante mutaciones.
+- **Captura en Idea Inbox**:
+  - Ideas registradas en `docs/idea-inbox/` para gestor de secretos autoalojado Infisical con Coolify/Hermes y para inventario activo de herramientas de la flota.
+
+### Corregido
+- Soporte para nombres de archivo `changelog.md` en minúsculas en `scripts/agent/update-changelog.sh`.
+
 ## [1.4.0] — 2026-09-24
 ### Añadido
 - **Perfiles Declarativos de Agentes (`.agents/profiles/`)**: Registro de perfiles YAML para `coordinator`, `ops-auditor`, `developer`, `reviewer`, `marketing`, `seo` y `researcher` con definición estricta de herramientas, hosts, modelos preferidos y condiciones de escalado.
