@@ -13,6 +13,15 @@ secrets/
 *.secret
 *.secrets
 
+# --- Configuración Privada de Flota y Entorno Local ---
+config/fleet.yaml
+config/fleet.local.yaml
+!config/fleet.example.yaml
+docs/architecture/tools/*.local.md
+docs/architecture/tools/private/
+
+
+
 # --- Tokens, Autenticación y Credenciales ---
 *token*.json
 !*token*.example.json

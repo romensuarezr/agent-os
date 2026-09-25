@@ -1,0 +1,155 @@
+# ==============================================================================
+# Agent OS — Declarative Fleet Configuration Template
+# ==============================================================================
+# This template defines the structure for configuring local tools, remote nodes,
+# Web/Cloud AI endpoints, and Model Context Protocol (MCP) servers.
+#
+# INSTRUCTIONS:
+# 1. Copy this file to `config/fleet.yaml`:
+#    cp config/fleet.example.yaml config/fleet.yaml
+# 2. Customize `config/fleet.yaml` with your actual local and remote environments.
+# 3. `config/fleet.yaml` is excluded by .gitignore to protect private IPs and keys.
+# ==============================================================================
+
+version: "1.0"
+environment_name: "default-workstation"
+
+# ------------------------------------------------------------------------------
+# 1. Local Environment Tools
+# ------------------------------------------------------------------------------
+local_environment:
+  os: "linux"
+  package_managers:
+    - "apt"
+    - "npm"
+    - "pip"
+  installed_clis:
+    git:
+      status: "available"
+      description: "Distributed version control system"
+    gh:
+      status: "available"
+      description: "GitHub CLI for PRs, issues and repos"
+    docker:
+      status: "available"
+      description: "Container virtualization runtime"
+    curl:
+      status: "available"
+      description: "Command line data transfer tool"
+    jq:
+      status: "available"
+      description: "Lightweight command-line JSON processor"
+    opencode:
+      status: "available"
+      version: "1.3.9"
+      description: "Terminal autonomous AI coding agent"
+    tailscale:
+      status: "available"
+      description: "Mesh VPN for secure node interconnectivity"
+    infisical:
+      status: "optional"
+      description: "End-to-end encrypted secret manager CLI"
+
+# ------------------------------------------------------------------------------
+# 2. Remote Compute Nodes (VPS, Servers, Local Network Machines)
+# ------------------------------------------------------------------------------
+nodes:
+  worker-node-01:
+    role: "inference-and-data"
+    connection: "tailscale"
+    host: "100.x.y.z" # Or local domain/IP
+    services:
+      freellmapi:
+        endpoint: "http://100.x.y.z:3001/v1"
+        auth: "bearer_token"
+        description: "Unified AI inference proxy aggregator"
+        cost_per_token: 0.00
+      ollama:
+        endpoint: "http://100.x.y.z:11434"
+        models:
+          - "qwen2.5:7b"
+          - "llama3.1:8b"
+          - "deepseek-r1:8b"
+      searxng:
+        endpoint: "http://100.x.y.z:8080"
+        description: "Self-hosted meta-search engine"
+
+  saas-node-02:
+    role: "orchestration-and-paas"
+    connection: "ssh"
+    host: "203.0.113.10"
+    services:
+      coolify:
+        url: "https://coolify.example.com"
+        description: "Self-hosted PaaS dashboard for app deployments"
+      traefik:
+        description: "Edge reverse proxy with automatic SSL"
+      orca_gateway:
+        endpoint: "http://localhost:8000"
+        description: "Task queue and read-only inspection engine"
+
+# ------------------------------------------------------------------------------
+# 3. Model Context Protocol (MCP) Standard Server Definitions
+# ------------------------------------------------------------------------------
+# Aligned with the standard MCP client specification
+mcpServers:
+  filesystem:
+    command: "npx"
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/allowed/directory"
+    description: "Secure local filesystem access for agents"
+
+  github:
+    command: "npx"
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-github"
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+    description: "GitHub repository and pull request automation"
+
+  fetch:
+    command: "uvx"
+    args:
+      - "mcp-server-fetch"
+    description: "Optimized web page content fetching for LLM consumption"
+
+  memory:
+    command: "npx"
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-memory"
+    description: "Persistent knowledge graph memory across agent sessions"
+
+# ------------------------------------------------------------------------------
+# 4. Web & Cloud AI Interfaces (Manual or API Access)
+# ------------------------------------------------------------------------------
+cloud_and_web_ai:
+  claude_pro:
+    provider: "Anthropic"
+    tier: "subscription"
+    strengths: ["Complex architectural reasoning", "Refactoring", "Documentation"]
+  chatgpt_plus:
+    provider: "OpenAI"
+    tier: "subscription"
+    strengths: ["Code generation", "Browsing", "Canvas"]
+  perplexity:
+    provider: "Perplexity AI"
+    tier: "subscription"
+    strengths: ["Real-time technical research", "Per-library documentation search"]
+  gemini_advanced:
+    provider: "Google"
+    tier: "subscription"
+    strengths: ["Large context windows (1M+ tokens)", "Multimodal analysis"]
+
+# ------------------------------------------------------------------------------
+# 5. Routing Policies & Inference Hierarchy
+# ------------------------------------------------------------------------------
+routing:
+  local_zero_cost_first: true
+  primary_agent_runtime: "antigravity"
+  fallback_agent_runtime: "opencode"
+  default_local_llm_endpoint: "http://100.x.y.z:3001/v1"
+  default_local_model: "qwen2.5:7b"
