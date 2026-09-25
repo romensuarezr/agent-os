@@ -61,6 +61,7 @@ agent-os/
 3. **SRP estricto** — cada script, skill y workflow tiene una única responsabilidad.
 4. **Global pequeño, local fino** — skills y rules globales son agnósticas. Lo específico vive en el proyecto hijo.
 5. **Trazabilidad** — operaciones importantes generan marcas (`last-sync.md`, commits atómicos).
+6. **Determinismo y coste 0 de tokens** — si una acción, consulta o auditoría es determinista, se resuelve mediante un script CLI/Bash local que devuelva un digest compacto, no quemando tokens de contexto o inferencia del LLM.
 
 ---
 
