@@ -15,6 +15,7 @@ Antes de proponer cualquier cambio, ten en cuenta nuestros principios irrenuncia
 3. **No destructivo por defecto**: Las herramientas de detección y auditoría nunca modifican el sistema sin confirmación explícita o flags dedicados (como `--apply`).
 4. **Principio de Responsabilidad Única (SRP)**: Cada script, skill o regla tiene un propósito delimitado y comprobable.
 5. **No reinventar la rueda (OSS First)**: Antes de escribir una herramienta o skill desde cero, consulta el catálogo de herramientas activas (`tool-inventory`) o ejecuta prospección determinista (`scripts/agent/scout.sh`) para contrastar con soluciones consolidadas en el ecosistema.
+6. **Determinismo y Eficiencia de Tokens**: Toda consulta, inspección, filtrado o recolección de datos predecible debe resolverse mediante scripts locales (Bash/CLI) a coste **$0**, entregando al agente únicamente un digest estructurado y compacto (10–20 líneas) para no quemar tokens de contexto o inferencia del LLM.
 
 ---
 

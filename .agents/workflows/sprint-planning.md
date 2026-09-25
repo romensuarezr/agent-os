@@ -107,6 +107,34 @@ Para cada tarea candidata que NO aparezca en `CHANGELOG.md`:
 
 > 💡 **Optimización de tokens:** El agente solo lee los archivos que devuelve el inventory check, no navega `src/` manualmente.
 
+### 2d. Salvaguarda de prospección determinista OSS (Pre-Code Scouting)
+
+> **Objetivo: Evitar crear código, herramientas o librerías desde cero si ya existen alternativas maduras de código abierto (OSS-First).**
+> **Coste de tokens: 0 tokens de inferencia (ejecución determinista de script CLI).**
+
+Para cada tarea candidata al nuevo sprint que plantee nuevas funcionalidades, herramientas, conectores o módulos técnicos:
+
+1. **Ejecutar scouting determinista:**
+   ```bash
+   bash scripts/agent/scout.sh "keywords de la tarea o módulo"
+   ```
+   *El script consulta de forma combinada GitHub (≥500⭐), npm y PyPI, filtrando licencias permisivas (MIT, Apache 2.0).*
+
+2. **Compilar el Digest de Prospección OSS:**
+   - Si se detectan librerías o repositorios consolidados (ej. SDKs oficiales, servidores MCP, herramientas CLI):
+     - Evaluar si la tarea debe orientarse a **integrar la solución existente** en lugar de programar desde cero.
+     - Registrar en la propuesta de sprint: Nombre del paquete/repo, estrellas, licencia y recomendación técnica.
+   - Si no se detectan candidatos viables o la necesidad es exclusivamente de lógica de negocio propia:
+     - Marcar como `Desarrollo a medida justificado (0 alternativas OSS viables)`.
+
+3. **Presentar tabla de opciones OSS al usuario** como parte del informe del paso 7 para que decida antes de redactar los task files:
+
+| Tarea Candidata | Alternativa OSS Detectada | Popularidad / Licencia | Recomendación del Agente | Decisión Usuario |
+|---|---|---|---|---|
+| T-XXX [nombre] | [repo o paquete] | ★ [stars] / [licencia] | Adoptar / Crear a medida | [Esperando] |
+
+---
+
 ### 3. Vaciado de inboxes priorizando MVP
 
 Todo lo gestionado en los inboxes debe clasificarse como MVP o post-MVP antes de introducirlo en `ROADMAP.md`.
@@ -257,16 +285,17 @@ Justo antes del mensaje de pausa del paso 6:
 1. Resumen del estado del roadmap (3 líneas máximo).
 2. Decisiones tomadas sobre tareas incompletas del sprint anterior (si las hubo).
 3. Resultado de la verificación de código del paso 2c (tabla con evidencias).
-4. Las tareas del sprint seleccionadas con su tamaño.
-5. **Progreso MVP actualizado:**
+4. **Resultado de la prospección determinista OSS del paso 2d** (tabla con alternativas detectadas por `scout.sh` y recomendación de adopción vs construcción).
+5. Las tareas del sprint seleccionadas con su tamaño.
+6. **Progreso MVP actualizado:**
    ```
    📊 Progreso MVP: XX%
       Capacidad 1                  ██████████ 100%
       Capacidad 2                  ████████░░  80%
       ...
    ```
-6. El prompt para Perplexity listo para copiar.
-7. Ruta del sprint file creado.
+7. El prompt para Perplexity listo para copiar.
+8. Ruta del sprint file creado.
 
 ## Reglas
 
@@ -276,6 +305,11 @@ Justo antes del mensaje de pausa del paso 6:
 - Prioridad: tareas arrastradas primero, luego bloqueantes, luego por orden del roadmap.
 - Tamaños: **S** = < 1h, **M** = 1-3h, **L** = 3h+.
 - **Solo entran tareas verificadas como no implementadas** (resultado del paso 2c).
+
+### Salvaguarda de Prospección Determinista (scout-first)
+- **Obligatorio para tareas técnicas y nuevas herramientas**: Toda tarea candidata que introduzca conectores, integraciones, agentes, scrapers o utilidades debe evaluarse previamente con `scout.sh`.
+- Si existe una alternativa consolidada (≥500⭐, licencia permisiva MIT/Apache), la recomendación por defecto es la integración/adopción frente al desarrollo a medida.
+- **Coste cero**: El agente solo consume el digest estructurado producido por el script CLI, garantizando 0 tokens en la fase de búsqueda.
 
 ### Escala de Progreso del MVP
 - **0%**: Sin implementación.
