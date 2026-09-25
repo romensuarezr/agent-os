@@ -1,0 +1,156 @@
+# ==============================================================================
+# Agent OS — Known Web AI & Developer Tools Signatures Catalog
+# ==============================================================================
+# This declarative registry defines web AI platforms, developer tools, and cloud
+# consoles detected during browser bookmarks/PWA scanning (discover-fleet.sh).
+#
+# INSTRUCTIONS:
+# - Add new domains below to expand detection capabilities.
+# - You can also create `config/known-web-tools.local.yaml` for private tools.
+# ==============================================================================
+
+version: "1.0"
+
+domains:
+  # --- Modelos y Chat Conversacional / Razonamiento ---
+  claude.ai:
+    name: "claude_pro"
+    provider: "Anthropic"
+    category: "reasoning_and_chat"
+    description: "Complex architectural reasoning and refactoring"
+
+  chatgpt.com:
+    name: "chatgpt_plus"
+    provider: "OpenAI"
+    category: "general_llm_and_code"
+    description: "Conversational code generation and canvas"
+
+  chat.openai.com:
+    name: "chatgpt_plus"
+    provider: "OpenAI"
+    category: "general_llm_and_code"
+    description: "Conversational code generation and canvas (legacy endpoint)"
+
+  aistudio.google.com:
+    name: "google_ai_studio"
+    provider: "Google"
+    category: "massive_context"
+    description: "Massive context analysis (up to 2M tokens free tier)"
+
+  gemini.google.com:
+    name: "gemini_advanced"
+    provider: "Google"
+    category: "general_llm"
+    description: "Multimodal and general assistant"
+
+  perplexity.ai:
+    name: "perplexity_pro"
+    provider: "Perplexity"
+    category: "technical_research"
+    description: "Real-time search and technical documentation benchmarking"
+
+  chat.deepseek.com:
+    name: "deepseek"
+    provider: "DeepSeek"
+    category: "reasoning"
+    description: "Deep reasoning models (R1/V3)"
+
+  poe.com:
+    name: "poe"
+    provider: "Quora"
+    category: "multi_model_aggregator"
+    description: "Multi-bot AI aggregator"
+
+  openrouter.ai:
+    name: "openrouter"
+    provider: "OpenRouter"
+    category: "api_gateway"
+    description: "Unified AI models API and playground"
+
+  groq.com:
+    name: "groq"
+    provider: "Groq"
+    category: "ultra_fast_inference"
+    description: "Ultra-low latency LPU cloud inference"
+
+  # --- Pasarelas de Inferencia y Routers (AI Gateways) ---
+  omniroute.io:
+    name: "omniroute"
+    provider: "OmniRoute (Diego Souza)"
+    category: "ai_gateway_and_router"
+    description: "Unified AI gateway with 350+ providers, auto-fallback and context compression"
+
+  omnirouter.ai:
+    name: "omnirouter"
+    provider: "OmniRouter"
+    category: "ai_gateway_and_router"
+    description: "AI routing and multi-provider proxy platform"
+
+  portkey.ai:
+    name: "portkey"
+    provider: "Portkey AI"
+    category: "ai_gateway_and_router"
+    description: "Production AI gateway with guardrails, fallbacks and routing"
+
+  litellm.ai:
+    name: "litellm"
+    provider: "BerriAI"
+    category: "ai_gateway_and_router"
+    description: "OpenAI-compatible proxy and model load balancer"
+
+  # --- Generación de UI y Fullstack ---
+  v0.dev:
+    name: "v0"
+    provider: "Vercel"
+    category: "ui_component_generation"
+    description: "Generative UI for React and Tailwind CSS"
+
+  bolt.new:
+    name: "bolt_new"
+    provider: "StackBlitz"
+    category: "fullstack_in_browser"
+    description: "In-browser autonomous fullstack app development"
+
+  lovable.dev:
+    name: "lovable"
+    provider: "Lovable"
+    category: "fullstack_agent_builder"
+    description: "Web application creation platform"
+
+  replit.com:
+    name: "replit"
+    provider: "Replit"
+    category: "cloud_dev_environment"
+    description: "Cloud-hosted development workspace and agent deployment"
+
+  # --- Ecosistema y Model Hubs ---
+  huggingface.co:
+    name: "huggingface"
+    provider: "Hugging Face"
+    category: "model_hub"
+    description: "Open models, datasets, spaces and quantization repository"
+
+  github.com:
+    name: "github"
+    provider: "GitHub"
+    category: "source_code_and_ci"
+    description: "Code hosting, pull requests, actions and issues"
+
+  # --- Cloud & Edge Infrastructure ---
+  cloudflare.com:
+    name: "cloudflare"
+    provider: "Cloudflare"
+    category: "edge_and_dns"
+    description: "DNS proxy, WAF and Cloudflare R2 object storage"
+
+  vercel.com:
+    name: "vercel"
+    provider: "Vercel"
+    category: "frontend_deployment"
+    description: "Next.js edge cloud hosting"
+
+  supabase.com:
+    name: "supabase"
+    provider: "Supabase"
+    category: "backend_as_a_service"
+    description: "Managed Postgres, auth and realtime"

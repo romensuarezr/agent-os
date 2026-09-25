@@ -18,7 +18,7 @@
 | T-040 | Inventario Activo de Herramientas de la Flota (`tool-inventory`) y registro de capacidades | S | ✅ Completada | T-035, T-037 | [.agents/tasks/task-040.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-040.md) |
 | T-044 | Universalización agnóstica de `tool-inventory` y desacople de flota en `config/fleet.yaml` | S | ✅ Completada | T-040 | [.agents/tasks/task-044.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-044.md) |
 | T-045 | Salvaguarda de prospección determinista en `sprint-planning.md` y `tool-decision-flow.md` | S | ✅ Completada | T-038 | [.agents/tasks/task-045.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-045.md) |
-| T-046 | Script CLI determinista `discover-fleet.sh` para auto-descubrimiento y generación de `fleet.yaml` | M | ⬜ Pendiente | T-044 | [.agents/tasks/task-046.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-046.md) |
+| T-046 | Script CLI determinista `discover-fleet.sh` para auto-descubrimiento y generación de `fleet.yaml` | M | ✅ Completada | T-044 | [.agents/tasks/task-046.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-046.md) |
 | T-041 | Integración Hermes Agent → Cola de tareas Orca en estado `pending_approval` | M | ⬜ Pendiente | T-037, T-039 | [.agents/tasks/task-041.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-041.md) |
 
 ---

@@ -18,10 +18,31 @@ El agente **DEBE** seguir este orden prioritario para obtener el estado y las di
 1. **Lectura Prioritaria Dinámica (`config/fleet.yaml`)**:
    - Comprueba si existe el archivo de configuración privado `config/fleet.yaml` en la raíz del proyecto.
    - Si existe: extrae de allí las herramientas instaladas localmente (`local_environment`), los nodos activos (`nodes`), los servidores MCP registrados (`mcpServers`) y las políticas de inferencia (`routing`).
-2. **Fallback y Guía de Inicialización (`config/fleet.example.yaml`)**:
-   - Si `config/fleet.yaml` no existe en la máquina:
-     - Consulta la plantilla de referencia `config/fleet.example.yaml`.
-     - Informa al usuario: *"💡 No se ha detectado `config/fleet.yaml`. Puedes crear uno ejecutando `cp config/fleet.example.yaml config/fleet.yaml` o mediante `bash scripts/agent/discover-fleet.sh` para auto-descubrir tu entorno."*
+2. **Fallback y Auto-Descubrimiento (`discover-fleet.sh`)**:
+   - Si `config/fleet.yaml` no existe en la máquina o deseas refrescar las herramientas instaladas:
+     - Ejecuta `bash scripts/agent/discover-fleet.sh --apply --docs`.
+     - El script auto-detecta deterministamente el SO, gestores de paquetes, perfiles y cuentas Antigravity (`agy`, `agy2`, etc.), clientes CLI de IA, Docker, Tailscale y marcadores de navegador (Chrome, Brave, Firefox) usando [config/known-web-tools.yaml](../../../config/known-web-tools.yaml) y heurísticas de carpetas IA.
+     - Preserva intactos los nodos remotos (`nodes`), servidores MCP (`mcpServers`) y unifica la visión de la flota en `docs/architecture/tools/local-environment.local.md`.
+     - Consulta de pasarelas candidatas evaluadas: [docs/architecture/tools/candidate-gateways.md](../../../docs/architecture/tools/candidate-gateways.md).
+
+---
+
+## 🔍 Comandos de Auto-Descubrimiento (`discover-fleet.sh`)
+
+```bash
+# Diagnóstico rápido a stdout (0 tokens, sin modificar archivos)
+bash scripts/agent/discover-fleet.sh
+
+# Aplicar cambios a config/fleet.yaml y generar reporte legible para humanos
+bash scripts/agent/discover-fleet.sh --apply --docs
+
+# Emitir digest en formato JSON
+bash scripts/agent/discover-fleet.sh --json
+```
+
+- **Catálogo de firmas Web AI**: [config/known-web-tools.yaml](../../../config/known-web-tools.yaml) (editable para añadir nuevos dominios).
+- **Documento humano generado**: `docs/architecture/tools/local-environment.local.md` (ignorado en git para proteger privacidad local).
+
 
 ---
 

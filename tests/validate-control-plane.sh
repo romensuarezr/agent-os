@@ -31,7 +31,7 @@ echo ""
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/5] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/6] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 for f in $YAML_FILES; do
@@ -47,7 +47,7 @@ done
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/5] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/6] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 REQUIRED_FIELDS=("id" "purpose" "allowed_tools" "allowed_hosts" "preferred_model_tier" "fallback_model_tier" "forbidden_actions" "escalation_triggers" "human_approval_required")
 
@@ -80,7 +80,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/5] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/6] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -105,7 +105,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/5] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/6] Verificando consistencia de hosts y routing tiers..."
 VALID_HOSTS=("local" "datamanager" "oracle" "all")
 
 HOST_VALIDATION=$(python3 -c "
@@ -134,7 +134,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/5] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/6] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -153,6 +153,25 @@ done
 
 echo -e "  ✅ $VALID_SKILLS/$TOTAL_SKILLS skills verificadas con SKILL.md intacto."
 echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en datamanager garantizada."
+
+# ------------------------------------------------------------------------------
+# 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [6/6] Verificando script determinista discover-fleet.sh..."
+DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
+if [ ! -x "$DISCOVER_SCRIPT" ]; then
+  echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+else
+  # Ejecutar en modo JSON y comprobar que emite JSON válido con local_environment
+  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DISCOVER_SCRIPT', '--json']); data = json.loads(out); assert 'local_environment' in data" 2>/dev/null; then
+    echo -e "  ✅ discover-fleet.sh funciona correctamente y emite digest determinista válido."
+  else
+    echo -e "  ❌ ERROR: discover-fleet.sh falló al generar el digest JSON determinista."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
 
 # ------------------------------------------------------------------------------
 # Resumen Final
