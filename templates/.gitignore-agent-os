@@ -16,3 +16,11 @@ docs/llm-context/*
 # External inbox — se trackea la carpeta vacía, no el contenido
 docs/external-inbox/*
 !docs/external-inbox/.gitkeep
+
+# Flota y herramientas locales — configuración privada de cada máquina
+config/fleet.yaml
+config/fleet.local.yaml
+!config/fleet.example.yaml
+docs/architecture/tools/*.local.md
+docs/architecture/tools/private/
+

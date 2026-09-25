@@ -16,6 +16,9 @@
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | T-039 | Validación y configuración local de OpenCode con FreeLLMAPI ($0 inferencia) | M | ✅ Completada | FreeLLMAPI en `datamanager` activo vía Tailscale | [.agents/tasks/task-039.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-039.md) |
 | T-040 | Inventario Activo de Herramientas de la Flota (`tool-inventory`) y registro de capacidades | S | ✅ Completada | T-035, T-037 | [.agents/tasks/task-040.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-040.md) |
+| T-044 | Universalización agnóstica de `tool-inventory` y desacople de flota en `config/fleet.yaml` | S | ✅ Completada | T-040 | [.agents/tasks/task-044.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-044.md) |
+| T-045 | Salvaguarda de prospección determinista en `sprint-planning.md` y `tool-decision-flow.md` | S | ⬜ Pendiente | T-038 | [.agents/tasks/task-045.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-045.md) |
+| T-046 | Script CLI determinista `discover-fleet.sh` para auto-descubrimiento y generación de `fleet.yaml` | M | ⬜ Pendiente | T-044 | [.agents/tasks/task-046.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-046.md) |
 | T-041 | Integración Hermes Agent → Cola de tareas Orca en estado `pending_approval` | M | ⬜ Pendiente | T-037, T-039 | [.agents/tasks/task-041.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-041.md) |
 
 ---
@@ -39,6 +42,6 @@
 
 ## Criterio de Éxito del Sprint 07
 
-1. OpenCode CLI validado operando localmente contra FreeLLMAPI (`http://100.77.82.13:3001/v1`), generando cambios y ejecutando tool-calling de forma aislada en carpeta de pruebas sin consumir saldo cloud ($0).
+1. OpenCode CLI validado operando localmente contra FreeLLMAPI en nodo de inferencia privado (`routing.default_local_llm_endpoint`), generando cambios y ejecutando tool-calling de forma aislada en carpeta de pruebas sin consumir saldo cloud ($0).
 2. Registro centralizado y estructurado (`docs/architecture/tool-inventory.md`) de herramientas de la flota (locales, servidores, web LLMs, agentes).
 3. Pipeline HITL documentado e integrado para que Hermes Agent reciba solicitudes por WhatsApp y las encole de forma segura con token efímero y estado `pending_approval` en Orca.
