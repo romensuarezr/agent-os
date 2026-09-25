@@ -19,7 +19,7 @@
 | T-044 | Universalización agnóstica de `tool-inventory` y desacople de flota en `config/fleet.yaml` | S | ✅ Completada | T-040 | [.agents/tasks/task-044.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-044.md) |
 | T-045 | Salvaguarda de prospección determinista en `sprint-planning.md` y `tool-decision-flow.md` | S | ✅ Completada | T-038 | [.agents/tasks/task-045.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-045.md) |
 | T-046 | Script CLI determinista `discover-fleet.sh` para auto-descubrimiento y generación de `fleet.yaml` | M | ✅ Completada | T-044 | [.agents/tasks/task-046.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-046.md) |
-| T-041 | Integración Hermes Agent → Cola de tareas Orca en estado `pending_approval` | M | ⬜ Pendiente | T-037, T-039 | [.agents/tasks/task-041.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-041.md) |
+| T-041 | Orquestación Multi-Agente en Orca ADE: Coordinador, despacho paralelo y enrutamiento de LLMs | M | ✅ Completada | T-037, T-040, T-046 | [.agents/tasks/_archived/task-041.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-041.md) |
 
 ---
 
@@ -38,10 +38,16 @@
 - **Riesgos**: Ruido de resultados irrelevantes; desgaste de cuotas gratuitas de APIs.
 - **Criterio de aceptación**: Script programable o workflow que ejecute búsquedas específicas en repositorios y registre herramientas candidatas en el inventario.
 
+### T-047: Integración Hermes Agent → Cola de tareas Orca en estado `pending_approval`
+- **Estado**: ⏸ Bloqueada en Backlog (Reubicada desde T-041 para priorizar orquestación nativa en Orca ADE)
+- **Dependencias**: T-041 (Orquestación en Orca), T-037.
+- **Riesgos**: Exposición a prompt injection desde canales externos (WhatsApp).
+- **Criterio de aceptación**: Script de encolado seguro para mensajes externos de Hermes Agent registrando compuertas de decisión en Orca Desktop.
+
 ---
 
 ## Criterio de Éxito del Sprint 07
 
 1. OpenCode CLI validado operando localmente contra FreeLLMAPI en nodo de inferencia privado (`routing.default_local_llm_endpoint`), generando cambios y ejecutando tool-calling de forma aislada en carpeta de pruebas sin consumir saldo cloud ($0).
 2. Registro centralizado y estructurado (`docs/architecture/tool-inventory.md`) de herramientas de la flota (locales, servidores, web LLMs, agentes).
-3. Pipeline HITL documentado e integrado para que Hermes Agent reciba solicitudes por WhatsApp y las encole de forma segura con token efímero y estado `pending_approval` en Orca.
+3. Orquestación multi-agente en Orca ADE demostrada con éxito: Coordinador troceando una tarea y despachando múltiples agentes concurrentes en worktrees aislados con selección de LLM apropiada.
