@@ -2,6 +2,73 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.6.0] — sprint-07 — 2026-09-25
+
+### ✨ Features
+
+- feat(workflows): add optional DAG batch suggestions for Orca ADE in session-start and sprint-planning
+- feat: orca multiagent orchestration(T-041)
+- feat: discover fleet cli(T-046)
+- feat: sprint scout safeguard(T-045)
+- feat: agnostic fleet decoupling(T-044)
+- feat: fleet tool inventory(T-040)
+- feat: opencode freellmapi validation(T-039)
+- feat: orca readonly and gates(T-037)
+- feat: deterministic scout(T-038)
+- feat: remote github ssh auth(T-036)
+- feat: oracle disk ports audit(T-035)
+- feat(control-plane): implement Phase 1A declarative agent control plane foundation
+- feat: e2e validation runbook freellmapi(T-029)
+- feat: config providers ollama freellmapi(T-028)
+- feat: deploy freellmapi datamanager(T-027)
+- feat(skills): add list-hosts discovery script to remote-admin
+- feat(skills): universalize and promote remote-admin to core (T-026)
+- feat: promote coolify-nextjs-deploy (skill) from adama
+- feat: sync assets manifest cleanup(T-025)
+- feat: check session core updates detection(T-024)
+- feat: redesign roadmap sprint changelog flow (T-023)
+- feat: validate sync compatibility(T-022)
+- feat: agent dx improvements(T-021)
+- feat: redactar adrs(T-020)
+
+### 🐛 Bug Fixes
+
+- fix(scripts): support lowercase changelog.md in update-changelog.sh
+- fix(scripts): support lowercase changelog.md in close-sprint.sh
+- fix(script): allow directory recursive copy in contribute.sh for skills
+- fix(sync): overwrite workflows during synchronization instead of using cp -n
+- fix(rules): add explicit criteria for QUÉ/POR QUÉ/TRADE-OFF
+
+### ♻️ Refactoring
+
+- refactor(rules): merge teach-while-building into caveman
+
+### 📚 Documentación
+
+- docs(inbox): capture OmniRoute AI gateway idea for Sprint 08
+- docs(inbox): capture ideas for Infisical secrets manager and fleet tools inventory
+- docs(workflows): compress session-start and sprint-planning to reduce token overhead
+- docs(rules): consolidate QUE/POR QUE/TRADE-OFF and reduce token overhead
+- docs(idea): register naming conventions ideas in inbox
+- docs(idea): register assets manifest automation ideas in inbox
+- docs(idea): register release flow redesign ideas in inbox
+- docs(rules): add silent-execution rule and reduce verbose narration
+- docs: adjust T-023 criteria and archive processed idea
+- docs: move core-planning context to AGENTS.md, delete workflow and archive sprint-01-core
+- docs: register T-024 task and update sprint-03-core
+- docs: register T-023 task and initialize sprint-03-core
+- docs: capture close-sprint bug in idea-inbox
+
+### 🔧 Mantenimiento
+
+- chore: archive sprint-06-core [v1.5.0]
+- chore(sprint): initialize sprint-06-core for Phase 1B
+- chore: archive sprint-05-core [v1.4.0]
+- chore: archive sprint-04-core [v1.3.0]
+- chore: archive sprint-03-core
+- chore: archive sprint-03-core
+- chore: archive sprint-02-core
+
 ## [1.5.0] — 2026-09-24
 ### Añadido
 - **Auditoría Integral de Infraestructura en `oracle` (T-035)**:
