@@ -114,6 +114,21 @@ Si un script legacy o docker-compose requiere variables en formato dotenv, se re
 eval $(infisical export --env=prod --format=dotenv-export --domain="${INFISICAL_API_URL}" --projectId="${INFISICAL_PROJECT_ID}")
 ```
 
+### 5. Auditoría y Migración Masiva de Secretos (`import-secrets.sh`)
+
+Para migrar repositorios existentes o escanear una máquina con múltiples proyectos:
+
+```bash
+# Diagnóstico y validación de vigencia de APIs sin modificar Infisical (0 tokens)
+bash scripts/agent/import-secrets.sh /ruta/a/proyectos --dry-run
+
+# Aplicar migración jerárquica a Infisical en entorno dev (crea carpetas por proyecto)
+bash scripts/agent/import-secrets.sh /ruta/a/proyectos --apply --env=dev
+
+# Aplicar y proteger los archivos originales (.env -> .env.backup)
+bash scripts/agent/import-secrets.sh /ruta/a/proyectos --apply --env=dev --clean-env
+```
+
 ---
 
 ## 🛡️ Reglas de Seguridad y Buenas Prácticas
