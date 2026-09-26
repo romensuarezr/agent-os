@@ -1,0 +1,32 @@
+# ByteBox - Docker Compose Template (Agent OS)
+# Tool: Developer CLI commands, code snippets & notes organizer
+# Stack: Next.js + SQLite/Prisma (Local-first, 0 external DBs)
+# Persistence: Named Docker volume bytebox-data mounted at /data
+
+services:
+  bytebox:
+    build:
+      context: https://github.com/pinkpixel-dev/bytebox.git#main
+      dockerfile: Dockerfile
+    image: bytebox:latest
+    container_name: bytebox
+    ports:
+      - "1334:1334"
+    volumes:
+      - bytebox-data:/data
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/data/bytebox.db
+      - PORT=1334
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:1334/api/cards || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+volumes:
+  bytebox-data:
+    name: bytebox-data
