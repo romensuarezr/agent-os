@@ -59,6 +59,18 @@ Una vez el usuario autoriza la aplicación de cambios:
 3. El script aplicará las modificaciones pertinentes y realizará un commit atómico automático:
    `chore(agent-os): apply audit adaptations to existing repo`
 
+### Paso 4: Migración y Saneamiento de Secretos (`.env` → Infisical)
+Si el repositorio preexistente contiene archivos `.env`, `.env.local` o variables sensibles en disco:
+1. Auditar y verificar vigencia de claves sin alterar el entorno:
+   ```bash
+   bash scripts/agent/import-secrets.sh . --dry-run
+   ```
+2. Aplicar la migración jerárquica al gestor de secretos de la flota y proteger los archivos locales:
+   ```bash
+   bash scripts/agent/import-secrets.sh . --apply --env=dev --clean-env
+   ```
+   Esto creará la carpeta correspondiente al proyecto en Infisical y renombrará los archivos a `.env.backup`, eliminando el riesgo de filtraciones accidentales en Git.
+
 ---
 
 ## 🗃️ Manejo del Sprint 00 Histórico

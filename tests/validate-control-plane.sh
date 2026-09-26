@@ -31,7 +31,7 @@ echo ""
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/7] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/8] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 for f in $YAML_FILES; do
@@ -47,7 +47,7 @@ done
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/7] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/8] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 REQUIRED_FIELDS=("id" "purpose" "allowed_tools" "allowed_hosts" "preferred_model_tier" "fallback_model_tier" "forbidden_actions" "escalation_triggers" "human_approval_required")
 
@@ -80,7 +80,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/7] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/8] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -115,7 +115,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/7] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/8] Verificando consistencia de hosts y routing tiers..."
 VALID_HOSTS=("local" "datamanager" "oracle" "all")
 
 HOST_VALIDATION=$(python3 -c "
@@ -144,7 +144,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/7] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/8] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -168,7 +168,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en datamanager garantiz
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/7] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/8] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -187,7 +187,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/7] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/8] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -198,6 +198,29 @@ else
     echo -e "  ✅ orca-orchestrate.sh funciona correctamente e interactúa con el runtime de Orca."
   else
     echo -e "  ❌ ERROR: orca-orchestrate.sh falló al consultar el estado de Orca."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 8. Verificación de Migración de Secretos (import-secrets.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [8/8] Verificando herramienta determinista import-secrets.sh..."
+IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
+PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
+
+if [ ! -x "$IMPORT_SCRIPT" ]; then
+  echo -e "  ❌ El script $IMPORT_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+elif [ ! -x "$PYTHON_ENGINE" ]; then
+  echo -e "  ❌ El motor $PYTHON_ENGINE no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+else
+  if bash "$IMPORT_SCRIPT" --help >/dev/null 2>&1 && python3 "$PYTHON_ENGINE" . --json >/dev/null 2>&1; then
+    echo -e "  ✅ import-secrets.sh y verify-secrets.py funcionan correctamente en modo determinista."
+  else
+    echo -e "  ❌ ERROR: import-secrets.sh o verify-secrets.py fallaron en la comprobación básica."
     ERRORS=$((ERRORS + 1))
   fi
 fi

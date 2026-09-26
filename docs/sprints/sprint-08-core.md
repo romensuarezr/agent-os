@@ -15,7 +15,8 @@
 | ID | Descripción | Tamaño | Estado | Dependencias / Bloqueos | Task file |
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | T-048 | Despliegue de OmniRoute en `datamanager` ($0 inferencia) y plugin `opencode-omniroute-auth` | M | ✅ Completada | FreeLLMAPI en `datamanager`, T-039 | [.agents/tasks/_archived/task-048.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-048.md) |
-| T-042 | Despliegue de Infisical Community Edition en Coolify (`oracle`) y skill de inyección de secretos | M | ✅ Completada | Coolify y Docker en `oracle` (T-035 auditado) | [.agents/tasks/task-042.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-042.md) |
+| T-042 | Despliegue de Infisical Community Edition en Coolify (`oracle`) y skill de inyección de secretos | M | ✅ Completada | Coolify y Docker en `oracle` (T-035 auditado) | [.agents/tasks/_archived/task-042.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-042.md) |
+| T-049 | Script CLI determinista de importación masiva y validación liveness de secretos (`.env` → Infisical) | M | ✅ Completada | T-042 | [.agents/tasks/task-049.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-049.md) |
 | T-047 | Integración Hermes Agent → Compuertas de decisión Orca en estado `pending_approval` | M | ⬜ Pendiente | T-041 (`orca-orchestrate.sh`), T-037 | [.agents/tasks/task-047.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-047.md) |
 | T-043 | Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` | S | ⬜ Pendiente | T-038 (`scout.sh`), T-040 | [.agents/tasks/task-043.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-043.md) |
 
