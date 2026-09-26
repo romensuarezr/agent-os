@@ -87,6 +87,14 @@ nodes:
       orca_gateway:
         endpoint: "http://localhost:8000"
         description: "Task queue and read-only inspection engine"
+      infisical:
+        endpoint: "http://infisical.example.com"
+        admin_console: "http://infisical.example.com/admin"
+        api_url: "http://infisical.example.com/api"
+        auth_type: "universal-auth"
+        project_id: "example-project-uuid"
+        project_slug: "agent-os-example"
+        description: "Infisical Community Edition standalone lite secrets manager"
 
 # ------------------------------------------------------------------------------
 # 3. Model Context Protocol (MCP) Standard Server Definitions
