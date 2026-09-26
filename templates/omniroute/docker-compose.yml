@@ -1,0 +1,30 @@
+services:
+  omniroute:
+    image: diegosouzapw/omniroute:latest
+    container_name: omniroute
+    restart: unless-stopped
+    ports:
+      - "${HOST_BIND_IP:-100.77.82.13}:${PORT:-20128}:20128"
+    environment:
+      - PORT=20128
+      - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
+      - JWT_SECRET=${JWT_SECRET}
+      - INITIAL_PASSWORD=${INITIAL_PASSWORD}
+      - DATA_DIR=/app/data
+      - OMNIROUTE_MEMORY_MB=${OMNIROUTE_MEMORY_MB:-1024}
+      - NODE_OPTIONS=--max-old-space-size=${OMNIROUTE_MEMORY_MB:-1024}
+    volumes:
+      - omniroute-data:/app/data
+    networks:
+      - default
+      - datamanager_default
+
+networks:
+  default:
+  datamanager_default:
+    external: true
+
+volumes:
+  omniroute-data:
+    external: true

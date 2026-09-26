@@ -4,6 +4,9 @@
 > **Estado**: 💡 Capturada en Idea Inbox  
 > **Área**: UX de Agentes / Orquestación Multi-Agente / Swarm Autonomous Coordination  
 > **Origen**: Sesión de trabajo Sprint 08 — Feedback del usuario sobre interacción multi-agente  
+> **Rama**: feat/orca-batch-workflow-suggestion
+>
+>
 
 ---
 
@@ -12,6 +15,7 @@
 En la interacción multi-agente actual en Orca ADE, al despachar workers en paralelo sobre distintos worktrees, la UX requería que el usuario navegase manualmente entre las pestañas de cada worktree para revisar y aprobar el avance de cada agente.
 
 **Visión del Usuario**:
+
 - El usuario habla **exclusivamente con el agente Coordinador en la terminal principal** (interfaz única o *single-pane of glass*).
 - El usuario aprueba el plan del lote en la terminal principal.
 - El Coordinador despacha a los agentes obreros a sus worktrees en Orca.
@@ -23,7 +27,7 @@ En la interacción multi-agente actual en Orca ADE, al despachar workers en para
 
 ## 2. Líneas de Investigación y Referencias Técnicas
 
-1. **Orca Federation & Control Mail**:
+1. **Orca Federation &amp; Control Mail**:
    - Orca ADE v1.4 incluye capacidades de federación:
      - `orchestration.federation.v1`
      - `orchestration.federation-control-mail.v1`
@@ -39,5 +43,7 @@ En la interacción multi-agente actual en Orca ADE, al despachar workers en para
 ---
 
 ## 3. Próximos Pasos
+
 - Buscar tutoriales y documentación avanzada de Orca ADE sobre automatización desatendida y federation control mail.
 - Probar un prototipo en una rama experimental cuando se aborde en futuros sprints.
+

@@ -20,19 +20,19 @@ Archivos autorizados para modificación / creación:
 - `tests/validate-control-plane.sh`
 
 ## Criterios de done
-- [ ] Template `templates/omniroute/docker-compose.yml` y configuración headless creada con compresión RTK y límites de memoria.
-- [ ] Contenedor OmniRoute levantado en `datamanager` expuesto en puerto `3002` vía Tailscale.
-- [ ] Verificación del endpoint OpenAI-compatible (`http://100.77.82.13:3002/v1/chat/completions`) respondiendo con $0 tokens.
-- [ ] Integración y validación del plugin `opencode-omniroute-auth` en la configuración local de OpenCode.
-- [ ] Registro de OmniRoute como servicio en `config/fleet.yaml` y tier secundario en `config/routing-policy.yaml`.
-- [ ] Suite `tests/validate-control-plane.sh` pasando con 0 errores.
+- [x] Template `templates/omniroute/docker-compose.yml` y configuración headless creada con compresión RTK y límites de memoria.
+- [x] Contenedor OmniRoute levantado en `datamanager` expuesto en puerto `20128` vía Tailscale.
+- [x] Verificación del endpoint OpenAI-compatible (`http://100.77.82.13:20128/v1/chat/completions`) respondiendo con $0 tokens.
+- [x] Integración y validación del plugin `opencode-omniroute-auth` en la configuración local de OpenCode.
+- [x] Registro de OmniRoute como servicio en `config/fleet.yaml` y tier secundario en `config/routing-policy.yaml`.
+- [x] Suite `tests/validate-control-plane.sh` pasando con 0 errores.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-26T13:06:49+01:00
+- [x] Rama creada: feat/T-048-deploy-omniroute-datamanager
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente

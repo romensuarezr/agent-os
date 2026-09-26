@@ -19,6 +19,17 @@ endpoints:
       - auto
       - custom
 
+  omniroute:
+    description: "Pasarela multi-proveedor OmniRoute con 150+ modelos gratuitos y compresión semántica RTK"
+    base_url: "http://100.77.82.13:20128/v1"
+    cost_tier: "free_multi_provider_gateway"
+    verified_models:
+      - "auto/best-free"
+      - "auto/best-coding"
+      - "auto/coding:free"
+      - "auto/fast"
+      - "auto/smart"
+
   ollama-local:
     description: "Backend local en VPS datamanager para inferencia 100% privada y offline"
     base_url: "http://127.0.0.1:11434/v1"
@@ -42,6 +53,7 @@ task_routing_matrix:
     description: "Generación de código, tests unitarios y corrección de bugs en worktrees aislados"
     primary: "primary-reliable"
     secondary: "freellmapi"
+    tertiary: "omniroute"
     fallback: "ollama-local"
     preferred_local_model: "mistral-nemo:12b"
 
