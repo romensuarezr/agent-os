@@ -1,7 +1,7 @@
 # Sprint 08 — Core
 
 **Período**: 2026-09-25 → 2026-10-02  
-**Objetivo**: Fase 2B del Control Plane: Pasarelas de Inferencia $0, Gestión Centralizada de Secretos e Ingesta Remota HITL hacia Orca. Desplegar OmniRoute en `datamanager` con compresión RTK para OpenCode; desplegar Infisical CE en Coolify (`oracle`) para inyección de secretos en memoria; integrar Hermes Agent hacia las compuertas de Orca ADE (`pending_approval`); y programar la prospección periódica OSS.
+**Objetivo**: Fase 2B del Control Plane: Pasarelas de Inferencia $0, Gestión Centralizada de Secretos, Herramientas de Desarrollador e Ingesta Remota HITL hacia Orca. Desplegar OmniRoute en `datamanager` con compresión RTK para OpenCode; desplegar Infisical CE en Coolify (`oracle`) para inyección de secretos en memoria; desplegar herramientas de productividad y dashboards (ByteBox vía Coolify MCP para snippets/comandos, Homepage para observabilidad de flota, y catálogo de starters con TailAdmin); integrar Hermes Agent hacia las compuertas de Orca ADE (`pending_approval`); y programar la prospección periódica OSS.
 
 ---
 
@@ -16,7 +16,10 @@
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | T-048 | Despliegue de OmniRoute en `datamanager` ($0 inferencia) y plugin `opencode-omniroute-auth` | M | ✅ Completada | FreeLLMAPI en `datamanager`, T-039 | [.agents/tasks/_archived/task-048.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-048.md) |
 | T-042 | Despliegue de Infisical Community Edition en Coolify (`oracle`) y skill de inyección de secretos | M | ✅ Completada | Coolify y Docker en `oracle` (T-035 auditado) | [.agents/tasks/_archived/task-042.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-042.md) |
-| T-049 | Script CLI determinista de importación masiva y validación liveness de secretos (`.env` → Infisical) | M | ✅ Completada | T-042 | [.agents/tasks/task-049.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-049.md) |
+| T-049 | Script CLI determinista de importación masiva y validación liveness de secretos (`.env` → Infisical) | M | ✅ Completada | T-042 | [.agents/tasks/_archived/task-049.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-049.md) |
+| T-050 | Despliegue de ByteBox en Coolify (`oracle`) vía Coolify MCP para gestión de snippets y comandos | M | ✅ Completada | Coolify MCP verificado, T-035 | [.agents/tasks/_archived/task-050.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-050.md) |
+| T-051 | Despliegue de Homepage en Coolify (`oracle`) y generador dinámico desde `config/fleet.yaml` | M | ⬜ Pendiente | T-050 | [.agents/tasks/task-051.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-051.md) |
+| T-052 | Catálogo y template de starters para proyectos hijos (`templates/starters/`) con TailAdmin | S | ⬜ Pendiente | Ninguna | [.agents/tasks/task-052.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-052.md) |
 | T-047 | Integración Hermes Agent → Compuertas de decisión Orca en estado `pending_approval` | M | ⬜ Pendiente | T-041 (`orca-orchestrate.sh`), T-037 | [.agents/tasks/task-047.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-047.md) |
 | T-043 | Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` | S | ⬜ Pendiente | T-038 (`scout.sh`), T-040 | [.agents/tasks/task-043.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-043.md) |
 
@@ -28,7 +31,11 @@
   - `T-048` (Inferencia en VPS `datamanager` vía Tailscale)
   - `T-042` (Gestor de secretos en VPS `oracle` tras Traefik/Coolify)  
   *No comparten archivos de código ni servidores. Aptas para ejecución paralela en Orca ADE.*
-- **Lote 2 (Secuencial / Concurrente posterior)**:
+- **Lote 2 (Productividad Dev y Dashboards de Flota — Coolify MCP)**:
+  - `T-050` (Despliegue ByteBox vía Coolify MCP en `oracle`)
+  - `T-051` (Despliegue Homepage dashboard de flota en `oracle`)
+  - `T-052` (Catálogo de starters desacoplados con TailAdmin)
+- **Lote 3 (Secuencial / Concurrente posterior)**:
   - `T-047` (Ingesta remota Hermes hacia compuertas de Orca Desktop)
   - `T-043` (Automatización de prospección determinista OSS)
 
@@ -38,5 +45,8 @@
 
 1. OmniRoute desplegado en contenedor Docker en `datamanager` (puerto 3002) detrás de Tailscale, respondiendo con $0 de coste a peticiones OpenAI y conectado al cliente local de OpenCode mediante el plugin `opencode-omniroute-auth` con compresión RTK.
 2. Infisical Community Edition levantado en `oracle` en modo lite (<500MB RAM), permitiendo inyección de variables en memoria (`infisical run`) sin filtrar secretos en repositorios.
-3. Conector de Hermes Agent despachando eventos a Orca ADE registrando compuertas de decisión humanas en estado `pending_approval`.
-4. Script programable o workflow ejecutando prospecciones periódicas de librerías OSS y registrando automáticamente candidatos en `config/fleet.yaml` e inboxes.
+3. ByteBox desplegado y validado en Coolify (`oracle`) utilizando el Coolify MCP para la gestión centralizada de snippets de código y comandos CLI, sustituyendo notas dispersas.
+4. Homepage configurado como dashboard unificado de la infraestructura sincronizado con `config/fleet.yaml`.
+5. Catálogo de starters para proyectos hijos creado en `templates/starters/` incorporando TailAdmin sin contaminar el core.
+6. Conector de Hermes Agent despachando eventos a Orca ADE registrando compuertas de decisión humanas en estado `pending_approval`.
+7. Script programable o workflow ejecutando prospecciones periódicas de librerías OSS y registrando automáticamente candidatos en `config/fleet.yaml` e inboxes.

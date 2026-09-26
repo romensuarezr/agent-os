@@ -95,12 +95,27 @@ nodes:
         project_id: "example-project-uuid"
         project_slug: "agent-os-example"
         description: "Infisical Community Edition standalone lite secrets manager"
+      bytebox:
+        url: "https://bytebox.example.com"
+        coolify_uuid: "example-application-uuid"
+        storage_engine: "sqlite"
+        description: "Developer CLI commands, code snippets and notes organizer"
 
 # ------------------------------------------------------------------------------
 # 3. Model Context Protocol (MCP) Standard Server Definitions
 # ------------------------------------------------------------------------------
 # Aligned with the standard MCP client specification
 mcpServers:
+  coolify:
+    command: "npx"
+    args:
+      - "-y"
+      - "@masonator/coolify-mcp"
+    env:
+      COOLIFY_BASE_URL: "https://coolify.example.com"
+      COOLIFY_ACCESS_TOKEN: "${COOLIFY_ACCESS_TOKEN}"
+    description: "Coolify PaaS infrastructure management and app deployment"
+
   filesystem:
     command: "npx"
     args:
