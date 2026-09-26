@@ -19,7 +19,7 @@
 | T-049 | Script CLI determinista de importación masiva y validación liveness de secretos (`.env` → Infisical) | M | ✅ Completada | T-042 | [.agents/tasks/_archived/task-049.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-049.md) |
 | T-050 | Despliegue de ByteBox en Coolify (`oracle`) vía Coolify MCP para gestión de snippets y comandos | M | ✅ Completada | Coolify MCP verificado, T-035 | [.agents/tasks/_archived/task-050.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-050.md) |
 | T-051 | Despliegue de Homepage en Coolify (`oracle`) y generador dinámico desde `config/fleet.yaml` | M | ✅ Completada | T-050 | [.agents/tasks/_archived/task-051.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-051.md) |
-| T-052 | Catálogo y template de starters para proyectos hijos (`templates/starters/`) con TailAdmin | S | ⬜ Pendiente | Ninguna | [.agents/tasks/task-052.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-052.md) |
+| T-052 | Catálogo y template de starters para proyectos hijos con TailAdmin | S | ❌ Cancelada | Descartada por arquitectura (delegado a prospección JIT con scout.sh) | — |
 | T-047 | Integración Hermes Agent → Compuertas de decisión Orca en estado `pending_approval` | M | ⬜ Pendiente | T-041 (`orca-orchestrate.sh`), T-037 | [.agents/tasks/task-047.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-047.md) |
 | T-043 | Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` | S | ⬜ Pendiente | T-038 (`scout.sh`), T-040 | [.agents/tasks/task-043.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-043.md) |
 
@@ -47,6 +47,6 @@
 2. Infisical Community Edition levantado en `oracle` en modo lite (<500MB RAM), permitiendo inyección de variables en memoria (`infisical run`) sin filtrar secretos en repositorios.
 3. ByteBox desplegado y validado en Coolify (`oracle`) utilizando el Coolify MCP para la gestión centralizada de snippets de código y comandos CLI, sustituyendo notas dispersas.
 4. Homepage configurado como dashboard unificado de la infraestructura sincronizado con `config/fleet.yaml`.
-5. Catálogo de starters para proyectos hijos creado en `templates/starters/` incorporando TailAdmin sin contaminar el core.
+5. [Descartado] Catálogo de templates estáticos cancelado a favor de prospección JIT vía `scout.sh`.
 6. Conector de Hermes Agent despachando eventos a Orca ADE registrando compuertas de decisión humanas en estado `pending_approval`.
 7. Script programable o workflow ejecutando prospecciones periódicas de librerías OSS y registrando automáticamente candidatos en `config/fleet.yaml` e inboxes.
