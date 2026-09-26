@@ -201,6 +201,11 @@ standard_clis = [
     {"name": "gitingest", "cmd": "gitingest", "ver_cmd": "gitingest --version", "desc": "Repository content extractor for LLMs"},
     {"name": "scout.sh", "cmd": f"test -f {os.path.join(repo_root, 'scripts/agent/scout.sh')} && echo ok", "ver_cmd": None, "desc": "Deterministic OSS pre-code scout"},
     {"name": "infisical", "cmd": "infisical", "ver_cmd": "infisical --version", "desc": "Secrets management CLI"},
+    {"name": "ngrok", "cmd": "ngrok", "ver_cmd": "ngrok version", "desc": "Secure reverse tunnel CLI for public HTTPS webhook testing on localhost"},
+    {"name": "cloudflared", "cmd": "cloudflared", "ver_cmd": "cloudflared --version", "desc": "Cloudflare Tunnel daemon and CLI"},
+    {"name": "stripe", "cmd": "stripe", "ver_cmd": "stripe version", "desc": "Stripe developer CLI for webhook forwarding and test events"},
+    {"name": "supabase", "cmd": "supabase", "ver_cmd": "supabase --version", "desc": "Supabase local development and migration CLI"},
+    {"name": "sentry-cli", "cmd": "sentry-cli", "ver_cmd": "sentry-cli --version", "desc": "Sentry command-line tool for release management and sourcemaps"},
     {"name": "python3", "cmd": "python3", "ver_cmd": "python3 --version", "desc": "Python runtime"},
     {"name": "node", "cmd": "node", "ver_cmd": "node --version", "desc": "Node.js JavaScript runtime"},
     {"name": "bun", "cmd": "bun", "ver_cmd": "bun --version", "desc": "Bun JavaScript runtime"}
