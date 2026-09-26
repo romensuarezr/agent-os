@@ -16,22 +16,22 @@ Archivos autorizados para modificación / creación:
 - `templates/infisical/docker-compose.yml`
 - `.agents/skills/infisical-secrets/SKILL.md`
 - `config/fleet.yaml`
+- `config/fleet.example.yaml`
 - `tests/validate-control-plane.sh`
 
 ## Criterios de done
-- [ ] Template `templates/infisical/docker-compose.yml` adaptado para modo Standalone Lite (<500MB RAM) con PostgreSQL optimizado.
-- [ ] Stack de Infisical levantado y verificado en `oracle` accesible por red privada/Coolify.
-- [ ] Machine Identity (Universal Auth) y workspace de Agent OS configurados en Infisical.
-- [ ] Skill `.agents/skills/infisical-secrets/SKILL.md` creada con runbook para inyección en memoria (`infisical run`).
-- [ ] Registro del servicio Infisical en `config/fleet.yaml`.
-- [ ] Suite `tests/validate-control-plane.sh` pasando con 0 errores.
+- [x] Stack de Infisical CE verificado en `oracle` (desplegado previamente en Coolify en `http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io`).
+- [x] Machine Identity (Universal Auth) y workspace de Agent OS configurados en Infisical.
+- [x] Skill `.agents/skills/infisical-secrets/SKILL.md` creada con runbook para inyección en memoria (`infisical run`).
+- [x] Registro del servicio Infisical en `config/fleet.yaml` y plantilla universal en `config/fleet.example.yaml`.
+- [x] Suite `tests/validate-control-plane.sh` pasando con 0 errores.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-26T14:04:15+01:00 (Aprobado con cambios: omitir despliegue manual, usar instancia Coolify activa)
+- [x] Rama creada: feat/T-042-deploy-infisical-oracle
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
