@@ -7,17 +7,22 @@ description: Inyección efímera de secretos en memoria y gestión centralizada 
 
 Esta habilidad proporciona el protocolo operativo, runbooks y comandos necesarios para inyectar variables de entorno y secretos confidenciales directamente en la memoria de los procesos (`infisical run`), eliminando por completo la necesidad de almacenar archivos `.env` en disco o exponer tokens en repositorios.
 
-Infisical opera como el gestor centralizado de secretos de la flota de **Agent OS**, alojado en el nodo de infraestructura `oracle` tras Coolify.
+Infisical opera como el gestor centralizado de secretos de la flota de **Agent OS**, alojado en el nodo de infraestructura PaaS (Coolify/Docker).
 
 ---
 
-## 🌐 Topología del Servicio y Conectividad
+## 🌐 Topología del Servicio y Conectividad Dinámica
 
-- **Nodo**: `oracle` (Ubuntu 24.04 / Coolify PaaS)
-- **URL Base / Backend**: `http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io`
-- **Consola Web Administrativa**: `http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/admin`
-- **API Endpoint**: `http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api`
-- **Contenedores**: `infisical:v0.154.6`, `postgres:14-alpine`, `redis:7` (modo lite <500MB RAM)
+La configuración del servicio se resuelve de forma dinámica y desacoplada mediante `config/fleet.yaml` o variables de entorno del host, garantizando portabilidad absoluta en proyectos hijos:
+
+- **Variables de Entorno Estándar**:
+  - `INFISICAL_API_URL`: Endpoint de la API REST (ej. `http://<host>:<puerto>/api` o `https://infisical.tu-dominio.com/api`).
+  - `INFISICAL_CLIENT_ID`: Identificador público de la Machine Identity.
+  - `INFISICAL_CLIENT_SECRET`: Clave secreta confidencial de la Machine Identity.
+  - `INFISICAL_PROJECT_ID`: Identificador único (UUID) del proyecto o workspace en Infisical.
+- **Configuración en Flota (`config/fleet.yaml`)**:
+  - Consulta la sección `nodes.<nodo>.services.infisical` para resolver el endpoint y consola sin exponer datos en git.
+- **Modo Recomendado**: `infisical` standalone lite (<500MB RAM) con PostgreSQL y Redis local.
 
 ---
 
@@ -27,36 +32,34 @@ Para la interacción automatizada de agentes de IA, CLI local y scripts desatend
 
 ### 1. Creación de la Identidad en la Consola Web
 
-1. Acceder a la consola administrativa: `http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/admin`.
-2. Crear o seleccionar la Organización y el Proyecto: **`Agent OS`**.
+1. Acceder a la consola administrativa de tu instancia (`/admin`).
+2. Crear o seleccionar la Organización y el Proyecto (ej. `Agent OS` o el nombre del proyecto actual).
 3. Navegar a **Access Control** → **Machine Identities** → **Add Machine Identity**.
 4. Nombre de la identidad: `agent-os-flota` (o `runner-local`).
 5. Configurar el método de autenticación: **Universal Auth**.
-6. En la pestaña del Proyecto `Agent OS`, asociar la Machine Identity con el rol adecuado (`Developer` para lectura de secretos de desarrollo/staging o `Admin` para gestión integral).
+6. En la pestaña del Proyecto, asociar la Machine Identity con el rol adecuado (`Developer` para lectura de secretos de desarrollo/staging o `Admin` para gestión integral).
 7. Generar las credenciales:
    - **Client ID**: Identificador público de la máquina.
    - **Client Secret**: Secreto de un solo visionado.
-8. Obtener el **Project ID** desde la URL o la configuración del proyecto:
-- **Project Name**: `Agent OS`
-- **Project ID**: `87e37a5c-e1a7-4285-be4e-c9913527533a`
-- **Project Slug**: `agent-os-kz-vq`
+8. Obtener el **Project ID** desde la URL o la pestaña de configuración del proyecto (`Project Settings` → `General`).
 
 ### 2. Autenticación Universal Auth con el CLI
 
 Para ejecuciones desatendidas de agentes o runners, se canjean las credenciales de la Machine Identity (`INFISICAL_CLIENT_ID` e `INFISICAL_CLIENT_SECRET`) por un token efímero de acceso (válido por 30 días / 2,592,000s):
 
 ```bash
-# 1. Variables de Machine Identity en el host o runner
-export INFISICAL_API_URL="http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api"
+# 1. Variables de Machine Identity en el host o runner (~/.bashrc o entorno)
+export INFISICAL_API_URL="${INFISICAL_API_URL:-http://localhost:8080/api}"
 export INFISICAL_CLIENT_ID="<tu-client-id>"
 export INFISICAL_CLIENT_SECRET="<tu-client-secret>"
+export INFISICAL_PROJECT_ID="<tu-project-id>"
 
 # 2. Canje del token Universal Auth en memoria (sin interacción humana)
 export INFISICAL_TOKEN=$(infisical login \
-  --domain="http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api" \
+  --domain="${INFISICAL_API_URL}" \
   --method=universal-auth \
-  --client-id="$INFISICAL_CLIENT_ID" \
-  --client-secret="$INFISICAL_CLIENT_SECRET" \
+  --client-id="${INFISICAL_CLIENT_ID}" \
+  --client-secret="${INFISICAL_CLIENT_SECRET}" \
   --plain)
 ```
 
@@ -71,15 +74,15 @@ El CLI de Infisical está disponible en el entorno local (bien como binario nati
 Este es el comando primordial para agentes. Ejecuta el proceso hijo inyectando los secretos descifrados en su memoria (`process.env`) sin escribir ningún archivo en el disco:
 
 ```bash
-# Inyección usando INFISICAL_TOKEN y apuntando al proyecto Agent OS
+# Inyección usando INFISICAL_TOKEN y apuntando al proyecto activo
 infisical run \
-  --domain="http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api" \
+  --domain="${INFISICAL_API_URL}" \
   --env=prod \
-  --projectId="87e37a5c-e1a7-4285-be4e-c9913527533a" \
+  --projectId="${INFISICAL_PROJECT_ID}" \
   -- <comando_a_ejecutar>
 
 # Ejemplo con OpenCode o tests
-infisical run --env=dev --projectId="87e37a5c-e1a7-4285-be4e-c9913527533a" -- npm test
+infisical run --env=dev --projectId="${INFISICAL_PROJECT_ID}" -- npm test
 ```
 
 ### 2. Inicialización en un Proyecto Hijo (`infisical init`)
@@ -88,8 +91,7 @@ En un proyecto hijo gestionado por Agent OS:
 
 ```bash
 # Conectar el directorio local con el proyecto en Infisical
-infisical init \
-  --domain="http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api"
+infisical init --domain="${INFISICAL_API_URL}"
 ```
 Esto genera un archivo `.infisical.json` que contiene únicamente el `projectId` y la configuración de workspace (sin ningún secreto ni token sensible).
 
@@ -98,7 +100,8 @@ Esto genera un archivo `.infisical.json` que contiene únicamente el `projectId`
 ```bash
 # Listar claves de secretos disponibles (sin mostrar valores)
 infisical secrets \
-  --domain="http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api" \
+  --domain="${INFISICAL_API_URL}" \
+  --projectId="${INFISICAL_PROJECT_ID}" \
   --env=prod
 ```
 
@@ -108,7 +111,7 @@ Si un script legacy o docker-compose requiere variables en formato dotenv, se re
 
 ```bash
 # Lectura en memoria para un subshell
-eval $(infisical export --env=prod --format=dotenv-export --domain="http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io/api")
+eval $(infisical export --env=prod --format=dotenv-export --domain="${INFISICAL_API_URL}" --projectId="${INFISICAL_PROJECT_ID}")
 ```
 
 ---
@@ -120,7 +123,7 @@ eval $(infisical export --env=prod --format=dotenv-export --domain="http://backe
    - La suite `tests/validate-control-plane.sh` audita activamente que ningún archivo `.env` esté rastreado.
 2. **Aislamiento por Entornos**:
    - `dev`: Claves para tests y desarrollo local.
-   - `staging`: Claves para tests de integración en `datamanager` u `oracle`.
-   - `prod`: Claves de producción de servicios desplegados en Coolify.
+   - `staging`: Claves para tests de integración en entornos de staging.
+   - `prod`: Claves de producción de servicios desplegados en hosting/Coolify.
 3. **Rotación Rápida**:
    - En caso de sospecha de compromiso de un token (ej. GitHub PAT o API key de LLM), la rotación se ejecuta en la consola de Infisical; todos los agentes y servicios consumen el nuevo valor en la siguiente ejecución sin necesidad de re-desplegar ni tocar código fuente.

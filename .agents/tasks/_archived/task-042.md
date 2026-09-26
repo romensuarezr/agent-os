@@ -20,7 +20,7 @@ Archivos autorizados para modificación / creación:
 - `tests/validate-control-plane.sh`
 
 ## Criterios de done
-- [x] Stack de Infisical CE verificado en `oracle` (desplegado previamente en Coolify en `http://backend-vcg80040ogcgsskkw08k48w4.158.179.213.240.sslip.io`).
+- [x] Stack de Infisical CE verificado en `oracle` (desplegado en Coolify, endpoint registrado en `config/fleet.yaml`).
 - [x] Machine Identity (Universal Auth) y workspace de Agent OS configurados en Infisical.
 - [x] Skill `.agents/skills/infisical-secrets/SKILL.md` creada con runbook para inyección en memoria (`infisical run`).
 - [x] Registro del servicio Infisical en `config/fleet.yaml` y plantilla universal en `config/fleet.example.yaml`.

@@ -82,9 +82,9 @@ DM_RELAY=$(ssh -n -o BatchMode=yes -o ConnectTimeout=3 datamanager \
   "ps aux | grep -E 'relay\.js' | grep -v grep | head -1" 2>/dev/null || echo "")
 if [ -n "$DM_RELAY" ]; then
   DM_PID=$(echo "$DM_RELAY" | awk '{print $2}')
-  echo "  datamanager (100.77.82.13): ONLINE ✅ (PID: $DM_PID)"
+  echo "  datamanager: ONLINE ✅ (PID: $DM_PID)"
 else
-  echo "  datamanager (100.77.82.13): OFFLINE ❌ (Sin proceso relay.js)"
+  echo "  datamanager: OFFLINE ❌ (Sin proceso relay.js)"
 fi
 
 # oracle
@@ -92,9 +92,9 @@ ORA_RELAY=$(ssh -n -o BatchMode=yes -o ConnectTimeout=3 oracle \
   "ps aux | grep -E 'relay\.js' | grep -v grep | head -1" 2>/dev/null || echo "")
 if [ -n "$ORA_RELAY" ]; then
   ORA_PID=$(echo "$ORA_RELAY" | awk '{print $2}')
-  echo "  oracle (100.96.20.7):       ONLINE ✅ (PID: $ORA_PID)"
+  echo "  oracle:       ONLINE ✅ (PID: $ORA_PID)"
 else
-  echo "  oracle (100.96.20.7):       OFFLINE ❌ (Sin proceso relay.js)"
+  echo "  oracle:       OFFLINE ❌ (Sin proceso relay.js)"
 fi
 
 echo ""
