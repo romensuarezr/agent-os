@@ -1,0 +1,29 @@
+# Homepage - Docker Compose Template (Agent OS)
+# Tool: Highly customizable self-hosted service dashboard & fleet monitor
+# Image: ghcr.io/gethomepage/homepage:latest
+# Configuration: Declarative YAML files mounted in /app/config
+# Persistence: Named volume homepage-config mounted at /app/config
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    ports:
+      - "3000:3000"
+    volumes:
+      - homepage-config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - PUID=1000
+      - PGID=1000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3000\").then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  homepage-config:
+    name: homepage-config

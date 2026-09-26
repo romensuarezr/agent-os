@@ -100,6 +100,10 @@ nodes:
         coolify_uuid: "example-application-uuid"
         storage_engine: "sqlite"
         description: "Developer CLI commands, code snippets and notes organizer"
+      homepage:
+        url: "https://homepage.example.com"
+        coolify_uuid: "example-application-uuid-homepage"
+        description: "Fleet control dashboard and service status monitor"
 
 # ------------------------------------------------------------------------------
 # 3. Model Context Protocol (MCP) Standard Server Definitions

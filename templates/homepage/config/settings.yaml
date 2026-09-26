@@ -1,0 +1,18 @@
+title: "Agent OS \u2014 Fleet Control Dashboard"
+theme: dark
+color: slate
+headerStyle: boxed
+cardBlur: sm
+layout:
+  AI Gateways & Inferencia ($0):
+    style: row
+    columns: 3
+  Control Plane & Secretos:
+    style: row
+    columns: 2
+  Productividad Dev & Snippets:
+    style: row
+    columns: 2
+  "PaaS & Orquestaci\xF3n":
+    style: row
+    columns: 2
