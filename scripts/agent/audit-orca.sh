@@ -82,9 +82,9 @@ DM_RELAY=$(ssh -n -o BatchMode=yes -o ConnectTimeout=3 <nodo-inferencia> \
   "ps aux | grep -E 'relay\.js' | grep -v grep | head -1" 2>/dev/null || echo "")
 if [ -n "$DM_RELAY" ]; then
   DM_PID=$(echo "$DM_RELAY" | awk '{print $2}')
-  echo "  <nodo-inferencia> (<ip-nodo-principal>): ONLINE ✅ (PID: $DM_PID)"
+  echo "  <nodo-inferencia>: ONLINE ✅ (PID: $DM_PID)"
 else
-  echo "  <nodo-inferencia> (<ip-nodo-principal>): OFFLINE ❌ (Sin proceso relay.js)"
+  echo "  <nodo-inferencia>: OFFLINE ❌ (Sin proceso relay.js)"
 fi
 
 # <nodo-orquestacion>
@@ -92,9 +92,9 @@ ORA_RELAY=$(ssh -n -o BatchMode=yes -o ConnectTimeout=3 <nodo-orquestacion> \
   "ps aux | grep -E 'relay\.js' | grep -v grep | head -1" 2>/dev/null || echo "")
 if [ -n "$ORA_RELAY" ]; then
   ORA_PID=$(echo "$ORA_RELAY" | awk '{print $2}')
-  echo "  <nodo-orquestacion> (<ip-nodo-secundario>):       ONLINE ✅ (PID: $ORA_PID)"
+  echo "  <nodo-orquestacion>:       ONLINE ✅ (PID: $ORA_PID)"
 else
-  echo "  <nodo-orquestacion> (<ip-nodo-secundario>):       OFFLINE ❌ (Sin proceso relay.js)"
+  echo "  <nodo-orquestacion>:       OFFLINE ❌ (Sin proceso relay.js)"
 fi
 
 echo ""

@@ -101,6 +101,16 @@ else
   echo -e "  ✅ No se detectaron patrones de tokens comerciales ni claves privadas."
 fi
 
+# Comprobar que las skills y rules distribuidas sean 100% agnósticas (sin IPs privadas ni sslip.io)
+DISTRIBUTED_PRIVATE_DATA=$(git grep -EI '(158\.179\.|100\.77\.|100\.96\.|sslip\.io)' -- '.agents/skills/*' '.agents/rules/*' 2>/dev/null || true)
+if [ -n "$DISTRIBUTED_PRIVATE_DATA" ]; then
+  echo -e "  ❌ VIOLACIÓN DE AGNOSTICISMO: Se detectaron IPs o dominios privados en skills/rules distribuidas:"
+  echo "$DISTRIBUTED_PRIVATE_DATA"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Skills y rules distribuidas son 100% agnósticas (sin IPs ni dominios privados)."
+fi
+
 # ------------------------------------------------------------------------------
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
