@@ -22,6 +22,7 @@
 | T-052 | Catálogo y template de starters para proyectos hijos con TailAdmin | S | ❌ Cancelada | Descartada por arquitectura (delegado a prospección JIT con scout.sh) | — |
 | T-047 | Integración Hermes Agent → Compuertas de decisión Orca en estado `pending_approval` | M | ⬜ Pendiente | T-041 (`orca-orchestrate.sh`), T-037 | [.agents/tasks/task-047.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-047.md) |
 | T-043 | Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` | S | ⬜ Pendiente | T-038 (`scout.sh`), T-040 | [.agents/tasks/task-043.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/task-043.md) |
+| T-053 | Plan de recuperación de espacio en disco por lotes e inventario de capacidad de `oracle` | S | ✅ Completada | T-035 (Solo lectura); runbook en docs/runbooks/ | [.agents/tasks/_archived/task-053.md](file:///home/romen/Proyectos/agent-os/.agents/tasks/_archived/task-053.md) |
 
 ---
 
