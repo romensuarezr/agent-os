@@ -6,7 +6,7 @@
 ---
 
 ## Estado
-✅ Completado
+🟡 En curso
 
 ---
 
@@ -14,11 +14,12 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias / Bloqueos | Task file / Goal Contract |
 | :--- | :--- | :---: | :---: | :---: | :--- | :---: |
-| T-060 | Seguridad Perimetral y Contención Docker Socket (`docker-socket-proxy` RO 32MB y Hardening Perimetral) | Nueva herramienta / Seguridad | M | ✅ Completada | — | [.agents/tasks/task-060.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-060.md) |
-| T-061 | Telemetría Multi-Nodo y Hardware (Glances en `datamanager` y Widgets Multi-Host en Cabecera) | Nueva herramienta / Infra | M | ✅ Completada | — | [.agents/tasks/task-061.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-061.md) |
-| T-062 | Telemetría de Inferencia IA ($0) (Widgets Nativos Ollama y Custom API OmniRoute/FreeLLMAPI) | Nueva herramienta | S | ✅ Completada | — | [.agents/tasks/task-062.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-062.md) |
-| T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ✅ Completada | — | [.agents/tasks/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-063.md) |
-| T-064 | Motor Declarativo Agnóstico (`generate-homepage-config.sh`), `fleet.example.yaml` y Control Plane Tests | Universalización / DX | M | ✅ Completada | T-060, T-061, T-062, T-063 | [.agents/tasks/task-064.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-064.md) |
+| T-060 | Seguridad Perimetral y Contención Docker Socket (`docker-socket-proxy` RO 32MB y Hardening Perimetral) | Nueva herramienta / Seguridad | M | ✅ Completada | — | [.agents/tasks/_archived/task-060.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-060.md) |
+| T-061 | Telemetría Multi-Nodo y Hardware (Glances en `datamanager` y Widgets Multi-Host en Cabecera) | Nueva herramienta / Infra | M | ✅ Completada | — | [.agents/tasks/_archived/task-061.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-061.md) |
+| T-062 | Telemetría de Inferencia IA ($0) (Widgets Nativos Ollama y Custom API OmniRoute/FreeLLMAPI) | Nueva herramienta | S | ✅ Completada | — | [.agents/tasks/_archived/task-062.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-062.md) |
+| T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ✅ Completada | — | [.agents/tasks/_archived/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-063.md) |
+| T-064 | Motor Declarativo Agnóstico (`generate-homepage-config.sh`), `fleet.example.yaml` y Control Plane Tests | Universalización / DX | M | ✅ Completada | T-060, T-061, T-062, T-063 | [.agents/tasks/_archived/task-064.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-064.md) |
+| T-065 | Runbook de Despliegue en Coolify con Docker Compose y MCP Tooling | DX / Infra | S | ✅ Completada | T-060, T-064 | [.agents/tasks/_archived/task-065.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-065.md) |
 
 ---
 
@@ -43,11 +44,14 @@ flowchart TD
     T062["T-062: AI Inference Widgets (Ollama & FreeLLMAPI)"]
     T063["T-063: DX Widgets (SearXNG & GitHub)"]
     T064["T-064: Agnostic Generator & Control Plane Tests"]
+    T065["T-065: Coolify Compose Deployment Runbook & MCP"]
 
     T060 --> T064
     T061 --> T064
     T062 --> T064
     T063 --> T064
+    T060 --> T065
+    T064 --> T065
 ```
 
 - **Lote 1 (Cimientos de Infraestructura & Seguridad)**:
@@ -58,6 +62,8 @@ flowchart TD
   - `T-063` (Barra de búsqueda SearXNG, widget GitHub de `romensuarezr/agent-os` y acceso rápido a ByteBox).
 - **Lote 3 (Consolidación y Verificación)**:
   - `T-064` (Generador agnóstico sin IPs hardcodeadas, actualización de `fleet.example.yaml` y validación en `tests/validate-control-plane.sh`).
+- **Lote 4 (Despliegue y Automatización Operativa)**:
+  - `T-065` (Runbook de despliegue en Coolify con Docker Compose desacoplado, volumen mapping, SOP de Coolify MCP Server y verificaciones `curl`).
 
 ---
 
