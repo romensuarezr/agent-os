@@ -1,43 +1,75 @@
 - AI Gateways & Inferencia ($0):
-  - FreeLLMAPI:
-      icon: si-openai
-      href: http://100.x.y.z:3001
-      description: Unified AI inference proxy aggregator
-      ping: http://100.x.y.z:3001/v1/models
-  - Ollama (Local Models):
-      icon: si-ollama
-      href: http://100.x.y.z:11434
-      description: 'Modelos locales: qwen2.5:7b, llama3.1:8b, deepseek-r1:8b'
-      ping: http://100.x.y.z:11434
+    - FreeLLMAPI ($0 AI Aggregator):
+        icon: si-openai
+        href: http://100.77.82.13:3001
+        description: "Unified AI inference proxy aggregator ($0)"
+        ping: http://100.77.82.13:3001/v1/models
+        widget:
+          type: customapi
+          url: http://100.77.82.13:3001/v1/models
+          refreshInterval: 10000
+          mappings:
+            - field: data
+              label: Modelos activos
+              format: count
+    - OmniRoute AI Gateway:
+        icon: si-probot
+        href: http://100.77.82.13:20128
+        description: "Multi-provider AI gateway with RTK compression"
+        ping: http://100.77.82.13:20128/v1/models
+        widget:
+          type: customapi
+          url: http://100.77.82.13:20128/v1/models
+          refreshInterval: 10000
+          mappings:
+            - field: data
+              label: Modelos
+              format: count
+    - Ollama (Local Models):
+        icon: si-ollama
+        href: http://100.77.82.13:11434
+        description: "Local inference engine (qwen2.5, llama3.1, deepseek-r1)"
+        ping: http://100.77.82.13:11434
+        widget:
+          type: customapi
+          url: http://100.77.82.13:11434/api/tags
+          refreshInterval: 10000
+          mappings:
+            - field: models
+              label: Modelos instalados
+              format: count
+
 - Control Plane & Secretos:
-  - Infisical Secrets Manager:
-      icon: si-vault
-      href: http://infisical.example.com/admin
-      description: Infisical Community Edition standalone lite secrets manager
-      ping: http://infisical.example.com/api/status
-  - Orca Desktop Engine:
-      icon: si-docker
-      href: http://localhost:8000
-      description: Task queue and read-only inspection engine
-      ping: http://localhost:8000
+    - Infisical Secrets Manager:
+        icon: si-vault
+        href: http://infisical.example.com/admin
+        description: "Infisical Community Edition standalone lite secrets manager"
+        ping: http://infisical.example.com/api/status
+    - Orca Desktop Engine:
+        icon: si-docker
+        href: http://localhost:8000
+        description: "Task queue and read-only inspection engine"
+        ping: http://localhost:8000
+
 - Productividad Dev & Snippets:
-  - SearXNG Meta-Search:
-      icon: si-searxng
-      href: http://100.x.y.z:8080
-      description: Self-hosted meta-search engine
-      ping: http://100.x.y.z:8080
-  - ByteBox Snippets & CLI:
-      icon: si-gnubash
-      href: https://bytebox.example.com
-      description: Developer CLI commands, code snippets and notes organizer
-      ping: https://bytebox.example.com/api/cards
-- "PaaS & Orquestaci\xF3n":
-  - Coolify PaaS:
-      icon: si-docker
-      href: https://coolify.example.com
-      description: Self-hosted PaaS dashboard for app deployments
-      ping: https://coolify.example.com/api/v1/version
-  - Traefik SSL Proxy:
-      icon: si-traefikproxy
-      href: https://coolify.example.com
-      description: Edge reverse proxy with automatic SSL
+    - SearXNG Meta-Search:
+        icon: si-searxng
+        href: http://100.77.82.13:8080
+        description: "Self-hosted meta-search engine"
+        ping: http://100.77.82.13:8080
+    - ByteBox Snippets & CLI:
+        icon: si-gnubash
+        href: https://bytebox.example.com
+        description: "Developer CLI commands, code snippets and notes organizer"
+        ping: https://bytebox.example.com/api/cards
+
+- PaaS & Orquestación:
+    - Coolify PaaS:
+        icon: si-docker
+        href: https://coolify.example.com
+        description: "Self-hosted PaaS dashboard for app deployments"
+        ping: https://coolify.example.com/api/v1/version
+    - Traefik SSL Proxy:
+        icon: si-traefikproxy
+        href: https://coolify.example.com
+        description: "Edge reverse proxy with automatic SSL"
