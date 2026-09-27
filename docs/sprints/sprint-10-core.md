@@ -18,7 +18,7 @@
 | T-061 | Telemetría Multi-Nodo y Hardware (Glances en `datamanager` y Widgets Multi-Host en Cabecera) | Nueva herramienta / Infra | M | ✅ Completada | — | [.agents/tasks/task-061.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-061.md) |
 | T-062 | Telemetría de Inferencia IA ($0) (Widgets Nativos Ollama y Custom API OmniRoute/FreeLLMAPI) | Nueva herramienta | S | ✅ Completada | — | [.agents/tasks/task-062.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-062.md) |
 | T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ✅ Completada | — | [.agents/tasks/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-063.md) |
-| T-064 | Motor Declarativo Agnóstico (`generate-homepage-config.sh`), `fleet.example.yaml` y Control Plane Tests | Universalización / DX | M | ⬜ Pendiente | T-060, T-061, T-062, T-063 | [.agents/tasks/task-064.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-064.md) |
+| T-064 | Motor Declarativo Agnóstico (`generate-homepage-config.sh`), `fleet.example.yaml` y Control Plane Tests | Universalización / DX | M | ✅ Completada | T-060, T-061, T-062, T-063 | [.agents/tasks/task-064.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-064.md) |
 
 ---
 
