@@ -24,3 +24,9 @@ config/fleet.local.yaml
 docs/architecture/tools/*.local.md
 docs/architecture/tools/private/
 
+# Worktrees y Entornos de Trabajo Efímeros
+.worktrees/
+worktrees/
+*.worktree
+
+
