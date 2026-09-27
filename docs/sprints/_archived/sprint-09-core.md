@@ -19,6 +19,7 @@
 | T-056 | Perfiles Especialistas Declarativos (`coordinator.md`, `coder.md`, `qa-judge.md`, `docs-researcher.md`) | Universalización | S | ✅ Completada | — | [.agents/tasks/_archived/task-056.md](file:///home/romen/orca/workspaces/agent-os/multi-agent/.agents/tasks/_archived/task-056.md) |
 | T-057 | Skill y Workflow de Orquestación Paralela Multi-Agente (`orchestrator/SKILL.md`, `parallel-orchestration.md`) | DX / Documentación | M | ✅ Completada | T-054, T-055, T-056 | [.agents/tasks/_archived/task-057.md](file:///home/romen/orca/workspaces/agent-os/multi-agent/.agents/tasks/_archived/task-057.md) |
 | T-058 | Distribución Core (`sync.sh`, `install.sh`) y Hardening de Suite de Pruebas (`validate-control-plane.sh`) | Universalización | S | ✅ Completada | T-054, T-055, T-056, T-057 | [.agents/tasks/_archived/task-058.md](file:///home/romen/orca/workspaces/agent-os/multi-agent/.agents/tasks/_archived/task-058.md) |
+| T-059 | Automatización Determinista de Promoción a Main (`promote-to-main.sh`) | Nueva herramienta / DX | S | ✅ Completada | T-058 | [.agents/tasks/_archived/task-059.md](file:///home/romen/orca/workspaces/agent-os/multi-agent/.agents/tasks/_archived/task-059.md) |
 
 ---
 

@@ -21,6 +21,7 @@ La skill unifica la sintaxis de comandos agnósticos, traduciéndolos de forma u
 | `/judge <task-id>` | Invoca la compuerta de validación independiente (Ralph Loop) | `bash scripts/agent/verify-goal.sh --task-id <task-id> --strict --json` |
 | `/gate approve\|reject <task-id>` | Compuerta de decisión humana (Human-in-the-loop) | Registra veredicto en `.agents/tasks/task-<task-id>.md` y desbloquea el DAG |
 | `/merge <task-id> [target]` | Valida, integra hacia la rama destino y purga inodos | `bash scripts/agent/worktree-merge.sh --task-id <task-id> --target <target> --json` |
+| `/promote [source] [--target main] [--push]` | Promueve de forma determinista la rama a main y sincroniza con remoto | `bash scripts/agent/promote-to-main.sh --source <source> --target <target> [--push] --json` |
 
 ---
 
@@ -101,3 +102,31 @@ Para evitar que el usuario supervise manualmente cada worktree, el orquestador m
 1. **Aislamiento Estricto**: Ningún worker puede acceder o modificar archivos de otro worktree concurrentemente.
 2. **Circuit Breaker Activo**: Si `/judge` reporta `FAIL` en 3 intentos sucesivos, el Coordinator **detiene el lote** y solicita intervención mediante `/gate`.
 3. **Purga Inmediata (ADR 004)**: Todo comando `/merge` completado debe forzar la eliminación del worktree y el `git worktree prune` para no saturar almacenamiento.
+
+---
+
+## 6. Protocolo de Promoción a Main y Decision Gate (`/promote`)
+
+El comando `/promote` consolida la rama de trabajo hacia `main` (o la rama principal configurada) de forma totalmente determinista mediante `scripts/agent/promote-to-main.sh`.
+
+### 6.1 Salvaguardas Deterministas
+1. **Working Tree Limpio**: Comprueba de forma preventiva que no existan modificaciones o archivos huérfanos sin confirmar.
+2. **Resolución de Topología de Worktrees**: Si la rama `main` está en uso por otro worktree (ej. `/home/romen/Proyectos/agent-os`), el script detecta automáticamente su ubicación mediante `git worktree list --porcelain`, valida su limpieza y ejecuta la consolidación `git -C <target_wt> merge --ff-only <source>` allí directamente, evitando colisiones de working tree.
+3. **Ejecución Mandatoria de Pruebas**: Ejecuta la suite completa `tests/validate-control-plane.sh` antes de realizar cualquier cambio en las ramas.
+
+### 6.2 Decision Gate Mandatorio (Human-in-the-loop)
+El agente **nunca debe ejecutar `/promote` de manera silenciosa ni desatendida**. Antes de invocar el comando o script, está obligado a presentar un Decision Gate al usuario con la siguiente estructura:
+
+```markdown
+### 🛑 Decision Gate: Autorización de Promoción a Main (/promote)
+
+- **Rama Origen (Source)**: `multi-agent`
+- **Rama Destino (Target)**: `main`
+- **Commit SHA**: `6d058dc` — «docs(sprint): mark sprint-09-core as completed»
+- **Estado de Pruebas**: ✅ Control Plane 100% verificado (10/10 checks)
+- **Acción Remota (--push)**: true (sincronizar con GitHub origin/main)
+
+Por favor, confirma con **APROBADO** para proceder a consolidar en main y sincronizar con el repositorio remoto.
+```
+
+Únicamente tras recibir la confirmación explícita del usuario, el orquestador invocará `bash scripts/agent/promote-to-main.sh`.

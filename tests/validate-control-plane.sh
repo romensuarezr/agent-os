@@ -11,7 +11,7 @@
 #   6. Auto-descubrimiento determinista de flota (discover-fleet.sh).
 #   7. Orquestación multi-agente en Orca (orca-orchestrate.sh).
 #   8. Migración y verificación de secretos (import-secrets.sh).
-#   9. Sintaxis y permisos de scripts de metas y orquestación paralela.
+#   9. Sintaxis y permisos de scripts de metas, orquestación y promoción.
 #  10. Frontmatter YAML estricto de perfiles declarativos (.md).
 # ==============================================================================
 
@@ -231,11 +231,11 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 9. Integridad y Permisos de Scripts de Metas y Orquestación Paralela
+# 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/10] Verificando sintaxis y permisos de scripts de metas y orquestación..."
-ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh")
+echo -e "🔍 [9/10] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
   if [ ! -f "$s" ]; then

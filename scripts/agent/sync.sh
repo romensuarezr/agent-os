@@ -120,7 +120,7 @@ if [ -d "$TARGET_SCRIPTS" ]; then
         chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
         echo "    [sync] folder: lib"
     fi
-    chmod +x "$TARGET_SCRIPTS/verify-goal.sh" "$TARGET_SCRIPTS/worktree-dispatch.sh" "$TARGET_SCRIPTS/worktree-merge.sh" 2>/dev/null || true
+    chmod +x "$TARGET_SCRIPTS/verify-goal.sh" "$TARGET_SCRIPTS/worktree-dispatch.sh" "$TARGET_SCRIPTS/worktree-merge.sh" "$TARGET_SCRIPTS/promote-to-main.sh" 2>/dev/null || true
 fi
 
 if [ -d "$AGENT_OS_SKILLS" ]; then
