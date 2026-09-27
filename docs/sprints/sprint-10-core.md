@@ -19,7 +19,7 @@
 | T-062 | Telemetría de Inferencia IA ($0) (Widgets Nativos Ollama y Custom API OmniRoute/FreeLLMAPI) | Nueva herramienta | S | ✅ Completada | — | [.agents/tasks/_archived/task-062.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-062.md) |
 | T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ✅ Completada | — | [.agents/tasks/_archived/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-063.md) |
 | T-064 | Motor Declarativo Agnóstico (`generate-homepage-config.sh`), `fleet.example.yaml` y Control Plane Tests | Universalización / DX | M | ✅ Completada | T-060, T-061, T-062, T-063 | [.agents/tasks/_archived/task-064.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-064.md) |
-| T-065 | Runbook de Despliegue en Coolify con Docker Compose y MCP Tooling | DX / Infra | S | 🟡 En curso | T-060, T-064 | [.agents/tasks/task-065.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-065.md) |
+| T-065 | Runbook de Despliegue en Coolify con Docker Compose y MCP Tooling | DX / Infra | S | ✅ Completada | T-060, T-064 | [.agents/tasks/_archived/task-065.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/_archived/task-065.md) |
 
 ---
 
