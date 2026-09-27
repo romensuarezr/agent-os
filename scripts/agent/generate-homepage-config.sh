@@ -2,6 +2,7 @@
 # ==============================================================================
 # scripts/agent/generate-homepage-config.sh — Agent OS
 # Generates declarative Homepage dashboard YAML configurations from config/fleet.yaml
+# Fully agnostic & modular: reads telemetry, monitoring & service endpoints dynamically
 # ==============================================================================
 set -euo pipefail
 
@@ -85,6 +86,7 @@ except Exception as e:
 nodes = fleet.get("nodes", {})
 local_env = fleet.get("local_environment", {})
 mcp_servers = fleet.get("mcpServers", {})
+monitoring = fleet.get("monitoring", {})
 
 # Mapear servicios a grupos de Homepage
 group_ai = []
@@ -103,11 +105,19 @@ for node_name, node_data in nodes.items():
         endpoint = s.get("endpoint", f"http://{host}:3001/v1")
         base_url = endpoint.replace("/v1", "")
         group_ai.append({
-            "FreeLLMAPI": {
+            "FreeLLMAPI ($0 AI Aggregator)": {
                 "icon": "si-openai",
                 "href": base_url,
                 "description": s.get("description", "Unified AI inference proxy aggregator ($0)"),
-                "ping": f"{endpoint}/models"
+                "ping": f"{endpoint}/models",
+                "widget": {
+                    "type": "customapi",
+                    "url": f"{endpoint}/models",
+                    "refreshInterval": 10000,
+                    "mappings": [
+                        {"field": "data", "label": "Modelos activos", "format": "count"}
+                    ]
+                }
             }
         })
         
@@ -120,7 +130,15 @@ for node_name, node_data in nodes.items():
                 "icon": "si-probot",
                 "href": base_url,
                 "description": s.get("description", "Multi-provider AI gateway with RTK compression"),
-                "ping": f"{endpoint}/models"
+                "ping": f"{endpoint}/models",
+                "widget": {
+                    "type": "customapi",
+                    "url": f"{endpoint}/models",
+                    "refreshInterval": 10000,
+                    "mappings": [
+                        {"field": "data", "label": "Modelos", "format": "count"}
+                    ]
+                }
             }
         })
         
@@ -133,21 +151,30 @@ for node_name, node_data in nodes.items():
                 "icon": "si-ollama",
                 "href": endpoint,
                 "description": f"Modelos locales: {models}" if models else "Local inference engine",
-                "ping": endpoint
+                "ping": endpoint,
+                "widget": {
+                    "type": "customapi",
+                    "url": f"{endpoint}/api/tags",
+                    "refreshInterval": 10000,
+                    "mappings": [
+                        {"field": "models", "label": "Modelos instalados", "format": "count"}
+                    ]
+                }
             }
         })
         
     if "searxng" in services:
         s = services["searxng"]
-        endpoint = s.get("endpoint", f"http://{host}:8080")
-        group_dev.append({
-            "SearXNG Meta-Search": {
-                "icon": "si-searxng",
-                "href": endpoint,
-                "description": s.get("description", "Private meta-search engine"),
-                "ping": endpoint
-            }
-        })
+        if s.get("status") != "inactive" and s.get("active", True) is True:
+            endpoint = s.get("endpoint", f"http://{host}:8080")
+            group_dev.append({
+                "SearXNG Meta-Search": {
+                    "icon": "si-searxng",
+                    "href": endpoint,
+                    "description": s.get("description", "Private meta-search engine"),
+                    "ping": endpoint
+                }
+            })
         
     # 2. Control & Secrets
     if "infisical" in services:
@@ -182,7 +209,7 @@ for node_name, node_data in nodes.items():
             "ByteBox Snippets & CLI": {
                 "icon": "si-gnubash",
                 "href": url,
-                "description": s.get("description", "Developer CLI commands, snippets & notes"),
+                "description": s.get("description", "Developer CLI commands, code snippets and notes organizer"),
                 "ping": f"{url}/api/cards"
             }
         })
@@ -211,6 +238,23 @@ for node_name, node_data in nodes.items():
             }
         })
 
+# Agregar GitHub widget en group_dev si está habilitado en monitoring
+github_cfg = monitoring.get("github", {})
+if github_cfg.get("enabled", True):
+    repo = github_cfg.get("repo", "romensuarezr/agent-os")
+    desc = github_cfg.get("description", "Core Architecture, Workflows, Skills & Multi-Agent Engine")
+    group_dev.insert(0, {
+        "GitHub Core (Agent OS)": {
+            "icon": "si-github",
+            "href": f"https://github.com/{repo}",
+            "description": desc,
+            "widget": {
+                "type": "github",
+                "repo": repo
+            }
+        }
+    })
+
 # Construir services.yaml
 services_yaml = [
     {"AI Gateways & Inferencia ($0)": group_ai},
@@ -232,7 +276,7 @@ bookmarks_yaml = [
         "Control & Repos": [
             {
                 "GitHub Agent OS": [
-                    {"icon": "si-github", "href": "https://github.com/romensuarezr/agent-os"}
+                    {"icon": "si-github", "href": f"https://github.com/{github_cfg.get('repo', 'romensuarezr/agent-os')}"}
                 ]
             },
             {
@@ -259,17 +303,55 @@ settings_yaml = {
     }
 }
 
-# Construir widgets.yaml
-widgets_yaml = [
-    {
-        "resources": {
-            "cpu": True,
-            "memory": True,
-            "disk": "/",
-            "label": "Oracle VPS"
+# Construir widgets.yaml de forma modular y agnóstica
+widgets_yaml = []
+
+# A. Bloque Search
+search_cfg = monitoring.get("search", {})
+if search_cfg.get("enabled", True):
+    widgets_yaml.append({
+        "search": {
+            "provider": search_cfg.get("provider", "duckduckgo"),
+            "target": search_cfg.get("target", "_blank")
         }
+    })
+
+# B. Bloque Local Resources (Host PaaS / Oracle VPS)
+paas_label = "Oracle VPS"
+for n_name, n_data in nodes.items():
+    if "coolify" in n_data.get("services", {}):
+        paas_label = n_data.get("label", "Oracle VPS")
+        break
+
+widgets_yaml.append({
+    "resources": {
+        "cpu": True,
+        "memory": True,
+        "disk": "/",
+        "label": paas_label
     }
-]
+})
+
+# C. Bloque Glances Multi-Host detectado dinámicamente en nodes
+for node_name, node_data in nodes.items():
+    services = node_data.get("services", {})
+    host = node_data.get("host", "")
+    if "glances" in services:
+        g = services["glances"]
+        endpoint = g.get("endpoint", f"http://{host}:61208")
+        label = g.get("label", f"{node_name.title()} (Glances)")
+        version = g.get("version", 4)
+        widgets_yaml.append({
+            "glances": {
+                "label": label,
+                "url": endpoint,
+                "version": version,
+                "cpu": True,
+                "mem": True,
+                "expanded": True,
+                "disk": ["/"]
+            }
+        })
 
 total_services = sum(len(g) for g in [group_ai, group_control, group_dev, group_paas])
 print(f"✅ Parser completado: {total_services} servicios mapeados en 4 grupos de Homepage.")
@@ -277,6 +359,8 @@ print(f"✅ Parser completado: {total_services} servicios mapeados en 4 grupos d
 if check_only:
     print("\n--- [DRY-RUN] services.yaml preview ---")
     print(yaml.dump(services_yaml, sort_keys=False))
+    print("\n--- [DRY-RUN] widgets.yaml preview ---")
+    print(yaml.dump(widgets_yaml, sort_keys=False))
     sys.exit(0)
 
 os.makedirs(out_dir, exist_ok=True)
