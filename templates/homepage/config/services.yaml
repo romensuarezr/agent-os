@@ -4,40 +4,16 @@
         href: http://100.77.82.13:3001
         description: "Unified AI inference proxy aggregator ($0)"
         ping: http://100.77.82.13:3001/v1/models
-        widget:
-          type: customapi
-          url: http://100.77.82.13:3001/v1/models
-          refreshInterval: 10000
-          mappings:
-            - field: data
-              label: Modelos activos
-              format: count
     - OmniRoute AI Gateway:
         icon: si-probot
         href: http://100.77.82.13:20128
         description: "Multi-provider AI gateway with RTK compression"
         ping: http://100.77.82.13:20128/v1/models
-        widget:
-          type: customapi
-          url: http://100.77.82.13:20128/v1/models
-          refreshInterval: 10000
-          mappings:
-            - field: data
-              label: Modelos
-              format: count
     - Ollama (Local Models):
         icon: si-ollama
         href: http://100.77.82.13:11434
         description: "Local inference engine (qwen2.5, llama3.1, deepseek-r1)"
         ping: http://100.77.82.13:11434
-        widget:
-          type: customapi
-          url: http://100.77.82.13:11434/api/tags
-          refreshInterval: 10000
-          mappings:
-            - field: models
-              label: Modelos instalados
-              format: count
 
 - Control Plane & Secretos:
     - Infisical Secrets Manager:
@@ -56,9 +32,6 @@
         icon: si-github
         href: https://github.com/romensuarezr/agent-os
         description: "Core Architecture, Workflows, Skills & Multi-Agent Engine"
-        widget:
-          type: github
-          repo: romensuarezr/agent-os
     - ByteBox Snippets & CLI:
         icon: si-gnubash
         href: https://bytebox.example.com
@@ -75,3 +48,4 @@
         icon: si-traefikproxy
         href: https://coolify.example.com
         description: "Edge reverse proxy with automatic SSL"
+        ping: https://coolify.example.com
