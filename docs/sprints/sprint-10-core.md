@@ -17,7 +17,7 @@
 | T-060 | Seguridad Perimetral y Contención Docker Socket (`docker-socket-proxy` RO 32MB y Hardening Perimetral) | Nueva herramienta / Seguridad | M | ✅ Completada | — | [.agents/tasks/task-060.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-060.md) |
 | T-061 | Telemetría Multi-Nodo y Hardware (Glances en `datamanager` y Widgets Multi-Host en Cabecera) | Nueva herramienta / Infra | M | ✅ Completada | — | [.agents/tasks/task-061.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-061.md) |
 | T-062 | Telemetría de Inferencia IA ($0) (Widgets Nativos Ollama y Custom API OmniRoute/FreeLLMAPI) | Nueva herramienta | S | ✅ Completada | — | [.agents/tasks/task-062.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-062.md) |
-| T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ⬜ Pendiente | — | [.agents/tasks/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-063.md) |
+| T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ✅ Completada | — | [.agents/tasks/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-063.md) |
 | T-064 | Motor Declarativo Agnóstico (`generate-homepage-config.sh`), `fleet.example.yaml` y Control Plane Tests | Universalización / DX | M | ⬜ Pendiente | T-060, T-061, T-062, T-063 | [.agents/tasks/task-064.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-064.md) |
 
 ---
@@ -106,12 +106,13 @@ flowchart TD
 
 ### GOAL-T-063
 - **goal_id**: `GOAL-T-063`
-- **title**: "Productividad DX, Búsqueda SearXNG y Widget GitHub"
+- **title**: "Productividad DX, Búsqueda Integrada y Widget GitHub"
 - **assigned_profile**: `coder`
 - **End State Contract**:
-  - `templates/homepage/config/settings.yaml` incluye buscador integrado de SearXNG en cabecera.
-  - `templates/homepage/config/services.yaml` incorpora widget de GitHub para `romensuarezr/agent-os` y tarjeta de acceso rápido a ByteBox.
+  - `templates/homepage/config/widgets.yaml` incluye buscador integrado (DuckDuckGo, `target: _blank`).
+  - `templates/homepage/config/services.yaml` incorpora widget de GitHub para `romensuarezr/agent-os` y tarjeta de acceso rápido a ByteBox (SearXNG en reposo documentado).
 - **Allowlist**:
+  - `templates/homepage/config/widgets.yaml`
   - `templates/homepage/config/settings.yaml`
   - `templates/homepage/config/services.yaml`
   - `.agents/tasks/task-063.md`

@@ -52,11 +52,13 @@
         ping: http://localhost:8000
 
 - Productividad Dev & Snippets:
-    - SearXNG Meta-Search:
-        icon: si-searxng
-        href: http://100.77.82.13:8080
-        description: "Self-hosted meta-search engine"
-        ping: http://100.77.82.13:8080
+    - GitHub Core (Agent OS):
+        icon: si-github
+        href: https://github.com/romensuarezr/agent-os
+        description: "Core Architecture, Workflows, Skills & Multi-Agent Engine"
+        widget:
+          type: github
+          repo: romensuarezr/agent-os
     - ByteBox Snippets & CLI:
         icon: si-gnubash
         href: https://bytebox.example.com
