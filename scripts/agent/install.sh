@@ -27,16 +27,20 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
-AGENT_OS_PATH="/home/romen/Proyectos/agent-os"
+AGENT_OS_PATH="${AGENT_OS_PATH:-/home/romen/Proyectos/agent-os}"
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_WORKFLOWS="$AGENT_OS_PATH/.agents/workflows"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
+AGENT_OS_PROFILES="$AGENT_OS_PATH/.agents/profiles"
+AGENT_OS_GOALS="$AGENT_OS_PATH/templates/goals"
 AGENT_OS_TEMPLATES="$AGENT_OS_PATH/templates/docs"
 
 TARGET_AGENTS="$TARGET_PROJECT/.agents"
 TARGET_RULES="$TARGET_AGENTS/rules"
 TARGET_WORKFLOWS="$TARGET_AGENTS/workflows"
 TARGET_SKILLS="$TARGET_AGENTS/skills"
+TARGET_PROFILES="$TARGET_PROJECT/.agents/profiles"
+TARGET_GOALS="$TARGET_PROJECT/templates/goals"
 TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
 
 if [[ "$SELF_MODE" == true ]]; then
@@ -49,6 +53,8 @@ fi
 mkdir -p "$TARGET_RULES"
 mkdir -p "$TARGET_WORKFLOWS"
 mkdir -p "$TARGET_SKILLS"
+mkdir -p "$TARGET_PROFILES"
+mkdir -p "$TARGET_GOALS"
 mkdir -p "$TARGET_PROJECT/.agents/context"
 mkdir -p "$TARGET_SCRIPTS"
 
@@ -95,10 +101,33 @@ if [ -d "$AGENT_OS_PATH/scripts/agent" ]; then
     cp -rn "$AGENT_OS_PATH/scripts/agent/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
     chmod +x "$TARGET_SCRIPTS"/*.sh 2>/dev/null || true
     chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
+    chmod +x "$TARGET_SCRIPTS/verify-goal.sh" "$TARGET_SCRIPTS/worktree-dispatch.sh" "$TARGET_SCRIPTS/worktree-merge.sh" 2>/dev/null || true
     echo "✅ Scripts de agente instalados (sin sobreescribir)."
 fi
 
-# 7. Copiar templates de documentos en docs (sin sobreescribir si existen candidatos fuzzy)
+# 7. Copiar perfiles de agente (sin sobreescribir)
+if [ -d "$AGENT_OS_PROFILES" ]; then
+    mkdir -p "$TARGET_PROFILES"
+    for profile in "$AGENT_OS_PROFILES"/*; do
+        if [ -f "$profile" ]; then
+            cp -n "$profile" "$TARGET_PROFILES/"
+        fi
+    done
+    echo "✅ Perfiles de agente instalados (sin sobreescribir)."
+fi
+
+# 8. Copiar templates de metas (sin sobreescribir)
+if [ -d "$AGENT_OS_GOALS" ]; then
+    mkdir -p "$TARGET_GOALS"
+    for goal_tmpl in "$AGENT_OS_GOALS"/*; do
+        if [ -f "$goal_tmpl" ]; then
+            cp -n "$goal_tmpl" "$TARGET_GOALS/"
+        fi
+    done
+    echo "✅ Templates de metas instalados (sin sobreescribir)."
+fi
+
+# 9. Copiar templates de documentos en docs (sin sobreescribir si existen candidatos fuzzy)
 if [ -d "$AGENT_OS_TEMPLATES" ]; then
     mkdir -p "$TARGET_PROJECT/docs"
     for template_path in "$AGENT_OS_TEMPLATES"/*; do
@@ -120,7 +149,7 @@ if [ -d "$AGENT_OS_TEMPLATES" ]; then
     echo "✅ Templates de documentación en docs/ instalados (sin sobreescribir)."
 fi
 
-# 8. Copiar templates de documentos en la raíz (sin sobreescribir si existen candidatos fuzzy)
+# 10. Copiar templates de documentos en la raíz (sin sobreescribir si existen candidatos fuzzy)
 AGENT_OS_ROOT_TEMPLATES="$AGENT_OS_PATH/templates/root"
 if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
     for template_path in "$AGENT_OS_ROOT_TEMPLATES"/*; do
@@ -142,7 +171,7 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
     echo "✅ Templates de documentación en la raíz instalados (sin sobreescribir)."
 fi
 
-# 9. Configurar .gitignore
+# 11. Configurar .gitignore
 GITIGNORE="$TARGET_PROJECT/.gitignore"
 AGENT_OS_MARKER="# Agent OS — generated context files"
 

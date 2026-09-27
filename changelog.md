@@ -2,6 +2,26 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.8.0] — sprint-09 — 2026-09-27
+
+### ✨ Features
+
+- feat: core distribution and test hardening (T-058)
+- feat: parallel orchestration engine and workflow (T-057)
+- feat: declarative specialist profiles with rich frontmatter (T-056)
+- feat: worktree lifecycle engine and atomic merge (T-055)
+- feat: deterministic goals engine and quality gates (T-054)
+
+### 🐛 Bug Fixes
+
+- fix(check-session): harden core repository detection across git worktrees
+- fix(core): restore last-sync.md core operational template
+
+### 📚 Documentación
+
+- docs(adrs): register ADR 005 for multi-agent parallel orchestration, deterministic goals, and worktree isolation
+- docs(adrs): register ADR 004 and ADR 005 in ADR index table
+
 ## [1.7.0] — sprint-08 — 2026-09-27
 
 ### ✨ Features

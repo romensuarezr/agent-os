@@ -22,22 +22,28 @@ Archivos autorizados para modificación / creación:
 - `scripts/agent/sync.sh`
 - `scripts/agent/install.sh`
 - `tests/validate-control-plane.sh`
+- `docs/adrs/adr-005-multi-agent-parallel-orchestration.md`
+- `docs/adrs/README.md`
+- `changelog.md`
 - `docs/sprints/sprint-09-core.md`
 - `.agents/tasks/task-058.md`
 
 ## Criterios de done
-- [ ] `scripts/agent/sync.sh` actualizado para propagar templates de goals, perfiles y nuevos scripts de worktree/goal a proyectos hijos.
-- [ ] `scripts/agent/install.sh` actualizado para provisionar la estructura y archivos base de orquestación en nuevos proyectos.
-- [ ] `tests/validate-control-plane.sh` ampliado con validaciones [9/10] y [10/10] cubriendo la suite completa de orquestación determinista.
-- [ ] Ejecución de `tests/validate-control-plane.sh` pasando al 100% (0 errores detectados).
-- [ ] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-058.md`.
+- [x] `scripts/agent/sync.sh` actualizado para propagar templates de goals, perfiles y nuevos scripts de worktree/goal a proyectos hijos con `chmod +x`.
+- [x] `scripts/agent/install.sh` actualizado para provisionar la estructura y archivos base de orquestación en nuevos proyectos con `chmod +x`.
+- [x] `tests/validate-control-plane.sh` ampliado con validaciones [9/10] (sintaxis bash -n y permisos ejecutables) y [10/10] (frontmatter YAML de perfiles .md).
+- [x] `docs/adrs/adr-005-multi-agent-parallel-orchestration.md` redactado formalizando el motor de orquestación, Ralph Loop y veto de ADR 004 en `oracle`.
+- [x] `docs/adrs/README.md` actualizado con la referencia al ADR 005.
+- [x] `changelog.md` actualizado registrando la versión v1.8.0.
+- [x] Ejecución de `tests/validate-control-plane.sh` pasando al 100% (10/10 checks, 0 errores).
+- [x] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-058.md`.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-27T12:40:30+01:00
+- [x] Rama creada: feat/T-058-core-distribution-and-hardening
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente

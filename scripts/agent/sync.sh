@@ -39,7 +39,7 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
-AGENT_OS_PATH="/home/romen/Proyectos/agent-os"
+AGENT_OS_PATH="${AGENT_OS_PATH:-/home/romen/Proyectos/agent-os}"
 
 # Validar que no se intente sincronizar el core sobre sí mismo
 REAL_AGENT_OS=$(realpath "$AGENT_OS_PATH" 2>/dev/null || echo "$AGENT_OS_PATH")
@@ -57,9 +57,13 @@ fi
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_SCRIPTS="$AGENT_OS_PATH/scripts/agent"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
+AGENT_OS_PROFILES="$AGENT_OS_PATH/.agents/profiles"
+AGENT_OS_GOALS="$AGENT_OS_PATH/templates/goals"
 TARGET_RULES="$TARGET_PROJECT/.agents/rules"
 TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
 TARGET_SKILLS="$TARGET_PROJECT/.agents/skills"
+TARGET_PROFILES="$TARGET_PROJECT/.agents/profiles"
+TARGET_GOALS="$TARGET_PROJECT/templates/goals"
 
 echo "🔄 Sincronizando Agent OS con $TARGET_PROJECT..."
 
@@ -116,6 +120,7 @@ if [ -d "$TARGET_SCRIPTS" ]; then
         chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
         echo "    [sync] folder: lib"
     fi
+    chmod +x "$TARGET_SCRIPTS/verify-goal.sh" "$TARGET_SCRIPTS/worktree-dispatch.sh" "$TARGET_SCRIPTS/worktree-merge.sh" 2>/dev/null || true
 fi
 
 if [ -d "$AGENT_OS_SKILLS" ]; then
@@ -131,6 +136,30 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
             filename=$(basename "$skill")
             cp "$skill" "$TARGET_SKILLS/$filename"
             echo "    [sync] skill file: $filename"
+        fi
+    done
+fi
+
+if [ -d "$AGENT_OS_PROFILES" ]; then
+    echo "  Sincronizando perfiles..."
+    mkdir -p "$TARGET_PROFILES"
+    for profile in "$AGENT_OS_PROFILES"/*; do
+        if [ -f "$profile" ]; then
+            filename=$(basename "$profile")
+            cp "$profile" "$TARGET_PROFILES/$filename"
+            echo "    [sync] perfil: $filename"
+        fi
+    done
+fi
+
+if [ -d "$AGENT_OS_GOALS" ]; then
+    echo "  Sincronizando templates de metas..."
+    mkdir -p "$TARGET_GOALS"
+    for goal_tmpl in "$AGENT_OS_GOALS"/*; do
+        if [ -f "$goal_tmpl" ]; then
+            filename=$(basename "$goal_tmpl")
+            cp "$goal_tmpl" "$TARGET_GOALS/$filename"
+            echo "    [sync] goal template: $filename"
         fi
     done
 fi
