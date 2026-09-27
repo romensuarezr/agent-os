@@ -6,6 +6,7 @@ Historial de cambios y releases del núcleo de Agent OS.
 
 ### ✨ Features
 
+- feat: coolify compose deployment (T-065)
 - feat: agnostic homepage generator (T-064)
 - feat: dx searxng github widgets (T-063)
 - feat: ai inference widgets (T-062)
@@ -14,6 +15,7 @@ Historial de cambios y releases del núcleo de Agent OS.
 
 ### 📚 Documentación
 
+- docs(runbooks): add coolify homepage deployment runbook with compose and mcp tooling
 - docs(runbooks): add homepage security hardening runbook
 - docs(runbooks): add glances multi-node telemetry setup runbook
 - docs(sprint): initialize sprint-10-core planning and roadmap
