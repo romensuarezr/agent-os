@@ -1,0 +1,20 @@
+# Glances Web Server - Docker Compose Template (Agent OS)
+# Host target: datamanager (100.77.82.13 via Tailscale)
+# Image: nicolargo/glances:latest-full
+# Purpose: Remote host telemetry provider for Homepage dashboard
+# Compliance: ADR 004 (Exclusively executed on datamanager; 0 footprint on oracle VPS)
+
+services:
+  glances:
+    image: nicolargo/glances:latest-full
+    container_name: glances-telemetry
+    restart: unless-stopped
+    ports:
+      # Bound strictly to Tailscale IP to prevent public WAN exposure
+      - "100.77.82.13:61208:61208"
+    environment:
+      - GLANCES_OPT=-w
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/os-release:/etc/os-release:ro
+    pid: host
