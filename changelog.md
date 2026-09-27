@@ -2,6 +2,22 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.9.0] — sprint-10 — 2026-09-27
+
+### ✨ Features
+
+- feat: agnostic homepage generator (T-064)
+- feat: dx searxng github widgets (T-063)
+- feat: ai inference widgets (T-062)
+- feat: multi node glances telemetry (T-061)
+- feat(homepage): isolate docker socket via ro proxy and 32m limit (T-060)
+
+### 📚 Documentación
+
+- docs(runbooks): add homepage security hardening runbook
+- docs(runbooks): add glances multi-node telemetry setup runbook
+- docs(sprint): initialize sprint-10-core planning and roadmap
+
 ## [1.8.0] — sprint-09 — 2026-09-27
 
 ### ✨ Features
