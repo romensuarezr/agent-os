@@ -29,18 +29,18 @@ Archivos autorizados para modificación / creación:
 - `.agents/tasks/task-057.md`
 
 ## Criterios de done
-- [ ] Skill `.agents/skills/orchestrator/SKILL.md` creada con sintaxis de comandos declarativos (`/goal`, `/subgoal`, `/dispatch`, `/gate`) y especificación de flujos.
-- [ ] Workflow `.agents/workflows/parallel-orchestration.md` documentado como runbook exhaustivo con diagramas de flujo y control de errores.
-- [ ] Integración con el patrón de consolidación desatendida (Single-Pane of Glass del Coordinador).
-- [ ] Reglas de control de concurrencia y límites de carga de trabajo.
-- [ ] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-057.md`.
+- [x] Skill `.agents/skills/orchestrator/SKILL.md` creada con sintaxis de comandos declarativos (`/goal`, `/subgoal`, `/dispatch`, `/gate`) y especificación de flujos.
+- [x] Workflow `.agents/workflows/parallel-orchestration.md` documentado como runbook exhaustivo con diagramas de flujo y control de errores.
+- [x] Integración con el patrón de consolidación desatendida (Single-Pane of Glass del Coordinador).
+- [x] Reglas de control de concurrencia y límites de carga de trabajo.
+- [x] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-057.md`.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-27T12:34:55+01:00
+- [x] Rama creada: feat/T-057-parallel-orchestration-engine
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente
