@@ -8,12 +8,18 @@
 # ==============================================================================
 # COMPROBACIÓN DE ACTUALIZACIONES DEL CORE
 # ==============================================================================
-# Omitir si estamos dentro del propio repositorio core de agent-os
+# Omitir si estamos dentro del propio repositorio core de agent-os (incluso en worktrees)
 CURRENT_REPO_NAME=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null)
 REAL_CURRENT=$(realpath "$(pwd)" 2>/dev/null)
 REAL_CORE=$(realpath "/home/romen/Proyectos/agent-os" 2>/dev/null)
+GIT_COMMON_DIR=$(realpath "$(git rev-parse --git-common-dir 2>/dev/null)" 2>/dev/null || echo "")
+ORIGIN_URL=$(git config --get remote.origin.url 2>/dev/null || git remote get-url origin 2>/dev/null || echo "")
 
-if [ "$CURRENT_REPO_NAME" = "agent-os" ] || [ "$REAL_CURRENT" = "$REAL_CORE" ]; then
+if [ "$CURRENT_REPO_NAME" = "agent-os" ] || \
+   [ "$REAL_CURRENT" = "$REAL_CORE" ] || \
+   [[ "$GIT_COMMON_DIR" == *"agent-os/.git"* ]] || \
+   [[ "$ORIGIN_URL" =~ romensuarezr/agent-os(\.git)?$ ]] || \
+   [[ "$ORIGIN_URL" =~ /agent-os(\.git)?$ ]]; then
   is_core=true
 else
   is_core=false
