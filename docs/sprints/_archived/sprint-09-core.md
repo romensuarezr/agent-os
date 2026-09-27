@@ -6,7 +6,7 @@
 ---
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ---
 
