@@ -1,0 +1,3 @@
+# Configuration for Docker integration via isolated socket proxy (ADR 004)
+my-docker:
+  host: tcp://docker-socket-proxy:2375
