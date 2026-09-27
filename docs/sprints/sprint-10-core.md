@@ -14,7 +14,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias / Bloqueos | Task file / Goal Contract |
 | :--- | :--- | :---: | :---: | :---: | :--- | :---: |
-| T-060 | Seguridad Perimetral y Contención Docker Socket (`docker-socket-proxy` RO 32MB y Hardening Perimetral) | Nueva herramienta / Seguridad | M | ⬜ Pendiente | — | [.agents/tasks/task-060.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-060.md) |
+| T-060 | Seguridad Perimetral y Contención Docker Socket (`docker-socket-proxy` RO 32MB y Hardening Perimetral) | Nueva herramienta / Seguridad | M | ✅ Completada | — | [.agents/tasks/task-060.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-060.md) |
 | T-061 | Telemetría Multi-Nodo y Hardware (Glances en `datamanager` y Widgets Multi-Host en Cabecera) | Nueva herramienta / Infra | M | ⬜ Pendiente | — | [.agents/tasks/task-061.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-061.md) |
 | T-062 | Telemetría de Inferencia IA ($0) (Widgets Nativos Ollama y Custom API OmniRoute/FreeLLMAPI) | Nueva herramienta | S | ⬜ Pendiente | — | [.agents/tasks/task-062.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-062.md) |
 | T-063 | Productividad DX, Búsqueda Integrada SearXNG y Widget GitHub | DX | S | ⬜ Pendiente | — | [.agents/tasks/task-063.md](file:///home/romen/orca/workspaces/agent-os/homepage/.agents/tasks/task-063.md) |
