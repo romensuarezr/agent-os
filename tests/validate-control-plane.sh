@@ -256,7 +256,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/10] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/11] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -315,6 +315,24 @@ except Exception as e:
     fi
   fi
 done
+
+# ------------------------------------------------------------------------------
+# 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [11/11] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
+if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
+  echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+else
+  if bash "$HOMEPAGE_SCRIPT" --fleet config/fleet.example.yaml --check >/dev/null 2>&1; then
+    echo -e "  ✅ generate-homepage-config.sh genera configuraciones válidas a partir de fleet.example.yaml en modo agnóstico."
+  else
+    echo -e "  ❌ ERROR: generate-homepage-config.sh falló al procesar fleet.example.yaml en modo --check."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
 
 # ------------------------------------------------------------------------------
 # Resumen Final

@@ -70,6 +70,11 @@ nodes:
           - "qwen2.5:7b"
           - "llama3.1:8b"
           - "deepseek-r1:8b"
+      glances:
+        endpoint: "http://100.x.y.z:61208"
+        version: 4
+        label: "DataManager (Susana)"
+        description: "Hardware telemetry daemon (ADR 004 compliant)"
       searxng:
         endpoint: "http://100.x.y.z:8080"
         description: "Self-hosted meta-search engine"
@@ -104,6 +109,22 @@ nodes:
         url: "https://homepage.example.com"
         coolify_uuid: "example-application-uuid-homepage"
         description: "Fleet control dashboard and service status monitor"
+
+# ------------------------------------------------------------------------------
+# 2b. Fleet Observability & Dashboard Monitoring (Homepage)
+# ------------------------------------------------------------------------------
+monitoring:
+  search:
+    enabled: true
+    provider: "duckduckgo"
+    target: "_blank"
+  github:
+    enabled: true
+    repo: "romensuarezr/agent-os"
+    description: "Core Architecture, Workflows, Skills & Multi-Agent Engine"
+  docker_socket_proxy:
+    enabled: true
+    host: "tcp://docker-socket-proxy:2375"
 
 # ------------------------------------------------------------------------------
 # 3. Model Context Protocol (MCP) Standard Server Definitions
