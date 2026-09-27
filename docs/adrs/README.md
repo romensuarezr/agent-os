@@ -9,3 +9,5 @@ Este directorio contiene el registro histórico de las decisiones clave de arqui
 | **001** | [Core sin dependencias y auto-hospedaje (Self-Hosting)](adr-001-self-hosting.md) | **Accepted** | 2026-06-16 | Sprint 02 — Core |
 | **002** | [Detección universal de stack desacoplada](adr-002-stack-detection.md) | **Accepted** | 2026-06-16 | Sprint 02 — Core |
 | **003** | [Ciclo de vida de sesión y concurrencia por locks](adr-003-session-lifecycle.md) | **Accepted** | 2026-06-16 | Sprint 02 — Core |
+| **004** | [Control Plane 24/7 y Federación de Repositorios](adr-004-agent-control-plane-architecture.md) | **Accepted** | 2026-09-24 | Sprint 05 — Core |
+| **005** | [Motor de Orquestación Paralela, Metas y Aislamiento por Git Worktrees](adr-005-multi-agent-parallel-orchestration.md) | **Accepted** | 2026-09-27 | Sprint 09 — Core |
