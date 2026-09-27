@@ -1,12 +1,12 @@
 # Roadmap — agent-os
 
 ## En curso
+- Sprint 10: Homepage Fleet Observability, Perimetral Security & AI Telemetry (T-060 a T-065).
 - Consolidación de la universalidad del core (soporte multi-stack, ADRs y rediseño de flujos de ciclo de vida del agente).
 - Detección interactiva de actualizaciones del core desde proyectos hijos.
 - Integración de FreeLLMAPI en VPS datamanager y universalización de la skill `remote-admin`.
 
 ## Completado recientemente
-- Sprint 10: Homepage Fleet Observability, Perimetral Security & AI Telemetry (T-060 a T-064).
 - Sprint 09: Multi-Agent Parallel Orchestration & Deterministic Goals Engine (T-054 a T-059).
 
 ## Próximo
