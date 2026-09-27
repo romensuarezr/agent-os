@@ -2,6 +2,70 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+## [1.7.0] — sprint-08 — 2026-09-27
+
+### ✨ Features
+
+- feat: oracle disk recovery plan(T-053)
+- feat: deploy homepage fleet dashboard(T-051)
+- feat: deploy bytebox coolify(T-050)
+- feat(fleet): detect ngrok, stripe, cloudflared, supabase and sentry clis in discover-fleet
+- feat: import secrets cli(T-049)
+- feat: deploy infisical oracle(T-042)
+- feat: deploy omniroute datamanager(T-048)
+- feat: orca multiagent orchestration(T-041)
+- feat: discover fleet cli(T-046)
+- feat: sprint scout safeguard(T-045)
+- feat: agnostic fleet decoupling(T-044)
+- feat: fleet tool inventory(T-040)
+- feat: opencode freellmapi validation(T-039)
+- feat: orca readonly and gates(T-037)
+- feat: deterministic scout(T-038)
+- feat: remote github ssh auth(T-036)
+- feat: oracle disk ports audit(T-035)
+- feat(control-plane): implement Phase 1A declarative agent control plane foundation
+- feat: e2e validation runbook freellmapi(T-029)
+- feat: config providers ollama freellmapi(T-028)
+- feat: deploy freellmapi datamanager(T-027)
+- feat(skills): add list-hosts discovery script to remote-admin
+- feat(skills): universalize and promote remote-admin to core (T-026)
+- feat: promote coolify-nextjs-deploy (skill) from adama
+- feat: sync assets manifest cleanup(T-025)
+- feat: check session core updates detection(T-024)
+
+### 🐛 Bug Fixes
+
+- fix(agnostic): decouple private hosts, endpoints and IPs from skills, templates and scripts
+- fix(scripts): support lowercase changelog.md in update-changelog.sh
+- fix(scripts): support lowercase changelog.md in close-sprint.sh
+- fix(script): allow directory recursive copy in contribute.sh for skills
+- fix(sync): overwrite workflows during synchronization instead of using cp -n
+
+### 📚 Documentación
+
+- docs(sprint): cancel T-052 in favor of just-in-time OSS discovery with scout.sh
+- docs: capture advanced homepage observability and fleet integrations idea
+- docs(sprint): register task files for T-048 and T-042 and capture autonomous coordinator idea
+- docs(inbox): capture OmniRoute AI gateway idea for Sprint 08
+- docs(inbox): capture ideas for Infisical secrets manager and fleet tools inventory
+- docs(workflows): compress session-start and sprint-planning to reduce token overhead
+- docs(rules): consolidate QUE/POR QUE/TRADE-OFF and reduce token overhead
+- docs(idea): register naming conventions ideas in inbox
+- docs(idea): register assets manifest automation ideas in inbox
+- docs(idea): register release flow redesign ideas in inbox
+- docs(rules): add silent-execution rule and reduce verbose narration
+
+### 🔧 Mantenimiento
+
+- chore(sprint): initialize sprint-08-core with research and archive processed ideas
+- chore: archive sprint-07-core [v1.6.0]
+- chore: archive sprint-06-core [v1.5.0]
+- chore(sprint): initialize sprint-06-core for Phase 1B
+- chore: archive sprint-05-core [v1.4.0]
+- chore: archive sprint-04-core [v1.3.0]
+- chore: archive sprint-03-core
+- chore: archive sprint-03-core
+
 ## [1.6.0] — sprint-07 — 2026-09-25
 
 ### ✨ Features
