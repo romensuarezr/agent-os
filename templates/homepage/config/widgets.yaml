@@ -2,4 +2,14 @@
     cpu: true
     memory: true
     disk: /
-    label: Oracle VPS
+    label: "Oracle VPS"
+
+- glances:
+    label: "DataManager (Susana)"
+    url: "http://100.77.82.13:61208"
+    version: 4
+    cpu: true
+    mem: true
+    expanded: true
+    disk:
+      - /
