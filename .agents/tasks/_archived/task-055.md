@@ -32,19 +32,19 @@ Archivos autorizados para modificación / creación:
 - `.agents/tasks/task-055.md`
 
 ## Criterios de done
-- [ ] `.worktrees/` añadido a `.gitignore` del core y a `templates/.gitignore-agent-os`.
-- [ ] Script `scripts/agent/worktree-dispatch.sh` implementado y ejecutable (`chmod +x`), provisionando worktrees en `.worktrees/<task-id>` con rama `feat/<task-id>-<profile>` e inyección de contexto.
-- [ ] Script `scripts/agent/worktree-merge.sh` implementado y ejecutable (`chmod +x`), invocando `verify-goal.sh`, realizando merge seguro y ejecutando `git worktree remove --force` y `git worktree prune`.
-- [ ] Validación de flags de ayuda (`--help`) y salida estructurada en modo `--json` para orquestadores.
-- [ ] Prueba funcional de ciclo de vida completo (dispatch -> check -> merge/remove) sin dejar residuos en `.git/worktrees/`.
-- [ ] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-055.md`.
+- [x] `.worktrees/` añadido a `.gitignore` del core y a `templates/.gitignore-agent-os`.
+- [x] Script `scripts/agent/worktree-dispatch.sh` implementado y ejecutable (`chmod +x`), provisionando worktrees en `.worktrees/<task-id>` con rama `feat/<task-id>-<profile>` e inyección de contexto.
+- [x] Script `scripts/agent/worktree-merge.sh` implementado y ejecutable (`chmod +x`), invocando `verify-goal.sh`, realizando merge seguro y ejecutando `git worktree remove --force` y `git worktree prune`.
+- [x] Validación de flags de ayuda (`--help`) y salida estructurada en modo `--json` para orquestadores.
+- [x] Prueba funcional de ciclo de vida completo (dispatch -> check -> merge/remove) sin dejar residuos en `.git/worktrees/`.
+- [x] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-055.md`.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-27T12:11:02+01:00
+- [x] Rama creada: feat/T-055-worktree-lifecycle-engine
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente
