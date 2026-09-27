@@ -32,19 +32,19 @@ Archivos autorizados para modificación / creación:
 - `.agents/tasks/task-056.md`
 
 ## Criterios de done
-- [ ] Perfil `.agents/profiles/coordinator.md` creado con contrato de orquestación desatendida y límites claros.
-- [ ] Perfil `.agents/profiles/coder.md` creado con especificación de worker técnico acotado a la Caja de Archivos.
-- [ ] Perfil `.agents/profiles/qa-judge.md` creado con el protocolo del bucle Ralph Loop, circuit breaker de 3 intentos y veredicto binario.
-- [ ] Perfil `.agents/profiles/docs-researcher.md` creado para tareas de análisis, prospección OSS y documentación.
-- [ ] Consistencia de roles y herramientas frente a los principios de `AGENTS.md`.
-- [ ] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-056.md`.
+- [x] Perfil `.agents/profiles/coordinator.md` creado con contrato de orquestación desatendida y límites claros.
+- [x] Perfil `.agents/profiles/coder.md` creado con especificación de worker técnico acotado a la Caja de Archivos.
+- [x] Perfil `.agents/profiles/qa-judge.md` creado con el protocolo del bucle Ralph Loop, circuit breaker de 3 intentos y veredicto binario.
+- [x] Perfil `.agents/profiles/docs-researcher.md` creado para tareas de análisis, prospección OSS y documentación.
+- [x] Consistencia de roles y herramientas frente a los principios de `AGENTS.md`.
+- [x] Estado reflejado en `docs/sprints/sprint-09-core.md` y `.agents/tasks/task-056.md`.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-27T12:22:41+01:00
+- [x] Rama creada: feat/T-056-declarative-specialist-profiles
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente
