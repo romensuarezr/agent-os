@@ -101,7 +101,7 @@ if [ -d "$AGENT_OS_PATH/scripts/agent" ]; then
     cp -rn "$AGENT_OS_PATH/scripts/agent/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
     chmod +x "$TARGET_SCRIPTS"/*.sh 2>/dev/null || true
     chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
-    chmod +x "$TARGET_SCRIPTS/verify-goal.sh" "$TARGET_SCRIPTS/worktree-dispatch.sh" "$TARGET_SCRIPTS/worktree-merge.sh" 2>/dev/null || true
+    chmod +x "$TARGET_SCRIPTS/verify-goal.sh" "$TARGET_SCRIPTS/worktree-dispatch.sh" "$TARGET_SCRIPTS/worktree-merge.sh" "$TARGET_SCRIPTS/promote-to-main.sh" 2>/dev/null || true
     echo "✅ Scripts de agente instalados (sin sobreescribir)."
 fi
 

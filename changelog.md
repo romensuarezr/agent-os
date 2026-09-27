@@ -6,6 +6,7 @@ Historial de cambios y releases del núcleo de Agent OS.
 
 ### ✨ Features
 
+- feat: deterministic promotion to main and cycle close (T-059)
 - feat: core distribution and test hardening (T-058)
 - feat: parallel orchestration engine and workflow (T-057)
 - feat: declarative specialist profiles with rich frontmatter (T-056)
