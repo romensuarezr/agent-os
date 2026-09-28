@@ -322,9 +322,24 @@ fi
 # ==========================================
 echo "🔍 Iniciando auditoría de estructura en $PROJECT_ROOT..."
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/detect-stack.sh" ]; then
+    source "$SCRIPT_DIR/lib/detect-stack.sh"
+    detect_stack "$PROJECT_ROOT"
+    echo "ℹ️  Stack tecnológico detectado: $AGENT_OS_STACK"
+    if [ "$AGENT_OS_STACK" == "unknown" ]; then
+        echo "💡 $STACK_GUIDE"
+    fi
+fi
+
 incompatibilidades=""
 propuestas=""
 sprint_sugerido=""
+
+if [ "${AGENT_OS_STACK:-}" == "unknown" ]; then
+    incompatibilidades+="- ⚠️ Stack tecnológico no detectado automáticamente ('unknown').\n"
+    propuestas+="- [ ] Declarar stack en .agents/context/stack.env con AGENT_OS_STACK=<stack> (soportados: python, typescript, javascript, go, rust, java, php, ruby, dotnet, bun, static)\n"
+fi
 
 # 1. Comprobar existencia y casing de archivos clave en la raíz (con fuzzy matching seguro)
 # Para roadmap.md
@@ -501,6 +516,13 @@ fi
 {
     echo "# Informe de Auditoría y Adaptación de Agent OS"
     echo -e "\nFecha: $(date '+%Y-%m-%d %H:%M:%S')"
+    echo -e "\n## Stack Tecnológico\n"
+    echo "- **Stack detectado**: \`${AGENT_OS_STACK:-unknown}\`"
+    if [ "${AGENT_OS_STACK:-unknown}" == "unknown" ]; then
+        echo -e "- ⚠️ **Aviso**: Stack no reconocido automáticamente por marcadores de compilación o empaquetado."
+        echo -e "- **Guía**: Puedes declarar el stack creando \`.agents/context/stack.env\` con \`AGENT_OS_STACK=<stack>\` (valores soportados: python, typescript, javascript, go, rust, java, php, ruby, dotnet, bun, static)."
+    fi
+
     echo -e "\n## Incompatibilidades\n"
     if [ -n "$incompatibilidades" ]; then
         echo -e "$incompatibilidades"
