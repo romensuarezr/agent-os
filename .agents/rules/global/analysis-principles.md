@@ -1,3 +1,7 @@
+---
+trigger: always-on
+---
+
 # Rule: Analysis & Evidence Principles
 
 > Rigor en la investigación y diagnóstico técnico.

@@ -1,3 +1,7 @@
+---
+trigger: destructive-action
+---
+
 # Rule: No Destructive Without Audit
 
 > El agente NUNCA ejecuta operaciones destructivas sin confirmación y auditoría de impacto.

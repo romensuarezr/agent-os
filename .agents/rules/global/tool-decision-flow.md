@@ -1,3 +1,7 @@
+---
+trigger: tool-selection
+---
+
 # Rule: Tool Decision Flow & Pre-Code Scouting Governance
 
 > Elige las herramientas adecuadas siguiendo un orden lógico para maximizar la velocidad, el control y la reutilización sin reinventar la rueda.
@@ -7,7 +11,8 @@
 ## 🧭 Jerarquía de Decisión de Herramientas
 
 1. **Reutilización de la Flota Activa (`tool-inventory`)**:
-   - Consulta primero `config/fleet.yaml` (o la skill `tool-inventory`). Si la capacidad ya está desplegada (ej. modelos locales $0 en FreeLLMAPI, n8n Native MCP, bases de datos en Unified-DB, MinIO S3), reutilízala directamente sin instalar ni programar nada nuevo.
+   - Si existe `config/fleet.yaml` local en el entorno activo, consúltalo (o invoca la skill `tool-inventory`). Si la capacidad ya está desplegada (ej. modelos locales $0 en FreeLLMAPI, n8n Native MCP, bases de datos en Unified-DB, MinIO S3), reutilízala directamente sin instalar ni programar nada nuevo.
+   - Si `config/fleet.yaml` no existe en el proyecto, omite este paso y procede directamente al Paso 2.
 
 2. **Política OSS-First con Scouting Determinista Obligatorio (`scout.sh`)**:
    - Si la capacidad no existe en la flota, antes de diseñar, planificar o implementar código para cualquier nuevo módulo o herramienta, **valida obligatoriamente el ecosistema abierto**:
