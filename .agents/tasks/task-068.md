@@ -26,5 +26,8 @@ Archivos autorizados para modificación:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido — fecha/hora: 2026-09-28T14:55:30+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-068-homepage-hardening
-- [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [ ] Lock activo: .agent-session.lock (liberado)
+- [x] Sesión cerrada correctamente
+
+## Notas de cierre
+> **Nota de caja**: `templates/homepage/config/widgets.yaml` y `templates/homepage/glances-compose.yml` fuera de caja inicial: purga de datos personales e IPs reales requerida por el objetivo de la tarea.
