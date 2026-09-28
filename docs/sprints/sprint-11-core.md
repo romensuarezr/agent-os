@@ -21,7 +21,7 @@
 | T-069 | Blindaje de `install.sh`: ruta dinámica, pre-flights, `--check`, `set -euo pipefail`, instala `AGENT_ONBOARDING.md`, `sync.sh` no destructivo | Universalización / Core | M | ✅ Completada | T-070, T-071 | `.agents/tasks/task-069.md` |
 | T-070 | Regla global `deterministic-execution.md` + resolución de contradicciones entre reglas existentes | Gobernanza / Core Standard | M | ✅ Completada | T-071 | `.agents/tasks/task-070.md` |
 | T-071 | Reparación del descubrimiento 0-contexto: inventario de skills, referencias fantasma, inbox canónico, `AGENT_ONBOARDING.md` como secuencia de boot | Universalización / DX | M | ✅ Completada | — | `.agents/tasks/task-071.md` |
-| T-072 | Purga de infraestructura personal en scripts y config (`/home/romen`, IPs Tailscale → overlay `fleet.yaml`) | Universalización / Core | M | 🟡 En curso | — | `.agents/tasks/task-072.md` |
+| T-072 | Purga de infraestructura personal en scripts y config (`/home/romen`, IPs Tailscale → overlay `fleet.yaml`) | Universalización / Core | M | ✅ Completada | — | `.agents/tasks/task-072.md` |
 | T-073 | Reglas y skills agnósticas de stack, flota y herramientas propietarias | Universalización / Core | M | ⬜ Pendiente | — | `.agents/tasks/task-073.md` |
 | T-074 | `detect-stack.sh` universal (Go/Rust/Java/PHP/Ruby/.NET/Bun/estático) con fallback `unknown` explícito | Bug del sistema / Core | S | ✅ Completada | — | `.agents/tasks/task-074.md` |
 | T-075 | Barrido de portabilidad shell: Linux + macOS, dependencias declaradas y comprobadas | Bug del sistema / DX | M | ✅ Completada | — | `.agents/tasks/task-075.md` |
