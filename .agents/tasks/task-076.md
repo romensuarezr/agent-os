@@ -28,4 +28,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-28T17:34:59+01:00
 - [x] Rama creada: feat/T-076-selective-skills-install
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
