@@ -3,7 +3,8 @@
 > **Fecha**: 2026-09-28  
 > **Objetivo**: Guía de referencia operativa y especificación técnica de `scripts/agent/fleet-doctor.sh`.  
 > **Coste de tokens**: 0 tokens de inferencia (resolución determinista local).  
-> **Compatibilidad**: Linux / POSIX, Python 3.8+, Bash 4+.
+> **Compatibilidad**: Linux / POSIX, Python 3.8+, Bash 4+.  
+> **Requisitos**: PyYAML opcional — solo necesario para parsear fleet.yaml; sin él, el diagnóstico de flota se omite con aviso.
 
 ---
 
@@ -48,14 +49,14 @@ Por directiva de gobernanza de Agent OS, ningún log o digest de diagnóstico pu
 
 1. **Direcciones IPv4**:
    - Se procesan con sustitución regular para enmascarar los octetos centrales:
-     `100.77.82.13` ➔ `100.***.***.13`
+     `100.99.88.77` ➔ `100.***.***.77`
    - En direcciones genéricas o de prueba: `[MASKED]`
 2. **Hostnames y Dominios**:
    - Nombres de dominio internos o sufijos DNS:
      `worker-node-01.mesh.local` ➔ `worker-node-01.[MASKED-DOMAIN]`
 3. **Endpoints y URLs**:
    - Esquemas y puertos preservados para diagnóstico de conectividad, pero host enmascarado:
-     `http://100.77.82.13:3001/v1` ➔ `http://[MASKED-HOST]:3001/v1`
+     `http://100.99.88.77:3001/v1` ➔ `http://[MASKED-HOST]:3001/v1`
 4. **Tokens y Secretos de Autenticación**:
    - Todo campo que contenga tokens Bearer, contraseñas o API keys es reportado como:
      `[auth:masked]` o `bearer_masked` en JSON.
@@ -124,7 +125,7 @@ Invocación: `bash scripts/agent/fleet-doctor.sh --json`
     "nodes": {
       "worker-node-01": {
         "role": "inference-and-data",
-        "host_masked": "100.***.***.13",
+        "host_masked": "100.***.***.77",
         "services": {
           "freellmapi": {
             "status": "UP (HTTP 200)",

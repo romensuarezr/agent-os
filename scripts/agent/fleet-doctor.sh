@@ -2,7 +2,7 @@
 # ==============================================================================
 # scripts/agent/fleet-doctor.sh — Agent OS
 # Diagnóstico determinista de herramientas locales, autenticación y conectividad viva
-# Coste: 0 tokens de inferencia. Enmascaramiento estricto de IPs y tokens.
+# Coste: 0 tokens de inferencia. Enmascaramiento de infraestructura: octetos centrales de IPv4 y dominios enmascarados; tokens siempre [MASKED].
 # Digest acotado a máximo 20 líneas en modo texto. Soporte completo de flag --json.
 # ==============================================================================
 set -euo pipefail
@@ -32,8 +32,7 @@ Opciones:
 
 Principios:
   - 0 tokens de inferencia (ejecución determinista puramente local)
-  - 0 IPs o hostnames en texto plano (enmascaramiento estricto [MASKED] / ***)
-  - 0 secretos expuestos (tokens enmascarados con prefijo truncado o [MASKED])
+  - Enmascaramiento de infraestructura: octetos centrales de IPv4 y dominios enmascarados; tokens siempre [MASKED]
   - Digest texto acotado a ≤ 20 líneas legibles
 EOF
   exit 0
@@ -107,7 +106,14 @@ import urllib.request
 import urllib.error
 import re
 import subprocess
-import yaml
+import shutil
+
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    yaml = None
+    HAS_YAML = False
 
 fleet_file = os.environ.get("FLEET_FILE", "")
 json_mode = os.environ.get("JSON_OUTPUT") == "true"
@@ -128,7 +134,7 @@ def mask_ip_or_host(val):
     if not val or not isinstance(val, str):
         return "[MASKED]"
     val_str = str(val).strip()
-    # Enmascarar IPv4 (ej. 100.77.82.13 -> 100.***.***.13)
+    # Enmascarar IPv4 (ej. 100.99.88.77 -> 100.***.***.77)
     val_masked = re.sub(r'\b(\d{1,3})\.\d{1,3}\.\d{1,3}\.(\d{1,3})\b', r'\1.***.***.\2', val_str)
     # Enmascarar hostnames con dominio o ejemplo
     val_masked = re.sub(r'\b([a-zA-Z0-9_\-]+)\.(?:[a-zA-Z0-9_\-\.]+)\b', r'\1.[MASKED-DOMAIN]', val_masked)
@@ -149,11 +155,7 @@ def mask_endpoint(endpoint_url):
 clis_status = {}
 
 def check_cli(cmd):
-    try:
-        proc = subprocess.run(["which", cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        return proc.returncode == 0
-    except Exception:
-        return False
+    return shutil.which(cmd) is not None
 
 clis_to_check = ["git", "gh", "docker", "infisical", "tailscale"]
 for c in clis_to_check:
@@ -226,14 +228,23 @@ else:
 
 # 3. Parsear flota y verificar conectividad viva
 fleet_data = {}
-if fleet_file and os.path.isfile(fleet_file):
-    try:
-        with open(fleet_file, "r", encoding="utf-8") as f:
-            fleet_data = yaml.safe_load(f) or {}
-    except Exception as e:
-        fleet_data = {"error": str(e)}
+if not HAS_YAML:
+    fleet_mode_status = "NO_YAML_LIB"
+    nodes_data = {}
+else:
+    if fleet_file and os.path.isfile(fleet_file):
+        try:
+            with open(fleet_file, "r", encoding="utf-8") as f:
+                fleet_data = yaml.safe_load(f) or {}
+        except Exception as e:
+            fleet_data = {"error": str(e)}
 
-nodes_data = fleet_data.get("nodes", {})
+    nodes_data = fleet_data.get("nodes", {})
+    if doc_mode or not nodes_data:
+        fleet_mode_status = "SKIPPED-NO-FLEET"
+    else:
+        fleet_mode_status = "ACTIVE"
+
 nodes_result = {}
 total_services = 0
 services_up = 0
@@ -262,11 +273,6 @@ def check_http_status(url, to_sec):
         return None, "TIMEOUT_OR_ERR"
     except Exception:
         return None, "ERR"
-
-if doc_mode or not nodes_data:
-    fleet_mode_status = "SKIPPED-NO-FLEET"
-else:
-    fleet_mode_status = "ACTIVE"
 
 for node_alias, node_info in nodes_data.items():
     raw_host = node_info.get("host", "")
@@ -357,7 +363,7 @@ if json_mode:
         "clis": clis_status,
         "authentication": auth_status,
         "fleet": {
-            "source": "config/fleet.example.yaml" if doc_mode else "config/fleet.yaml",
+            "source": "config/fleet.example.yaml" if doc_mode else (fleet_file if fleet_file else "config/fleet.yaml"),
             "mode": fleet_mode_status,
             "nodes": nodes_result
         }
@@ -368,7 +374,10 @@ if json_mode:
 # 4. Modo Texto: Estrictamente acotado a <= 20 líneas, 0 IPs, 0 secretos
 lines = []
 lines.append("=== FLEET DOCTOR DIGEST ===")
-fleet_source_label = "config/fleet.yaml (active overlay)" if not doc_mode else "config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]"
+if not HAS_YAML:
+    fleet_source_label = f"{fleet_file if fleet_file else 'config/fleet.yaml'} [MODE: NO_YAML_LIB]"
+else:
+    fleet_source_label = "config/fleet.yaml (active overlay)" if not doc_mode else "config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]"
 lines.append(f"Fleet: {fleet_source_label}")
 
 # Línea compacta de CLIs
@@ -378,7 +387,9 @@ for c in ["git", "gh", "docker", "infisical", "tailscale"]:
     cli_parts.append(f"{c}:{st}")
 lines.append("CLIs: " + " | ".join(cli_parts))
 
-if doc_mode or not nodes_result:
+if not HAS_YAML:
+    lines.append("Nodes: (PyYAML no disponible — diagnóstico de flota omitido con aviso)")
+elif doc_mode or not nodes_result:
     lines.append("Nodes: (Sin fleet.yaml local — conectividad de flota omitida en modo agnóstico)")
 else:
     for node_name, ninfo in nodes_result.items():
@@ -393,7 +404,7 @@ else:
         lines.append(line_entry)
 
 lines.append(f"Summary: CLIs {cli_ok_count}/{total_clis} OK | Services: {services_up} UP, {services_down} DOWN, {total_services - services_up - services_down} SKIPPED")
-lines.append("=== FIN FLEET DOCTOR (0 tokens inferidos, 0 IPs expuestas) ===")
+lines.append("=== FIN FLEET DOCTOR (0 tokens inferidos, infraestructura enmascarada) ===")
 
 # Asegurar tope estricto de 20 líneas
 final_output = lines[:20]
