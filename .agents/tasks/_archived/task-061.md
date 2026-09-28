@@ -1,15 +1,15 @@
 # Task-061: Telemetría Multi-Nodo y Hardware (Glances en DataManager y Widgets Multi-Host)
 
 ## Objetivo
-Implementar la infraestructura de telemetría remota de hardware configurando Glances Web (`glances -w`) para ejecutarse exclusivamente en el nodo `<nodo-inferencia>` (`<ip-nodo-principal>:61208` vía Tailscale), respetando la restricción de recursos en `<nodo-orquestacion>` (ADR 004). Extender `templates/homepage/config/widgets.yaml` para renderizar una cabecera multi-host con los estados combinados de `Oracle VPS` y `DataManager Node`.
+Implementar la infraestructura de telemetría remota de hardware configurando Glances Web (`glances -w`) para ejecutarse exclusivamente en el nodo `<nodo-inferencia>` (`192.0.2.10:61208` vía Tailscale), respetando la restricción de recursos en `<nodo-orquestacion>` (ADR 004). Extender `templates/homepage/config/widgets.yaml` para renderizar una cabecera multi-host con los estados combinados de `Oracle VPS` y `DataManager Node`.
 
 ## Contexto técnico
 - **ADR 004 (Restricción de Carga en `<nodo-orquestacion>`)**: En el VPS `<nodo-orquestacion>`, Homepage no levantará demonios adicionales de telemetría ni Prometheus/NodeExporter. Solo consumirá las métricas locales ya provistas o las métricas servidas por el daemon Glances remoto en `<nodo-inferencia>`.
-- **Topología de Red Tailscale**: `<nodo-inferencia>` está conectado a la malla con la IP fija `<ip-nodo-principal>`. El servicio web de Glances (`glances -w`) escuchará en el puerto estándar `61208`.
+- **Topología de Red Tailscale**: `<nodo-inferencia>` está conectado a la malla con la IP fija `192.0.2.10`. El servicio web de Glances (`glances -w`) escuchará en el puerto estándar `61208`.
 - **Homepage Widget Nativo `glances`**: Homepage incluye soporte directo para Glances mediante el widget:
   ```yaml
   - glances:
-      url: http://<ip-nodo-principal>:61208
+      url: http://192.0.2.10:61208
       cpu: true
       mem: true
       disk: "/"
