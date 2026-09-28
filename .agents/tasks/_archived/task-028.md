@@ -4,7 +4,7 @@
 Configurar los proveedores LLM gratuitos disponibles en el entorno y registrar la instancia local de Ollama como proveedor custom en FreeLLMAPI sobre `datamanager`, habilitando el catálogo unificado y el enrutamiento inteligente.
 
 ## Contexto técnico
-- Servidor: VPS `datamanager` (IP Tailscale `100.77.82.13`).
+- Servidor: VPS `datamanager` (IP Tailscale `192.0.2.10`).
 - Contenedor FreeLLMAPI ya conectado a la red `datamanager_default`.
 - Endpoint Ollama interno: `http://ollama:11434/v1`.
 - Modelos locales en Ollama: `llama3.1:8b`, `qwen2.5:7b`, `qwen2.5:3b`, `mistral-nemo:12b`.

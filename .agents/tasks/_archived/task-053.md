@@ -4,7 +4,7 @@
 Actualizar el inventario de capacidad y utilización de disco en el VPS `oracle`, elaborar el plan de recuperación de almacenamiento con compuertas de decisión humanas (HITL), ejecutar el Lote C (seedbox media respaldado) tras aprobación explícita y registrar las exclusiones formales de volúmenes e imágenes para garantizar la seguridad de los datos.
 
 ## Contexto técnico
-- Host: `oracle` (`vnic-rsr`, Ubuntu 24.04 ARM64, Tailscale `100.96.20.7`).
+- Host: `oracle` (`vnic-rsr`, Ubuntu 24.04 ARM64, Tailscale `192.0.2.11`).
 - Estado inicial: `/dev/sda1` al 76% de uso (146 GB ocupados de 193 GB, 48 GB libres).
 - Estado post-ejecución Lote C: `/dev/sda1` al 33% de uso (63 GB ocupados de 193 GB, **131 GB libres**). **83 GB liberados**.
 - Motor de infraestructura: Docker Engine 29.1.2 con 38 contenedores activos y sanos (Coolify v4, Traefik v3.6, bases de datos y microservicios).

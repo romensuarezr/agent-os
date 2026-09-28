@@ -4,7 +4,7 @@
 Desplegar la pasarela OmniRoute en contenedor Docker headless en el VPS `datamanager` (puerto 3002 vía red Tailscale), configurar el plugin `opencode-omniroute-auth` en local para compresión semántica RTK de contexto y registrar el nuevo servicio en `config/fleet.yaml` y `config/routing-policy.yaml`.
 
 ## Contexto técnico
-- Docker y Tailscale activos en `datamanager` (`100.77.82.13`).
+- Docker y Tailscale activos en `datamanager` (`192.0.2.10`).
 - Credencial `OMNIROUTER_API_KEY` disponible en `/home/romen/Proyectos/Agencia_IA/.env:21`.
 - Configuración headless optimizada en `docs/sprints/sprint-08-core-research.md` con compresión RTK (`ENABLE_RTK_COMPRESSION=true`, `RTK_COMPRESSION_RATIO=0.4`) y límite de RAM a 256MB.
 - Plugin oficial `opencode-omniroute-auth` (v1.2.2 en npm) para OpenCode CLI.
@@ -22,7 +22,7 @@ Archivos autorizados para modificación / creación:
 ## Criterios de done
 - [x] Template `templates/omniroute/docker-compose.yml` y configuración headless creada con compresión RTK y límites de memoria.
 - [x] Contenedor OmniRoute levantado en `datamanager` expuesto en puerto `20128` vía Tailscale.
-- [x] Verificación del endpoint OpenAI-compatible (`http://100.77.82.13:20128/v1/chat/completions`) respondiendo con $0 tokens.
+- [x] Verificación del endpoint OpenAI-compatible (`http://192.0.2.10:20128/v1/chat/completions`) respondiendo con $0 tokens.
 - [x] Integración y validación del plugin `opencode-omniroute-auth` en la configuración local de OpenCode.
 - [x] Registro de OmniRoute como servicio en `config/fleet.yaml` y tier secundario en `config/routing-policy.yaml`.
 - [x] Suite `tests/validate-control-plane.sh` pasando con 0 errores.

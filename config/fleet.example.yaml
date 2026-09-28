@@ -53,36 +53,41 @@ local_environment:
 # ------------------------------------------------------------------------------
 # 2. Remote Compute Nodes (VPS, Servers, Local Network Machines)
 # ------------------------------------------------------------------------------
+# HOST CONVENTION / TOPOLOGÍA CANÓNICA ESPERADA POR EL CONTROL PLANE:
+#   - local: Estación de trabajo local (desarrollo, IDEs, git, runners).
+#   - datamanager: Nodo dedicado a inferencia IA ($0) y datos (FreeLLMAPI, Ollama, Glances, SearXNG).
+#   - oracle: Nodo dedicado a orquestación y PaaS (Coolify, Infisical, Bytebox, Homepage).
+# ------------------------------------------------------------------------------
 nodes:
-  worker-node-01:
+  datamanager:
     role: "inference-and-data"
     connection: "tailscale"
-    host: "100.x.y.z" # Or local domain/IP
+    host: "192.0.2.10" # RFC 5737 Documentation Prefix (sustituir por IP privada real en fleet.yaml)
     services:
       freellmapi:
-        endpoint: "http://100.x.y.z:3001/v1"
+        endpoint: "http://192.0.2.10:3001/v1"
         auth: "bearer_token"
         description: "Unified AI inference proxy aggregator"
         cost_per_token: 0.00
       ollama:
-        endpoint: "http://100.x.y.z:11434"
+        endpoint: "http://192.0.2.10:11434"
         models:
           - "qwen2.5:7b"
           - "llama3.1:8b"
           - "deepseek-r1:8b"
       glances:
-        endpoint: "http://100.x.y.z:61208"
+        endpoint: "http://192.0.2.10:61208"
         version: 4
-        label: "DataManager (Susana)"
+        label: "DataManager"
         description: "Hardware telemetry daemon (ADR 004 compliant)"
       searxng:
-        endpoint: "http://100.x.y.z:8080"
+        endpoint: "http://192.0.2.10:8080"
         description: "Self-hosted meta-search engine"
 
-  saas-node-02:
+  oracle:
     role: "orchestration-and-paas"
     connection: "ssh"
-    host: "203.0.113.10"
+    host: "203.0.113.10" # RFC 5737 Documentation Prefix (sustituir por IP real en fleet.yaml)
     services:
       coolify:
         url: "https://coolify.example.com"
@@ -199,5 +204,5 @@ routing:
   local_zero_cost_first: true
   primary_agent_runtime: "antigravity"
   fallback_agent_runtime: "opencode"
-  default_local_llm_endpoint: "http://100.x.y.z:3001/v1"
+  default_local_llm_endpoint: "http://192.0.2.10:3001/v1"
   default_local_model: "qwen2.5:7b"

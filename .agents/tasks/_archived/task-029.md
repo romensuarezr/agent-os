@@ -4,9 +4,9 @@
 Documentar en un runbook operativo exhaustivo (`docs/freellmapi-vps-runbook.md`) la arquitectura, puertos, red Docker, seguridad en Tailscale, obtención de claves unificadas y ejemplos de consumo E2E (`curl`) para FreeLLMAPI en el VPS `datamanager`.
 
 ## Contexto técnico
-- Servidor: VPS `datamanager` (IP privada Tailscale `100.77.82.13`, IP pública `141.253.197.108`).
+- Servidor: VPS `datamanager` (IP privada Tailscale `192.0.2.10`, IP pública `141.253.197.108`).
 - Despliegue: `/home/ubuntu/freellmapi/` gestionado vía Docker Compose (`freellmapi` container).
-- Puerto y Bind: `100.77.82.13:3001` (aislado en Tailscale para evitar exposición a internet público).
+- Puerto y Bind: `192.0.2.10:3001` (aislado en Tailscale para evitar exposición a internet público).
 - Red Docker: Conectado a `datamanager_default` para resolver y comunicarse directamente con Ollama en `http://ollama:11434/v1`.
 - Autenticación: Endpoint `/v1/chat/completions` y `/v1/models` protegidos por la Unified API Key (extraíble de SQLite `settings.unified_api_key`).
 - Modelos locales en Ollama verificados: `llama3.1:8b`, `qwen2.5:7b`, `qwen2.5:3b`, `mistral-nemo:12b`.

@@ -4,6 +4,15 @@
 version: "1.0.0"
 updated_at: "2026-09-24"
 
+# ==============================================================================
+# MECANISMO DE RESOLUCIÓN DE ENDPOINTS Y EXPANSIÓN DE ENTORNO:
+# Los consumidores que lean este archivo (scripts Bash, runtimes Python/Node, etc.)
+# deben resolver los placeholders ${VAR:-default} mediante sustitución de variables
+# de entorno antes de invocar la URL (por ejemplo: en Bash mediante expansión o
+# envsubst; en Python mediante os.path.expandvars o regex re.sub con os.environ).
+# Si la variable de entorno no está definida, se utilizará el endpoint local por defecto.
+# ==============================================================================
+
 endpoints:
   primary-reliable:
     description: "Modelos de alta fidelidad, razonamiento profundo y arquitectura (comerciales/premium)"
@@ -12,16 +21,16 @@ endpoints:
     cost_tier: "paid_commercial"
 
   freellmapi:
-    description: "Pasarela unificada de inferencia gratuita sobre Tailscale en datamanager"
-    base_url: "http://100.77.82.13:3001/v1"
+    description: "Pasarela unificada de inferencia gratuita sobre red privada o local"
+    base_url: "${FREELLMAPI_URL:-http://localhost:3001/v1}"
     cost_tier: "free_cloud_routed"
     routing_modes:
       - auto
       - custom
 
   omniroute:
-    description: "Pasarela multi-proveedor OmniRoute con 150+ modelos gratuitos y compresión semántica RTK"
-    base_url: "http://100.77.82.13:20128/v1"
+    description: "Pasarela multi-proveedor OmniRoute con modelos de inferencia y compresión semántica"
+    base_url: "${TABBY_URL:-http://localhost:20128/v1}"
     cost_tier: "free_multi_provider_gateway"
     verified_models:
       - "auto/best-free"
