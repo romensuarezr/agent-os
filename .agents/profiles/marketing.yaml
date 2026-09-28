@@ -6,7 +6,7 @@ version: "1.0.0"
 allowed_tools:
   - doc-maintainer
   - tech-scout
-  - read_url_content
+  - tool-inventory
 
 allowed_hosts:
   - local

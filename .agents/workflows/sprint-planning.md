@@ -17,7 +17,7 @@ description: Ritual de inicio de semana. Lee el roadmap, vacía el idea-inbox, g
 - `ROADMAP.md`
 - `docs/sprints/`
 - `docs/idea-inbox/`
-- `external-inbox/`
+- `docs/external-inbox/`
 - `docs/MVP-TRACKER.md`
 - `CHANGELOG.md`
 
@@ -143,7 +143,7 @@ Todo lo gestionado en los inboxes debe clasificarse como MVP o post-MVP antes de
 bash scripts/agent/check-inbox.sh
 ```
 
-#### 3a. external-inbox (si hay entradas)
+#### 3a. docs/external-inbox (si hay entradas)
 Para cada manifiesto listado, leer Origen, ¿Qué hace?, Archivos que toca, Prioridad y Precauciones. Luego:
 1. Buscar en `src/` los archivos del campo "Archivos que toca" — ¿ya implementado?
 2. Cruzar contra `ROADMAP.md` — ¿existe tarea que lo cubra? ¿Invalida alguna?
@@ -157,7 +157,7 @@ Para cada manifiesto listado, leer Origen, ¿Qué hace?, Archivos que toca, Prio
 | Nuevo, prioridad Media/Baja | Añadir al backlog |
 | Invalida tarea planificada | Marcar `⚠️ Revisar`, preguntar al usuario |
 
-> Los archivos de `external-inbox/` no se mueven ni borran hasta que el usuario lo apruebe.
+> Los archivos de `docs/external-inbox/` no se mueven ni borran hasta que el usuario lo apruebe.
 
 #### 3b. idea-inbox (si hay entradas)
 
@@ -178,7 +178,7 @@ Presentar tabla consolidada con todas las entradas y acciones propuestas. **Espe
 Una vez confirmado:
 - Aplicar cambios en `ROADMAP.md`.
 - Archivar procesados de `docs/idea-inbox/` en `docs/idea-inbox/_archived/`.
-- Archivar procesados de `external-inbox/` en `external-inbox/_archived/`.
+- Archivar procesados de `docs/external-inbox/` en `docs/external-inbox/_archived/`.
 
 ### 4. Generación del sprint file
 Crear `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` con esta estructura:
@@ -273,9 +273,9 @@ Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta
 2b. **Detección de repos de referencia**
 Si el research incluye URLs de repositorios GitHub:
 - Extraer cada URL y subcarpeta relevante si el usuario la especificó.
-- Invocar la skill `investigar-repos-referencia` pasando esas URLs y la pregunta de investigación.
+- Invocar la skill `buscar-codigo-en-github` pasando esas URLs y la pregunta de investigación.
 - El resultado enriquece el research.md añadiendo una sección `## Patrones de repos analizados`.
-- Si `HF_API_TOKEN` no está configurado: listar los repos detectados e indicar al usuario que puede invocar la skill manualmente.
+- Listar los repos detectados e indicar los hallazgos analizados.
 
 3. Confirmar: `"💾 Investigación guardada en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md. Listo para /session-start."`
 

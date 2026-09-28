@@ -27,7 +27,7 @@ directamente sin task file.
 
 ### E — Execution
 1. El agente trabaja exclusivamente contra el task file.
-2. Si surge un desvío → `idea-capture` lo anota en `docs/idea-inbox/`, no en el chat.
+2. Si surge un desvío → anota la idea en `docs/idea-inbox/`, no en el chat.
 3. Al terminar: estado `DONE` en el task file → mover a `.agents/tasks/_archived/task-XXX.md`.
 
 ## Instrucciones para el agente
