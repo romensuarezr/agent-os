@@ -14,11 +14,11 @@ portable_epoch() {
     return 0
   fi
 
-  # Fallback universal y portable via python3
+  # Fallback universal y portable via python3 pasando parámetro por entorno
   if command -v python3 >/dev/null 2>&1; then
-    python3 -c "
-import datetime, sys
-val = '$date_str'.strip().rstrip('Z')
+    DATE_STR="$date_str" python3 -c "
+import datetime, os, sys
+val = os.environ.get('DATE_STR', '').strip().rstrip('Z')
 for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S'):
     try:
         dt = datetime.datetime.strptime(val, fmt)
@@ -40,16 +40,19 @@ portable_week_num() {
     return 0
   fi
 
-  # Fallback universal y portable via python3
+  # Fallback universal y portable via python3 pasando parámetro por entorno
   if command -v python3 >/dev/null 2>&1; then
-    python3 -c "
-import datetime
+    DATE_STR="$date_str" python3 -c "
+import datetime, os, sys
+val = os.environ.get('DATE_STR', '').strip()
 try:
-    d = datetime.date.fromisoformat('$date_str')
+    d = datetime.date.fromisoformat(val)
     iso = d.isocalendar()
     print(f'{iso[0]}-W{iso[1]:02d}')
+    sys.exit(0)
 except Exception:
     pass
+sys.exit(1)
 " 2>/dev/null && return 0
   fi
 
