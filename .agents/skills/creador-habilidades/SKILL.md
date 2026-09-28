@@ -1,11 +1,16 @@
 ---
 name: creador-habilidades
-description: Experto en la creación de nuevas habilidades (Skills) para Antigravity en español.
+description: Experto en la creación de nuevas habilidades (Skills) para Agent OS en español.
+tools:
+  - name: run_command
+    optional: true
+  - name: write_to_file
+    optional: true
 ---
 
 # Creador de Habilidades
 
-Esta habilidad te convierte en un experto capaz de guiar e implementar nuevas Skills dentro del ecosistema Antigravity de cualquier proyecto, asegurando consistencia y calidad.
+Esta habilidad te convierte en un experto capaz de guiar e implementar nuevas Skills dentro del ecosistema de Agent OS en cualquier proyecto o runtime (Antigravity, Hermes, CLI, Orca), asegurando consistencia y calidad.
 
 ## Prerrequisitos
 - Comprender el propósito de la nueva habilidad.
@@ -49,9 +54,20 @@ Pasos detallados, secuenciales y deterministas que el agente debe seguir.
 
 ### 3. Implementación
 1.  **Crear Directorio**:
-    - Usa `run_command` para crear la carpeta: `mkdir -p .agents/skills/<nombre-tecnico>`.
+    - **Vía Tool**: Usa `run_command` con `mkdir -p .agents/skills/<nombre-tecnico>`.
+    - **Alternativa Portable Shell/POSIX**: Ejecución directa en terminal: `mkdir -p .agents/skills/<nombre-tecnico>`.
 2.  **Crear SKILL.md**:
-    - Usa `write_to_file` con la plantilla rellenada.
+    - **Vía Tool**: Usa `write_to_file` con la plantilla rellenada.
+    - **Alternativa Portable Shell/POSIX**: Redirección con heredoc:
+      ```bash
+      cat <<'EOF' > .agents/skills/<nombre-tecnico>/SKILL.md
+      ---
+      name: <nombre-tecnico>
+      description: <descripción>
+      ---
+      # Contenido...
+      EOF
+      ```
 3.  **Scripts Adicionales** (si aplica):
     - Si la habilidad requiere scripts complejos, crea una carpeta `scripts/` dentro del directorio de la habilidad y coloca allí el código.
 

@@ -14,7 +14,7 @@ allowed_hosts:
   - local
 
 preferred_model_tier: "primary-reliable"
-fallback_model_tier: "freellmapi-auto"
+fallback_model_tier: "freellmapi"
 
 forbidden_actions:
   - "Aprobar PRs con tests rotos o regresiones detectadas"

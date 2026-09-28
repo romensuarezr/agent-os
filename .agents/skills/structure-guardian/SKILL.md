@@ -1,6 +1,9 @@
 ---
 name: structure-guardian
 description: Supervisa la higiene del sistema de archivos, proponiendo reubicaciones basadas en estándares de arquitectura sin romper referencias.
+tools:
+  - name: replace_file_content
+    optional: true
 ---
 
 # Structure Guardian (Senior Architect)
@@ -32,7 +35,7 @@ Esta habilidad actúa como un **Arquitecto de Software Senior**. Su misión es m
 2.  **Análisis de Impacto**:
     - Antes de mover `utils.py`, busca quién lo usa: `grep -r "utils" .`
 3.  **Generar Plan (`structure_plan.md`)**:
-    - Crea un artefacto detallando:
+    - Crea un artefacto o informe detallando:
         - **Movimientos**: `origen` -> `destino`.
         - **Impacto**: "Requiere actualizar imports en A, B y C".
         - **Racional**: Por qué mejora la arquitectura.
@@ -40,11 +43,16 @@ Esta habilidad actúa como un **Arquitecto de Software Senior**. Su misión es m
 ### Fase 3: EJECUCIÓN (Solo tras aprobación)
 1.  **Mover**: `mv origen destino`.
 2.  **Refactorizar Imports**:
-    - Actualizar las referencias en el código usando `replace_file_content`.
+    - **Vía Tool**: Actualizar las referencias en el código usando `replace_file_content`.
+    - **Alternativa Portable Shell/POSIX**: Ejecutar reemplazos masivos con utilidades estándar (`sed -i` o script de sustitución en Python):
+      ```bash
+      # Ejemplo con sed en ficheros afectados:
+      sed -i 's|from utils import|from shared.utils import|g' src/services/*.py
+      ```
     - Verificar que no queden referencias rotas.
 
-## Ejemplo de Detección
-> "Veo que `validate_notebooklm.py` está en `.tmp/` pero parece un script de utilidad recurrente. Propongo moverlo a `scripts/validation/` y actualizar la documentación."
+## Ejemplo Ilustrativo de Detección
+> "Veo que `helper_script.py` está suelto en la raíz pero es una utilidad de testing. Propongo moverlo a `scripts/testing/` y actualizar la documentación."
 
 ## Verificación
 - ¿El proyecto se ve más limpio?
