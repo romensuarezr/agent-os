@@ -9,7 +9,7 @@
 Sigue estrictamente estos pasos numerados al iniciar cualquier interacción con este repositorio:
 
 ### 1. Lectura de Arquitectura y Contrato Base
-Lee [`AGENTS.md`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/AGENTS.md) completo.  
+Lee [AGENTS.md](AGENTS.md) completo.  
 Contiene los principios de diseño (SRP, DRY, modo no destructivo por defecto, coste 0 de tokens en diagnósticos deterministas) y las reglas de contribución al core.
 
 ### 2. Detección y Rescate de Sesión Activa
@@ -18,11 +18,11 @@ Ejecuta inmediatamente:
 bash scripts/agent/check-session.sh
 ```
 - Si devuelve `NO_ACTIVE_SESSION`: el entorno está limpio; procede al siguiente paso.
-- Si devuelve un objeto JSON con metadatos: existe una sesión previa interrumpida. Activa el **Modo Rescate** según [.agents/workflows/session-start.md](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/workflows/session-start.md).
+- Si devuelve un objeto JSON con metadatos: existe una sesión previa interrumpida. Activa el **Modo Rescate** según [.agents/workflows/session-start.md](.agents/workflows/session-start.md).
 
 ### 3. Descubrimiento de Habilidades (Skills)
 Consulta el catálogo consolidado en:
-[`..agents/context/skills-inventory.md`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/context/skills-inventory.md)  
+[.agents/context/skills-inventory.md](.agents/context/skills-inventory.md)  
 Identifica la skill adecuada para la tarea antes de inventar herramientas o duplicar lógica existente.
 
 ### 4. Pre-flights de Herramientas y Servicios Locales
@@ -42,15 +42,15 @@ Verifica deterministamente el estado operativo del tooling local ejecutando los 
 
 | Dominio | Ruta Canónica | Propósito |
 |---|---|---|
-| **Reglas Globales** | [`.agents/rules/global/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/rules/global/) | Reglas agnósticas de comportamiento, calidad y gobernanza para agentes. |
-| **Habilidades (Skills)** | [`.agents/skills/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/skills/) | Directorios modulares con `SKILL.md` que capacitan al agente en tareas especializadas. |
-| **Workflows** | [`.agents/workflows/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/workflows/) | Protocolos paso a paso para ceremonias (`session-start`, `session-close`, `sprint-planning`). |
-| **Scripts CLI de Agente** | [`scripts/agent/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/scripts/agent/) | Herramientas deterministas en Bash/Python para auditoría, instalación, sincronización y tests. |
-| **Inbox de Requerimientos** | [`docs/external-inbox/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/docs/external-inbox/) | Requerimientos de producto y manifiestos externos a procesar en sprint planning. |
-| **Inbox de Ideas** | [`docs/idea-inbox/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/docs/idea-inbox/) | Propuestas técnicas e ideas de mejora pendientes de evaluación para el roadmap. |
-| **Sprints y Planificación** | [`docs/sprints/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/docs/sprints/) | Sprints activos y archivo histórico de sprints completados (`_archived/`). |
-| **Tareas Activas** | [`.agents/tasks/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/tasks/) | Contratos escritos de tareas del sprint activo (`task-XXX.md`). |
-| **Plantillas** | [`templates/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/templates/) | Plantillas de servicios de infraestructura, documentos raíz y metas (`goals`). |
+| **Reglas Globales** | [.agents/rules/global/](.agents/rules/global/) | Reglas agnósticas de comportamiento, calidad y gobernanza para agentes. |
+| **Habilidades (Skills)** | [.agents/skills/](.agents/skills/) | Directorios modulares con `SKILL.md` que capacitan al agente en tareas especializadas. |
+| **Workflows** | [.agents/workflows/](.agents/workflows/) | Protocolos paso a paso para ceremonias (`session-start`, `session-close`, `sprint-planning`). |
+| **Scripts CLI de Agente** | [scripts/agent/](scripts/agent/) | Herramientas deterministas en Bash/Python para auditoría, instalación, sincronización y tests. |
+| **Inbox de Requerimientos** | [docs/external-inbox/](docs/external-inbox/) | Requerimientos de producto y manifiestos externos a procesar en sprint planning. |
+| **Inbox de Ideas** | [docs/idea-inbox/](docs/idea-inbox/) | Propuestas técnicas e ideas de mejora pendientes de evaluación para el roadmap. |
+| **Sprints y Planificación** | [docs/sprints/](docs/sprints/) | Sprints activos y archivo histórico de sprints completados (`_archived/`). |
+| **Tareas Activas** | [.agents/tasks/](.agents/tasks/) | Contratos escritos de tareas del sprint activo (`task-XXX.md`). |
+| **Plantillas** | [templates/](templates/) | Plantillas de servicios de infraestructura, documentos raíz y metas (`goals`). |
 
 ---
 
