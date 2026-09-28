@@ -174,7 +174,7 @@ resolve_skills_from_manifest() {
     local stack="$3"
     local has_nextjs="$4"
 
-    if command -v python3 >/dev/null 2>&1; then
+    if command -v python3 >/dev/null 2>&1 && python3 -c "import yaml" >/dev/null 2>&1; then
         python3 - "$manifest" "$mode" "$stack" "$has_nextjs" <<'EOF'
 import os, sys, yaml
 
@@ -229,6 +229,9 @@ for sname, sdata in skills.items():
         print(f"{sname}|{tag}|{reason}")
 EOF
     else
+        if [ "$mode" = "recommended" ]; then
+            echo "⚠️  Aviso: python3 con módulo 'yaml' (PyYAML) no disponible. Degradando a resolución awk (el emparejamiento avanzado por stack es limitado; se seleccionarán habilidades universales)." >&2
+        fi
         awk -v m="$mode" '
             /^  [a-zA-Z0-9_-]+:/ {
                 gsub(/^  |:$/, "", $1)
@@ -301,7 +304,7 @@ if [[ "$CHECK_MODE" == true ]]; then
     fi
 
     echo "  🛠️  Skills a instalar (modo: $SKILL_MODE, stack detectado: $DETECTED_STACK):"
-    MANIFEST_FILE="$AGENT_OS_SKILLS/skills-manifest.yaml"
+    MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
     if [ -f "$MANIFEST_FILE" ]; then
         while IFS="|" read -r sname stag sreason; do
             [ -n "$sname" ] || continue
@@ -315,8 +318,7 @@ if [[ "$CHECK_MODE" == true ]]; then
         for skill in "$AGENT_OS_SKILLS"/*; do
             [ -e "$skill" ] || continue
             sname=$(basename "$skill")
-            [ "$sname" = "skills-manifest.yaml" ] && continue
-            if [ -e "$TARGET_SKILLS/$sname" ]; then
+            if [ -e "$TARGET_SKILLS/$sname" ] || [ -e "$TARGET_SKILLS/${sname}.md" ]; then
                 echo "     - skill: $sname (ya existe en destino)"
             else
                 echo "     + skill: $sname (nueva)"
@@ -425,7 +427,7 @@ if [ -d "$AGENT_OS_WORKFLOWS" ]; then
 fi
 
 # 5. Copiar skills (instalación selectiva según manifiesto)
-MANIFEST_FILE="$AGENT_OS_SKILLS/skills-manifest.yaml"
+MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
 if [ -f "$MANIFEST_FILE" ]; then
     if [ "$SKILL_MODE" = "recommended" ]; then
         if [ -t 0 ]; then
@@ -472,8 +474,6 @@ if [ -f "$MANIFEST_FILE" ]; then
         fi
     done < <(resolve_skills_from_manifest "$MANIFEST_FILE" "$SKILL_MODE" "$DETECTED_STACK" "$HAS_NEXTJS")
 
-    # Copiar manifiesto de skills para trazabilidad
-    cp "$MANIFEST_FILE" "$TARGET_SKILLS/skills-manifest.yaml"
     echo "✅ Skills instaladas ($SKILLS_COUNT seleccionadas en modo $SKILL_MODE, sin sobreescribir existentes)."
 elif [ -d "$AGENT_OS_SKILLS" ]; then
     for skill in "$AGENT_OS_SKILLS"/*; do

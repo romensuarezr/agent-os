@@ -32,8 +32,8 @@ bash scripts/agent/install.sh --full /ruta/al/proyecto
 bash scripts/agent/install.sh . --self
 ```
 
-#### Modos de Instalación y Manifiesto de Skills (`skills-manifest.yaml`):
-Agent OS clasifica sus habilidades mediante `.agents/skills/skills-manifest.yaml` siguiendo el principio *Global pequeño, local fino*:
+#### Modos de Instalación y Manifiesto de Skills (`config/skills-manifest.yaml`):
+Agent OS clasifica sus habilidades mediante `config/skills-manifest.yaml` siguiendo el principio *Global pequeño, local fino*:
 - **Universal** (`--minimal` o base): Habilidades agnósticas de stack e infra (auditoría arquitectónica, testing flows, doe-framework, ADRs, etc.).
 - **Stack** (Adaptativo): Habilidades activadas según el framework detectado por `detect-stack.sh` (ej. `coolify-nextjs-deploy` para proyectos Next.js).
 - **Infra** (`--full`): Módulos específicos de infraestructura (Coolify, Infisical, SSH).

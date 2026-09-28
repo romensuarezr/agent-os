@@ -254,12 +254,6 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
         [ -e "$skill" ] || continue
         skill_name=$(basename "$skill")
         
-        # El manifiesto declarativo de skills siempre se sincroniza
-        if [ "$skill_name" = "skills-manifest.yaml" ]; then
-            sync_file "$skill" "$TARGET_SKILLS/$skill_name" "manifiesto: $skill_name"
-            continue
-        fi
-
         # Si el proyecto hijo no tiene instalada esta skill, no reintroducirla
         if [ ! -e "$TARGET_SKILLS/$skill_name" ]; then
             if [ "$DRY_RUN" = true ]; then

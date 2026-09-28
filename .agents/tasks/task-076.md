@@ -10,7 +10,7 @@ Auditoría 2026-09-28: `install.sh` y `sync.sh` copian todas las skills sin filt
 Archivos autorizados para modificación:
 - `scripts/agent/install.sh` (flags `--minimal`/`--full`; coordinar con T-069)
 - `scripts/agent/sync.sh` (respeta las etiquetas al sincronizar)
-- `.agents/skills/skills-manifest.yaml` (nuevo — etiquetas por skill) o frontmatter en cada `SKILL.md`
+- `config/skills-manifest.yaml` (nuevo — etiquetas por skill)
 - `README.md` (documentar los modos)
 
 ## Criterios de done
