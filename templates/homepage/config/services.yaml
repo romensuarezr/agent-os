@@ -1,26 +1,24 @@
 - AI Gateways & Inferencia ($0):
     - FreeLLMAPI ($0 AI Aggregator):
         icon: si-openai
-        href: http://100.77.82.13:3001
+        href: http://100.x.y.z:3001
         description: "Unified AI inference proxy aggregator ($0)"
-        ping: http://100.77.82.13:3001/v1/models
+        ping: http://100.x.y.z:3001/health
     - OmniRoute AI Gateway:
         icon: si-probot
-        href: http://100.77.82.13:20128
+        href: http://100.x.y.z:20128
         description: "Multi-provider AI gateway with RTK compression"
-        ping: http://100.77.82.13:20128/v1/models
+        ping: http://100.x.y.z:20128/health
     - Ollama (Local Models):
         icon: si-ollama
-        href: http://100.77.82.13:11434
-        description: "Local inference engine (qwen2.5, llama3.1, deepseek-r1)"
-        ping: http://100.77.82.13:11434
+        href: http://100.x.y.z:11434
+        description: "Local inference engine ($0 bajo demanda: qwen2.5, llama3.1, deepseek-r1)"
 
 - Control Plane & Secretos:
     - Infisical Secrets Manager:
         icon: si-vault
         href: http://infisical.example.com/admin
         description: "Infisical Community Edition standalone lite secrets manager"
-        ping: http://infisical.example.com/api/status
     - Orca Desktop Engine:
         icon: si-docker
         href: http://localhost:8000
@@ -36,16 +34,13 @@
         icon: si-gnubash
         href: https://bytebox.example.com
         description: "Developer CLI commands, code snippets and notes organizer"
-        ping: https://bytebox.example.com/api/cards
 
 - PaaS & Orquestación:
     - Coolify PaaS:
         icon: si-docker
         href: https://coolify.example.com
         description: "Self-hosted PaaS dashboard for app deployments"
-        ping: https://coolify.example.com/api/v1/version
     - Traefik SSL Proxy:
         icon: si-traefikproxy
         href: https://coolify.example.com
         description: "Edge reverse proxy with automatic SSL"
-        ping: https://coolify.example.com

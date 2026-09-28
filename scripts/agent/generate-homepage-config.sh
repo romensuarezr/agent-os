@@ -70,6 +70,8 @@ fi
 FLEET_FILE="$FLEET_FILE" OUT_DIR="$OUT_DIR" CHECK_ONLY="$CHECK_ONLY" python3 - <<'PYEOF'
 import os
 import sys
+import re
+import socket
 import yaml
 
 fleet_file = os.environ.get("FLEET_FILE", "config/fleet.yaml")
@@ -88,6 +90,34 @@ local_env = fleet.get("local_environment", {})
 mcp_servers = fleet.get("mcpServers", {})
 monitoring = fleet.get("monitoring", {})
 
+def is_placeholder_url(url):
+    if not url or not isinstance(url, str):
+        return True
+    u = url.lower().strip()
+    return "example.com" in u or "example.org" in u or "example.net" in u
+
+def is_service_enabled(s_conf):
+    if not s_conf:
+        return False
+    if isinstance(s_conf, dict):
+        if s_conf.get("enabled") is False:
+            return False
+        if s_conf.get("status") in ("inactive", "disabled", "stopped", "down"):
+            return False
+        if s_conf.get("active") is False:
+            return False
+    return True
+
+def check_socket_open(host, port, timeout=1.0):
+    if not host or "100.x.y.z" in host or "example.com" in host or "203.0.113." in host:
+        return False
+    try:
+        s = socket.create_connection((host, int(port)), timeout=timeout)
+        s.close()
+        return True
+    except Exception:
+        return False
+
 # Mapear servicios a grupos de Homepage
 group_ai = []
 group_control = []
@@ -100,73 +130,86 @@ for node_name, node_data in nodes.items():
     host = node_data.get("host", "")
     
     # 1. AI Services
-    if "freellmapi" in services:
+    if "freellmapi" in services and is_service_enabled(services["freellmapi"]):
         s = services["freellmapi"]
         endpoint = s.get("endpoint", f"http://{host}:3001/v1")
-        base_url = endpoint.replace("/v1", "")
-        group_ai.append({
-            "FreeLLMAPI ($0 AI Aggregator)": {
-                "icon": "si-openai",
-                "href": base_url,
-                "description": s.get("description", "Unified AI inference proxy aggregator ($0)"),
-                "ping": f"{endpoint}/models",
-                "widget": {
-                    "type": "customapi",
-                    "url": f"{endpoint}/models",
-                    "refreshInterval": 10000,
-                    "mappings": [
-                        {"field": "data", "label": "Modelos activos", "format": "count"}
-                    ]
-                }
+        base_url = endpoint.replace("/v1", "").rstrip("/")
+        fl_card = {
+            "icon": "si-openai",
+            "href": base_url,
+            "description": s.get("description", "Unified AI inference proxy aggregator ($0)"),
+            "ping": f"{base_url}/health"
+        }
+        # Solo incluir widget customapi si se activa explícitamente y con Bearer auth para evitar 401
+        if s.get("enable_widget") or s.get("include_models_widget"):
+            fl_card["widget"] = {
+                "type": "customapi",
+                "url": f"{endpoint}/models",
+                "refreshInterval": 30000,
+                "headers": {
+                    "Authorization": "Bearer {{HOMEPAGE_VAR_FREELLMAPI_KEY}}"
+                },
+                "mappings": [
+                    {"field": "data", "label": "Modelos activos", "format": "count"}
+                ]
             }
-        })
+        group_ai.append({"FreeLLMAPI ($0 AI Aggregator)": fl_card})
         
-    if "omniroute" in services:
+    if "omniroute" in services and is_service_enabled(services["omniroute"]):
         s = services["omniroute"]
         endpoint = s.get("endpoint", f"http://{host}:20128/v1")
-        base_url = endpoint.replace("/v1", "")
+        base_url = endpoint.replace("/v1", "").rstrip("/")
         group_ai.append({
             "OmniRoute AI Gateway": {
                 "icon": "si-probot",
                 "href": base_url,
                 "description": s.get("description", "Multi-provider AI gateway with RTK compression"),
-                "ping": f"{endpoint}/models",
-                "widget": {
-                    "type": "customapi",
-                    "url": f"{endpoint}/models",
-                    "refreshInterval": 10000,
-                    "mappings": [
-                        {"field": "data", "label": "Modelos", "format": "count"}
-                    ]
-                }
+                "ping": f"{base_url}/health" if s.get("ping_health", True) else f"{endpoint}/models"
             }
         })
         
-    if "ollama" in services:
+    if "ollama" in services and is_service_enabled(services["ollama"]):
         s = services["ollama"]
         endpoint = s.get("endpoint", f"http://{host}:11434")
-        models = ", ".join(s.get("models", []))
-        group_ai.append({
-            "Ollama (Local Models)": {
+        models = ", ".join(s.get("models", [])) if s.get("models") else ""
+        
+        port = 11434
+        pm = re.search(r':(\d{2,5})', endpoint)
+        if pm:
+            port = int(pm.group(1))
+            
+        is_doc = "100.x.y.z" in host or "example.com" in host or "203.0.113." in host
+        is_live = check_socket_open(host, port)
+        
+        # En hosts reales, si el puerto está cerrado no inventar estado ni forzar tarjeta DOWN
+        if not is_doc and not is_live:
+            # Servicio caído en host real: se omite condicionalmente (ausente) para no ensuciar la Homepage
+            pass
+        else:
+            ol_card = {
                 "icon": "si-ollama",
                 "href": endpoint,
-                "description": f"Modelos locales: {models}" if models else "Local inference engine",
-                "ping": endpoint,
-                "widget": {
+                "description": f"Modelos locales: {models}" if models else "Local inference engine ($0)"
+            }
+            if is_live:
+                ol_card["ping"] = endpoint
+                ol_card["widget"] = {
                     "type": "customapi",
                     "url": f"{endpoint}/api/tags",
-                    "refreshInterval": 10000,
+                    "refreshInterval": 15000,
                     "mappings": [
                         {"field": "models", "label": "Modelos instalados", "format": "count"}
                     ]
                 }
-            }
-        })
+            elif is_doc:
+                # En modo doc / plantilla: bajo demanda sin ping para evitar DOWN
+                ol_card["description"] = f"Modelos locales (bajo demanda): {models}" if models else "Local inference engine ($0 bajo demanda)"
+            group_ai.append({"Ollama (Local Models)": ol_card})
         
-    if "searxng" in services:
+    if "searxng" in services and is_service_enabled(services["searxng"]):
         s = services["searxng"]
-        if s.get("status") != "inactive" and s.get("active", True) is True:
-            endpoint = s.get("endpoint", f"http://{host}:8080")
+        endpoint = s.get("endpoint", f"http://{host}:8080")
+        if not is_placeholder_url(endpoint):
             group_dev.append({
                 "SearXNG Meta-Search": {
                     "icon": "si-searxng",
@@ -177,66 +220,75 @@ for node_name, node_data in nodes.items():
             })
         
     # 2. Control & Secrets
-    if "infisical" in services:
+    if "infisical" in services and is_service_enabled(services["infisical"]):
         s = services["infisical"]
         url = s.get("admin_console") or s.get("endpoint", "")
-        group_control.append({
-            "Infisical Secrets Manager": {
-                "icon": "si-vault",
-                "href": url,
-                "description": s.get("description", "Centralized secrets manager with Universal Auth"),
-                "ping": f"{s.get('api_url', url)}/status" if "api_url" in s else url
-            }
-        })
+        # Omitir si es un placeholder ficticio *.example.com no configurado
+        if not is_placeholder_url(url):
+            ping_url = f"{s.get('api_url', url)}/status" if "api_url" in s else url
+            group_control.append({
+                "Infisical Secrets Manager": {
+                    "icon": "si-vault",
+                    "href": url,
+                    "description": s.get("description", "Centralized secrets manager with Universal Auth"),
+                    "ping": ping_url
+                }
+            })
         
-    if "orca_gateway" in services:
+    if "orca_gateway" in services and is_service_enabled(services["orca_gateway"]):
         s = services["orca_gateway"]
         endpoint = s.get("endpoint", "http://localhost:8000")
-        group_control.append({
-            "Orca Desktop Engine": {
-                "icon": "si-docker",
-                "href": endpoint,
-                "description": s.get("description", "Agent orchestrator & decision gate inspect engine"),
-                "ping": endpoint
-            }
-        })
+        if not is_placeholder_url(endpoint):
+            group_control.append({
+                "Orca Desktop Engine": {
+                    "icon": "si-docker",
+                    "href": endpoint,
+                    "description": s.get("description", "Agent orchestrator & decision gate inspect engine"),
+                    "ping": endpoint
+                }
+            })
         
     # 3. Dev & Snippets
-    if "bytebox" in services:
+    if "bytebox" in services and is_service_enabled(services["bytebox"]):
         s = services["bytebox"]
         url = s.get("url") or s.get("custom_domain", "")
-        group_dev.append({
-            "ByteBox Snippets & CLI": {
-                "icon": "si-gnubash",
-                "href": url,
-                "description": s.get("description", "Developer CLI commands, code snippets and notes organizer"),
-                "ping": f"{url}/api/cards"
-            }
-        })
+        # Omitir si es un placeholder ficticio *.example.com no configurado
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "ByteBox Snippets & CLI": {
+                    "icon": "si-gnubash",
+                    "href": url,
+                    "description": s.get("description", "Developer CLI commands, code snippets and notes organizer"),
+                    "ping": f"{url}/api/cards"
+                }
+            })
 
     # 4. PaaS & Infrastructure
-    if "coolify" in services:
+    if "coolify" in services and is_service_enabled(services["coolify"]):
         s = services["coolify"]
-        url = s.get("url", "https://coolify.romensuarez.com")
-        group_paas.append({
-            "Coolify PaaS": {
-                "icon": "si-docker",
-                "href": url,
-                "description": s.get("description", "PaaS manager for containerized applications"),
-                "ping": f"{url}/api/v1/version"
-            }
-        })
+        url = s.get("url", "")
+        # Omitir si es un placeholder ficticio *.example.com no configurado
+        if not is_placeholder_url(url):
+            group_paas.append({
+                "Coolify PaaS": {
+                    "icon": "si-docker",
+                    "href": url,
+                    "description": s.get("description", "PaaS manager for containerized applications"),
+                    "ping": f"{url}/api/v1/version"
+                }
+            })
         
-    if "traefik" in services:
+    if "traefik" in services and is_service_enabled(services["traefik"]):
         s = services["traefik"]
-        cool_url = services.get("coolify", {}).get("url", "https://coolify.example.com")
-        group_paas.append({
-            "Traefik SSL Proxy": {
-                "icon": "si-traefikproxy",
-                "href": cool_url,
-                "description": s.get("description", "Edge reverse proxy with automatic Let's Encrypt SSL")
-            }
-        })
+        cool_url = services.get("coolify", {}).get("url", "")
+        if not is_placeholder_url(cool_url):
+            group_paas.append({
+                "Traefik SSL Proxy": {
+                    "icon": "si-traefikproxy",
+                    "href": cool_url,
+                    "description": s.get("description", "Edge reverse proxy with automatic SSL")
+                }
+            })
 
 # Agregar GitHub widget en group_dev si está habilitado en monitoring
 github_cfg = monitoring.get("github", {})
@@ -255,36 +307,44 @@ if github_cfg.get("enabled", True):
         }
     })
 
-# Construir services.yaml
-services_yaml = [
-    {"AI Gateways & Inferencia ($0)": group_ai},
-    {"Control Plane & Secretos": group_control},
-    {"Productividad Dev & Snippets": group_dev},
-    {"PaaS & Orquestación": group_paas}
-]
+# Construir services.yaml solo con grupos que contengan servicios
+services_yaml = []
+if group_ai:
+    services_yaml.append({"AI Gateways & Inferencia ($0)": group_ai})
+if group_control:
+    services_yaml.append({"Control Plane & Secretos": group_control})
+if group_dev:
+    services_yaml.append({"Productividad Dev & Snippets": group_dev})
+if group_paas:
+    services_yaml.append({"PaaS & Orquestación": group_paas})
 
-# Obtener URL de Coolify si existe para bookmarks
-coolify_portal_url = "https://coolify.example.com"
+# Obtener URL de Coolify si existe y no es placeholder para bookmarks
+coolify_portal_url = None
 for nd in nodes.values():
     if "coolify" in nd.get("services", {}):
-        coolify_portal_url = nd["services"]["coolify"].get("url", coolify_portal_url)
-        break
+        c_url = nd["services"]["coolify"].get("url", "")
+        if not is_placeholder_url(c_url):
+            coolify_portal_url = c_url
+            break
 
 # Construir bookmarks.yaml
+control_bookmarks = [
+    {
+        "GitHub Agent OS": [
+            {"icon": "si-github", "href": f"https://github.com/{github_cfg.get('repo', 'romensuarezr/agent-os')}"}
+        ]
+    }
+]
+if coolify_portal_url:
+    control_bookmarks.append({
+        "Coolify Console": [
+            {"icon": "si-docker", "href": coolify_portal_url}
+        ]
+    })
+
 bookmarks_yaml = [
     {
-        "Control & Repos": [
-            {
-                "GitHub Agent OS": [
-                    {"icon": "si-github", "href": f"https://github.com/{github_cfg.get('repo', 'romensuarezr/agent-os')}"}
-                ]
-            },
-            {
-                "Coolify Console": [
-                    {"icon": "si-docker", "href": coolify_portal_url}
-                ]
-            }
-        ]
+        "Control & Repos": control_bookmarks
     }
 ]
 
