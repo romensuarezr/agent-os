@@ -16,15 +16,27 @@ Este repositorio contiene las reglas, skills y workflows universales que compart
 ### 1. Inicialización en Proyecto Nuevo
 Antes de instalar, puedes ejecutar una simulación determinista sin tocar el disco:
 ```bash
-# Simulación dry-run y comprobación de pre-flights (git, gh, infisical)
+# Simulación dry-run y comprobación de pre-flights (git, gh, infisical) con desglose de skills:
 bash scripts/agent/install.sh --check /ruta/al/proyecto
 
-# Instalación real
+# Instalación adaptativa recomendada (detecta el stack y propone skills idóneas):
 bash scripts/agent/install.sh /ruta/al/proyecto
 
-# Bootstrapping sobre el propio core de agent-os
+# Instalación mínima (únicamente conjunto base universal de habilidades):
+bash scripts/agent/install.sh --minimal /ruta/al/proyecto
+
+# Instalación completa (incluye habilidades de stacks específicos e infraestructura):
+bash scripts/agent/install.sh --full /ruta/al/proyecto
+
+# Bootstrapping sobre el propio core de agent-os:
 bash scripts/agent/install.sh . --self
 ```
+
+#### Modos de Instalación y Manifiesto de Skills (`config/skills-manifest.yaml`):
+Agent OS clasifica sus habilidades mediante `config/skills-manifest.yaml` siguiendo el principio *Global pequeño, local fino*:
+- **Universal** (`--minimal` o base): Habilidades agnósticas de stack e infra (auditoría arquitectónica, testing flows, doe-framework, ADRs, etc.).
+- **Stack** (Adaptativo): Habilidades activadas según el framework detectado por `detect-stack.sh` (ej. `coolify-nextjs-deploy` para proyectos Next.js).
+- **Infra** (`--full`): Módulos específicos de infraestructura (Coolify, Infisical, SSH).
 
 Pre-flights incluidos:
 - `git`, `cp`, `mkdir`: dependencias obligatorias (bloqueantes).
@@ -47,7 +59,7 @@ Para propagar mejoras del núcleo de `agent-os` a un proyecto ya configurado:
 # Simular cambios y detectar personalizaciones locales sin tocar disco:
 bash scripts/agent/sync.sh --dry-run /ruta/al/proyecto
 
-# Sincronización estándar (protege personalizaciones locales sin sobrescribir sin aviso):
+# Sincronización estándar (protege personalizaciones locales y NO reintroduce skills descartadas):
 bash scripts/agent/sync.sh /ruta/al/proyecto
 
 # Forzar sobrescritura de personalizaciones locales:

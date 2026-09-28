@@ -1,0 +1,130 @@
+# ==============================================================================
+# Agent OS — Skills Catalog & Classification Manifest
+# ==============================================================================
+# Este manifiesto clasifica las habilidades de Agent OS para su instalación
+# modular y selectiva en proyectos destino (T-076).
+#
+# Scopes:
+#   - universal: Habilidades agnósticas de stack e infra. Se instalan siempre en --minimal.
+#   - stack:     Habilidades especializadas en un stack tecnológico concreto (ej. Next.js).
+#   - infra:     Habilidades vinculadas a proveedores de infraestructura específicos (Coolify, Infisical, SSH).
+# ==============================================================================
+
+version: "1.0.0"
+
+skills:
+  adr-decision-recorder:
+    scope: universal
+    description: "Captura decisiones arquitectónicas críticas en formato ADR ante trade-offs técnicos."
+
+  agent-os-scripts:
+    scope: universal
+    description: "Guía operativa y sintaxis de los scripts CLI del núcleo de Agent OS."
+
+  architecture-audit:
+    scope: universal
+    description: "Auditoría técnica estática para detectar monolitos (>300 líneas) y violaciones de capas."
+
+  buscar-codigo-en-github:
+    scope: universal
+    description: "Búsqueda de implementaciones reales, patrones y librerías en repositorios de GitHub."
+
+  coolify-admin:
+    scope: infra
+    infra:
+      - coolify
+      - docker
+    description: "Gestión programática de contenedores Docker y stacks en Coolify PaaS vía API/CLI."
+
+  coolify-nextjs-deploy:
+    scope: stack
+    stacks:
+      - nextjs
+      - typescript
+      - javascript
+    infra:
+      - coolify
+      - cloudflare
+      - docker
+    description: "Auditoría pre-build, dockerización standalone de Next.js y DNS en Cloudflare hacia Coolify."
+
+  creador-habilidades:
+    scope: universal
+    optional: true
+    description: "Creación y scaffolding de nuevas habilidades modulares (SKILL.md) siguiendo la convención estándar."
+
+  doc-maintainer:
+    scope: universal
+    description: "Supervisión de documentación, ubicación y actualización obligatoria de fechas."
+
+  doe-framework:
+    scope: universal
+    description: "Formalización del contrato escrito de tarea (Declare-Orchestrate-Execute) antes de codificar."
+
+  external-inbox:
+    scope: universal
+    description: "Ingesta, saneamiento y auditoría de requerimientos o código externo en docs/external-inbox/."
+
+  git-gardener:
+    scope: universal
+    description: "Mantenimiento e higiene del repositorio eliminando ramas mergeadas o huérfanas."
+
+  goal-evaluation:
+    scope: universal
+    description: "Judge independiente (Ralph Loop) para validación desacoplada mediante verify-goal.sh y diffs."
+
+  implementar-feature-dry:
+    scope: universal
+    description: "Protocolo estricto de desarrollo para evitar duplicación de código e imponer reutilización."
+
+  infisical-secrets:
+    scope: infra
+    infra:
+      - infisical
+    description: "Inyección de secretos en memoria y sincronización centralizada con Infisical Community Edition."
+
+  orchestrator:
+    scope: universal
+    description: "Orquestación multi-agente declarativa y despacho de tareas en paralelo en git worktrees."
+
+  remote-admin:
+    scope: infra
+    infra:
+      - ssh
+      - docker
+      - vps
+    description: "Ejecución remota segura vía SSH, diagnóstico de infraestructura y control de contenedores Docker."
+
+  repo-onboarding:
+    scope: universal
+    description: "Auditoría y adopción guiada para incorporar repositorios preexistentes al estándar operativo."
+
+  roadmap-a-tarea:
+    scope: universal
+    description: "Descomposición de objetivos de alto nivel o épicas del roadmap en tareas atómicas implementables."
+
+  rule-creator:
+    scope: universal
+    optional: true
+    description: "Formalización de requerimientos de comportamiento del usuario en reglas persistentes en .agents/rules/."
+
+  structure-guardian:
+    scope: universal
+    optional: true
+    description: "Supervisión de la higiene y arquitectura del sistema de archivos sin romper referencias."
+
+  tech-scout:
+    scope: universal
+    description: "Evaluación comparativa de librerías, dependencias npm/pip y SDKs antes de añadir paquetes."
+
+  testing-flows:
+    scope: universal
+    description: "Diseño e implementación de pirámide de pruebas (unitarias, integración, E2E) según el framework detectado."
+
+  tool-inventory:
+    scope: universal
+    description: "Descubrimiento y consulta del catálogo de herramientas vivas en la flota (nodos, pasarelas y MCPs)."
+
+  workflow-designer:
+    scope: universal
+    description: "Diseño, creación y refactorización de flujos de trabajo estructurados en .agents/workflows/."
