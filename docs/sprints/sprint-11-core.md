@@ -20,7 +20,7 @@
 | T-068 | Saneamiento definitivo de Homepage en producción (dominios ficticios, ping `/health`, Ollama paramétrico) | Bug del sistema / DX | S | ⬜ Pendiente | T-067 | `.agents/tasks/task-068.md` |
 | T-069 | Blindaje de `install.sh`: ruta dinámica, pre-flights, `--check`, `set -euo pipefail`, instala `AGENT_ONBOARDING.md`, `sync.sh` no destructivo | Universalización / Core | M | ⬜ Pendiente | T-070, T-071 | `.agents/tasks/task-069.md` |
 | T-070 | Regla global `deterministic-execution.md` + resolución de contradicciones entre reglas existentes | Gobernanza / Core Standard | M | ⬜ Pendiente | T-071 | `.agents/tasks/task-070.md` |
-| T-071 | Reparación del descubrimiento 0-contexto: inventario de skills, referencias fantasma, inbox canónico, `AGENT_ONBOARDING.md` como secuencia de boot | Universalización / DX | M | ⬜ Pendiente | — | `.agents/tasks/task-071.md` |
+| T-071 | Reparación del descubrimiento 0-contexto: inventario de skills, referencias fantasma, inbox canónico, `AGENT_ONBOARDING.md` como secuencia de boot | Universalización / DX | M | 🟡 En curso | — | `.agents/tasks/task-071.md` |
 | T-072 | Purga de infraestructura personal en scripts y config (`/home/romen`, IPs Tailscale → overlay `fleet.yaml`) | Universalización / Core | M | ⬜ Pendiente | — | `.agents/tasks/task-072.md` |
 | T-073 | Reglas y skills agnósticas de stack, flota y herramientas propietarias | Universalización / Core | M | ⬜ Pendiente | — | `.agents/tasks/task-073.md` |
 | T-074 | `detect-stack.sh` universal (Go/Rust/Java/PHP/Ruby/.NET/Bun/estático) con fallback `unknown` explícito | Bug del sistema / Core | S | ⬜ Pendiente | — | `.agents/tasks/task-074.md` |
@@ -98,7 +98,7 @@ flowchart TD
 | Scripts A6–A10 (flags GNU/macOS, `/Users`), M1–M4 (shebangs, deps sin comprobar) | T-075 |
 | Rules: agnosticidad (`agent-permissions`, `dry-architecture`, ejemplos Node/Firestore), `preferred_model_tier` inválido, registry incompleto, `known-web-tools.yaml` sin uso | T-073 |
 | Rules: C1–C3 contradicciones, `tool-decision-flow` paso 1, triggers en 15 reglas | T-070 |
-| Skills: `skills-inventory.md` 1/25, 6 skills fantasma, `external-inbox/` 3 rutas, `AGENT_ONBOARDING.md` no instalado, árbol AGENTS.md vs código, refs fantasma (`core-planning.md`, `investigar-repos-referencia`…) | T-071 |
+| Skills: `skills-inventory.md` 1/24, 6 skills fantasma, `external-inbox/` 3 rutas, `AGENT_ONBOARDING.md` no instalado, árbol AGENTS.md vs código, refs fantasma (`core-planning.md`, `investigar-repos-referencia`…) | T-071 |
 | Skills: copia 100% sin filtro | T-076 |
 | Skills: `tool-inventory` ciego (CI/IaC/cloud), promesa Firefox, `repo-onboarding` sin stack | T-077 |
 | Skills: `architecture-audit` débil, skills Antigravity propietarias | T-073 |

@@ -3,7 +3,7 @@
 # Uso: bash scripts/agent/check-inbox.sh
 # Salida: siempre exit 0 (no es bloqueante)
 
-EXTERNAL_DIR="external-inbox"
+EXTERNAL_DIR="docs/external-inbox"
 IDEA_DIR="docs/idea-inbox"
 
 echo "=== INBOX STATUS ==="

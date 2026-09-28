@@ -171,6 +171,14 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
     echo "✅ Templates de documentación en la raíz instalados (sin sobreescribir)."
 fi
 
+# 10b. Copiar secuencia canónica de AGENT_ONBOARDING.md en .agents/ (sin sobreescribir)
+AGENT_ONBOARDING_SRC="$AGENT_OS_PATH/.agents/AGENT_ONBOARDING.md"
+TARGET_ONBOARDING="$TARGET_PROJECT/.agents/AGENT_ONBOARDING.md"
+if [ -f "$AGENT_ONBOARDING_SRC" ] && [ ! -f "$TARGET_ONBOARDING" ]; then
+    cp "$AGENT_ONBOARDING_SRC" "$TARGET_ONBOARDING"
+    echo "✅ Secuencia canónica de AGENT_ONBOARDING.md instalada en .agents/ (sin sobreescribir)."
+fi
+
 # 11. Configurar .gitignore
 GITIGNORE="$TARGET_PROJECT/.gitignore"
 AGENT_OS_MARKER="# Agent OS — generated context files"

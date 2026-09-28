@@ -1,0 +1,60 @@
+# AGENT_ONBOARDING.md — agent-os Core
+
+> Secuencia canónica de arranque determinista (boot sequence) para agentes de IA que operan sobre el repositorio del núcleo de **agent-os**.
+
+---
+
+## 🎯 Secuencia Canónica de Arranque (Boot Sequence)
+
+Sigue estrictamente estos pasos numerados al iniciar cualquier interacción con este repositorio:
+
+### 1. Lectura de Arquitectura y Contrato Base
+Lee [`AGENTS.md`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/AGENTS.md) completo.  
+Contiene los principios de diseño (SRP, DRY, modo no destructivo por defecto, coste 0 de tokens en diagnósticos deterministas) y las reglas de contribución al core.
+
+### 2. Detección y Rescate de Sesión Activa
+Ejecuta inmediatamente:
+```bash
+bash scripts/agent/check-session.sh
+```
+- Si devuelve `NO_ACTIVE_SESSION`: el entorno está limpio; procede al siguiente paso.
+- Si devuelve un objeto JSON con metadatos: existe una sesión previa interrumpida. Activa el **Modo Rescate** según [.agents/workflows/session-start.md](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/workflows/session-start.md).
+
+### 3. Descubrimiento de Habilidades (Skills)
+Consulta el catálogo consolidado en:
+[`..agents/context/skills-inventory.md`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/context/skills-inventory.md)  
+Identifica la skill adecuada para la tarea antes de inventar herramientas o duplicar lógica existente.
+
+### 4. Pre-flights de Herramientas y Servicios Locales
+Verifica deterministamente el estado operativo del tooling local ejecutando los comandos exactos y aplicando la resolución indicada ante fallos:
+
+| Herramienta | Comando de Verificación | Estado Esperado | Si Falla (Resolución Guiada) |
+|---|---|---|---|
+| **Git** | `git status --short` | Árbol limpio | Si hay cambios locales no versionados: `git stash` o descartar antes de operar. |
+| **GitHub CLI** | `gh auth status` | `Logged in to github.com account ...` | Ejecutar `gh auth login --web` o exportar `GITHUB_TOKEN` válido en el entorno. |
+| **Infisical CLI** | `infisical profile list` | Al menos un perfil autenticado activo | Ejecutar `infisical login` o inyectar `INFISICAL_TOKEN` / Universal Auth en `.env.local`. |
+| **Tailscale** | `tailscale status` | Malla conectada (nodo local online) | Ejecutar `sudo tailscale up` o iniciar el servicio con `sudo systemctl start tailscaled`. |
+| **Docker** | `docker info` | Demonio respondiendo | Iniciar demonio con `sudo systemctl start docker` y verificar pertenencia al grupo `docker`. |
+
+> 💡 **Diagnóstico integral de flota**: Si existe configuración de flota (`config/fleet.yaml`), ejecuta de forma determinista `bash scripts/agent/fleet-doctor.sh` para evaluar la conectividad viva de la malla Tailscale y pasarelas de inferencia sin consumir tokens.
+
+### 5. Mapa de Navegación del Repositorio ("¿Dónde está cada cosa?")
+
+| Dominio | Ruta Canónica | Propósito |
+|---|---|---|
+| **Reglas Globales** | [`.agents/rules/global/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/rules/global/) | Reglas agnósticas de comportamiento, calidad y gobernanza para agentes. |
+| **Habilidades (Skills)** | [`.agents/skills/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/skills/) | Directorios modulares con `SKILL.md` que capacitan al agente en tareas especializadas. |
+| **Workflows** | [`.agents/workflows/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/workflows/) | Protocolos paso a paso para ceremonias (`session-start`, `session-close`, `sprint-planning`). |
+| **Scripts CLI de Agente** | [`scripts/agent/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/scripts/agent/) | Herramientas deterministas en Bash/Python para auditoría, instalación, sincronización y tests. |
+| **Inbox de Requerimientos** | [`docs/external-inbox/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/docs/external-inbox/) | Requerimientos de producto y manifiestos externos a procesar en sprint planning. |
+| **Inbox de Ideas** | [`docs/idea-inbox/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/docs/idea-inbox/) | Propuestas técnicas e ideas de mejora pendientes de evaluación para el roadmap. |
+| **Sprints y Planificación** | [`docs/sprints/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/docs/sprints/) | Sprints activos y archivo histórico de sprints completados (`_archived/`). |
+| **Tareas Activas** | [`.agents/tasks/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/tasks/) | Contratos escritos de tareas del sprint activo (`task-XXX.md`). |
+| **Plantillas** | [`templates/`](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/templates/) | Plantillas de servicios de infraestructura, documentos raíz y metas (`goals`). |
+
+---
+
+## 🚫 Restricciones Críticas de Gobernanza
+- **Nunca improvisar scripts en caliente en servidores**: todo script debe residir en `scripts/agent/` y estar cubierto por `tests/validate-control-plane.sh`.
+- **Nunca asumir que un servicio existe sin verificación determinista previa**.
+- **Nunca trabajar directamente en la rama principal (`main`)**: utiliza siempre ramas de feature (`feat/T-XXX-...`).
