@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 # scripts/agent/worktree-merge.sh — Verificación, merge y desmantelamiento atómico
 # ==============================================================================
@@ -12,8 +12,17 @@
 
 set -uo pipefail
 
+# Pre-flight: verificación determinista de dependencias
+for cmd in git python3 bash rm; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-cd "$ROOT_DIR"
+cd "$ROOT_DIR" || exit 1
 
 TASK_ID=""
 TARGET_BRANCH=""

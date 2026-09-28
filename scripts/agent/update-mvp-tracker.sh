@@ -21,6 +21,15 @@
 
 set -euo pipefail
 
+# Pre-flight: verificación determinista de dependencias
+for cmd in git python3 date; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/find-tracker.sh" ]; then
   source "$SCRIPT_DIR/lib/find-tracker.sh"

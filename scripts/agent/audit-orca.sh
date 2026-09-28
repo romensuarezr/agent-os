@@ -10,7 +10,15 @@
 
 set -euo pipefail
 
-DB_PATH="$HOME/.config/orca/orchestration.db"
+for cmd in sqlite3 awk du; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
+
+DB_PATH="${ORCA_DB_PATH:-$HOME/.config/orca/orchestration.db}"
 
 echo "=== 🐳 AUDITORÍA DEL ORQUESTADOR ORCA ==="
 echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
@@ -101,15 +109,16 @@ echo ""
 
 # 4. WORKSPACES Y ESPACIO TEMPORAL
 echo "📁 ESPACIO EN WORKSPACES:"
-if [ -d "$HOME/orca/workspaces" ]; then
-  LOCAL_WS_SIZE=$(du -sh $HOME/orca/workspaces 2>/dev/null | awk '{print $1}')
-  echo "  Local ($HOME/orca/workspaces): $LOCAL_WS_SIZE"
+LOCAL_WS_DIR="${ORCA_WORKSPACES_DIR:-$HOME/orca/workspaces}"
+if [ -d "$LOCAL_WS_DIR" ]; then
+  LOCAL_WS_SIZE=$(du -sh "$LOCAL_WS_DIR" 2>/dev/null | awk '{print $1}')
+  echo "  Local ($LOCAL_WS_DIR): $LOCAL_WS_SIZE"
 else
-  echo "  Local: Sin carpeta workspaces activa"
+  echo "  Local: Sin carpeta workspaces activa ($LOCAL_WS_DIR)"
 fi
 
 ORA_REMOTE_SIZE=$(ssh -n -o BatchMode=yes -o ConnectTimeout=3 <nodo-orquestacion> \
-  "du -sh /home/ubuntu/.orca-remote 2>/dev/null | awk '{print \$1}'" 2>/dev/null || echo "N/A")
+  "du -sh ~/.orca-remote 2>/dev/null | awk '{print \$1}'" 2>/dev/null || echo "N/A")
 echo "  <nodo-orquestacion> (~/.orca-remote): $ORA_REMOTE_SIZE"
 
 echo ""

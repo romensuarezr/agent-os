@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # generate-digest.sh — Genera un digest LLM-friendly de una subcarpeta del repo
 # Uso: bash scripts/agent/generate-digest.sh --filter <subpath>
 # Ejemplo: bash scripts/agent/generate-digest.sh --filter src/components/propuestas
@@ -12,6 +12,14 @@
 # Úsalos como contexto para redactar task files, nunca como firewall.
 
 set -euo pipefail
+
+for cmd in git awk sed tr cut wc; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 OUT_DIR="$ROOT/docs/llm-context"
