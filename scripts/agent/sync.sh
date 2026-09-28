@@ -246,15 +246,30 @@ if [ -d "$TARGET_SCRIPTS" ]; then
     fi
 fi
 
-# 4. Skills
+# 4. Skills (sincroniza solo skills activas en destino, sin reintroducir descartadas)
 if [ -d "$AGENT_OS_SKILLS" ]; then
-    echo "  Sincronizando skills..."
+    echo "  Sincronizando skills activas en destino..."
     mkdir -p "$TARGET_SKILLS"
     for skill in "$AGENT_OS_SKILLS"/*; do
         [ -e "$skill" ] || continue
         skill_name=$(basename "$skill")
+        
+        # El manifiesto declarativo de skills siempre se sincroniza
+        if [ "$skill_name" = "skills-manifest.yaml" ]; then
+            sync_file "$skill" "$TARGET_SKILLS/$skill_name" "manifiesto: $skill_name"
+            continue
+        fi
+
+        # Si el proyecto hijo no tiene instalada esta skill, no reintroducirla
+        if [ ! -e "$TARGET_SKILLS/$skill_name" ]; then
+            if [ "$DRY_RUN" = true ]; then
+                echo "    [dry-run] omitir skill no presente en hijo: $skill_name"
+            fi
+            continue
+        fi
+
         if [ -d "$skill" ]; then
-            # Sincronizar recursivamente respetando personalizaciones
+            # Sincronizar recursivamente respetando personalizaciones locales
             find "$skill" -type f | while IFS= read -r fsrc; do
                 rel_path="${fsrc#"$AGENT_OS_SKILLS/"}"
                 fdst="$TARGET_SKILLS/$rel_path"
