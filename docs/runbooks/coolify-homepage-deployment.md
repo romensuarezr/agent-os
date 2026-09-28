@@ -1,8 +1,8 @@
 # Runbook: Despliegue de Homepage en Coolify con Docker Compose y MCP Tooling
 
-> **Fecha**: 2026-09-27  
+> **Fecha**: 2026-09-28  
 > **Objetivo**: Procedimiento Operativo Estándar (SOP) para migrar y desplegar Homepage en Coolify (`oracle`) como stack Docker Compose desacoplado, contención de Docker Socket con `tecnativa/docker-socket-proxy` RO (32MB RAM, ADR 004), mapeo persistente de configuraciones y automatización mediante Coolify MCP / API.  
-> **Hosts aplicables**: `oracle` (PaaS/Coolify, dominio `https://homepage.romensuarez.com`).
+> **Hosts aplicables**: `oracle` (PaaS/Coolify, dominio `https://homepage.example.com`).
 
 ---
 
@@ -141,17 +141,23 @@ Los siguientes archivos deben generarse previamente mediante `scripts/agent/gene
 | Archivo | Función |
 | :--- | :--- |
 | `settings.yaml` | Título del dashboard, tema visual, layout y buscador DuckDuckGo. |
-| `widgets.yaml` | Banner de recursos: CPU/RAM/Disco local y Glances en `datamanager` (`100.77.82.13:61208`). |
-| `services.yaml` | Grupos de servicios: Inferencia IA ($0) con widgets customapi, Docker Apps, ByteBox y GitHub. |
+| `widgets.yaml` | Banner de recursos: CPU/RAM/Disco local y Glances en `datamanager` (`100.99.88.77:61208`). |
+| `services.yaml` | Grupos de servicios: Inferencia IA ($0) con pings seguros a `/health`, Docker Apps, ByteBox y GitHub. |
 | `bookmarks.yaml` | Accesos rápidos a documentación, consola Coolify y repositorios. |
 | `custom.css` | Personalización visual y contraste adaptativo. |
+
+### 4.3 Reglas de Saneamiento y Resiliencia en Producción (T-068)
+Para evitar bucles de diagnóstico y falsas alarmas operativas en los agentes:
+1. **FreeLLMAPI y Gateways IA**: El health check (`ping:`) apunta estrictamente a `/health` (HTTP 200 sin credenciales). Se evita pingear `/v1/models` sin cabecera `Authorization: Bearer`, ya que retorna HTTP 401 y marca erróneamente la tarjeta como `DOWN`.
+2. **Eliminación de Dominios Placeholder**: `generate-homepage-config.sh` detecta y omite automáticamente tarjetas con dominios no configurados (`*.example.com`, `*.example.org`), garantizando 0 tarjetas `DOWN` por fallos de resolución DNS en entornos de producción.
+3. **Inferencia Ollama Condicional**: El estado de Ollama (:11434) se valida en tiempo de generación mediante sondeo de socket TCP no bloqueante. Si el daemon está detenido en el nodo remoto, la tarjeta se omite para no inventar estado ni alertar falsos caídos; en plantillas y documentación permanece en modo bajo demanda sin ping.
 
 ---
 
 ## 5. Procedimiento de Migración Paso a Paso en Coolify
 
 ### Paso 1: Inventario del Recurso Existente
-1. Acceder al dashboard de Coolify en `oracle` (`http://100.77.82.12:8000` o dominio Coolify).
+1. Acceder al dashboard de Coolify en `oracle` (`http://100.99.88.78:8000` o dominio Coolify).
 2. Localizar la aplicación `Homepage` actual.
 3. Copiar las variables de entorno existentes y el UUID del recurso.
 4. Si la app actual estaba montando `/var/run/docker.sock`, proceder a detenerla antes de migrar para evitar colisión de puertos o nombres de contenedores.
@@ -161,7 +167,7 @@ Los siguientes archivos deben generarse previamente mediante `scripts/agent/gene
 2. Pegar la definición del bloque de la **Sección 3**.
 3. En la sección **Domains**, asignar:
    ```
-   https://homepage.romensuarez.com
+   https://homepage.example.com
    ```
 4. Asegurar que el puerto enrutado sea `3000`.
 
@@ -189,7 +195,7 @@ El servidor MCP de Coolify permite interactuar de forma programática con la ins
 ### 6.1 Variables de Entorno del Entorno de Agente
 Para interactuar con la API de Coolify:
 ```bash
-COOLIFY_API_URL="http://100.77.82.12:8000/api/v1"  # O endpoint público con SSL
+COOLIFY_API_URL="http://100.99.88.78:8000/api/v1"  # O endpoint público con SSL
 COOLIFY_API_TOKEN="<coolify-bearer-token>"
 ```
 
@@ -227,7 +233,7 @@ Tras el despliegue, ejecutar la siguiente batería de comprobaciones automática
 ### 7.1 Verificación de Enrutamiento y Certificado SSL
 ```bash
 # 1. Comprobar código HTTP 200 y cabeceras seguras
-curl -fsSL -I https://homepage.romensuarez.com | grep -E "HTTP/|server|content-type"
+curl -fsSL -I https://homepage.example.com | grep -E "HTTP/|server|content-type"
 ```
 **Salida esperada**:
 ```http
@@ -237,7 +243,7 @@ content-type: text/html; charset=utf-8
 
 ### 7.2 Verificación de Latencia y Contenido HTML
 ```bash
-curl -fsSL -s https://homepage.romensuarez.com | grep -q "<title>Homepage</title>" && echo "✅ Homepage HTML verificado"
+curl -fsSL -s https://homepage.example.com | grep -q "<title>Homepage</title>" && echo "✅ Homepage HTML verificado"
 ```
 
 ### 7.3 Verificación de Aislamiento de Socket (Prueba Red-Team en Proxy)
