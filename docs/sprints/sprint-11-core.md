@@ -23,7 +23,7 @@
 | T-071 | Reparación del descubrimiento 0-contexto: inventario de skills, referencias fantasma, inbox canónico, `AGENT_ONBOARDING.md` como secuencia de boot | Universalización / DX | M | ✅ Completada | — | `.agents/tasks/task-071.md` |
 | T-072 | Purga de infraestructura personal en scripts y config (`/home/romen`, IPs Tailscale → overlay `fleet.yaml`) | Universalización / Core | M | ⬜ Pendiente | — | `.agents/tasks/task-072.md` |
 | T-073 | Reglas y skills agnósticas de stack, flota y herramientas propietarias | Universalización / Core | M | ⬜ Pendiente | — | `.agents/tasks/task-073.md` |
-| T-074 | `detect-stack.sh` universal (Go/Rust/Java/PHP/Ruby/.NET/Bun/estático) con fallback `unknown` explícito | Bug del sistema / Core | S | ⬜ Pendiente | — | `.agents/tasks/task-074.md` |
+| T-074 | `detect-stack.sh` universal (Go/Rust/Java/PHP/Ruby/.NET/Bun/estático) con fallback `unknown` explícito | Bug del sistema / Core | S | 🟡 En curso | — | `.agents/tasks/task-074.md` |
 | T-075 | Barrido de portabilidad shell: Linux + macOS, dependencias declaradas y comprobadas | Bug del sistema / DX | M | ⬜ Pendiente | — | `.agents/tasks/task-075.md` |
 | T-076 | Instalación selectiva de skills por stack (`--minimal`/`--full`, manifiesto con etiquetas) | Universalización / DX | M | ⬜ Pendiente | T-074 | `.agents/tasks/task-076.md` |
 | T-077 | `tool-inventory` y `repo-onboarding` detectan stack, CI/CD, IaC y CLIs cloud; sin promesas no implementadas | Nueva herramienta / DX | M | ⬜ Pendiente | T-074 | `.agents/tasks/task-077.md` |
