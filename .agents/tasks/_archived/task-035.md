@@ -4,7 +4,7 @@
 Realizar una auditoría técnica en modo solo lectura de la capacidad de disco y la exposición de puertos de red en el VPS `oracle`, generando un informe detallado con desglose de Docker, logs, backups y análisis de superficie de ataque sin ejecutar ninguna acción destructiva.
 
 ## Contexto técnico
-- Host: `oracle` (Ubuntu 24.04 ARM64, Tailscale `100.96.20.7`).
+- Host: `oracle` (Ubuntu 24.04 ARM64, Tailscale `192.0.2.11`).
 - Estado actual detectado: `/dev/sda1` al 72% de uso (55GB libres de ~200GB).
 - Motor de aplicaciones: Coolify 4.0.0-beta.460 gestionando ~25 contenedores activos con Traefik como reverse proxy.
 - Red: UFW inactivo, múltiples puertos (8000, 3000, 8888, 5800, etc.) escuchando en `0.0.0.0`.

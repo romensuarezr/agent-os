@@ -62,7 +62,7 @@ Subcomandos:
 
 Variables de entorno:
   COOLIFY_TOKEN      Token Bearer de Coolify API (o COOLIFY_ACCESS_TOKEN).
-  COOLIFY_BASE_URL   URL base de la API (por defecto: https://coolify.romensuarez.com/api/v1).
+  COOLIFY_BASE_URL   URL base de la API (por defecto: https://coolify.example.com/api/v1).
 EOF
 }
 

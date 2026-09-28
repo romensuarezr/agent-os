@@ -5,8 +5,8 @@ Diagnosticar y normalizar de forma no destructiva la autenticación Git vía SSH
 
 ## Contexto técnico
 - Entorno local: Autenticación funcional hacia GitHub mediante alias `github.com-romen` (`IdentityFile ~/.ssh/id_ed25519_romensuarezr`).
-- `datamanager` (`100.77.82.13`): Ubuntu 22.04 ARM64. Falla con `Host key verification failed` al conectar a `git@github.com`.
-- `oracle` (`100.96.20.7`): Ubuntu 24.04 ARM64. Falla con `Host key verification failed` al conectar a `git@github.com`.
+- `datamanager` (`192.0.2.10`): Ubuntu 22.04 ARM64. Falla con `Host key verification failed` al conectar a `git@github.com`.
+- `oracle` (`192.0.2.11`): Ubuntu 24.04 ARM64. Falla con `Host key verification failed` al conectar a `git@github.com`.
 - Requisito de seguridad estricto: No almacenar tokens ni claves privadas en el repositorio. Decision gate humano previo a cualquier generación o instalación de nuevas claves en los servidores.
 
 ## Caja de archivos

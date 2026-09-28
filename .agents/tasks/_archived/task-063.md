@@ -5,8 +5,8 @@ Integrar las herramientas de productividad para el desarrollador y el agente en 
 
 ## Contexto técnico
 - **Buscador en Cabecera (`widgets.yaml`)**: Se configura el widget de búsqueda integrado de Homepage con proveedor `duckduckgo` y apertura en nueva pestaña (`target: _blank`).
-- **Estado de SearXNG (`100.77.82.13:8080`)**:
-  - *Comprobación*: `curl -s --connect-timeout 3 -m 4 http://100.77.82.13:8080` → `SEARXNG_OFFLINE`.
+- **Estado de SearXNG (`192.0.2.10:8080`)**:
+  - *Comprobación*: `curl -s --connect-timeout 3 -m 4 http://192.0.2.10:8080` → `SEARXNG_OFFLINE`.
   - *Diagnóstico*: La instancia autoalojada en `datamanager` permanece deliberadamente en reposo para ahorrar recursos, dado que la prospección técnica avanzada se resuelve prioritariamente vía motores de investigación profunda (Perplexity AI y Google AI Studio / Gemini). No se enlaza como servicio activo para evitar alertas de conexión en el dashboard.
 - **Widget Oficial de GitHub (`services.yaml`)**: Vinculado al repositorio central `romensuarezr/agent-os` mediante `widget: { type: "github", repo: "romensuarezr/agent-os" }`, reportando commits, ramas y estrellas.
 - **Acceso Rápido a ByteBox**: Acceso directo para el gestor de comandos CLI y snippets con endpoint de salud `/api/cards`.

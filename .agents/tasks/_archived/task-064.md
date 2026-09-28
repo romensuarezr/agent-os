@@ -4,7 +4,7 @@
 Actualizar `scripts/agent/generate-homepage-config.sh` para que genere de forma 100% agnóstica y determinista las configuraciones de Homepage (`widgets.yaml`, `services.yaml`, `settings.yaml`), leyendo bloques modulares de `monitoring` y servicios desde `config/fleet.yaml` (o `fleet.example.yaml`) sin IPs hardcodeadas. Extender `config/fleet.example.yaml` con la nueva sección declarativa y agregar verificación en `tests/validate-control-plane.sh`.
 
 ## Contexto técnico
-- **Generación Declarativa Agnóstica**: El script no debe asumir direcciones IP fijas (como `100.77.82.13`), sino extraerlas dinámicamente de `node_data.get("host")` o `s.get("endpoint")` para cada servicio (`ollama`, `freellmapi`, `omniroute`, `glances`).
+- **Generación Declarativa Agnóstica**: El script no debe asumir direcciones IP fijas (como `192.0.2.10`), sino extraerlas dinámicamente de `node_data.get("host")` o `s.get("endpoint")` para cada servicio (`ollama`, `freellmapi`, `omniroute`, `glances`).
 - **Soporte Modular de Monitoring**:
   - `monitoring.search`: Configuración declarativa del buscador de cabecera (`duckduckgo`, `google` o `searxng`).
   - `monitoring.github`: Configuración del repositorio y widget oficial.

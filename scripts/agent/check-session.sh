@@ -13,12 +13,18 @@ if [ -f "$SCRIPT_DIR/lib/date-utils.sh" ]; then
   source "$SCRIPT_DIR/lib/date-utils.sh"
 fi
 
-AGENT_OS_CORE_DIR="${AGENT_OS_PATH:-$HOME/Proyectos/agent-os}"
+DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
+AGENT_OS_CORE_DIR="${AGENT_OS_PATH:-}"
+if [ -z "$AGENT_OS_CORE_DIR" ]; then
+  if [ -d "$DEFAULT_CORE/.git" ] && git -C "$DEFAULT_CORE" remote -v 2>/dev/null | grep -q "agent-os"; then
+    AGENT_OS_CORE_DIR="$DEFAULT_CORE"
+  fi
+fi
 
 # Omitir si estamos dentro del propio repositorio core de agent-os (incluso en worktrees)
 CURRENT_REPO_NAME=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null)
 REAL_CURRENT=$(pwd -P)
-REAL_CORE=$( (cd "$AGENT_OS_CORE_DIR" 2>/dev/null && pwd -P) || echo "$AGENT_OS_CORE_DIR" )
+REAL_CORE=$( ( [ -n "$AGENT_OS_CORE_DIR" ] && cd "$AGENT_OS_CORE_DIR" 2>/dev/null && pwd -P ) || echo "$AGENT_OS_CORE_DIR" )
 GIT_COMMON_RAW=$(git rev-parse --git-common-dir 2>/dev/null || echo "")
 GIT_COMMON_DIR=$( (cd "$GIT_COMMON_RAW" 2>/dev/null && pwd -P) || echo "$GIT_COMMON_RAW" )
 ORIGIN_URL=$(git config --get remote.origin.url 2>/dev/null || git remote get-url origin 2>/dev/null || echo "")

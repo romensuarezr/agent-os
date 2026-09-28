@@ -141,7 +141,7 @@ def mask_ip_or_host(val):
     if not val or not isinstance(val, str):
         return "[MASKED]"
     val_str = str(val).strip()
-    # Enmascarar IPv4 (ej. 100.99.88.77 -> 100.***.***.77)
+    # Enmascarar IPv4 (ej. 192.0.2.77 -> 192.0.***.77)
     val_masked = re.sub(r'\b(\d{1,3})\.\d{1,3}\.\d{1,3}\.(\d{1,3})\b', r'\1.***.***.\2', val_str)
     # Enmascarar hostnames con dominio o ejemplo
     val_masked = re.sub(r'\b([a-zA-Z0-9_\-]+)\.(?:[a-zA-Z0-9_\-\.]+)\b', r'\1.[MASKED-DOMAIN]', val_masked)
