@@ -14,7 +14,7 @@ allowed_hosts:
   - <nodo-inferencia>
   - <nodo-orquestacion>
 
-preferred_model_tier: "freellmapi-auto"
+preferred_model_tier: "freellmapi"
 fallback_model_tier: "ollama-local"
 
 forbidden_actions:
