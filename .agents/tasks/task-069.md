@@ -29,4 +29,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-28T16:43:42+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-069-install-sync-hardening
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
