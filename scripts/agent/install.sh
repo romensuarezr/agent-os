@@ -5,11 +5,15 @@ set -euo pipefail
 # Uso: ./install.sh [opciones] /ruta/al/proyecto
 # Uso (bootstrapping del core): ./install.sh . --self
 # Uso (simulación / dry-run): ./install.sh --check /ruta/al/proyecto
+# Uso (instalación mínima): ./install.sh --minimal /ruta/al/proyecto
+# Uso (instalación completa): ./install.sh --full /ruta/al/proyecto
 
 TARGET_PROJECT=""
 SELF_MODE=false
 CHECK_MODE=false
 CREATE_REPO=false
+MINIMAL_MODE=false
+FULL_MODE=false
 
 for arg in "$@"; do
     case "$arg" in
@@ -19,12 +23,20 @@ for arg in "$@"; do
         --check)
             CHECK_MODE=true
             ;;
+        --minimal)
+            MINIMAL_MODE=true
+            ;;
+        --full)
+            FULL_MODE=true
+            ;;
         --create-repo)
             CREATE_REPO=true
             ;;
         -h|--help)
             echo "Uso: install.sh [opciones] /ruta/al/proyecto"
             echo "Opciones:"
+            echo "  --minimal      Instala únicamente el conjunto base universal de habilidades."
+            echo "  --full         Instala todas las habilidades (incluyendo stack e infraestructura)."
             echo "  --check        Modo simulación (dry-run): valida pre-flights y describe qué se instalaría sin tocar disco."
             echo "  --self         Modo self-hosted: bootstrapping del propio core (omite copiar scripts sobre sí mismos)."
             echo "  --create-repo  Requiere autenticación con GitHub CLI ('gh auth status') para operaciones remotas."
@@ -37,6 +49,11 @@ for arg in "$@"; do
             ;;
     esac
 done
+
+if [[ "$MINIMAL_MODE" == true && "$FULL_MODE" == true ]]; then
+    echo "❌ Error: Las opciones --minimal y --full son mutuamente excluyentes." >&2
+    exit 1
+fi
 
 if [[ "$SELF_MODE" == true && -z "$TARGET_PROJECT" ]]; then
     TARGET_PROJECT="."
@@ -125,6 +142,112 @@ TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
 TARGET_ONBOARDING="$TARGET_PROJECT/.agents/AGENT_ONBOARDING.md"
 
 # ==============================================================================
+# DETECCIÓN DE STACK Y RESOLUCIÓN SELECTIVA DE HABILIDADES (T-076)
+# ==============================================================================
+DETECTED_STACK="unknown"
+HAS_NEXTJS=false
+if [ -f "$AGENT_OS_PATH/scripts/agent/lib/detect-stack.sh" ]; then
+    # shellcheck disable=SC1090
+    source "$AGENT_OS_PATH/scripts/agent/lib/detect-stack.sh"
+    if [ -d "$TARGET_PROJECT" ]; then
+        detect_stack "$TARGET_PROJECT"
+        DETECTED_STACK="$AGENT_OS_STACK"
+    fi
+fi
+
+if [ -f "$TARGET_PROJECT/package.json" ] && grep -q '"next"' "$TARGET_PROJECT/package.json" 2>/dev/null; then
+    HAS_NEXTJS=true
+elif compgen -G "$TARGET_PROJECT/next.config.*" >/dev/null 2>&1; then
+    HAS_NEXTJS=true
+fi
+
+SKILL_MODE="recommended"
+if [ "$MINIMAL_MODE" = true ]; then
+    SKILL_MODE="minimal"
+elif [ "$FULL_MODE" = true ]; then
+    SKILL_MODE="full"
+fi
+
+resolve_skills_from_manifest() {
+    local manifest="$1"
+    local mode="$2"
+    local stack="$3"
+    local has_nextjs="$4"
+
+    if command -v python3 >/dev/null 2>&1 && python3 -c "import yaml" >/dev/null 2>&1; then
+        python3 - "$manifest" "$mode" "$stack" "$has_nextjs" <<'EOF'
+import os, sys, yaml
+
+manifest_path = sys.argv[1]
+mode = sys.argv[2]
+stack = sys.argv[3].lower()
+has_nextjs = sys.argv[4].lower() == "true"
+
+if not os.path.isfile(manifest_path):
+    sys.exit(0)
+
+with open(manifest_path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f) or {}
+
+skills = data.get("skills", {})
+for sname, sdata in skills.items():
+    scope = sdata.get("scope", "universal")
+    stacks = [str(x).lower() for x in sdata.get("stacks", [])]
+    infra = [str(x).lower() for x in sdata.get("infra", [])]
+    
+    include = False
+    tag = scope
+    reason = "Habilidad base universal"
+
+    if mode == "minimal":
+        if scope == "universal":
+            include = True
+    elif mode == "full":
+        include = True
+        if scope == "stack":
+            tag = f"stack: {','.join(stacks)}"
+            reason = f"Específica de stack ({', '.join(stacks)})"
+        elif scope == "infra":
+            tag = f"infra: {','.join(infra)}"
+            reason = f"Específica de infra ({', '.join(infra)})"
+    else: # recommended / default
+        if scope == "universal":
+            include = True
+        elif scope == "stack":
+            if has_nextjs and "nextjs" in stacks:
+                include = True
+                tag = "stack: nextjs"
+                reason = "Detectado framework Next.js en proyecto destino"
+            elif stack in stacks:
+                include = True
+                tag = f"stack: {stack}"
+                reason = f"Detectado stack {stack} en proyecto destino"
+        elif scope == "infra":
+            pass
+
+    if include:
+        print(f"{sname}|{tag}|{reason}")
+EOF
+    else
+        if [ "$mode" = "recommended" ]; then
+            echo "⚠️  Aviso: python3 con módulo 'yaml' (PyYAML) no disponible. Degradando a resolución awk (el emparejamiento avanzado por stack es limitado; se seleccionarán habilidades universales)." >&2
+        fi
+        awk -v m="$mode" '
+            /^  [a-zA-Z0-9_-]+:/ {
+                gsub(/^  |:$/, "", $1)
+                curr = $1
+            }
+            /scope: universal/ {
+                print curr "|universal|Habilidad base universal"
+            }
+            /scope: (stack|infra)/ && m == "full" {
+                print curr "|especifica|Específica de stack/infra"
+            }
+        ' "$manifest"
+    fi
+}
+
+# ==============================================================================
 # MODO --check (DRY-RUN / SIMULACIÓN SIN TOCAR DISCO)
 # ==============================================================================
 if [[ "$CHECK_MODE" == true ]]; then
@@ -180,12 +303,22 @@ if [[ "$CHECK_MODE" == true ]]; then
         done
     fi
 
-    echo "  🛠️  Skills a instalar (sin sobreescribir):"
-    if [ -d "$AGENT_OS_SKILLS" ]; then
+    echo "  🛠️  Skills a instalar (modo: $SKILL_MODE, stack detectado: $DETECTED_STACK):"
+    MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
+    if [ -f "$MANIFEST_FILE" ]; then
+        while IFS="|" read -r sname stag sreason; do
+            [ -n "$sname" ] || continue
+            if [ -e "$TARGET_SKILLS/$sname" ] || [ -e "$TARGET_SKILLS/${sname}.md" ]; then
+                echo "     - skill: $sname [$stag] (ya existe en destino) — $sreason"
+            else
+                echo "     + skill: $sname [$stag] (nueva) — $sreason"
+            fi
+        done < <(resolve_skills_from_manifest "$MANIFEST_FILE" "$SKILL_MODE" "$DETECTED_STACK" "$HAS_NEXTJS")
+    else
         for skill in "$AGENT_OS_SKILLS"/*; do
             [ -e "$skill" ] || continue
             sname=$(basename "$skill")
-            if [ -e "$TARGET_SKILLS/$sname" ]; then
+            if [ -e "$TARGET_SKILLS/$sname" ] || [ -e "$TARGET_SKILLS/${sname}.md" ]; then
                 echo "     - skill: $sname (ya existe en destino)"
             else
                 echo "     + skill: $sname (nueva)"
@@ -293,8 +426,56 @@ if [ -d "$AGENT_OS_WORKFLOWS" ]; then
     echo "✅ Workflows instalados (sin sobreescribir)."
 fi
 
-# 5. Copiar skills (sin sobreescribir las existentes del proyecto destino)
-if [ -d "$AGENT_OS_SKILLS" ]; then
+# 5. Copiar skills (instalación selectiva según manifiesto)
+MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
+if [ -f "$MANIFEST_FILE" ]; then
+    if [ "$SKILL_MODE" = "recommended" ]; then
+        if [ -t 0 ]; then
+            echo ""
+            echo "🔎 Stack detectado en destino: $DETECTED_STACK (Next.js: $HAS_NEXTJS)"
+            echo "💡 Modo adaptativo: se seleccionará el conjunto de habilidades recomendado para este proyecto."
+            echo -n "¿Instalar habilidades recomendadas? (S/n) [o presiona 'n' para elegir --minimal]: "
+            read -r resp || resp="s"
+            resp=$(echo "$resp" | tr '[:upper:]' '[:lower:]')
+            if [[ "$resp" == "n" || "$resp" == "no" ]]; then
+                echo -n "¿Instalar únicamente el conjunto --minimal (solo base universal)? (s/N): "
+                read -r min_resp || min_resp="n"
+                min_resp=$(echo "$min_resp" | tr '[:upper:]' '[:lower:]')
+                if [[ "$min_resp" == "s" || "$min_resp" == "si" ]]; then
+                    SKILL_MODE="minimal"
+                    echo "ℹ️  Cambiando a modo --minimal (solo habilidades universales)."
+                else
+                    echo "❌ Instalación cancelada por el usuario."
+                    exit 0
+                fi
+            fi
+        else
+            echo "ℹ️  Modo adaptativo: instalando habilidades recomendadas para stack '$DETECTED_STACK'."
+        fi
+    elif [ "$SKILL_MODE" = "full" ]; then
+        echo "⚠️  Modo --full: se instalarán también habilidades específicas de stack (Next.js) e infra (Coolify, Infisical, SSH)."
+    elif [ "$SKILL_MODE" = "minimal" ]; then
+        echo "ℹ️  Modo --minimal: instalando únicamente el conjunto base universal de habilidades."
+    fi
+
+    SKILLS_COUNT=0
+    while IFS="|" read -r sname stag sreason; do
+        [ -n "$sname" ] || continue
+        skill_src="$AGENT_OS_SKILLS/$sname"
+        if [ ! -e "$skill_src" ] && [ -f "${skill_src}.md" ]; then
+            skill_src="${skill_src}.md"
+        fi
+        if [ -d "$skill_src" ]; then
+            cp -rn "$skill_src" "$TARGET_SKILLS/"
+            SKILLS_COUNT=$((SKILLS_COUNT + 1))
+        elif [ -f "$skill_src" ]; then
+            cp -n "$skill_src" "$TARGET_SKILLS/"
+            SKILLS_COUNT=$((SKILLS_COUNT + 1))
+        fi
+    done < <(resolve_skills_from_manifest "$MANIFEST_FILE" "$SKILL_MODE" "$DETECTED_STACK" "$HAS_NEXTJS")
+
+    echo "✅ Skills instaladas ($SKILLS_COUNT seleccionadas en modo $SKILL_MODE, sin sobreescribir existentes)."
+elif [ -d "$AGENT_OS_SKILLS" ]; then
     for skill in "$AGENT_OS_SKILLS"/*; do
         if [ -d "$skill" ]; then
             cp -rn "$skill" "$TARGET_SKILLS/"
