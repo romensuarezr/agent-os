@@ -13,17 +13,17 @@ Archivos autorizados para modificación:
 - `scripts/agent/audit-repo.sh` (manejo del nuevo `unknown`)
 
 ## Criterios de done
-- [ ] Matriz de detección documentada en la cabecera del script (marcadores por stack: `go.mod`, `Cargo.toml`, `pom.xml`/`build.gradle`, `composer.json`, `*.csproj`, `bun.lock`, `index.html` sin manifiestos, etc.).
-- [ ] Salida `unknown` explícita con mensaje "Guía:" accionable cuando no hay match; ningún path del código degrada en silencio a otro stack.
-- [ ] Sin asunción de layout (`agents/`, `src/`): detecta por marcadores, no por carpetas esperadas.
-- [ ] Verificación manual registrada: un repo Go, uno Rust y uno estático devuelven su stack; un repo vacío/devuelve `unknown`.
+- [x] Matriz de detección documentada en la cabecera del script (marcadores por stack: `go.mod`, `Cargo.toml`, `pom.xml`/`build.gradle`, `composer.json`, `*.csproj`, `bun.lock`, `index.html` sin manifiestos, etc.).
+- [x] Salida `unknown` explícita con mensaje "Guía:" accionable cuando no hay match; ningún path del código degrada en silencio a otro stack.
+- [x] Sin asunción de layout (`agents/`, `src/`): detecta por marcadores, no por carpetas esperadas.
+- [x] Verificación manual registrada: un repo Go, uno Rust y uno estático devuelven su stack; un repo vacío devuelve `unknown`.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-28T15:20:17+01:00 (APROBADO CON CAMBIOS)
+- [x] Rama creada: feat/T-074-detect-stack-universal
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
