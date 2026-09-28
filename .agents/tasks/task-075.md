@@ -28,4 +28,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-28T15:32:13+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-075-shell-portability
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
