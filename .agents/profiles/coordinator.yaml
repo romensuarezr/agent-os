@@ -1,6 +1,6 @@
 id: coordinator
-name: "Hermes Coordinator & Front Door"
-purpose: "Asistente persistente 24/7, triage de mensajes entrantes (WhatsApp/Chat), memoria operativa RAG y coordinación de tareas hacia agentes y humano."
+name: "Coordinator Agent (Hermes & Swarm Front-Door)"
+purpose: "Punto de entrada unificado y orquestador del sistema: opera como asistente persistente 24/7 (Hermes) para recepción y triaje, y como orquestador maestro (Swarm/Orca) para descomposición y despacho de tareas hacia agentes y humano (ver coordinator.md)."
 version: "1.0.0"
 
 allowed_tools:

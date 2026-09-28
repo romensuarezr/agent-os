@@ -1,3 +1,7 @@
+---
+trigger: code-architecture
+---
+
 # Rule: Audit Before Refactor
 
 > Evita construir sobre cimientos inestables o duplicar lógica existente.
