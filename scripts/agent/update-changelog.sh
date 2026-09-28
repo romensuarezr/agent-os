@@ -9,6 +9,16 @@
 # - Sugiere bump de versión semver
 
 set -euo pipefail
+
+# Pre-flight: verificación determinista de dependencias
+for cmd in git grep head sed awk mktemp date mv; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 ROOT="$(git rev-parse --show-toplevel)"
 CHANGELOG="$ROOT/CHANGELOG.md"
 [ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/changelog.md"

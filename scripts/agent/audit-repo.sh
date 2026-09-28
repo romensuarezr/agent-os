@@ -221,7 +221,7 @@ if [ "$1" == "--apply" ]; then
                 if ! grep -q "TOTAL" "$tmp_tracker"; then
                     hist_line=$(grep -n "## Historial" "$tmp_tracker" | cut -d':' -f1)
                     if [ -n "$hist_line" ]; then
-                        sed -i "${hist_line}i | **TOTAL** | | **100** | | **0%** | | |\n" "$tmp_tracker"
+                        awk -v line="$hist_line" 'NR==line {print "| **TOTAL** | | **100** | | **0%** | | |\n"} {print}' "$tmp_tracker" > "${tmp_tracker}.tmp" && mv "${tmp_tracker}.tmp" "$tmp_tracker"
                     else
                         echo -e "\n| **TOTAL** | | **100** | | **0%** | | |\n" >> "$tmp_tracker"
                     fi
@@ -323,6 +323,10 @@ fi
 echo "🔍 Iniciando auditoría de estructura en $PROJECT_ROOT..."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/date-utils.sh" ]; then
+    source "$SCRIPT_DIR/lib/date-utils.sh"
+fi
+
 if [ -f "$SCRIPT_DIR/lib/detect-stack.sh" ]; then
     source "$SCRIPT_DIR/lib/detect-stack.sh"
     detect_stack "$PROJECT_ROOT"
@@ -488,8 +492,8 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     while IFS='|' read -r date hash subject || [ -n "$date" ]; do
         [ -z "$date" ] && continue
         
-        week_num=$(date -d "$date" +%Y-W%V 2>/dev/null)
-        [ -z "$week_num" ] && continue
+        week_num=$(portable_week_num "$date")
+        [ -z "$week_num" ] || [ "$week_num" == "unknown" ] && continue
         
         if [ "$week_num" != "$current_week" ]; then
             current_week="$week_num"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 # scripts/agent/verify-goal.sh — Verificador determinista de metas a 0 tokens
 # ==============================================================================
@@ -13,8 +13,17 @@
 
 set -uo pipefail
 
+# Pre-flight: verificación determinista de dependencias
+for cmd in git python3 sed sort cut xargs cat; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-cd "$ROOT_DIR"
+cd "$ROOT_DIR" || exit 1
 
 # Argumentos por defecto
 TASK_ID=""
@@ -191,6 +200,7 @@ fi
 
 # Eliminar duplicados en ALLOWLIST
 if [ ${#ALLOWLIST[@]} -gt 0 ]; then
+  # shellcheck disable=SC2207
   IFS=$'\n' ALLOWLIST=($(sort -u <<<"${ALLOWLIST[*]}"))
   unset IFS
 fi
@@ -220,6 +230,7 @@ fi
 
 # Eliminar duplicados en MODIFIED_FILES
 if [ ${#MODIFIED_FILES[@]} -gt 0 ]; then
+  # shellcheck disable=SC2207
   IFS=$'\n' MODIFIED_FILES=($(sort -u <<<"${MODIFIED_FILES[*]}"))
   unset IFS
 fi
@@ -232,7 +243,7 @@ for modified in "${MODIFIED_FILES[@]}"; do
   is_allowed=false
   for allowed in "${ALLOWLIST[@]}"; do
     # Coincidencia exacta o por patrón glob
-    if [[ "$modified" == $allowed ]] || [[ "$modified" == $allowed/* ]]; then
+    if [[ "$modified" == "$allowed" ]] || [[ "$modified" == "$allowed"/* ]]; then
       is_allowed=true
       break
     fi
