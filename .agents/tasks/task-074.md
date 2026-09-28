@@ -25,5 +25,5 @@ Archivos autorizados para modificación:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido — fecha/hora: 2026-09-28T15:20:17+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-074-detect-stack-universal
-- [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [ ] Lock activo: .agent-session.lock (liberado)
+- [x] Sesión cerrada correctamente
