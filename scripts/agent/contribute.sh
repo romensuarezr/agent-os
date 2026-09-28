@@ -15,7 +15,9 @@ PROJECT_PATH=$1
 FILE_NAME=$2
 TYPE=$3
 
-AGENT_OS_PATH="${AGENT_OS_PATH:-$HOME/Proyectos/agent-os}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
+AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"
 
 if [ -z "$PROJECT_PATH" ] || [ -z "$FILE_NAME" ]; then
     echo "❌ Error: Faltan argumentos."
