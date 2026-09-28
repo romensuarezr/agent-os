@@ -1,6 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
+- Sprint 11: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079) — aprobado 2026-09-28. Fichero: `docs/sprints/sprint-11-core.md`. Cierra con prueba ciega (T-079).
 - Consolidación de la universalidad del core (soporte multi-stack, ADRs y rediseño de flujos de ciclo de vida del agente).
 - Detección interactiva de actualizaciones del core desde proyectos hijos.
 - Integración de FreeLLMAPI en VPS datamanager y universalización de la skill `remote-admin`.

@@ -5,14 +5,13 @@ role: "Orchestration, Task Breakdown & Global Consolidation"
 version: "1.0.0"
 skills:
   primary:
-    - sprint-planning
+    - orchestrator
     - doe-framework
     - roadmap-a-tarea
     - agent-os-scripts
   forbidden:
     - infisical-secrets
     - implementar-feature-dry
-    - a11y-debugging
 tooling:
   allowed:
     - scripts/agent/check-sprint.sh
@@ -49,7 +48,7 @@ El **Coordinator** actúa como la interfaz única (*Single-Pane of Glass*) entre
 
 ## 2. Skills Obligatorias (Runbooks Primarios)
 
-- **`sprint-planning`**: Ritual de descomposición del roadmap, priorización MVP y balance de cargas de trabajo (S/M/L).
+- **`orchestrator`**: Orquestación multi-agente declarativa y despacho de tareas en paralelo con comandos agnósticos.
 - **`doe-framework`**: Redacción formal del task file (`.agents/tasks/task-XXX.md`) con Caja de Archivos Autorizados antes de abrir cualquier sesión.
 - **`roadmap-a-tarea`**: Transformación de intenciones estratégicas o ideas de inbox en contratos de meta atómicos.
 - **`agent-os-scripts`**: Invocación metódica de los scripts operativos del core.

@@ -10,7 +10,7 @@ skills:
     - testing-flows
     - architecture-audit
   forbidden:
-    - sprint-planning
+    - orchestrator
     - goal-evaluation
     - adr-decision-recorder
 tooling:

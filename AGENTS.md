@@ -16,37 +16,49 @@ agent-os es ciudadano de primera clase de sí mismo — tiene su propio sprint, 
 
 ```
 agent-os/
-├── AGENTS.md                    ← este archivo
+├── AGENTS.md                    ← este archivo (arquitectura y contrato de operación)
 ├── README.md                    ← intro pública
 ├── changelog.md                 ← historial de cambios del core
+├── roadmap.md                   ← roadmap de evolución del core
 ├── .agents/
-│   ├── profiles/                ← registro declarativo de perfiles de agentes
+│   ├── AGENT_ONBOARDING.md      ← secuencia de boot determinista y pre-flights
+│   ├── profiles/                ← registro declarativo de perfiles de agentes (.yaml y .md)
 │   ├── rules/                   ← reglas globales (agnósticas de stack)
 │   ├── skills/                  ← skills globales instalables en proyectos hijos
-│   ├── workflows/               ← workflows globales + core-planning.md
-│   ├── templates/               ← plantillas de tareas y sprints
-│   └── context/
-│       └── last-sync.md         ← marca de estado del core
-├── config/                      ← agent-registry.yaml, routing-policy.yaml
+│   ├── tasks/                   ← contratos de tareas activas del sprint
+│   ├── workflows/               ← workflows globales (session-start, sprint-planning...)
+│   ├── templates/               ← plantillas de tareas, sprints y onboarding de satélites
+│   └── context/                 ← marcas de sincronización e inventario de skills
+├── config/                      ← agent-registry.yaml, routing-policy.yaml, fleet.example.yaml
 ├── scripts/agent/
 │   ├── install.sh               ← instalación en proyectos hijos (--self para bootstrapping)
 │   ├── sync.sh                  ← sincroniza assets globales → proyectos hijos
 │   ├── contribute.sh            ← promueve mejoras de hijos → core
 │   ├── check-sprint.sh          ← verifica estado del sprint activo
 │   ├── check-session.sh         ← contexto de sesión para el agente
+│   ├── check-inbox.sh           ← auditoría y lectura de inboxes
 │   ├── close-sprint.sh          ← cierra y archiva el sprint
 │   ├── close-task.sh            ← cierra una tarea individual
 │   ├── audit-repo.sh            ← detecta incompatibilidades en repos con vida previa
 │   ├── generate-digest.sh       ← genera resumen del estado del proyecto
+│   ├── inventory-check.sh       ← firewall anti-duplicación de código
+│   ├── scout.sh                 ← prospección OSS determinista (GitHub/npm/PyPI)
+│   ├── verify-goal.sh           ← validador desacoplado de metas
+│   ├── worktree-dispatch.sh     ← aprovisionamiento de ramas y worktrees
+│   ├── worktree-merge.sh        ← integración controlada de cambios
 │   └── lib/                     ← utilidades compartidas (detect-stack.sh, etc.)
 ├── docs/
 │   ├── sprints/                 ← sprints del core (sprint-01-core.md, ...)
 │   ├── adrs/                    ← Architecture Decision Records
 │   ├── architecture/            ← topología y diseño de sistemas
-│   └── runbooks/                ← guías operativas paso a paso
+│   ├── runbooks/                ← guías operativas paso a paso
+│   ├── external-inbox/          ← entrada canónica de requerimientos externos
+│   └── idea-inbox/              ← entrada canónica de ideas de mejora
 ├── templates/
 │   ├── docs/                    ← plantillas de mvp-tracker, implemented, etc.
 │   ├── freellmapi/              ← plantillas docker-compose y config freellmapi
+│   ├── goals/                   ← plantillas de contratos de meta declarativos
+│   ├── homepage/                ← plantillas compose y configuración dashboard
 │   └── root/                    ← plantillas de changelog, roadmap
 └── tests/                       ← suite de validación no destructiva (validate-control-plane.sh)
 ```

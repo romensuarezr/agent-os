@@ -4,12 +4,12 @@ purpose: "Asistente persistente 24/7, triage de mensajes entrantes (WhatsApp/Cha
 version: "1.0.0"
 
 allowed_tools:
-  - whatsapp-bridge
-  - rag-query
-  - coolify-mcp
   - remote-admin
   - agent-os-scripts
   - doc-maintainer
+  - coolify-admin
+  - orchestrator
+  - roadmap-a-tarea
 
 allowed_hosts:
   - datamanager
