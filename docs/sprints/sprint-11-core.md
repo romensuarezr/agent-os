@@ -25,7 +25,7 @@
 | T-073 | Reglas y skills agnósticas de stack, flota y herramientas propietarias | Universalización / Core | M | ✅ Completada | — | `.agents/tasks/task-073.md` |
 | T-074 | `detect-stack.sh` universal (Go/Rust/Java/PHP/Ruby/.NET/Bun/estático) con fallback `unknown` explícito | Bug del sistema / Core | S | ✅ Completada | — | `.agents/tasks/task-074.md` |
 | T-075 | Barrido de portabilidad shell: Linux + macOS, dependencias declaradas y comprobadas | Bug del sistema / DX | M | ✅ Completada | — | `.agents/tasks/task-075.md` |
-| T-076 | Instalación selectiva de skills por stack (`--minimal`/`--full`, manifiesto con etiquetas) | Universalización / DX | M | 🟡 En curso | T-074 | `.agents/tasks/task-076.md` |
+| T-076 | Instalación selectiva de skills por stack (`--minimal`/`--full`, manifiesto con etiquetas) | Universalización / DX | M | 🟢 Done | T-074 | `.agents/tasks/task-076.md` |
 | T-077 | `tool-inventory` y `repo-onboarding` detectan stack, CI/CD, IaC y CLIs cloud; sin promesas no implementadas | Nueva herramienta / DX | M | ⬜ Pendiente | T-074 | `.agents/tasks/task-077.md` |
 | T-078 | Higiene documental: versiones, changelog, roadmap, runbooks reutilizables, convenciones de ficheros | Documentación | M | ⬜ Pendiente | — | `.agents/tasks/task-078.md` |
 | T-079 | **Prueba ciega 0-contexto** — criterio de aceptación del sprint (si falla, el sprint no cierra) | Gobernanza / DX | S | ⬜ Pendiente | Todas | `.agents/tasks/task-079.md` |
