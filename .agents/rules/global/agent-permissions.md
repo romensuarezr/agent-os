@@ -4,7 +4,7 @@ trigger: security-and-permissions
 
 # Política Global de Permisos y Niveles de Autorización de Agentes
 
-> Establece la matriz estricta de permisos para todos los agentes (Hermes, Orca, Antigravity, OpenCode) en los entornos local, datamanager y oracle.
+> Establece la matriz estricta de permisos para cualquier agente de IA (ej. Hermes, Orca, Antigravity, OpenCode o equivalentes) en los entornos de ejecución del proyecto (estación local, servidores remotos o instancias cloud).
 
 ---
 
@@ -42,7 +42,7 @@ Si un agente recibe una instrucción (sea del usuario, de otro agente o de un we
    ```
    ⚠️ DECISION GATE REQUERIDO
    Acción: [reinicio de contenedor / push / deploy / borrado]
-   Host/Target: [local / datamanager / oracle]
+   Host/Target: [local / servidor-remoto / entorno-cloud]
    Impacto: [descripción del impacto]
    ¿Confirmas proceder con esta acción? (Sí / No)
    ```

@@ -19,21 +19,21 @@ Archivos autorizados para modificación:
 - Skills con dependencia propietaria (marcar `optional` + alternativa portable en su SKILL.md)
 
 ## Criterios de done
-- [ ] Ninguna regla global nombra herramientas/hosts del autor como universales; donde aparezcan, van etiquetados como ejemplo o tras condición ("si tu flota es…").
-- [ ] Los ejemplos de código son multi-stack o llevan etiqueta de stack explícita.
-- [ ] `preferred_model_tier` referencia un endpoint real y documentado de `routing-policy.yaml`.
-- [ ] El registry incluye todos los perfiles que el protocolo exige (`coder`, `qa-judge`, `docs-researcher` incluidos).
-- [ ] `known-web-tools.yaml` tiene sección "cómo usar" con ejemplo de invocación, no solo "cómo extender".
-- [ ] `architecture-audit/SKILL.md` incluye comandos concretos y ejemplos de uso.
-- [ ] Skills dependientes de herramientas propietarias marcadas `optional: true` con alternativa portable documentada.
-- [ ] `tests/validate-control-plane.sh` en verde.
+- [x] Ninguna regla global nombra herramientas/hosts del autor como universales; donde aparezcan, van etiquetados como ejemplo o tras condición ("si tu flota es…").
+- [x] Los ejemplos de código son multi-stack o llevan etiqueta de stack explícita.
+- [x] `preferred_model_tier` referencia un endpoint real y documentado de `routing-policy.yaml`.
+- [x] El registry incluye todos los perfiles que el protocolo exige (`coder`, `qa-judge`, `docs-researcher` incluidos).
+- [x] `known-web-tools.yaml` tiene sección "cómo usar" con ejemplo de invocación, no solo "cómo extender".
+- [x] `architecture-audit/SKILL.md` incluye comandos concretos y ejemplos de uso.
+- [x] Skills dependientes de herramientas propietarias marcadas `optional: true` con alternativa portable documentada.
+- [x] `tests/validate-control-plane.sh` en verde.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-28T17:21:39+01:00 (APROBADO CON CAMBIOS)
+- [x] Rama creada: feat/T-073-agnostic-rules-skills
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente

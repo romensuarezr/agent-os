@@ -13,7 +13,7 @@ allowed_hosts:
   - local
 
 preferred_model_tier: "primary-reliable"
-fallback_model_tier: "freellmapi-auto"
+fallback_model_tier: "freellmapi"
 
 forbidden_actions:
   - "Escribir código de producción en repositorios"
