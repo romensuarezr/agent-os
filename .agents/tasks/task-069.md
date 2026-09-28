@@ -13,20 +13,20 @@ Archivos autorizados para modificación:
 - `README.md` (documentar `--check` y pre-flights)
 
 ## Criterios de done
-- [ ] 0 ocurrencias de `/home/romen` en `scripts/` (grep de verificación). Ruta resuelta desde `BASH_SOURCE[0]`; funciona en cualquier workspace/clone.
-- [ ] Pre-flights obligatorios: `git` presente (bloqueante), `gh auth status` antes de operaciones remotas (bloqueante si se va a crear repo), login de Infisical (advertencia, no bloqueante).
-- [ ] `--check`: describe exactamente qué se instalaría sin tocar el árbol de trabajo (exit 0 si todo OK).
-- [ ] `set -euo pipefail` en `install.sh` y `sync.sh`; un fallo a mitad deja error visible, nunca "✅ completada" parcial.
-- [ ] `install.sh` copia `.agents/AGENT_ONBOARDING.md` (contenido: T-071) al proyecto destino.
-- [ ] `sync.sh --dry-run` existe y `sync.sh` sin flags no sobrescribe personalizaciones locales sin aviso (coherencia con el `cp -n` de `install.sh` y el principio "no destructivo por defecto").
-- [ ] `sync.sh` propaga `templates/docs` y `templates/root` a proyectos hijos existentes (hoy solo llegan en instalaciones nuevas).
+- [x] 0 ocurrencias de `/home/romen` en `scripts/` (grep de verificación). Ruta resuelta desde `BASH_SOURCE[0]`; funciona en cualquier workspace/clone.
+- [x] Pre-flights obligatorios: `git` presente (bloqueante), `gh auth status` antes de operaciones remotas (bloqueante si se va a crear repo), login de Infisical (advertencia, no bloqueante).
+- [x] `--check`: describe exactamente qué se instalaría sin tocar el árbol de trabajo (exit 0 si todo OK).
+- [x] `set -euo pipefail` en `install.sh` y `sync.sh`; un fallo a mitad deja error visible, nunca "✅ completada" parcial.
+- [x] `install.sh` copia `.agents/AGENT_ONBOARDING.md` (plantilla de proyecto de T-071) al proyecto destino.
+- [x] `sync.sh --dry-run` existe y `sync.sh` sin flags no sobrescribe personalizaciones locales sin aviso (coherencia con el `cp -n` de `install.sh` y el principio "no destructivo por defecto").
+- [x] `sync.sh` propaga `templates/docs` y `templates/root` a proyectos hijos existentes (hoy solo llegan en instalaciones nuevas).
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-28T16:43:42+01:00 (APROBADO CON CAMBIOS)
+- [x] Rama creada: feat/T-069-install-sync-hardening
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
