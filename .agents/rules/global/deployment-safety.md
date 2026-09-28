@@ -1,3 +1,7 @@
+---
+trigger: deployment-safety
+---
+
 # Rule: Deployment Safety & Stability
 
 > Reglas para evitar regresiones y crashes en entornos de ejecución.

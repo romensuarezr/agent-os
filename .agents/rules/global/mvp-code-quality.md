@@ -1,3 +1,7 @@
+---
+trigger: code-quality
+---
+
 # Rule: MVP Code Quality
 
 > Calidad de código balanceada para velocidad de entrega.

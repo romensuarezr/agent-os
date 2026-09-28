@@ -35,6 +35,8 @@ decision_gates:
 
 El **Coordinator** actúa como la interfaz única (*Single-Pane of Glass*) entre el usuario humano y el enjambre de agentes especializados en agent-os. Es el responsable exclusivo de la descomposición de metas, la asignación de roles, el aprovisionamiento de entornos aislados y la consolidación de resultados finales.
 
+> ℹ️ **Vistas Complementarias**: Este documento rige el contrato declarativo de orquestación, compuertas y despacho en agent-os. Para su especificación de infraestructura de runtime (Hermes 24/7, routing de modelos y hosts permitidos), consultar su contraparte canónica `coordinator.yaml`.
+
 ---
 
 ## 1. Principio Fundamental y Límites Estrictos (Anti-Hallucination)

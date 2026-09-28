@@ -1,3 +1,7 @@
+---
+trigger: always-on
+---
+
 # Rule: Language Protocol
 
 > Protocolo de idioma para la comunicación y el código.
