@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 # tests/validate-control-plane.sh — Validador no destructivo del Control Plane
 # ==============================================================================
@@ -19,6 +19,15 @@
 
 set -euo pipefail
 
+# Pre-flight: verificación determinista de dependencias base
+for cmd in git python3 bash find grep; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT"
 
@@ -35,20 +44,33 @@ echo -e "${BLUE}  SUITE DE VALIDACIÓN: CONTROL PLANE DE AGENTES       ${NC}"
 echo -e "${BLUE}======================================================${NC}"
 echo ""
 
+# Detección determinista de PyYAML
+HAS_PYYAML=true
+if ! python3 -c "import yaml" >/dev/null 2>&1; then
+  HAS_PYYAML=false
+  echo -e "${YELLOW}⚠️  AVISO: Módulo 'yaml' (PyYAML) no disponible en python3.${NC}"
+  echo -e "${YELLOW}   Las validaciones que requieren parser YAML estricto se omitirán de forma segura.${NC}"
+  echo ""
+fi
+
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
 echo -e "🔍 [1/12] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
-for f in $YAML_FILES; do
-  if python3 -c "import yaml; yaml.safe_load(open('$f'))" >/dev/null 2>&1; then
-    echo -e "  ✅ YAML válido: $f"
-  else
-    echo -e "  ❌ ERROR de sintaxis YAML en: $f"
-    ERRORS=$((ERRORS + 1))
-  fi
-done
+if [ "$HAS_PYYAML" = true ]; then
+  for f in $YAML_FILES; do
+    if python3 -c "import yaml; yaml.safe_load(open('$f'))" >/dev/null 2>&1; then
+      echo -e "  ✅ YAML válido: $f"
+    else
+      echo -e "  ❌ ERROR de sintaxis YAML en: $f"
+      ERRORS=$((ERRORS + 1))
+    fi
+  done
+else
+  echo -e "  ℹ️  [SKIP] PyYAML no disponible: validación de sintaxis YAML omitida."
+fi
 
 # ------------------------------------------------------------------------------
 # 2. Comprobación de Perfiles Obligatorios y Esquema
@@ -56,22 +78,26 @@ done
 echo ""
 echo -e "🔍 [2/12] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
-REQUIRED_FIELDS=("id" "purpose" "allowed_tools" "allowed_hosts" "preferred_model_tier" "fallback_model_tier" "forbidden_actions" "escalation_triggers" "human_approval_required")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
   P_FILE=".agents/profiles/${p}.yaml"
   if [ ! -f "$P_FILE" ]; then
     echo -e "  ❌ Falta el perfil obligatorio: $P_FILE"
     ERRORS=$((ERRORS + 1))
+  elif [ "$HAS_PYYAML" = false ]; then
+    echo -e "  ℹ️  Perfil existe: ${p} (validación de campos omitida: PyYAML ausente)"
   else
     # Validar campos requeridos en el YAML usando python
     MISSING_FIELDS=$(python3 -c "
 import yaml, sys
-data = yaml.safe_load(open('$P_FILE'))
-required = ['id', 'purpose', 'allowed_tools', 'allowed_hosts', 'preferred_model_tier', 'fallback_model_tier', 'forbidden_actions', 'escalation_triggers', 'human_approval_required']
-missing = [f for f in required if f not in data or data[f] is None]
-if missing:
-    print(','.join(missing))
+try:
+    data = yaml.safe_load(open('$P_FILE')) or {}
+    required = ['id', 'purpose', 'allowed_tools', 'allowed_hosts', 'preferred_model_tier', 'fallback_model_tier', 'forbidden_actions', 'escalation_triggers', 'human_approval_required']
+    missing = [f for f in required if f not in data or data[f] is None]
+    if missing:
+        print(','.join(missing))
+except Exception as e:
+    print('yaml_error: ' + str(e))
 " 2>/dev/null || echo "python_error")
 
     if [ -n "$MISSING_FIELDS" ]; then
@@ -123,28 +149,34 @@ fi
 # ------------------------------------------------------------------------------
 echo ""
 echo -e "🔍 [4/12] Verificando consistencia de hosts y routing tiers..."
-VALID_HOSTS=("local" "datamanager" "oracle" "all")
 
-HOST_VALIDATION=$(python3 -c "
+if [ "$HAS_PYYAML" = true ]; then
+  HOST_VALIDATION=$(python3 -c "
 import yaml, glob
 valid_hosts = {'local', 'datamanager', 'oracle', 'all'}
 errors = []
 for f in glob.glob('.agents/profiles/*.yaml'):
-    data = yaml.safe_load(open(f))
-    hosts = data.get('allowed_hosts', [])
-    for h in hosts:
-        if h not in valid_hosts:
-            errors.append(f'{f}: host desconocido \"{h}\"')
+    try:
+        data = yaml.safe_load(open(f)) or {}
+        hosts = data.get('allowed_hosts', [])
+        for h in hosts:
+            if h not in valid_hosts:
+                errors.append(f'{f}: host desconocido \"{h}\"')
+    except Exception:
+        pass
 if errors:
     print('\n'.join(errors))
 " 2>/dev/null || true)
 
-if [ -n "$HOST_VALIDATION" ]; then
-  echo -e "  ❌ Referencias a hosts inválidas:"
-  echo "$HOST_VALIDATION"
-  ERRORS=$((ERRORS + 1))
+  if [ -n "$HOST_VALIDATION" ]; then
+    echo -e "  ❌ Referencias a hosts inválidas:"
+    echo "$HOST_VALIDATION"
+    ERRORS=$((ERRORS + 1))
+  else
+    echo -e "  ✅ Todas las referencias a hosts coinciden con la topología real."
+  fi
 else
-  echo -e "  ✅ Todas las referencias a hosts coinciden con la topología real."
+  echo -e "  ℹ️  [SKIP] PyYAML no disponible: validación de hosts omitida."
 fi
 
 # ------------------------------------------------------------------------------
@@ -266,6 +298,8 @@ for p in "${MD_PROFILES[@]}"; do
   if [ ! -f "$P_PATH" ]; then
     echo -e "  ❌ Falta el perfil declarativo requerido: $P_PATH"
     ERRORS=$((ERRORS + 1))
+  elif [ "$HAS_PYYAML" = false ]; then
+    echo -e "  ℹ️  Perfil declarativo existe: $p (validación frontmatter omitida: PyYAML ausente)"
   else
     PROFILE_VALIDATION=$(python3 -c "
 import yaml, sys

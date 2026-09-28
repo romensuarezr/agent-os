@@ -11,13 +11,21 @@
 # Gestión de Credenciales:
 #   Prioridad 1: Variable de entorno COOLIFY_TOKEN (o COOLIFY_ACCESS_TOKEN / COOLIFY_API_TOKEN)
 #                Permite ejecución con: infisical run -- bash scripts/ops/coolify.sh ...
-#   Fallback 2:  /home/romen/Proyectos/configuraciones/api_keys.env
+#   Fallback 2:  $HOME/.config/agent-os/api_keys.env
 # ==============================================================================
 
 set -euo pipefail
 
+for cmd in curl jq; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
+
 # ─── Configuración de Red y API ──────────────────────────────────────────────
-COOLIFY_API_BASE="${COOLIFY_BASE_URL:-${COOLIFY_API_URL:-https://coolify.romensuarez.com/api/v1}}"
+COOLIFY_API_BASE="${COOLIFY_BASE_URL:-${COOLIFY_API_URL:-https://coolify.example.com/api/v1}}"
 # Asegurar que no termine en '/'
 COOLIFY_API_BASE="${COOLIFY_API_BASE%/}"
 
@@ -25,7 +33,7 @@ COOLIFY_API_BASE="${COOLIFY_API_BASE%/}"
 TOKEN="${COOLIFY_TOKEN:-${COOLIFY_ACCESS_TOKEN:-${COOLIFY_API_TOKEN:-}}}"
 
 if [ -z "$TOKEN" ]; then
-  ENV_FILE="/home/romen/Proyectos/configuraciones/api_keys.env"
+  ENV_FILE="${COOLIFY_ENV_FILE:-$HOME/.config/agent-os/api_keys.env}"
   if [ -f "$ENV_FILE" ]; then
     TOKEN=$(grep -E '^(COOLIFY_TOKEN|COOLIFY_ACCESS_TOKEN|COOLIFY_API_TOKEN)=' "$ENV_FILE" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '"'\'' ' || true)
   fi

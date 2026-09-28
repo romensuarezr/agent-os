@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # check-session.sh — Detecta si hay una sesión de Antigravity abierta.
 # Uso: bash scripts/agent/check-session.sh
 # Salida:
@@ -8,15 +8,23 @@
 # ==============================================================================
 # COMPROBACIÓN DE ACTUALIZACIONES DEL CORE
 # ==============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/date-utils.sh" ]; then
+  source "$SCRIPT_DIR/lib/date-utils.sh"
+fi
+
+AGENT_OS_CORE_DIR="${AGENT_OS_PATH:-$HOME/Proyectos/agent-os}"
+
 # Omitir si estamos dentro del propio repositorio core de agent-os (incluso en worktrees)
 CURRENT_REPO_NAME=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null)
-REAL_CURRENT=$(realpath "$(pwd)" 2>/dev/null)
-REAL_CORE=$(realpath "/home/romen/Proyectos/agent-os" 2>/dev/null)
-GIT_COMMON_DIR=$(realpath "$(git rev-parse --git-common-dir 2>/dev/null)" 2>/dev/null || echo "")
+REAL_CURRENT=$(pwd -P)
+REAL_CORE=$( (cd "$AGENT_OS_CORE_DIR" 2>/dev/null && pwd -P) || echo "$AGENT_OS_CORE_DIR" )
+GIT_COMMON_RAW=$(git rev-parse --git-common-dir 2>/dev/null || echo "")
+GIT_COMMON_DIR=$( (cd "$GIT_COMMON_RAW" 2>/dev/null && pwd -P) || echo "$GIT_COMMON_RAW" )
 ORIGIN_URL=$(git config --get remote.origin.url 2>/dev/null || git remote get-url origin 2>/dev/null || echo "")
 
 if [ "$CURRENT_REPO_NAME" = "agent-os" ] || \
-   [ "$REAL_CURRENT" = "$REAL_CORE" ] || \
+   { [ -n "$REAL_CORE" ] && [ "$REAL_CURRENT" = "$REAL_CORE" ]; } || \
    [[ "$GIT_COMMON_DIR" == *"agent-os/.git"* ]] || \
    [[ "$ORIGIN_URL" =~ romensuarezr/agent-os(\.git)?$ ]] || \
    [[ "$ORIGIN_URL" =~ /agent-os(\.git)?$ ]]; then
@@ -42,7 +50,7 @@ if [ "$is_core" = "false" ]; then
   
   # Calcular días transcurridos si hay fecha
   if [ "$REQUIRES_CHECK_BY_TIME" = "false" ]; then
-    LAST_SYNC_EPOCH=$(date -d "$LAST_SYNC_DATE" +%s 2>/dev/null || echo 0)
+    LAST_SYNC_EPOCH=$(portable_epoch "$LAST_SYNC_DATE")
     CURRENT_EPOCH=$(date +%s)
     DIFF_SECONDS=$((CURRENT_EPOCH - LAST_SYNC_EPOCH))
     DIFF_DAYS=$((DIFF_SECONDS / 86400))
@@ -53,14 +61,14 @@ if [ "$is_core" = "false" ]; then
 
   # 2. Obtener hash de commit local registrado
   LOCAL_COMMIT=$(head -n 1 "$CHANGELOG_FILE" 2>/dev/null | grep -E -o '[0-9a-f]{40}')
-  if [ -z "$LOCAL_COMMIT" ] && [ -d "/home/romen/Proyectos/agent-os/.git" ]; then
-    LOCAL_COMMIT=$(git -C "/home/romen/Proyectos/agent-os" rev-parse HEAD 2>/dev/null)
+  if [ -z "$LOCAL_COMMIT" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
+    LOCAL_COMMIT=$(git -C "$AGENT_OS_CORE_DIR" rev-parse HEAD 2>/dev/null)
   fi
 
   # 3. Consultar commit remoto (con timeout estricto de 3s)
   AGENT_OS_URL="https://github.com/romensuarezr/agent-os.git"
-  if [ -d "/home/romen/Proyectos/agent-os/.git" ]; then
-    DETECTED_URL=$(git -C "/home/romen/Proyectos/agent-os" remote get-url origin 2>/dev/null)
+  if [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
+    DETECTED_URL=$(git -C "$AGENT_OS_CORE_DIR" remote get-url origin 2>/dev/null)
     [ -n "$DETECTED_URL" ] && AGENT_OS_URL="$DETECTED_URL"
   fi
 
@@ -80,9 +88,9 @@ if [ "$is_core" = "false" ]; then
     echo -e "${YELLOW}⚠️  ACTUALIZACIÓN: Hay una nueva versión de Agent OS disponible o han pasado más de 7 días sin sincronizar.${NC}"
     
     # Mostrar cambios recientes si están disponibles
-    if [ -f "/home/romen/Proyectos/agent-os/changelog.md" ]; then
+    if [ -f "$AGENT_OS_CORE_DIR/changelog.md" ]; then
       echo "Cambios recientes del core:"
-      head -n 15 "/home/romen/Proyectos/agent-os/changelog.md"
+      head -n 15 "$AGENT_OS_CORE_DIR/changelog.md"
     elif [ -f "$CHANGELOG_FILE" ]; then
       echo "Cambios registrados en el changelog local:"
       head -n 15 "$CHANGELOG_FILE"
@@ -92,7 +100,7 @@ if [ "$is_core" = "false" ]; then
     # Preguntar de forma interactiva
     echo -n "¿Actualizar agent-os ahora? (sync / skip): "
     # timeout de 10 segundos para lectura por si se ejecuta de forma no interactiva
-    if read -t 10 response; then
+    if read -r -t 10 response; then
       response=$(echo "$response" | tr '[:upper:]' '[:lower:]' | xargs)
     else
       response="skip"

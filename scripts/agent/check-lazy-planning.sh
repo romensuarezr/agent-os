@@ -1,17 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # check-lazy-planning.sh — Verifica violaciones de lazy-planning en la sesión activa
 # Uso: bash scripts/agent/check-lazy-planning.sh [T-XXX]
-#
-# Sin argumento: muestra contexto automático de la sesión actual.
-# Con argumento T-XXX: busca además el task file y muestra su campo de auditoría.
-#
-# Violaciones detectables:
-#   SIMPLE:        el agente leyó archivos prohibidos sin declararlos en el checkpoint
-#   DOBLE:         el campo de auditoría en Fase 3.5 difiere del checkpoint de Fase 2.5
-#   MENTIRA:       marcó Opción A pero el log muestra Viewed en archivos prohibidos
-#   AUSENTE:       el agente saltó la Fase 2.5 (checkpoint no aparece en el log)
 
 set -euo pipefail
+
+for cmd in git grep; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 ROOT="$(git rev-parse --show-toplevel)"
 LOCK="$ROOT/.agent-session.lock"

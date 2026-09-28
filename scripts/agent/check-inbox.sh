@@ -1,7 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # check-inbox.sh — Detecta manifiestos pendientes en external-inbox/ e idea-inbox/
 # Uso: bash scripts/agent/check-inbox.sh
 # Salida: siempre exit 0 (no es bloqueante)
+
+for cmd in find grep sort xargs; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 EXTERNAL_DIR="docs/external-inbox"
 IDEA_DIR="docs/idea-inbox"

@@ -1,45 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # audit-mvp-tracker.sh — Audita los criterios del MVP-TRACKER contra el código real
-#
-# Uso:
-#   bash scripts/agent/audit-mvp-tracker.sh --fast      # Solo greps (~3s)
-#   bash scripts/agent/audit-mvp-tracker.sh --digest    # Greps + genera digest LLM
-#   bash scripts/agent/audit-mvp-tracker.sh             # Equivale a --fast
-#
-# Qué hace:
-#   Modo --fast:
-#     1. Lee AUDIT_SYMBOLS (tabla declarativa interna)
-#     2. Para cada símbolo, ejecuta `git grep` en src/ (o en la subcarpeta indicada)
-#     3. Distingue tres niveles de resultado:
-#        ✅ VERIFICADO      — símbolo encontrado en el scope esperado
-#        ⚠️  FALSO POSITIVO  — símbolo NO encontrado, criterio marcado [x] prematuramente
-#        🔍 REVISAR MANUAL  — símbolo existe pero la integración requiere revisión humana/LLM
-#     4. Imprime AUDIT SUMMARY con conteo y lista de advertencias
-#
-#   Modo --digest:
-#     Igual que --fast + llama a generate-digest.sh por cada subcarpeta única
-#     de los criterios con SCOPE definido (o src/ completo para los sin SCOPE).
-#     Los digests se guardan en docs/llm-context/ y NO se versionan en git.
-#     Al final imprime un bloque INSTRUCCIONES DE REVISIÓN para el agente/humano.
-#
-# Qué NO hace:
-#   - No modifica MVP-TRACKER.md ni ningún archivo del repo
-#   - No commitea nada
-#   - No asigna ni sugiere porcentajes (eso es decisión humana/agente)
-#
-# Convención de AUDIT_SYMBOLS:
-#   "C#:descripción breve|SÍMBOLO_GREP|SCOPE_OPCIONAL"
-#   SCOPE_OPCIONAL: subcarpeta dentro de src/ donde buscar (ej: "pages").
-#     Si está vacío, busca en todo src/.
-#     Si el símbolo debe existir en scope específico (no solo en components/),
-#     usa el scope para detectar falta de integración real.
-#
-# Añadir un nuevo símbolo auditable:
-#   1. Escribe el criterio en MVP-TRACKER.md (sección "Criterios Done para MVP")
-#   2. Añade una línea a AUDIT_SYMBOLS siguiendo el formato anterior
-#   3. Si el símbolo solo en scope específico indica integración real, usa SCOPE_OPCIONAL
 
 set -euo pipefail
+
+for cmd in git grep wc cut; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/find-tracker.sh" ]; then
@@ -88,6 +58,7 @@ AUDIT_SYMBOLS=(
 )
 
 # ── Colores (degradan graciosamente si no hay tty) ────────────────────────────
+# shellcheck disable=SC2034
 if [ -t 1 ]; then
   RED='\033[0;31m'; YELLOW='\033[1;33m'; GREEN='\033[0;32m'
   CYAN='\033[0;36m'; RESET='\033[0m'
@@ -126,6 +97,7 @@ for ENTRY in "${AUDIT_SYMBOLS[@]}"; do
   fi
 
   # Acumular scopes únicos para el digest
+  # shellcheck disable=SC2076
   if [[ ! " ${DIGEST_SCOPES[*]:-} " =~ " ${DIGEST_KEY} " ]]; then
     DIGEST_SCOPES+=("$DIGEST_KEY")
   fi

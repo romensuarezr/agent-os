@@ -7,6 +7,13 @@
 # ==============================================================================
 set -euo pipefail
 
+# Pre-flight: verificación determinista de dependencias
+if ! command -v python3 &>/dev/null; then
+  echo "❌ ERROR: Dependencia requerida no encontrada: python3" >&2
+  echo "Guía: Instala python3 en tu sistema antes de continuar." >&2
+  exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 

@@ -56,9 +56,15 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+command -v python3 >/dev/null 2>&1 || {
+  echo "❌ Error: Dependencia requerida 'python3' no encontrada." >&2
+  echo "💡 Guía: Instálala mediante: apt-get install -y python3 (Linux) o brew install python3 (macOS)." >&2
+  exit 1
+}
+
 # Ejecutar motor de descubrimiento determinista en Python
 python3 - "$REPO_ROOT" "$APPLY" "$GEN_DOCS" "$OUTPUT_JSON" << 'EOF'
-import sys, os, json, glob, re, subprocess, platform
+import sys, os, json, glob, re, subprocess, platform, datetime
 
 repo_root = sys.argv[1]
 apply_flag = sys.argv[2] == "true"
@@ -102,13 +108,17 @@ for pm in ["apt", "pacman", "dnf", "brew", "npm", "pnpm", "yarn", "pip", "pip3",
 
 # 3. Construcción de PATH expandido (incluye binarios locales y perfiles de usuario)
 custom_paths = ["~/.local/bin", "~/bin", "~/.opencode/bin", "/opt/Orca/resources/bin", "~/.bun/bin"]
-user_homes = [os.path.expanduser("~")]
-parent_home = os.path.dirname(os.path.expanduser("~"))
-if os.path.isdir(parent_home) and parent_home not in ["/", "/home"]:
+user_home = os.path.expanduser("~")
+user_homes = [user_home]
+parent_home = os.path.dirname(user_home)
+if os.path.isdir(parent_home) and parent_home not in ["/", "/home", "/Users"]:
     user_homes.append(parent_home)
 real_user = os.environ.get("USER")
-if real_user and os.path.isdir(f"/home/{real_user}") and f"/home/{real_user}" not in user_homes:
-    user_homes.append(f"/home/{real_user}")
+if real_user:
+    for base_dir in ["/home", "/Users"]:
+        candidate = os.path.join(base_dir, real_user)
+        if os.path.isdir(candidate) and candidate not in user_homes:
+            user_homes.append(candidate)
 
 # Añadir carpetas bin de posibles perfiles ~/.antigravity*
 for uh in user_homes:
@@ -328,7 +338,7 @@ if os.path.exists(target_fleet_path) and HAS_YAML:
 # 9. Estructurar Digest de Descubrimiento
 discovery_data = {
     "version": "1.0",
-    "discovery_timestamp": run_cmd("date -Iseconds") or "",
+    "discovery_timestamp": datetime.datetime.now(datetime.timezone.utc).astimezone().isoformat(),
     "local_environment": {
         "os": os_name,
         "distro": distro,

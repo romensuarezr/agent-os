@@ -14,18 +14,18 @@ Archivos autorizados para modificación:
 - `tests/validate-control-plane.sh`
 
 ## Criterios de done
-- [ ] 0 usos de `grep -P`, `sed -i` sin sufijo portable, `date -d` / `date -I` sin rama por OS (verificado con `grep`; donde no haya alternativa POSIX, rama `uname` explícita).
-- [ ] `discover-fleet.sh` cubre `/home` y `/Users` (y respeta `$HOME` cuando aplique).
-- [ ] Shebang único `#!/usr/bin/env bash` en todos los scripts.
-- [ ] Cada script comprueba sus dependencias externas al inicio (`command -v jq || { mensaje con Guía: accionable; exit 1; }`), siguiendo el patrón de `scout.sh`.
-- [ ] `validate-control-plane.sh` comprueba PyYAML (o usa `python3 -c` con `json` como fallback) antes de asumirlo.
+- [x] 0 usos de `grep -P`, `sed -i` sin sufijo portable, `date -d` / `date -I` sin rama por OS (verificado con `grep`; donde no haya alternativa POSIX, rama `uname` explícita).
+- [x] `discover-fleet.sh` cubre `/home` y `/Users` (y respeta `$HOME` cuando aplique).
+- [x] Shebang único `#!/usr/bin/env bash` en todos los scripts.
+- [x] Cada script comprueba sus dependencias externas al inicio (`command -v jq || { mensaje con Guía: accionable; exit 1; }`), siguiendo el patrón de `scout.sh`.
+- [x] `validate-control-plane.sh` comprueba PyYAML (o usa `python3 -c` con `json` como fallback) antes de asumirlo.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-28T15:32:13+01:00 (APROBADO CON CAMBIOS)
+- [x] Rama creada: feat/T-075-shell-portability
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
