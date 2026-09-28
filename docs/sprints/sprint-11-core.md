@@ -16,7 +16,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :---: | :---: | :---: | :--- | :--- |
-| T-067 | `fleet-doctor.sh`: diagnóstico determinista de flota + Check 12 condicional en `validate-control-plane.sh` | Nueva herramienta / Infra | M | 🟡 En curso | — | `.agents/tasks/task-067.md` |
+| T-067 | `fleet-doctor.sh`: diagnóstico determinista de flota + Check 12 condicional en `validate-control-plane.sh` | Nueva herramienta / Infra | M | ✅ Completada | — | `.agents/tasks/task-067.md` |
 | T-068 | Saneamiento definitivo de Homepage en producción (dominios ficticios, ping `/health`, Ollama paramétrico) | Bug del sistema / DX | S | ⬜ Pendiente | T-067 | `.agents/tasks/task-068.md` |
 | T-069 | Blindaje de `install.sh`: ruta dinámica, pre-flights, `--check`, `set -euo pipefail`, instala `AGENT_ONBOARDING.md`, `sync.sh` no destructivo | Universalización / Core | M | ⬜ Pendiente | T-070, T-071 | `.agents/tasks/task-069.md` |
 | T-070 | Regla global `deterministic-execution.md` + resolución de contradicciones entre reglas existentes | Gobernanza / Core Standard | M | ⬜ Pendiente | T-071 | `.agents/tasks/task-070.md` |
