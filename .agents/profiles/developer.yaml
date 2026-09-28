@@ -16,7 +16,7 @@ allowed_hosts:
   - local
 
 preferred_model_tier: "primary-reliable"
-fallback_model_tier: "freellmapi-auto"
+fallback_model_tier: "freellmapi"
 
 forbidden_actions:
   - "Commit o push directo a main sin pasar por rama de feature y workflow"

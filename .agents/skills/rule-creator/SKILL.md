@@ -1,6 +1,11 @@
 ---
 name: rule-creator
 description: Formaliza solicitudes de comportamiento del usuario en reglas persistentes que el agente seguirá en futuras sesiones.
+tools:
+  - name: notify_user
+    optional: true
+  - name: ask_question
+    optional: true
 ---
 
 # Creador de Reglas (Rule Creator)
@@ -17,13 +22,13 @@ Capturar preferencias, restricciones de seguridad, o principios de diseño que d
     - El agente interpreta esto como una solicitud de **Regla Permanente**.
 
 2.  **REDACCIÓN DE PROPUESTA**:
-    - Generar un Artifact (`Propuesta de Regla [Nombre]`) con el contenido propuesto.
+    - Generar un Artifact o borrador con el contenido propuesto.
     - Usar el **Template Obligatorio** (ver abajo).
-    - Asegurar que el frontmatter YAML sea correcto (`trigger: always_on`).
+    - Asegurar que el frontmatter YAML sea correcto (`trigger: always_on` o el valor controlado correspondiente).
 
 3.  **REVISIÓN Y APROBACIÓN (Bloqueante)**:
-    - Usar `notify_user` con `BlockedOnUser: true`.
-    - Mensaje: "He redactado esta regla basada en tu solicitud. ¿La activo?"
+    - **En runtimes con tool calls interactivos**: Usar `notify_user` con `BlockedOnUser: true` o `ask_question`. Mensaje: "He redactado esta regla basada en tu solicitud. ¿La activo?"
+    - **Alternativa portable Shell/POSIX**: En entornos de terminal pura o runtimes CLI sin herramientas interactivas nativas, imprimir la propuesta formateada en pantalla y solicitar confirmación expresa vía `read -p "¿Deseas activar esta regla? [s/N]: " confirm` o mediante un prompt conversacional estándar antes de persistir.
 
 4.  **PERSISTENCIA**:
     - **Solo si aprobado**:

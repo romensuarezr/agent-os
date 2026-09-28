@@ -84,3 +84,27 @@ profiles:
     assigned_engine: "antigravity"
     target_host: "local"
     human_approval_required: false
+
+  - id: coder
+    name: "Lead Software Implementer & ACP Worker"
+    path: ".agents/profiles/coder.md"
+    category: "engineering"
+    assigned_engine: "opencode"
+    target_host: "local"
+    human_approval_required: false
+
+  - id: qa-judge
+    name: "Independent Quality Judge & Gatekeeper"
+    path: ".agents/profiles/qa-judge.md"
+    category: "quality"
+    assigned_engine: "antigravity"
+    target_host: "local"
+    human_approval_required: true
+
+  - id: docs-researcher
+    name: "Technical Researcher & ADR Documenter"
+    path: ".agents/profiles/docs-researcher.md"
+    category: "research"
+    assigned_engine: "antigravity"
+    target_host: "local"
+    human_approval_required: false

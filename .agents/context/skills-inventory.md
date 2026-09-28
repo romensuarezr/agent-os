@@ -81,10 +81,26 @@ for name, desc, loc in items:
 EOF
 ```
 
+### Contrato Declarativo de Dependencias de Herramientas (`tools` / `optional`) — Especificación para T-076
+
+Para garantizar la portabilidad multi-plataforma (Antigravity, Hermes Agent, Orca ADE, CLI / Bash), los archivos `SKILL.md` pueden declarar opcionalmente un bloque `tools` en su frontmatter YAML con el siguiente contrato estricto:
+
+- **Nombre del campo**: `tools` (lista opcional de objetos en frontmatter YAML de `SKILL.md`).
+- **Valores y atributos de cada elemento**:
+  - `name`: `string` (obligatorio). Nombre canónico de la herramienta invocable (ej: `run_command`, `write_to_file`, `replace_file_content`, `notify_user`, `ask_question`, `call_mcp_tool`).
+  - `optional`: `boolean` (obligatorio).
+    - `true`: Herramienta no bloqueante. Representa una aceleración o conveniencia provista por entornos IDE o agentes avanzados. Si el runtime carece de ella (ej. Hermes en terminal o script Bash desatendido), la carga del skill tiene éxito y el agente DEBE ejecutar la alternativa en Shell / POSIX documentada en el cuerpo del `SKILL.md`.
+    - `false`: Herramienta indispensable para el funcionamiento de la habilidad. Si el runtime no la soporta, debe emitir un diagnóstico claro.
+- **Semántica operativa**:
+  - Los scripts y parsers de control plane (e.g. `validate-control-plane.sh` o el orquestador en T-076) no deben rechazar skills que incluyan `tools`.
+  - Todo `SKILL.md` que declare herramientas con `optional: true` debe detallar explícitamente en su sección de instrucciones la receta de sustitución portable mediante utilidades POSIX (`mkdir`, `cat <<EOF`, `sed`, `grep`, `awk`, python3 estándar o prompts de terminal).
+
 ### Checklist de Mantenimiento
 1. [ ] Toda nueva skill debe crearse en su propio subdirectorio con fichero `SKILL.md` y frontmatter YAML (`name`, `description`).
-2. [ ] Ejecutar `tests/validate-control-plane.sh` para verificar integridad del `SKILL.md`.
-3. [ ] Añadir la fila correspondiente en la tabla superior con la descripción funcional de cuándo usarla.
-4. [ ] Actualizar la fecha de última revisión.
+2. [ ] Declarar `tools` con `optional: true` en caso de referenciar herramientas de runtime, documentando la alternativa portable en shell.
+3. [ ] Ejecutar `tests/validate-control-plane.sh` para verificar integridad del `SKILL.md`.
+4. [ ] Añadir la fila correspondiente en la tabla superior con la descripción funcional de cuándo usarla.
+5. [ ] Actualizar la fecha de última revisión.
 
-*Última actualización: 2026-09-28 (Sprint 11 — T-071)*
+*Última actualización: 2026-09-28 (Sprint 11 — T-073)*
+
