@@ -1,9 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # check-sprint.sh — Contexto determinista para /sprint-planning
 # Uso: bash scripts/agent/check-sprint.sh
 # Devuelve: ruta ROADMAP, estado sprint anterior, spillover, inbox, git log, system check.
 
 set -euo pipefail
+
+for cmd in git grep head tail wc; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 SPRINTS_DIR="$ROOT/docs/sprints"

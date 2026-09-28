@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # close-task.sh — Commit atómico de cierre de tarea
 # Uso: bash scripts/agent/close-task.sh
 # El script deriva TASK_ID y mensaje del nombre de la rama activa.
@@ -12,7 +12,7 @@ ROOT="$(git rev-parse --show-toplevel)"
 BRANCH=$(git -C "$ROOT" branch --show-current)
 
 # Derivar TASK_NUM desde la rama (feat/T-026-... → 026)
-TASK_NUM=$(echo "$BRANCH" | grep -oP '(?<=T-)\d+')
+TASK_NUM=$(echo "$BRANCH" | sed -n 's/.*T-\([0-9][0-9]*\).*/\1/p')
 if [ -z "$TASK_NUM" ]; then
   RED='\033[0;31m'
   NC='\033[0m'
@@ -43,6 +43,7 @@ fi
 
 # 1b. Guardia: verificar que la tarea está marcada como completada en el sprint activo
 if [ "${SKIP_SPRINT_CHECK:-0}" != "1" ]; then
+  # shellcheck disable=SC2010
   SPRINT_ACTIVE=$(ls "$ROOT/docs/sprints"/sprint-[0-9][0-9]*.md 2>/dev/null \
     | grep -v "research" | sort -V | tail -1 || true)
   if [ -n "$SPRINT_ACTIVE" ]; then
@@ -51,12 +52,12 @@ if [ "${SKIP_SPRINT_CHECK:-0}" != "1" ]; then
         YELLOW='\033[0;33m'
         NC='\033[0m'
         echo ""
-        echo -e "${YELLOW}⚠️  GUARDIA SPRINT: $TASK_ID no está marcada como completada en $(basename $SPRINT_ACTIVE)${NC}"
+        echo -e "${YELLOW}⚠️  GUARDIA SPRINT: $TASK_ID no está marcada como completada en $(basename "$SPRINT_ACTIVE")${NC}"
         echo -e "${YELLOW}Guía: Abre el sprint file y marca la tarea con ✅ en lugar de ⬜ o ⏸. Si es intencionadamente, ejecuta: SKIP_SPRINT_CHECK=1 bash scripts/agent/close-task.sh${NC}"
         echo ""
         exit 1
       else
-        echo "✅ Sprint check: $TASK_ID marcada como completada en $(basename $SPRINT_ACTIVE)"
+        echo "✅ Sprint check: $TASK_ID marcada como completada en $(basename "$SPRINT_ACTIVE")"
       fi
     fi
   fi

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 # promote-to-main.sh — Automatización determinista de promoción y cierre de ciclo
 # ==============================================================================
@@ -16,12 +16,20 @@
 
 set -euo pipefail
 
+# Pre-flight: verificación determinista de dependencias
+for cmd in git cat; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT"
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
@@ -141,7 +149,6 @@ find_target_worktree() {
 }
 
 TARGET_WT="$(find_target_worktree "$TARGET" || true)"
-CURRENT_WT="$(git rev-parse --show-toplevel)"
 
 if [ -n "$TARGET_WT" ]; then
   log "  ℹ️  Rama '${TARGET}' detectada en worktree: ${TARGET_WT}"

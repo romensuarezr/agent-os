@@ -32,8 +32,8 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ORCA_BIN=""
 if command -v orca >/dev/null 2>&1; then
     ORCA_BIN="orca"
-elif [ -x "/home/romen/.config/orca/linux-orca-cli-shim/orca" ]; then
-    ORCA_BIN="/home/romen/.config/orca/linux-orca-cli-shim/orca"
+elif [ -x "$HOME/.config/orca/linux-orca-cli-shim/orca" ]; then
+    ORCA_BIN="$HOME/.config/orca/linux-orca-cli-shim/orca"
 elif [ -x "/opt/Orca/resources/bin/orca-ide" ]; then
     ORCA_BIN="/opt/Orca/resources/bin/orca-ide"
 fi

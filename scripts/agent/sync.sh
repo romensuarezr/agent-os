@@ -1,7 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # sync.sh - Sincroniza las reglas globales de Agent OS con un proyecto
 # Uso: ./sync.sh /ruta/al/proyecto
+
+for cmd in git cp mkdir; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 TARGET_PROJECT=""
 CLEANUP=false
@@ -39,7 +47,9 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
-AGENT_OS_PATH="${AGENT_OS_PATH:-/home/romen/Proyectos/agent-os}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
+AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"
 
 # Validar que no se intente sincronizar el core sobre sí mismo
 REAL_AGENT_OS=$(realpath "$AGENT_OS_PATH" 2>/dev/null || echo "$AGENT_OS_PATH")
@@ -172,7 +182,7 @@ if [ -f "$AGENT_OS_PATH/changelog.md" ]; then
 fi
 
 # Guardar marca de fecha de última sincronización
-echo "$(date -u +%Y-%m-%d)" > "$TARGET_PROJECT/.agents/context/last-sync.md"
+date -u +%Y-%m-%d > "$TARGET_PROJECT/.agents/context/last-sync.md"
 
 # Sincronizar manifiesto de assets
 if [ -f "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" ]; then
@@ -207,7 +217,7 @@ if [ -f "$MANIFEST_FILE" ]; then
             fi
             
             # Formato: FECHA FILE MOTIVO
-            read -r dep_date dep_file dep_motive <<< "$line"
+            read -r _ dep_file dep_motive <<< "$line"
             if [ -n "$dep_file" ]; then
                 DEPRECATED_FILES+=("$dep_file")
                 DEPRECATED_MOTIVES+=("$dep_motive")
@@ -268,7 +278,7 @@ if [ "${#DETECTED_DEPRECATED[@]}" -gt 0 ]; then
                     confirm="s"
                 else
                     echo -n "¿Eliminar $dep_file? (s/N): "
-                    read confirm
+                    read -r confirm
                 fi
                 
                 confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 # scripts/agent/worktree-dispatch.sh — Aprovisionamiento de Git Worktrees efímeros
 # ==============================================================================
@@ -11,8 +11,17 @@
 
 set -uo pipefail
 
+# Pre-flight: verificación determinista de dependencias
+for cmd in git python3 mkdir cat chmod grep; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
+
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-cd "$ROOT_DIR"
+cd "$ROOT_DIR" || exit 1
 
 TASK_ID=""
 PROFILE="coder"
@@ -121,7 +130,8 @@ git worktree prune 2>/dev/null || true
 EXISTING_WORKTREES=$(git worktree list --porcelain 2>/dev/null || true)
 WORKTREE_ALREADY_EXISTS=false
 
-if [ -d "$WORKTREE_PATH" ] || echo "$EXISTING_WORKTREES" | grep -q "worktree $(realpath "$WORKTREE_PATH" 2>/dev/null || echo "$WORKTREE_PATH")"; then
+RESOLVED_WT="$( (cd "$WORKTREE_PATH" 2>/dev/null && pwd -P) || echo "$WORKTREE_PATH" )"
+if [ -d "$WORKTREE_PATH" ] || echo "$EXISTING_WORKTREES" | grep -q "worktree $RESOLVED_WT"; then
   WORKTREE_ALREADY_EXISTS=true
 fi
 
@@ -186,7 +196,7 @@ fi
 # ------------------------------------------------------------------------------
 log "💉 [3/4] Inyectando contexto operativo y AGENT_OS_ROOT..."
 AGENT_OS_ROOT="$(git rev-parse --show-toplevel)"
-REAL_WORKTREE_PATH="$(realpath "$WORKTREE_PATH")"
+REAL_WORKTREE_PATH="$(cd "$WORKTREE_PATH" && pwd -P)"
 
 # Inyectar archivo de contexto local en el worktree
 mkdir -p "$WORKTREE_PATH/.agents/context"

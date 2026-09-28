@@ -35,6 +35,14 @@ ENV_TARGET="dev"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON_ENGINE="$SCRIPT_DIR/lib/verify-secrets.py"
 
+for cmd in python3 jq; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo -e "${RED}❌ Error: Dependencia requerida '$cmd' no encontrada.${NC}" >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
+
 # Parseo de argumentos
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -138,8 +146,12 @@ fi
 echo -e "\n${BLUE}======================================================${NC}"
 echo -e "${BLUE}  🚀 AGENT OS: MIGRACIÓN A INFISICAL (--apply activo)  ${NC}"
 echo -e "${BLUE}======================================================${NC}"
-echo -e "🌐 Conectando con Infisical en: ${CYAN}${INFISICAL_API_URL}${NC}"
-echo -e "🎯 Entorno destino: ${YELLOW}${ENV_TARGET}${NC} | Proyecto: ${INFISICAL_PROJECT_ID}"
+# Verificar disponibilidad de infisical CLI
+command -v infisical >/dev/null 2>&1 || {
+  echo -e "${RED}❌ Error: 'infisical' CLI no encontrado pero se requiere para autenticación y subida.${NC}" >&2
+  echo "💡 Guía: Instálalo mediante: curl -sSL https://cli.infisical.com/install.sh | bash o brew install infisical/get-cli/infisical" >&2
+  exit 1
+}
 
 # Obtener token de acceso Universal Auth en memoria
 AUTH_TOKEN=$(infisical login \

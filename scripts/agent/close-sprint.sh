@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # close-sprint.sh — Archiva un sprint completado en docs/sprints/_archived/
 # Uso: bash scripts/agent/close-sprint.sh sprint-07
 #
@@ -11,6 +11,15 @@
 #   esté modificado y listo para incluirse en este commit.
 
 set -euo pipefail
+
+# Pre-flight: verificación determinista de dependencias
+for cmd in git grep mkdir basename wc; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
+    exit 1
+  fi
+done
 
 ROOT="$(git rev-parse --show-toplevel)"
 SPRINTS_DIR="$ROOT/docs/sprints"

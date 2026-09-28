@@ -1,8 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # install.sh - Instala Agent OS en un proyecto destino
 # Uso: ./install.sh /ruta/al/proyecto
 # Uso (bootstrapping del core): ./install.sh . --self
+
+for cmd in cp mkdir; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
+    echo "💡 Guía: Instálala mediante: apt-get install -y $cmd (Linux) o brew install $cmd (macOS)." >&2
+    exit 1
+  }
+done
 
 TARGET_PROJECT=$1
 
@@ -27,7 +35,9 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
-AGENT_OS_PATH="${AGENT_OS_PATH:-/home/romen/Proyectos/agent-os}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
+AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_WORKFLOWS="$AGENT_OS_PATH/.agents/workflows"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
