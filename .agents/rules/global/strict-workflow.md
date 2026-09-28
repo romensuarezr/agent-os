@@ -1,3 +1,7 @@
+---
+trigger: session-start
+---
+
 # Rule: Strict Workflow (Anti-Regression)
 
 > Prioridad máxima: Control total del usuario y estabilidad de la rama principal.

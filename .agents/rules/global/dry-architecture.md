@@ -1,3 +1,7 @@
+---
+trigger: code-architecture
+---
+
 # Rule: DRY Architecture
 
 > Estándar de separación de responsabilidades: Don't Repeat Yourself.

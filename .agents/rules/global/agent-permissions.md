@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: security-and-permissions
 ---
 
 # Política Global de Permisos y Niveles de Autorización de Agentes
@@ -29,7 +29,7 @@ Ningún agente posee permisos irrestrictos de escritura, despliegue o borrado so
 | **Deploy (Despliegues)** | 🔴 L3 | **Decision Gate Humano** | `coordinator`, `ops-auditor` | **Prohibido desplegar autónomamente** en Coolify, Docker Compose o plataformas web sin aprobación humana explícita paso a paso. |
 | **Reinicio de Servicios** | 🔴 L3 | **Decision Gate Humano** | `ops-auditor`, `coordinator` | `docker restart`, `systemctl restart` o recargas de contenedores requieren confirmación explícita previa con justificación de causa raíz. |
 | **Eliminación (Delete/Drop)**| 🔴 L3 | **Decision Gate Humano** | Ninguno por defecto | `rm -rf`, `docker volume rm`, `DROP TABLE` o eliminación de ramas remotas están **estrictamente prohibidos** a cualquier agente de forma autónoma. |
-| **Acceso a Secretos** | 🔴 L3 | **Prohibido / Oculto** | Ninguno | Ningún agente puede leer, mostrar, imprimir ni transferir claves de API, tokens OAuth, contraseñas o certificados privados. |
+| **Acceso a Secretos** | 🔴 L3 | **Prohibido / Inyección Opaca** | Ninguno | Ningún agente puede leer, mostrar, imprimir ni transferir claves de API, tokens o contraseñas. El runtime puede inyectar variables de entorno (`.env` / Infisical) para subprocesos sin exposición de texto plano (ver `maximum-autonomy.md`). |
 
 ---
 

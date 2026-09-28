@@ -43,6 +43,7 @@ Verifica deterministamente el estado operativo del tooling local ejecutando los 
 | Dominio | Ruta Canónica | Propósito |
 |---|---|---|
 | **Reglas Globales** | [.agents/rules/global/](.agents/rules/global/) | Reglas agnósticas de comportamiento, calidad y gobernanza para agentes. |
+| **Gobernanza Determinista** | [.agents/rules/global/deterministic-execution.md](.agents/rules/global/deterministic-execution.md) | Regla canónica anti-improvisación, pre-flights obligatorios y verificación determinista. |
 | **Habilidades (Skills)** | [.agents/skills/](.agents/skills/) | Directorios modulares con `SKILL.md` que capacitan al agente en tareas especializadas. |
 | **Workflows** | [.agents/workflows/](.agents/workflows/) | Protocolos paso a paso para ceremonias (`session-start`, `session-close`, `sprint-planning`). |
 | **Scripts CLI de Agente** | [scripts/agent/](scripts/agent/) | Herramientas deterministas en Bash/Python para auditoría, instalación, sincronización y tests. |
@@ -55,6 +56,6 @@ Verifica deterministamente el estado operativo del tooling local ejecutando los 
 ---
 
 ## 🚫 Restricciones Críticas de Gobernanza
-- **Nunca improvisar scripts en caliente en servidores**: todo script debe residir en `scripts/agent/` y estar cubierto por `tests/validate-control-plane.sh`.
-- **Nunca asumir que un servicio existe sin verificación determinista previa**.
+- **Ejecución determinista obligatoria**: Regida canónicamente por [.agents/rules/global/deterministic-execution.md](.agents/rules/global/deterministic-execution.md). Prohibido improvisar código o scripts ad-hoc en caliente.
+- **Verificación determinista previa**: Nunca asumir que un servicio o endpoint existe sin comprobación previa mediante `bash scripts/agent/fleet-doctor.sh`.
 - **Nunca trabajar directamente en la rama principal (`main`)**: utiliza siempre ramas de feature (`feat/T-XXX-...`).
