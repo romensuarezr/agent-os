@@ -41,9 +41,9 @@ trigger: deployment-safety
 
 ---
 
-## 4. Local-First Validation Pipeline
+## 4. Local-First Validation Pipeline (Checklist Canónico Pre-Push)
 
-Antes de promover código o desplegar a cualquier entorno:
+Pipeline canónico de verificación referenciado por [`strict-workflow.md`](strict-workflow.md) antes de promover código o desplegar a cualquier entorno:
 1. **Compilación / Linting / Tipos**: Verifica que el código compila y pasa el linter del stack correspondiente sin advertencias críticas.
 2. **Instanciación y Tests de Unidad**: Comprueba que los servicios y módulos modificados se instancian en aislamiento.
 3. **Smoke Test Local**: Ejecuta el servidor, contenedor o worker localmente y valida en los logs que no existan errores fatales ni advertencias de configuración.

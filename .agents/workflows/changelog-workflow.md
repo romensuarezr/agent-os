@@ -2,7 +2,7 @@
 description: Generar el registro de cambios (changelog) de un sprint utilizando los scripts del repositorio en {{PROJECT_NAME}}.
 ---
 
-# changelog
+# changelog-workflow
 
 Workflow para la actualización automatizada del historial de cambios del proyecto y la propuesta del bump de versión semver al finalizar un sprint.
 

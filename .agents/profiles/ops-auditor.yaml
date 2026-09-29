@@ -2,6 +2,7 @@ id: ops-auditor
 name: "Infrastructure & Security Auditor"
 purpose: "Auditoría no destructiva de infraestructura, inspección de contenedores Docker, monitoreo de espacio en disco, memoria y topología de red."
 version: "1.0.0"
+scope: "Linux/Docker"
 
 allowed_tools:
   - remote-admin
