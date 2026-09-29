@@ -1,7 +1,7 @@
 # Auditoría de Capacidad de Disco y Exposición de Puertos en Servidores Remotos (Host VPS)
 
 > **Fecha**: 2026-09-24  
-> **Host**: `<infra-node>` (IP Tailscale `<TAILSCALE_IP>`, configurado en `config/fleet.yaml` o `~/.ssh/config`)  
+> **Host**: `<infra-node>` (IP Tailscale `<TAILSCALE_IP>`, configurado en `.agents/config/fleet.yaml` o `~/.ssh/config`)  
 > **Objetivo**: Diagnóstico integral y no destructivo del almacenamiento y superficie de ataque del VPS de infraestructura.  
 > **Herramienta utilizada**: `.agents/skills/remote-admin/scripts/audit-host.sh`
 

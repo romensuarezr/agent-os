@@ -59,7 +59,7 @@ El sistema opera bajo un mandato estricto de eficiencia económica y técnica:
 La toma de decisiones de modelos se estructura en **tres capas desacopladas**:
 
 ```
-[CAPA 1: POLÍTICA DECLARATIVA] ──▶ config/routing-policy.yaml (.agents/profiles/)
+[CAPA 1: POLÍTICA DECLARATIVA] ──▶ .agents/config/routing-policy.yaml (.agents/profiles/)
            │                     (Reglas estáticas de afinidad por tipo de tarea)
            ▼
 [CAPA 2: DECISIÓN DEL COORDINADOR] ──▶ Al trocear la épica en subtareas (DAG)
@@ -69,7 +69,7 @@ La toma de decisiones de modelos se estructura en **tres capas desacopladas**:
                                  (Balanceo dinámico, reintentos y failover ante error 429)
 ```
 
-### Capa 1: Política Declarativa de Proyecto (`config/routing-policy.yaml`)
+### Capa 1: Política Declarativa de Proyecto (`.agents/config/routing-policy.yaml`)
 Define el mapeo base entre categorías funcionales y endpoints de computación:
 
 - **`critical_tasks`**: Diseño nuclear, migraciones de datos, políticas de permisos.

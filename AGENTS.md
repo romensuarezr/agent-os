@@ -22,6 +22,7 @@ agent-os/
 ├── roadmap.md                   ← roadmap de evolución del core
 ├── .agents/
 │   ├── AGENT_ONBOARDING.md      ← secuencia de boot determinista y pre-flights
+│   ├── config/                  ← agent-registry.yaml, routing-policy.yaml, fleet.example.yaml
 │   ├── profiles/                ← registro declarativo de perfiles de agentes (.yaml y .md)
 │   ├── rules/                   ← reglas globales (agnósticas de stack)
 │   ├── skills/                  ← skills globales instalables en proyectos hijos
@@ -29,7 +30,6 @@ agent-os/
 │   ├── workflows/               ← workflows globales (session-start, sprint-planning...)
 │   ├── templates/               ← plantillas de tareas, sprints y onboarding de satélites
 │   └── context/                 ← marcas de sincronización e inventario de skills
-├── config/                      ← agent-registry.yaml, routing-policy.yaml, fleet.example.yaml
 ├── scripts/agent/
 │   ├── install.sh               ← instalación en proyectos hijos (--self para bootstrapping)
 │   ├── sync.sh                  ← sincroniza assets globales → proyectos hijos

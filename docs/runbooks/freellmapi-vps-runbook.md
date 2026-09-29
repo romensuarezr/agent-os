@@ -1,6 +1,6 @@
 # FreeLLMAPI VPS Runbook — Inferencia Unificada en Nodo Remoto
 
-> Guía operativa y técnica para la administración, consumo y mantenimiento de la pasarela unificada de inferencia FreeLLMAPI desplegada en un nodo de cómputo/worker (`config/fleet.yaml`).
+> Guía operativa y técnica para la administración, consumo y mantenimiento de la pasarela unificada de inferencia FreeLLMAPI desplegada en un nodo de cómputo/worker (`.agents/config/fleet.yaml`).
 
 ---
 
@@ -31,8 +31,8 @@
    API Providers Externos (Groq, HuggingFace, OpenRouter, Google)
 ```
 
-### Datos de Infraestructura (parametrizados en `config/fleet.yaml`)
-- **Host Alias**: `<worker-node>` (definido en `config/fleet.yaml` o `~/.ssh/config`)
+### Datos de Infraestructura (parametrizados en `.agents/config/fleet.yaml`)
+- **Host Alias**: `<worker-node>` (definido en `.agents/config/fleet.yaml` o `~/.ssh/config`)
 - **IP Tailscale**: `<TAILSCALE_IP>`
 - **IP Pública**: `<WAN_IP>` (restringida por firewall)
 - **Ruta de Despliegue**: `~/freellmapi/` o `/opt/freellmapi/`

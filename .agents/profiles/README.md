@@ -9,7 +9,7 @@ Este directorio define las identidades, facultades, restricciones y políticas o
 Agent OS utiliza dos formatos complementarios para definir un perfil de agente:
 
 ### 1. Esquema de Control Plane (`.yaml`)
-- **Propósito**: Define los límites operativos, hosts permitidos, herramientas habilitadas y niveles de inferencia para el plano de control (`config/agent-registry.yaml`, `orca-orchestrate.sh`).
+- **Propósito**: Define los límites operativos, hosts permitidos, herramientas habilitadas y niveles de inferencia para el plano de control (`.agents/config/agent-registry.yaml`, `orca-orchestrate.sh`).
 - **Campos mínimos requeridos**:
   `id`, `purpose`, `allowed_tools`, `allowed_hosts`, `preferred_model_tier`, `fallback_model_tier`, `forbidden_actions`, `escalation_triggers`, `human_approval_required`.
 - **Ámbito**: Orquestación estricta y gobernanza de infraestructura.
@@ -34,4 +34,4 @@ Ante cualquier discrepancia entre ambos esquemas para un mismo rol:
    - Las compuertas de validación humana (`decision_gates`), pautas de formulación de código y criterios de revisión definidos en el `.md` rigen el proceso reflexivo del agente durante la sesión.
 
 3. **Registro Central**:
-   - Todo perfil operativo debe estar declarado formalmente en [`config/agent-registry.yaml`](../../config/agent-registry.yaml).
+   - Todo perfil operativo debe estar declarado formalmente en [`agent-registry.yaml`](../config/agent-registry.yaml).

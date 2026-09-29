@@ -41,7 +41,7 @@ Buscamos coordinar tareas y flujos de trabajo sobre repositorios secundarios (`r
 | Patrón / Repositorio | Mecanismo de Aislamiento | Pros | Contras |
 | :--- | :--- | :--- | :--- |
 | **[`alex-reysa/singular-lite`](https://github.com/alex-reysa/singular-lite)** (39⭐, GPL-3.0) | Motor de orquestación multi-agente autónomo con leases, compuertas HITL y aislamiento estricto vía **Git Worktrees**. | • Arquitectura idéntica a los objetivos de Agent OS.<br>• Despacho desacoplado (*detached dispatch*) por defecto.<br>• Audita antes de mergear. | • Licencia GPL-3.0.<br>• Requiere adaptar su jerarquía L0/L1/L2 a los perfiles de Agent OS. |
-| **Patrón *Satellite Manifest* + Git Worktrees (Recomendado)** | Repositorio central mantiene únicamente un manifiesto declarativo (`config/satellites.yaml`). El agente monta worktrees efímeros en carpetas hermanas (`../satellites/`). | • **0 contaminación de código**: Los satélites conservan su ciclo de vida, CI/CD y despliegues independientes.<br>• El hub solo gestiona contratos, objetivos de negocio y auditorías.<br>• Totalmente compatible con `agent-os install.sh`. | • Requiere que el entorno local tenga acceso a los directorios hermanos de los repositorios. |
+| **Patrón *Satellite Manifest* + Git Worktrees (Recomendado)** | Repositorio central mantiene únicamente un manifiesto declarativo (`.agents/config/satellites.yaml`). El agente monta worktrees efímeros en carpetas hermanas (`../satellites/`). | • **0 contaminación de código**: Los satélites conservan su ciclo de vida, CI/CD y despliegues independientes.<br>• El hub solo gestiona contratos, objetivos de negocio y auditorías.<br>• Totalmente compatible con `agent-os install.sh`. | • Requiere que el entorno local tenga acceso a los directorios hermanos de los repositorios. |
 | **Git Submodules Tradicionales** | Enlace estático mediante punteros de commit de git (`git submodule add`). | • Estándar nativo de git. | • Frágil ante commits concurrentes de agentes.<br>• Frecuentes problemas de *detached HEAD* y sincronización. |
 
 ---
@@ -68,13 +68,13 @@ operations-hub/                            ← Nuevo repositorio limpio
 ├── README.md                              ← Visión general del portafolio
 ├── changelog.md
 ├── .agents/                               ← Instalado automáticamente vía agent-os install.sh
+│   ├── config/
+│   │   ├── fleet.yaml                         ← Configuración local de herramientas, MCPs y nodos
+│   │   ├── satellites.yaml                    ← Declaración de satélites (romensuarez-web, leaderboard, polybot)
+│   │   └── metrics-sources.yaml               ← Credenciales y mapeo de Stripe, Cloudflare, Uptime
 │   ├── rules/
 │   ├── skills/                            ← Skills heredadas + skills de negocio (ej. stripe-audit)
 │   └── workflows/                         ← session-start, sprint-planning, etc.
-├── config/
-│   ├── fleet.yaml                         ← Configuración local de herramientas, MCPs y nodos
-│   ├── satellites.yaml                    ← Declaración de satélites (romensuarez-web, leaderboard, polybot)
-│   └── metrics-sources.yaml               ← Credenciales y mapeo de Stripe, Cloudflare, Uptime
 ├── docs/
 │   ├── sprints/                           ← Sprints de alto nivel de negocio / holding
 │   ├── adrs/                              ← Decisiones de gobernanza, pricing y arquitectura
@@ -100,7 +100,7 @@ operations-hub/                            ← Nuevo repositorio limpio
    - Redactar `AGENTS.md` definiendo el rol de cada satélite (`romensuarez-web`, `leaderboard-platform`, `polybot`).
 
 2. **Fase 2 — Integración de Second Brain (MCP)**:
-   - Registrar en `config/fleet.yaml` el servidor MCP oficial de Notion (`@notionhq/notion-mcp-server`) para que los agentes lean la documentación estratégica existente en Notion.
+   - Registrar en `.agents/config/fleet.yaml` el servidor MCP oficial de Notion (`@notionhq/notion-mcp-server`) para que los agentes lean la documentación estratégica existente en Notion.
    - Mantener un directorio local `docs/knowledge/` en Markdown para notas técnicas directas.
 
 3. **Fase 3 — Métricas de Negocio hacia Homepage**:

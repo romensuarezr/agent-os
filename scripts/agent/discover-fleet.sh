@@ -6,7 +6,7 @@
 #   bash scripts/agent/discover-fleet.sh [OPTIONS]
 #
 # Options:
-#   --apply     Write/merge discovered tools into config/fleet.yaml
+#   --apply     Write/merge discovered tools into .agents/config/fleet.yaml
 #   --docs      Generate human-readable docs in docs/architecture/tools/local-environment.local.md
 #   --json      Output discovery digest in JSON format instead of YAML
 #   --help, -h  Show this help message
@@ -39,7 +39,7 @@ for arg in "$@"; do
             echo "Uso: bash scripts/agent/discover-fleet.sh [--apply] [--docs] [--json]"
             echo ""
             echo "Opciones:"
-            echo "  --apply    Actualiza config/fleet.yaml preservando nodos y servidores MCP"
+            echo "  --apply    Actualiza .agents/config/fleet.yaml preservando nodos y servidores MCP"
             echo "  --docs     Genera docs/architecture/tools/local-environment.local.md"
             echo "  --json     Emite la salida en formato JSON en vez de YAML"
             echo "  --help     Muestra este mensaje de ayuda"
@@ -242,7 +242,13 @@ for item in standard_clis:
 
 # 6. Detección Inteligente de Navegadores y Herramientas Web AI
 known_signatures = {}
-known_yaml_path = os.path.join(repo_root, "config/known-web-tools.yaml")
+known_yaml_path = os.path.join(repo_root, ".agents/config/known-web-tools.yaml")
+if not os.path.exists(known_yaml_path):
+    legacy_known = os.path.join(repo_root, "config/known-web-tools.yaml")
+    if os.path.exists(legacy_known):
+        print(f"⚠️  DEPRECATED: {legacy_known} es una ruta obsoleta. Migrar a .agents/config/known-web-tools.yaml", file=sys.stderr)
+        known_yaml_path = legacy_known
+
 if HAS_YAML and os.path.exists(known_yaml_path):
     try:
         with open(known_yaml_path, "r", encoding="utf-8") as f:
@@ -323,8 +329,20 @@ if "tailscale" in installed_clis:
             pass
 
 # 8. Carga de Configuración Existente de Flota y Enrutamiento (fleet.yaml)
-fleet_file = os.path.join(repo_root, "config/fleet.yaml")
-fleet_example = os.path.join(repo_root, "config/fleet.example.yaml")
+fleet_file = os.path.join(repo_root, ".agents/config/fleet.yaml")
+fleet_example = os.path.join(repo_root, ".agents/config/fleet.example.yaml")
+if not os.path.exists(fleet_file):
+    legacy_fleet = os.path.join(repo_root, "config/fleet.yaml")
+    if os.path.exists(legacy_fleet):
+        print(f"⚠️  DEPRECATED: {legacy_fleet} es una ruta obsoleta. Migrar a .agents/config/fleet.yaml", file=sys.stderr)
+        fleet_file = legacy_fleet
+
+if not os.path.exists(fleet_example):
+    legacy_example = os.path.join(repo_root, "config/fleet.example.yaml")
+    if os.path.exists(legacy_example):
+        print(f"⚠️  DEPRECATED: {legacy_example} es una ruta obsoleta. Migrar a .agents/config/fleet.example.yaml", file=sys.stderr)
+        fleet_example = legacy_example
+
 target_fleet_path = fleet_file if os.path.exists(fleet_file) else fleet_example
 
 configured_nodes = {}
@@ -361,7 +379,7 @@ discovery_data = {
     }
 }
 
-# 10. Modo Aplicar (--apply): Fusión segura en config/fleet.yaml
+# 10. Modo Aplicar (--apply): Fusión segura en .agents/config/fleet.yaml
 if apply_flag:
     target_data = {}
     if os.path.exists(fleet_file) and HAS_YAML:
@@ -369,7 +387,7 @@ if apply_flag:
             with open(fleet_file, "r", encoding="utf-8") as f:
                 target_data = yaml.safe_load(f) or {}
         except Exception as e:
-            print(f"⚠️ Error leyendo config/fleet.yaml existente: {e}", file=sys.stderr)
+            print(f"⚠️ Error leyendo {fleet_file} existente: {e}", file=sys.stderr)
     elif os.path.exists(fleet_example) and HAS_YAML:
         try:
             with open(fleet_example, "r", encoding="utf-8") as f:
@@ -410,11 +428,14 @@ if apply_flag:
     # Guardar de forma segura sin sobreescribir nodes ni mcpServers
     if HAS_YAML:
         try:
+            os.makedirs(os.path.dirname(fleet_file), exist_ok=True)
             with open(fleet_file, "w", encoding="utf-8") as f:
                 yaml.dump(target_data, f, sort_keys=False, allow_unicode=True, default_flow_style=False)
-            print(f"✅ config/fleet.yaml actualizado con éxito (CLIs: {len(installed_clis)}, Cuentas agy: {len(antigravity_accounts)}, Web tools: {len(discovered_web_tools)}).")
+            rel_fleet = os.path.relpath(fleet_file, repo_root)
+            print(f"✅ {rel_fleet} actualizado con éxito (CLIs: {len(installed_clis)}, Cuentas agy: {len(antigravity_accounts)}, Web tools: {len(discovered_web_tools)}).")
         except Exception as e:
-            print(f"❌ Error al escribir config/fleet.yaml: {e}", file=sys.stderr)
+            rel_fleet = os.path.relpath(fleet_file, repo_root)
+            print(f"❌ Error al escribir {rel_fleet}: {e}", file=sys.stderr)
 
 # 11. Modo Documentación (--docs): Generar vista humana unificada
 if docs_flag:

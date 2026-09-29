@@ -36,7 +36,7 @@ Verifica deterministamente el estado operativo del tooling local ejecutando los 
 | **Tailscale** | `tailscale status` | Malla conectada (nodo local online) | Ejecutar `sudo tailscale up` o iniciar el servicio con `sudo systemctl start tailscaled`. |
 | **Docker** | `docker info` | Demonio respondiendo | Iniciar demonio con `sudo systemctl start docker` y verificar pertenencia al grupo `docker`. |
 
-> 💡 **Diagnóstico integral de flota**: Si existe configuración de flota (`config/fleet.yaml`), ejecuta de forma determinista `bash scripts/agent/fleet-doctor.sh` para evaluar la conectividad viva de la malla Tailscale y pasarelas de inferencia sin consumir tokens.
+> 💡 **Diagnóstico integral de flota**: Si existe configuración de flota (`.agents/config/fleet.yaml`), ejecuta de forma determinista `bash scripts/agent/fleet-doctor.sh` para evaluar la conectividad viva de la malla Tailscale y pasarelas de inferencia sin consumir tokens.
 
 ### 5. Mapa de Navegación del Repositorio ("¿Dónde está cada cosa?")
 
@@ -44,6 +44,7 @@ Verifica deterministamente el estado operativo del tooling local ejecutando los 
 |---|---|---|
 | **Reglas Globales** | [.agents/rules/global/](.agents/rules/global/) | Reglas agnósticas de comportamiento, calidad y gobernanza para agentes. |
 | **Gobernanza Determinista** | [.agents/rules/global/deterministic-execution.md](.agents/rules/global/deterministic-execution.md) | Regla canónica anti-improvisación, pre-flights obligatorios y verificación determinista. |
+| **Configuración Runtime** | [.agents/config/](.agents/config/) | Registro de agentes, routing, manifiesto de skills y overlays locales de flota. |
 | **Habilidades (Skills)** | [.agents/skills/](.agents/skills/) | Directorios modulares con `SKILL.md` que capacitan al agente en tareas especializadas. |
 | **Workflows** | [.agents/workflows/](.agents/workflows/) | Protocolos paso a paso para ceremonias (`session-start`, `session-close`, `sprint-planning`). |
 | **Scripts CLI de Agente** | [scripts/agent/](scripts/agent/) | Herramientas deterministas en Bash/Python para auditoría, instalación, sincronización y tests. |

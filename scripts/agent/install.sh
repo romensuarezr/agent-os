@@ -320,7 +320,11 @@ if [[ "$CHECK_MODE" == true ]]; then
     fi
 
     echo "  🛠️  Skills a instalar (modo: $SKILL_MODE, stack detectado: $DETECTED_STACK):"
-    MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
+    MANIFEST_FILE="$AGENT_OS_PATH/.agents/config/skills-manifest.yaml"
+    if [ ! -f "$MANIFEST_FILE" ] && [ -f "$AGENT_OS_PATH/config/skills-manifest.yaml" ]; then
+        echo "⚠️  DEPRECATED: $AGENT_OS_PATH/config/skills-manifest.yaml es una ruta obsoleta. Migrar a .agents/config/skills-manifest.yaml" >&2
+        MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
+    fi
     if [ -f "$MANIFEST_FILE" ]; then
         while IFS="|" read -r sname stag sreason; do
             [ -n "$sname" ] || continue
@@ -409,6 +413,7 @@ mkdir -p "$TARGET_SKILLS"
 mkdir -p "$TARGET_PROFILES"
 mkdir -p "$TARGET_GOALS"
 mkdir -p "$TARGET_PROJECT/.agents/context"
+mkdir -p "$TARGET_PROJECT/.agents/config"
 mkdir -p "$TARGET_SCRIPTS"
 
 # 2. Crear estructura de documentación
@@ -443,7 +448,11 @@ if [ -d "$AGENT_OS_WORKFLOWS" ]; then
 fi
 
 # 5. Copiar skills (instalación selectiva según manifiesto)
-MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
+MANIFEST_FILE="$AGENT_OS_PATH/.agents/config/skills-manifest.yaml"
+if [ ! -f "$MANIFEST_FILE" ] && [ -f "$AGENT_OS_PATH/config/skills-manifest.yaml" ]; then
+    echo "⚠️  DEPRECATED: $AGENT_OS_PATH/config/skills-manifest.yaml es una ruta obsoleta. Migrar a .agents/config/skills-manifest.yaml" >&2
+    MANIFEST_FILE="$AGENT_OS_PATH/config/skills-manifest.yaml"
+fi
 if [ -f "$MANIFEST_FILE" ]; then
     if [ "$SKILL_MODE" = "recommended" ]; then
         if [ -t 0 ]; then
@@ -527,6 +536,21 @@ if [ -d "$AGENT_OS_PROFILES" ]; then
         fi
     done
     echo "✅ Perfiles de agente instalados (sin sobreescribir)."
+fi
+
+# 7b. Copiar configuraciones runtime base (excluyendo explícitamente fleet.yaml y fleet.local.yaml)
+if [ -d "$AGENT_OS_PATH/.agents/config" ]; then
+    mkdir -p "$TARGET_PROJECT/.agents/config"
+    for cfg in "$AGENT_OS_PATH/.agents/config"/*; do
+        [ -f "$cfg" ] || continue
+        cfg_name=$(basename "$cfg")
+        # EXCLUSIÓN CRÍTICA: Nunca copiar overlays privados de flota
+        if [ "$cfg_name" = "fleet.yaml" ] || [ "$cfg_name" = "fleet.local.yaml" ]; then
+            continue
+        fi
+        cp -n "$cfg" "$TARGET_PROJECT/.agents/config/"
+    done
+    echo "✅ Configuraciones runtime instaladas en .agents/config/ (overlay privado fleet.yaml excluido)."
 fi
 
 # 8. Copiar templates de metas (sin sobreescribir)

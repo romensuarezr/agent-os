@@ -30,7 +30,7 @@ Uso: $(basename "$0") [OPCIONES]
 Diagnóstico determinista de herramientas locales, autenticación y conectividad de flota.
 
 Opciones:
-  --fleet <ruta>       Ruta al archivo fleet.yaml (defecto: config/fleet.yaml, fallback: config/fleet.example.yaml)
+  --fleet <ruta>       Ruta al archivo fleet.yaml (defecto: .agents/config/fleet.yaml, fallback: .agents/config/fleet.example.yaml)
   --json               Emite el digest estructurado en JSON para agentes y orquestadores
   --timeout <segundos> Timeout estricto por socket/endpoint (defecto: 2s)
   --strict             Retorna código 1 si algún CLI o servicio falla
@@ -80,9 +80,18 @@ done
 # Resolver ruta de archivo fleet si no fue proporcionada
 DOC_MODE=false
 if [[ -z "$FLEET_FILE" ]]; then
-  if [[ -f "$REPO_ROOT/config/fleet.yaml" ]]; then
+  if [[ -f "$REPO_ROOT/.agents/config/fleet.yaml" ]]; then
+    FLEET_FILE="$REPO_ROOT/.agents/config/fleet.yaml"
+  elif [[ -f "$REPO_ROOT/config/fleet.yaml" ]]; then
+    # Fallback retrocompatible para proyectos hijos desactualizados
+    echo "⚠️  DEPRECATED: $REPO_ROOT/config/fleet.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.yaml" >&2
     FLEET_FILE="$REPO_ROOT/config/fleet.yaml"
+  elif [[ -f "$REPO_ROOT/.agents/config/fleet.example.yaml" ]]; then
+    FLEET_FILE="$REPO_ROOT/.agents/config/fleet.example.yaml"
+    DOC_MODE=true
   elif [[ -f "$REPO_ROOT/config/fleet.example.yaml" ]]; then
+    # Fallback retrocompatible para proyectos hijos desactualizados
+    echo "⚠️  DEPRECATED: $REPO_ROOT/config/fleet.example.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.example.yaml" >&2
     FLEET_FILE="$REPO_ROOT/config/fleet.example.yaml"
     DOC_MODE=true
   else
@@ -370,7 +379,7 @@ if json_mode:
         "clis": clis_status,
         "authentication": auth_status,
         "fleet": {
-            "source": "config/fleet.example.yaml" if doc_mode else (fleet_file if fleet_file else "config/fleet.yaml"),
+            "source": ".agents/config/fleet.example.yaml" if doc_mode else (fleet_file if fleet_file else ".agents/config/fleet.yaml"),
             "mode": fleet_mode_status,
             "nodes": nodes_result
         }
@@ -382,9 +391,9 @@ if json_mode:
 lines = []
 lines.append("=== FLEET DOCTOR DIGEST ===")
 if not HAS_YAML:
-    fleet_source_label = f"{fleet_file if fleet_file else 'config/fleet.yaml'} [MODE: NO_YAML_LIB]"
+    fleet_source_label = f"{fleet_file if fleet_file else '.agents/config/fleet.yaml'} [MODE: NO_YAML_LIB]"
 else:
-    fleet_source_label = "config/fleet.yaml (active overlay)" if not doc_mode else "config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]"
+    fleet_source_label = ".agents/config/fleet.yaml (active overlay)" if not doc_mode else ".agents/config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]"
 lines.append(f"Fleet: {fleet_source_label}")
 
 # Línea compacta de CLIs

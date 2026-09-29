@@ -73,6 +73,6 @@ El VPS `<nodo-orquestacion>` (`<nodo-datos>`) alberga la infraestructura de prod
 
 ## 4. Referencias
 - [docs/architecture/control-plane-topology.md](file://$AGENT_OS_HOME/docs/architecture/control-plane-topology.md)
-- [config/agent-registry.yaml](file://$AGENT_OS_HOME/config/agent-registry.yaml)
-- [config/routing-policy.yaml](file://$AGENT_OS_HOME/config/routing-policy.yaml)
+- [.agents/config/agent-registry.yaml](file://$AGENT_OS_HOME/.agents/config/agent-registry.yaml)
+- [.agents/config/routing-policy.yaml](file://$AGENT_OS_HOME/.agents/config/routing-policy.yaml)
 - [.agents/rules/global/agent-permissions.md](file://$AGENT_OS_HOME/.agents/rules/global/agent-permissions.md)

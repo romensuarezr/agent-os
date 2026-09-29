@@ -57,7 +57,7 @@ fi
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
 echo -e "🔍 [1/12] Validando sintaxis YAML de perfiles y configuraciones..."
-YAML_FILES=$(find .agents/profiles config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
+YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
   for f in $YAML_FILES; do
@@ -362,7 +362,7 @@ if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
   ERRORS=$((ERRORS + 1))
 else
-  if bash "$HOMEPAGE_SCRIPT" --fleet config/fleet.example.yaml --check >/dev/null 2>&1; then
+  if bash "$HOMEPAGE_SCRIPT" --fleet .agents/config/fleet.example.yaml --check >/dev/null 2>&1; then
     echo -e "  ✅ generate-homepage-config.sh genera configuraciones válidas a partir de fleet.example.yaml en modo agnóstico."
   else
     echo -e "  ❌ ERROR: generate-homepage-config.sh falló al procesar fleet.example.yaml en modo --check."
@@ -384,23 +384,23 @@ elif ! bash -n "$DOCTOR_SCRIPT" 2>/dev/null; then
   echo -e "  ❌ Error de sintaxis (bash -n) en: $DOCTOR_SCRIPT"
   ERRORS=$((ERRORS + 1))
 else
-  # 1. Comprobar que fleet-doctor valida sintaxis y procesa config/fleet.example.yaml en modo agnóstico
-  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DOCTOR_SCRIPT', '--fleet', 'config/fleet.example.yaml', '--json']); data = json.loads(out); assert 'summary' in data and data['fleet']['mode'] == 'SKIPPED-NO-FLEET'" 2>/dev/null; then
-    echo -e "  ✅ fleet-doctor.sh valida sintaxis y procesa config/fleet.example.yaml deterministamente."
+  # 1. Comprobar que fleet-doctor valida sintaxis y procesa .agents/config/fleet.example.yaml en modo agnóstico
+  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DOCTOR_SCRIPT', '--fleet', '.agents/config/fleet.example.yaml', '--json']); data = json.loads(out); assert 'summary' in data and data['fleet']['mode'] == 'SKIPPED-NO-FLEET'" 2>/dev/null; then
+    echo -e "  ✅ fleet-doctor.sh valida sintaxis y procesa .agents/config/fleet.example.yaml deterministamente."
   else
-    echo -e "  ❌ ERROR: fleet-doctor.sh falló al procesar config/fleet.example.yaml."
+    echo -e "  ❌ ERROR: fleet-doctor.sh falló al procesar .agents/config/fleet.example.yaml."
     ERRORS=$((ERRORS + 1))
   fi
 
-  # 2. Check condicional sobre entorno real / config/fleet.yaml
-  if [ -f "config/fleet.yaml" ]; then
+  # 2. Check condicional sobre entorno real / .agents/config/fleet.yaml
+  if [ -f ".agents/config/fleet.yaml" ]; then
     if bash "$DOCTOR_SCRIPT" --strict >/dev/null 2>&1; then
       echo -e "  ✅ fleet.yaml detectado: diagnóstico de flota ejecutado y saludable."
     else
       echo -e "  ⚠️  fleet.yaml detectado pero se detectaron servicios o CLIs degradados."
     fi
   else
-    echo -e "  ℹ️  [SKIP CONDICIONAL] config/fleet.yaml no existe en este entorno: conectividad viva omitida de forma segura."
+    echo -e "  ℹ️  [SKIP CONDICIONAL] .agents/config/fleet.yaml no existe en este entorno: conectividad viva omitida de forma segura."
   fi
 fi
 
