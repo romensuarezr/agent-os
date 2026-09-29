@@ -90,4 +90,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-29T21:43:41+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-083-estandarizacion-cli-skills
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
