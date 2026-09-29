@@ -18,12 +18,23 @@ El agente **DEBE** seguir este orden prioritario para obtener el estado y las di
 1. **Lectura Prioritaria Dinámica (`config/fleet.yaml`)**:
    - Comprueba si existe el archivo de configuración privado `config/fleet.yaml` en la raíz del proyecto.
    - Si existe: extrae de allí las herramientas instaladas localmente (`local_environment`), los nodos activos (`nodes`), los servidores MCP registrados (`mcpServers`) y las políticas de inferencia (`routing`).
-2. **Fallback y Auto-Descubrimiento (`discover-fleet.sh`)**:
+2. **Fallback y Auto-Descubrimiento Local (`discover-fleet.sh`)**:
    - Si `config/fleet.yaml` no existe en la máquina o deseas refrescar las herramientas instaladas:
      - Ejecuta `bash scripts/agent/discover-fleet.sh --apply --docs`.
-     - El script auto-detecta deterministamente el SO, gestores de paquetes, perfiles y cuentas Antigravity (`agy`, `agy2`, etc.), clientes CLI de IA, Docker, Tailscale y marcadores de navegador (Chrome, Brave, Firefox) usando [config/known-web-tools.yaml](../../../config/known-web-tools.yaml) y heurísticas de carpetas IA.
-     - Preserva intactos los nodos remotos (`nodes`), servidores MCP (`mcpServers`) y unifica la visión de la flota en `docs/architecture/tools/local-environment.local.md`.
-     - Consulta de pasarelas candidatas evaluadas: [docs/architecture/tools/candidate-gateways.md](../../../docs/architecture/tools/candidate-gateways.md).
+     - El script auto-detecta deterministamente:
+       - **Sistema y distribución**: SO, arquitectura, distro.
+       - **Gestores de paquetes de sistema y stack**: `apt`, `pacman`, `dnf`, `brew`, `npm`, `pnpm`, `yarn`, `bun`, `pip`, `cargo`, `composer`, `gem`, `bundle`, `dotnet`, `mvn`, `gradle`, etc.
+       - **CLIs estándar y Cloud**: `git`, `gh`, `docker`, `tailscale`, CLIs Cloud (`aws`, `gcloud`, `az`), `infisical`, `ngrok`, `cloudflared`, `stripe`, `supabase`, `sentry-cli`, `uv`, runtimes (`node`, `bun`, `python3`).
+       - **Perfiles y cuentas Antigravity**: wrappers y cuentas dinámicas (`agy`, `agy2`, etc.).
+       - **Herramientas Web AI**: marcadores de navegadores basados en Chromium (Chrome, Brave, Chromium) cruzados con [config/known-web-tools.yaml](../../../config/known-web-tools.yaml).
+     - Preserva intactos los nodos remotos (`nodes`) y servidores MCP (`mcpServers`).
+3. **Auditoría de Propiedades del Repositorio (`audit-repo.sh`)**:
+   - Para descubrir el stack y la infraestructura propia del repositorio destino:
+     - Ejecuta `bash scripts/agent/audit-repo.sh`.
+     - Detecta: stack tecnológico (11 ecosistemas vía `detect-stack.sh` o `unknown`), CI/CD (`.github/workflows/`, `.gitlab-ci.yml`, `Jenkinsfile`) e IaC (`terraform/`, `*.tf`, `docker-compose*.yml`). Lo no presente se declara honestamente como `ninguno detectado`.
+4. **Declaración Manual de MCPs y Nodos Cloud (Honestidad Técnica)**:
+   - > [!IMPORTANT]
+   - > **Los servidores MCP y servicios cloud remotos son configuración manual declarativa en `config/fleet.yaml`**. No existe ni se finge auto-detección mágica de servidores MCP o endpoints cloud remotos: deben definirse en `config/fleet.yaml` siguiendo la estructura de [config/fleet.example.yaml](../../../config/fleet.example.yaml).
 
 ---
 
@@ -42,6 +53,7 @@ bash scripts/agent/discover-fleet.sh --json
 
 - **Catálogo de firmas Web AI**: [config/known-web-tools.yaml](../../../config/known-web-tools.yaml) (editable para añadir nuevos dominios).
 - **Documento humano generado**: `docs/architecture/tools/local-environment.local.md` (ignorado en git para proteger privacidad local).
+- **Consulta de pasarelas candidatas evaluadas**: [docs/architecture/tools/candidate-gateways.md](../../../docs/architecture/tools/candidate-gateways.md).
 
 
 ---
