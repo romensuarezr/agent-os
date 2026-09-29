@@ -16,7 +16,7 @@
 | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | T-085 | Namespacing de configuración runtime (`config/` → `.agents/config/`) y blindaje de overlays | Arquitectura / Core Standard | M | 🟢 Completada | — | [.agents/tasks/_archived/task-085.md](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/tasks/_archived/task-085.md) |
 | T-086 | Detección defensiva de stack y runtimes en `detect-stack.sh` (resolución lockfile vs PATH) | Bug del sistema / DX | S | 🟢 Completada | — | [.agents/tasks/_archived/task-086.md](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/tasks/_archived/task-086.md) |
-| T-087 | Distribución universal del Core — One-Liner reejecutable e instalación idempotente pineada a release tag | Universalización / Core | M | 🟡 En curso | T-085 | `.agents/tasks/task-087.md` |
+| T-087 | Distribución universal del Core — One-Liner reejecutable e instalación idempotente pineada a release tag | Universalización / Core | M | 🟢 Completada | T-085 | [.agents/tasks/_archived/task-087.md](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/tasks/_archived/task-087.md) |
 | T-088 | Ledger de versiones del core y auditoría de salud en satélites (`audit-child.sh` con suite dedicada) | Gobernanza / DX | M | ⬜ Pendiente | T-087 | `.agents/tasks/task-088.md` |
 | T-089 | Setup guiado y generación determinista de perfiles adaptados al stack | DX / Universalización | S | ⬜ Pendiente | T-085, T-086 | `.agents/tasks/task-089.md` |
 | T-090 | Prueba ciega 0-contexto de distribución e instalación desatendida en repo efímero | Validación Externa / QA | S | ⬜ Pendiente | T-087, T-088, T-089 | `.agents/tasks/task-090.md` |

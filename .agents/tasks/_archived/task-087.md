@@ -6,8 +6,13 @@ Crear y formalizar el mecanismo de distribución universal del core de Agent OS 
 ## Contexto técnico y Dependencias
 - **Prerrequisito obligatorio**: `T-085` completado (namespacing runtime a `.agents/config/` operativo).
 - **Ejecución remota vía pipe (`curl | bash`)**: Cuando `install.sh` se ejecuta canalizado por `curl -fsSL https://raw.githubusercontent.com/romensuarezr/agent-os/<tag>/scripts/agent/install.sh | bash -s -- [destino]` o como script individual sin un clon local del core, `$BASH_SOURCE[0]` carece de directorio padre con los assets. `install.sh` debe detectar automáticamente la ausencia del árbol local de `AGENT_OS_PATH` y descargar/clonar de forma efímera y determinista el release tarball o repositorio en el tag especificado.
-- **Pinchado estricto a tag de release y Fuente de Verdad (`VERSION`)**: Se crea el archivo `VERSION` en la raíz del core (una línea, ej. `1.11.0`) como fuente de verdad canónica. Cuando `install.sh` se ejecuta desde un clon local del core, lee `VERSION` para el valor por defecto de `--tag` / `AGENT_OS_TAG`; en ejecución remota pura el one-liner del README pinea el tag explícitamente en la URL y en `--tag` (nunca `main`, nunca `latest`). El proceso de release futuro (`close-sprint.sh` / release workflow) incluye el bump atómico de `VERSION`.
+- **Pinchado estricto a tag de release y Fuente de Verdad (`VERSION`)**: Se crea el archivo `VERSION` en la raíz del core (una línea, ej. `1.11.0`) como fuente de verdad canónica. Cuando `install.sh` se ejecuta desde un clon local del core, lee `VERSION` para el valor por defecto de `--tag` / `AGENT_OS_TAG`; en ejecución remota pura el one-liner del README pinea el tag explícitamente en la URL y en `--tag` (nunca `main`, nunca `latest`).
 - **ADR-006 (Distribución Universal y no reducible a skills sueltas)**: Formaliza la decisión arquitectónica de por qué Agent OS se distribuye como un sistema operativo de agentes integral (gobernanza, workflows, rules, perfiles, scripts, `audit-child`) y no como un catálogo fragmentado tipo `npx skills add`.
+
+## Proceso de Release e Invariantes de Versión
+1. **Fuente de verdad**: `VERSION` es la única fuente de verdad canónica del core.
+2. **Bump atómico**: Al cerrar un sprint (`close-sprint.sh` / release workflow), se bumpéa atómicamente `VERSION` y se sincroniza con `changelog.md`.
+3. **Creación y push de Tag Git**: Cada cierre de sprint crea y pushea a `origin` el tag git anotado correspondiente a `VERSION` (ej: `git tag vX.Y.Z <commit> -m "release vX.Y.Z — sprint-XX-core" && git push origin vX.Y.Z`), garantizando que la URL del one-liner y las instalaciones desatendidas resuelvan inmediatamente con HTTP 200 en GitHub.
 
 ## Caja de archivos
 Archivos autorizados para modificación / creación:
@@ -39,4 +44,4 @@ Archivos autorizados para modificación / creación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-30T00:10:43+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-087-universal-core-distribution
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
