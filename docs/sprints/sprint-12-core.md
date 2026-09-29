@@ -18,7 +18,7 @@
 | T-081 | Portabilidad Shell, Robustez CLI y Validación de Sincronización en `sync.sh` | Bug del sistema / DX | S | 🟢 Done | — | `.agents/tasks/task-081.md` |
 | T-082 | Coherencia de Gobernanza, Resolución de Contradicciones y Precedencia de Perfiles | Gobernanza / Core Standard | M | 🟢 Done | — | `.agents/tasks/task-082.md` |
 | T-083 | Estandarización de Interfaz CLI (`--help` en 15 scripts) y Normalización de Skills | DX / Universalización | M | 🟢 Done | — | `.agents/tasks/task-083.md` |
-| T-084 | Pilotaje del core portable en repo real (`romensuarez-web`) | Validación Externa / DX | S | 🟡 En curso | T-080, T-081 | `.agents/tasks/task-084.md` |
+| T-084 | Pilotaje del core portable en repo real (`romensuarez-web`) | Validación Externa / DX | S | 🟢 Done | T-080, T-081 | `.agents/tasks/task-084.md` |
 
 ---
 
