@@ -1,11 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 11**: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079) — Fichero: `docs/sprints/sprint-11-core.md`.
-  - ✅ **Done**: T-067 (`fleet-doctor.sh`), T-068 (Homepage producción), T-069 (Blindaje install/sync), T-070 (Regla determinista & contradicciones), T-071 (Descubrimiento 0-contexto), T-072 (Purga infra personal), T-073 (Rules/skills agnósticas), T-074 (`detect-stack.sh` universal), T-075 (Portabilidad shell), T-076 (Skills selectivas), T-077 (`tool-inventory` & `repo-onboarding` stack/CI/IaC/CLIs), T-078 (Higiene documental), T-079 (Prueba ciega 0-contexto).
-  - ⬜ **Pendiente**: Ninguna (Sprint 11 completado al 100%).
+- **Sprint 12**: Core Hardening, Gobernanza & Pilotaje Portable (T-080 a T-084) — Fichero: `docs/sprints/sprint-12-core.md`.
+  - ⬜ **Pendiente**: T-080 (Purga extendida), T-081 (Portabilidad shell & sync), T-082 (Gobernanza & perfiles), T-083 (CLI --help & skills), T-084 (Pilotaje romensuarez-web).
 
 ## Completado recientemente
+- Sprint 11: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079).
 - Sprint 10: Homepage Fleet Observability, Perimetral Security & AI Telemetry (T-060 a T-065).
 - Sprint 09: Multi-Agent Parallel Orchestration & Deterministic Goals Engine (T-054 a T-059).
 
