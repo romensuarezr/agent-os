@@ -35,4 +35,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-29T20:00:56+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-079-zero-context-blind-test
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
