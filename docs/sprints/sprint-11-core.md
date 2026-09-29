@@ -28,7 +28,7 @@
 | T-076 | Instalación selectiva de skills por stack (`--minimal`/`--full`, manifiesto con etiquetas) | Universalización / DX | M | 🟢 Done | T-074 | `.agents/tasks/task-076.md` |
 | T-077 | `tool-inventory` y `repo-onboarding` detectan stack, CI/CD, IaC y CLIs cloud; sin promesas no implementadas | Nueva herramienta / DX | M | 🟢 Done | T-074 | `.agents/tasks/task-077.md` |
 | T-078 | Higiene documental: versiones, changelog, roadmap, runbooks reutilizables, convenciones de ficheros | Documentación | M | 🟢 Done | — | `.agents/tasks/task-078.md` |
-| T-079 | **Prueba ciega 0-contexto** — criterio de aceptación del sprint (si falla, el sprint no cierra) | Gobernanza / DX | S | 🟡 En curso | Todas | `.agents/tasks/task-079.md` |
+| T-079 | **Prueba ciega 0-contexto** — criterio de aceptación del sprint (si falla, el sprint no cierra) | Gobernanza / DX | S | 🟢 Done | Todas | `.agents/tasks/task-079.md` |
 
 ---
 
