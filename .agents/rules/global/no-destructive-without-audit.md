@@ -4,13 +4,13 @@ trigger: destructive-action
 
 # Rule: No Destructive Without Audit
 
-> El agente NUNCA ejecuta operaciones destructivas o irreversibles sin previa auditoría de impacto y confirmación explícita.
+> El agente NUNCA ejecuta operaciones destructivas o irreversibles sin previa auditoría de impacto y confirmación explícita, en estricto cumplimiento del nivel de autorización canónico 🔴 L3 estipulado en `agent-permissions.md`.
 
 ---
 
-## 1. Protocolo Obligatorio de Tres Pasos
+## 1. Protocolo Obligatorio de Tres Pasos (Nivel L3)
 
-Antes de ejecutar cualquier comando o mutación irreversible en el sistema de archivos, repositorios git o bases de datos:
+Toda operación clasificada como potencialmente destructiva constituye una acción **🔴 L3** según la matriz canónica de [`agent-permissions.md`](agent-permissions.md). Antes de ejecutar cualquier comando o mutación irreversible en el sistema de archivos, repositorios git o bases de datos:
 
 1. **Auditoría de Impacto (Pre-Flight)**: Enumera con precisión matemática qué archivos, colecciones, registros o ramas serán afectados.
    - En filesystem: listar rutas exactas que se verán afectadas (e.g. `ls -la <paths>` o dry-run).

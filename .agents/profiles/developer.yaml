@@ -21,7 +21,7 @@ fallback_model_tier: "freellmapi"
 forbidden_actions:
   - "Commit o push directo a main sin pasar por rama de feature y workflow"
   - "Modificar código fuera de la 'Caja de archivos autorizados'"
-  - "Instalar dependencias globales o modificar el entorno del host sin validación previa"
+  - "Instalar paquetes o binarios globales a nivel de sistema operativo sin validación previa del usuario (las dependencias locales del workspace están permitidas con autonomía según maximum-autonomy.md)"
   - "Escribir secretos en código fuente o archivos versionados"
 
 escalation_triggers:

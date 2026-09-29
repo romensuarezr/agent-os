@@ -28,7 +28,7 @@ En estos casos:
 2. **Planificación (No-Code Plan)**: Crea un `implementation_plan.md` (o resumen) antes de tocar código.
 3. **Feature Branches**: Nunca trabajes directamente en `main` o `staging`.
    - `git checkout -b feat/nombre-descriptivo`
-4. **Verificación**: Cada cambio debe ser verificado (test/render) antes de dar por cerrada la tarea.
+4. **Verificación Pre-Push**: Todo cambio debe superar el pipeline canónico de validación local definido en [`deployment-safety.md` §4](deployment-safety.md) (compilación/tipos, tests de unidad y smoke test local) antes de dar por cerrada la tarea o solicitar promoción.
 
 ## 🚀 Aprobación de Núcleo (Core Changes)
 
