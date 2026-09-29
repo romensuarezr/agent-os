@@ -9,7 +9,6 @@ SSH_CONFIG=""
 CANDIDATES=(
   "${HOME}/.ssh/config"
   "/home/${USER:-$(whoami)}/.ssh/config"
-  "/Users/${USER:-$(whoami)}/.ssh/config"
 )
 
 for c in "${CANDIDATES[@]}"; do
