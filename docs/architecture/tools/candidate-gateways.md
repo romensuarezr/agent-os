@@ -13,13 +13,13 @@
 
 1. **FreeLLMAPI**:
    - **Estado real**: Está completamente instalado y operativo en el nodo remoto `datamanager` (`http://100.77.82.13:3001/v1`).
-   - **Causa del desajuste inicial**: La primera versión de `discover-fleet.sh` únicamente auditaba el entorno local (Capa 1: binarios en PATH, marcadores de navegador y peers de Tailscale). No leía la sección `nodes` de `config/fleet.yaml`.
-   - **Solución implementada**: `discover-fleet.sh` ahora lee bidireccionalmente `config/fleet.yaml`, unificando en el reporte (`local-environment.local.md`) tanto las herramientas locales como los gateways de inferencia remotos configurados.
+   - **Causa del desajuste inicial**: La primera versión de `discover-fleet.sh` únicamente auditaba el entorno local (Capa 1: binarios en PATH, marcadores de navegador y peers de Tailscale). No leía la sección `nodes` de `.agents/config/fleet.yaml`.
+   - **Solución implementada**: `discover-fleet.sh` ahora lee bidireccionalmente `.agents/config/fleet.yaml`, unificando en el reporte (`local-environment.local.md`) tanto las herramientas locales como los gateways de inferencia remotos configurados.
 
 2. **OmniRouter / OmniRoute**:
    - **Estado real**: Se confirmó la existencia de la credencial `OMNIROUTER_API_KEY` en `/home/romen/Proyectos/Agencia_IA/.env:21`.
    - **Causa del desajuste inicial**: Fue evaluado vía API / SaaS web. No existe una instalación local de CLI (ej. `npm install -g omniroute`), ni un contenedor Docker en el host o en los VPS `datamanager`/`oracle`, ni un marcador de navegador indexado bajo ese dominio.
-   - **Solución implementada**: Se añadieron las firmas de dominio a `config/known-web-tools.yaml` y se realizó la presente prospección tecnológica determinista para evaluar su adopción formal en el stack de Agent OS.
+   - **Solución implementada**: Se añadieron las firmas de dominio a `.agents/config/known-web-tools.yaml` y se realizó la presente prospección tecnológica determinista para evaluar su adopción formal en el stack de Agent OS.
 
 ---
 
@@ -69,6 +69,6 @@ Si se decide incorporar OmniRoute al stack operativo:
 ## 5. Resumen de Decisiones
 
 - [x] Documentar el diagnóstico técnico de `freellmapi` y `omnirouter`.
-- [x] Añadir dominios y firmas de routers a `config/known-web-tools.yaml`.
+- [x] Añadir dominios y firmas de routers a `.agents/config/known-web-tools.yaml`.
 - [x] Unificar la visibilidad de pasarelas remotas y locales en `discover-fleet.sh`.
 - [ ] *(Opcional para próximo sprint)*: Evaluar despliegue de contenedor de OmniRoute en `datamanager` como backend secundario de inferencia gratuita.

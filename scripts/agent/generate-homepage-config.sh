@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # scripts/agent/generate-homepage-config.sh — Agent OS
-# Generates declarative Homepage dashboard YAML configurations from config/fleet.yaml
+# Generates declarative Homepage dashboard YAML configurations from .agents/config/fleet.yaml
 # Fully agnostic & modular: reads telemetry, monitoring & service endpoints dynamically
 # ==============================================================================
 set -euo pipefail
@@ -16,9 +16,20 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-FLEET_FILE="$REPO_ROOT/config/fleet.yaml"
+FLEET_FILE="$REPO_ROOT/.agents/config/fleet.yaml"
+if [[ ! -f "$FLEET_FILE" ]] && [[ -f "$REPO_ROOT/config/fleet.yaml" ]]; then
+  # Fallback retrocompatible para proyectos hijos desactualizados
+  echo "⚠️  DEPRECATED: $REPO_ROOT/config/fleet.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.yaml" >&2
+  FLEET_FILE="$REPO_ROOT/config/fleet.yaml"
+fi
 if [[ ! -f "$FLEET_FILE" ]]; then
-  FLEET_FILE="$REPO_ROOT/config/fleet.example.yaml"
+  if [[ -f "$REPO_ROOT/.agents/config/fleet.example.yaml" ]]; then
+    FLEET_FILE="$REPO_ROOT/.agents/config/fleet.example.yaml"
+  elif [[ -f "$REPO_ROOT/config/fleet.example.yaml" ]]; then
+    # Fallback retrocompatible para proyectos hijos desactualizados
+    echo "⚠️  DEPRECATED: $REPO_ROOT/config/fleet.example.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.example.yaml" >&2
+    FLEET_FILE="$REPO_ROOT/config/fleet.example.yaml"
+  fi
 fi
 
 OUT_DIR="$REPO_ROOT/templates/homepage/config"
@@ -29,10 +40,10 @@ usage() {
   cat <<EOF
 Uso: $(basename "$0") [OPCIONES]
 
-Genera las configuraciones YAML para el dashboard Homepage a partir de config/fleet.yaml.
+Genera las configuraciones YAML para el dashboard Homepage a partir de .agents/config/fleet.yaml.
 
 Opciones:
-  --fleet <path>        Ruta al archivo fleet.yaml (defecto: config/fleet.yaml)
+  --fleet <path>        Ruta al archivo fleet.yaml (defecto: .agents/config/fleet.yaml)
   --out-dir <path>      Directorio de salida para los YAMLs (defecto: templates/homepage/config)
   --remote-push <host>  Sincroniza los archivos generados con el VPS remoto vía SSH/docker
   --check               Modo comprobación (dry-run): parsea y valida sin escribir en disco
@@ -81,7 +92,7 @@ import re
 import socket
 import yaml
 
-fleet_file = os.environ.get("FLEET_FILE", "config/fleet.yaml")
+fleet_file = os.environ.get("FLEET_FILE", ".agents/config/fleet.yaml")
 out_dir = os.environ.get("OUT_DIR", "templates/homepage/config")
 check_only = os.environ.get("CHECK_ONLY") == "true"
 

@@ -2,7 +2,7 @@
 
 ## En curso
 - **Sprint 13**: Escalado, Distribución Universal del Core & Ciclo de Vida de Satélites (T-085 a T-090) — Fichero: `docs/sprints/sprint-13-core.md`.
-  - 🟡 **En curso**: T-085 (Namespacing de configuración runtime `config/` → `.agents/config/`).
+  - 🟢 **Completado**: T-085 (Namespacing de configuración runtime `config/` → `.agents/config/`).
   - ⬜ **Pendiente**: T-086 (Detección defensiva de stack en `detect-stack.sh`), T-087 (Distribución universal one-liner reejecutable), T-088 (Auditoría de salud y ledger de upgrades en satélites), T-089 (Setup guiado de perfiles en hijos), T-090 (Prueba ciega 0-contexto de distribución).
 
 ## Completado recientemente

@@ -1,6 +1,6 @@
 ---
 name: tool-inventory
-description: Consulta, selecciona y aprovecha el catálogo de herramientas activas de la flota (local, nodos remotos, web AI y MCPs) leyendo dinámicamente config/fleet.yaml antes de desarrollar soluciones desde cero.
+description: Consulta, selecciona y aprovecha el catálogo de herramientas activas de la flota (local, nodos remotos, web AI y MCPs) leyendo dinámicamente .agents/config/fleet.yaml antes de desarrollar soluciones desde cero.
 ---
 
 # 🛠️ Tool Inventory (Inventario Activo de la Flota)
@@ -11,27 +11,27 @@ Su objetivo es evitar la duplicación de esfuerzos, prevenir costes innecesarios
 
 ## Cuándo usar
 - Descubrir herramientas, servidores MCP, pasarelas de inferencia y nodos remotos disponibles en la flota antes de crear soluciones desde cero.
-- Consultar las capacidades de `config/fleet.yaml` para resolver routing de modelos, endpoints o utilidades CLI locales.
+- Consultar las capacidades de `.agents/config/fleet.yaml` para resolver routing de modelos, endpoints o utilidades CLI locales.
 - Actualizar o regenerar el inventario local de herramientas ejecutando `discover-fleet.sh`.
 
 ---
 
-## ⚡ Dinámica de Carga: La Fuente de Verdad es `config/fleet.yaml`
+## ⚡ Dinámica de Carga: La Fuente de Verdad es `.agents/config/fleet.yaml`
 
 El agente **DEBE** seguir este orden prioritario para obtener el estado y las direcciones de la infraestructura:
 
-1. **Lectura Prioritaria Dinámica (`config/fleet.yaml`)**:
-   - Comprueba si existe el archivo de configuración privado `config/fleet.yaml` en la raíz del proyecto.
+1. **Lectura Prioritaria Dinámica (`.agents/config/fleet.yaml`)**:
+   - Comprueba si existe el archivo de configuración privado `.agents/config/fleet.yaml` (o fallback legacy `config/fleet.yaml`).
    - Si existe: extrae de allí las herramientas instaladas localmente (`local_environment`), los nodos activos (`nodes`), los servidores MCP registrados (`mcpServers`) y las políticas de inferencia (`routing`).
 2. **Fallback y Auto-Descubrimiento Local (`discover-fleet.sh`)**:
-   - Si `config/fleet.yaml` no existe en la máquina o deseas refrescar las herramientas instaladas:
+   - Si `.agents/config/fleet.yaml` no existe en la máquina o deseas refrescar las herramientas instaladas:
      - Ejecuta `bash scripts/agent/discover-fleet.sh --apply --docs`.
      - El script auto-detecta deterministamente:
        - **Sistema y distribución**: SO, arquitectura, distro.
        - **Gestores de paquetes de sistema y stack**: `apt`, `pacman`, `dnf`, `brew`, `npm`, `pnpm`, `yarn`, `bun`, `pip`, `cargo`, `composer`, `gem`, `bundle`, `dotnet`, `mvn`, `gradle`, etc.
        - **CLIs estándar y Cloud**: `git`, `gh`, `docker`, `tailscale`, CLIs Cloud (`aws`, `gcloud`, `az`), `infisical`, `ngrok`, `cloudflared`, `stripe`, `supabase`, `sentry-cli`, `uv`, runtimes (`node`, `bun`, `python3`).
        - **Perfiles y cuentas Antigravity**: wrappers y cuentas dinámicas (`agy`, `agy2`, etc.).
-       - **Herramientas Web AI**: marcadores de navegadores basados en Chromium (Chrome, Brave, Chromium) cruzados con [config/known-web-tools.yaml](../../../config/known-web-tools.yaml).
+       - **Herramientas Web AI**: marcadores de navegadores basados en Chromium (Chrome, Brave, Chromium) cruzados con [.agents/config/known-web-tools.yaml](../../config/known-web-tools.yaml).
      - Preserva intactos los nodos remotos (`nodes`) y servidores MCP (`mcpServers`).
 3. **Auditoría de Propiedades del Repositorio (`audit-repo.sh`)**:
    - Para descubrir el stack y la infraestructura propia del repositorio destino:
@@ -39,7 +39,7 @@ El agente **DEBE** seguir este orden prioritario para obtener el estado y las di
      - Detecta: stack tecnológico (11 ecosistemas vía `detect-stack.sh` o `unknown`), CI/CD (`.github/workflows/`, `.gitlab-ci.yml`, `Jenkinsfile`) e IaC (`terraform/`, `*.tf`, `docker-compose*.yml`). Lo no presente se declara honestamente como `ninguno detectado`.
 4. **Declaración Manual de MCPs y Nodos Cloud (Honestidad Técnica)**:
    - > [!IMPORTANT]
-   - > **Los servidores MCP y servicios cloud remotos son configuración manual declarativa en `config/fleet.yaml`**. No existe ni se finge auto-detección mágica de servidores MCP o endpoints cloud remotos: deben definirse en `config/fleet.yaml` siguiendo la estructura de [config/fleet.example.yaml](../../../config/fleet.example.yaml).
+   - > **Los servidores MCP y servicios cloud remotos son configuración manual declarativa en `.agents/config/fleet.yaml`**. No existe ni se finge auto-detección mágica de servidores MCP o endpoints cloud remotos: deben definirse en `.agents/config/fleet.yaml` siguiendo la estructura de [.agents/config/fleet.example.yaml](../../config/fleet.example.yaml).
 
 ---
 
@@ -49,14 +49,14 @@ El agente **DEBE** seguir este orden prioritario para obtener el estado y las di
 # Diagnóstico rápido a stdout (0 tokens, sin modificar archivos)
 bash scripts/agent/discover-fleet.sh
 
-# Aplicar cambios a config/fleet.yaml y generar reporte legible para humanos
+# Aplicar cambios a .agents/config/fleet.yaml y generar reporte legible para humanos
 bash scripts/agent/discover-fleet.sh --apply --docs
 
 # Emitir digest en formato JSON
 bash scripts/agent/discover-fleet.sh --json
 ```
 
-- **Catálogo de firmas Web AI**: [config/known-web-tools.yaml](../../../config/known-web-tools.yaml) (editable para añadir nuevos dominios).
+- **Catálogo de firmas Web AI**: [.agents/config/known-web-tools.yaml](../../config/known-web-tools.yaml) (editable para añadir nuevos dominios).
 - **Documento humano generado**: `docs/architecture/tools/local-environment.local.md` (ignorado en git para proteger privacidad local).
 - **Consulta de pasarelas candidatas evaluadas**: [docs/architecture/tools/candidate-gateways.md](../../../docs/architecture/tools/candidate-gateways.md).
 
@@ -73,7 +73,7 @@ Para consultar o auditar la arquitectura en formato legible por personas, consul
 - **Capa 4 (Cloud & Web AI)**: `docs/architecture/tools/cloud-and-web-ai.md`
 
 > [!NOTE]
-> Esta skill es 100% portable y ligera. No contiene subcarpetas de referencias estáticas para no sobrecargar los proyectos hijos durante la sincronización (`sync.sh`). Toda la información operativa de runtime se extrae de `config/fleet.yaml`.
+> Esta skill es 100% portable y ligera. No contiene subcarpetas de referencias estáticas para no sobrecargar los proyectos hijos durante la sincronización (`sync.sh`). Toda la información operativa de runtime se extrae de `.agents/config/fleet.yaml`.
 
 
 ---
@@ -90,7 +90,7 @@ Antes de escribir código, desplegar contenedores o instalar librerías pesadas,
 - **Almacenamiento / Media**: Archivos estáticos, backups, objetos S3.
 
 ### Paso 2: Consulta Dinámica de la Flota
-Verifica si el servicio ya existe leyendo `config/fleet.yaml`:
+Verifica si el servicio ya existe leyendo `.agents/config/fleet.yaml`:
 
 | Categoría | Servicio Típico | Protocolo / Acceso Recomendado | ¿Cuándo Utilizarlo? |
 | :--- | :--- | :--- | :--- |
@@ -114,7 +114,7 @@ Verifica si el servicio ya existe leyendo `config/fleet.yaml`:
 
 ## 🔒 Reglas de Oro y Seguridad
 
-1. **Secreto Cero en Git**: Nunca registres credenciales o tokens en claro en archivos versionados. Úsalos vía variables de entorno (`$N8N_MCP_TOKEN`, `$UNIFIED_KEY`) o en el archivo ignorado `config/fleet.yaml`.
+1. **Secreto Cero en Git**: Nunca registres credenciales o tokens en claro en archivos versionados. Úsalos vía variables de entorno (`$N8N_MCP_TOKEN`, `$UNIFIED_KEY`) o en el archivo ignorado `.agents/config/fleet.yaml`.
 2. **Priorizar MCP sobre Webhooks crudos**: Para interactuar con orquestadores (como n8n o Coolify), prefiere la especificación estandarizada MCP.
 3. **No reinventar infraestructura**: Antes de instalar nuevas dependencias de bases de datos o servicios de almacenamiento, reutiliza los servicios ya aprovisionados en la flota.
 
@@ -122,6 +122,6 @@ Verifica si el servicio ya existe leyendo `config/fleet.yaml`:
 
 ## 🔄 Gobernanza: Cómo Actualizar el Inventario
 
-1. Al instalar un nuevo servicio o conectar un nuevo nodo: actualiza `config/fleet.yaml` localmente.
+1. Al instalar un nuevo servicio o conectar un nuevo nodo: actualiza `.agents/config/fleet.yaml` localmente.
 2. Si descubres nuevas herramientas instaladas en la máquina local: ejecuta `bash scripts/agent/discover-fleet.sh` (disponible desde T-046).
-3. Si el cambio introduce un nuevo patrón de arquitectura reusable: documéntalo en `config/fleet.example.yaml` y en las referencias de esta skill.
+3. Si el cambio introduce un nuevo patrón de arquitectura reusable: documéntalo en `.agents/config/fleet.example.yaml` y en las referencias de esta skill.

@@ -321,6 +321,20 @@ if [ -d "$AGENT_OS_GOALS" ]; then
     done
 fi
 
+# 6b. Configuraciones runtime base (excluyendo explícitamente fleet.yaml privado)
+if [ -d "$AGENT_OS_PATH/.agents/config" ] && [ -d "$TARGET_PROJECT/.agents/config" ]; then
+    echo "  Sincronizando configuraciones runtime base..."
+    for cfg in "$AGENT_OS_PATH/.agents/config"/*; do
+        [ -f "$cfg" ] || continue
+        cfg_name=$(basename "$cfg")
+        # EXCLUSIÓN CRÍTICA: Nunca sincronizar overlays privados de flota
+        if [ "$cfg_name" = "fleet.yaml" ] || [ "$cfg_name" = "fleet.local.yaml" ]; then
+            continue
+        fi
+        sync_file "$cfg" "$TARGET_PROJECT/.agents/config/$cfg_name" "config: $cfg_name"
+    done
+fi
+
 # 7. Propagación de templates de docs y templates de root a proyectos hijos existentes
 echo "  Propagando templates de documentación faltantes..."
 if [ -d "$AGENT_OS_PATH/templates/docs" ]; then

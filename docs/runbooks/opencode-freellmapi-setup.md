@@ -19,7 +19,7 @@
                        │ HTTP / Bearer Auth (puerto 3001)
                        │ Red privada Tailscale (<TAILSCALE_IP>)
 ┌──────────────────────▼───────────────────────┐
-│  VPS `<worker-node>` (config/fleet.yaml)     │
+│  VPS `<worker-node>` (.agents/config/fleet.yaml) │
 │  ├── Contenedor `freellmapi` (:3001)         │
 │  │   - Enrutador OpenAI-compatible           │
 │  │   - Unified API Key en SQLite             │

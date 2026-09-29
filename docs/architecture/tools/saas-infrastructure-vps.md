@@ -2,7 +2,7 @@
 
 > **Ámbito**: Nodos de hosting y servidores de aplicaciones en producción  
 > **Acceso**: Conexión SSH o túnel seguro hacia el nodo PaaS (`saas-node-02`)  
-> **Configuración Activa**: Consultar la sección `nodes` en `config/fleet.yaml`
+> **Configuración Activa**: Consultar la sección `nodes` en `.agents/config/fleet.yaml`
 
 ---
 

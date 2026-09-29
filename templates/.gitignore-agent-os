@@ -18,6 +18,10 @@ docs/external-inbox/*
 !docs/external-inbox/.gitkeep
 
 # Flota y herramientas locales — configuración privada de cada máquina
+.agents/config/fleet.yaml
+.agents/config/fleet.local.yaml
+!.agents/config/fleet.example.yaml
+# Retrocompatibilidad para proyectos desactualizados
 config/fleet.yaml
 config/fleet.local.yaml
 !config/fleet.example.yaml

@@ -18,14 +18,14 @@ Infisical opera como el gestor centralizado de secretos de la flota de **Agent O
 
 ## 🌐 Topología del Servicio y Conectividad Dinámica
 
-La configuración del servicio se resuelve de forma dinámica y desacoplada mediante `config/fleet.yaml` o variables de entorno del host, garantizando portabilidad absoluta en proyectos hijos:
+La configuración del servicio se resuelve de forma dinámica y desacoplada mediante `.agents/config/fleet.yaml` o variables de entorno del host, garantizando portabilidad absoluta en proyectos hijos:
 
 - **Variables de Entorno Estándar**:
   - `INFISICAL_API_URL`: Endpoint de la API REST (ej. `http://<host>:<puerto>/api` o `https://infisical.tu-dominio.com/api`).
   - `INFISICAL_CLIENT_ID`: Identificador público de la Machine Identity.
   - `INFISICAL_CLIENT_SECRET`: Clave secreta confidencial de la Machine Identity.
   - `INFISICAL_PROJECT_ID`: Identificador único (UUID) del proyecto o workspace en Infisical.
-- **Configuración en Flota (`config/fleet.yaml`)**:
+- **Configuración en Flota (`.agents/config/fleet.yaml`)**:
   - Consulta la sección `nodes.<nodo>.services.infisical` para resolver el endpoint y consola sin exponer datos en git.
 - **Modo Recomendado**: `infisical` standalone lite (<500MB RAM) con PostgreSQL y Redis local.
 

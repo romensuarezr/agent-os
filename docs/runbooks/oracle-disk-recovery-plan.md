@@ -1,7 +1,7 @@
 # Plan de Recuperación de Espacio en Disco por Lotes en Servidores VPS
 
 > **Fecha de Auditoría Inicial**: 2026-09-27  
-> **Host**: `<infra-node>` (IP Tailscale `<TAILSCALE_IP>`, configurado en `config/fleet.yaml` o `~/.ssh/config`)  
+> **Host**: `<infra-node>` (IP Tailscale `<TAILSCALE_IP>`, configurado en `.agents/config/fleet.yaml` o `~/.ssh/config`)  
 > **Sistema Operativo**: Linux / Ubuntu LTS  
 > **Motor de Contenedores**: Docker Engine  
 > **Objetivo**: Registro de auditoría, ejecución del saneamiento y delimitación estricta de exclusiones de seguridad para volúmenes e imágenes en el VPS de infraestructura.
