@@ -2,8 +2,7 @@
 
 ## En curso
 - **Sprint 11**: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079) — Fichero: `docs/sprints/sprint-11-core.md`.
-  - ✅ **Done**: T-067 (`fleet-doctor.sh`), T-068 (Homepage producción), T-069 (Blindaje install/sync), T-070 (Regla determinista & contradicciones), T-071 (Descubrimiento 0-contexto), T-072 (Purga infra personal), T-073 (Rules/skills agnósticas), T-074 (`detect-stack.sh` universal), T-075 (Portabilidad shell), T-076 (Skills selectivas), T-077 (`tool-inventory` & `repo-onboarding` stack/CI/IaC/CLIs).
-  - 🟡 **En curso**: T-078 (Higiene documental: versiones, changelog, roadmap, runbooks agnósticos).
+  - ✅ **Done**: T-067 (`fleet-doctor.sh`), T-068 (Homepage producción), T-069 (Blindaje install/sync), T-070 (Regla determinista & contradicciones), T-071 (Descubrimiento 0-contexto), T-072 (Purga infra personal), T-073 (Rules/skills agnósticas), T-074 (`detect-stack.sh` universal), T-075 (Portabilidad shell), T-076 (Skills selectivas), T-077 (`tool-inventory` & `repo-onboarding` stack/CI/IaC/CLIs), T-078 (Higiene documental: versiones, changelog, roadmap, runbooks agnósticos).
   - ⬜ **Pendiente**: T-079 (Prueba ciega 0-contexto — compuerta final de cierre del sprint).
 
 ## Completado recientemente
