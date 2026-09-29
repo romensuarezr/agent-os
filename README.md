@@ -70,4 +70,5 @@ bash scripts/agent/sync.sh --cleanup /ruta/al/proyecto
 ```
 
 ---
-*Core version: 1.1*
+
+Para consultar la versión actual, el historial de cambios y las notas de versiones del core, consulta [changelog.md](changelog.md).
