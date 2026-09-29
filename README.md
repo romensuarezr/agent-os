@@ -14,8 +14,26 @@ Este repositorio contiene las reglas, skills y workflows universales que compart
 
 ## Cómo Usar
 
-### 1. Inicialización en Proyecto Nuevo
-Antes de instalar, puedes ejecutar una simulación determinista sin tocar el disco:
+### 1. Instalación Rápida Universal (One-Liner Pinedo a Release)
+
+Agent OS se distribuye como un sistema operativo de agentes completo (gobernanza, workflows, reglas, perfiles y scripts, ver [ADR-006](docs/adrs/adr-006-universal-distribution.md)). Para equipar cualquier repositorio en segundos sin clonar manualmente el core, ejecuta el instalador desatendido **pineado a un tag de release explícito** (nunca a ramas flotantes como `main`):
+
+```bash
+# Instalación recomendada en el directorio actual:
+curl -fsSL https://raw.githubusercontent.com/romensuarezr/agent-os/v1.11.0/scripts/agent/install.sh | bash -s -- --tag v1.11.0 .
+
+# Modo simulación (dry-run) sin tocar disco:
+curl -fsSL https://raw.githubusercontent.com/romensuarezr/agent-os/v1.11.0/scripts/agent/install.sh | bash -s -- --tag v1.11.0 --check .
+
+# Instalación mínima (base universal):
+curl -fsSL https://raw.githubusercontent.com/romensuarezr/agent-os/v1.11.0/scripts/agent/install.sh | bash -s -- --tag v1.11.0 --minimal .
+```
+
+> **Idempotencia defensiva**: El one-liner es seguro y reejecutable. Si se vuelve a correr sobre un repositorio que ya tiene Agent OS, preserva intactos tus archivos locales de onboarding (`.agents/AGENT_ONBOARDING.md`), configuraciones privadas de flota (`fleet.yaml`), reglas modificadas y evita duplicar entradas en `.gitignore`.
+
+### 2. Inicialización desde Clon Local
+
+Si dispones de un clon local del core de `agent-os`:
 ```bash
 # Simulación dry-run y comprobación de pre-flights (git, gh, infisical) con desglose de skills:
 bash scripts/agent/install.sh --check /ruta/al/proyecto
@@ -44,7 +62,7 @@ Pre-flights incluidos:
 - `gh`: verificación de autenticación (`gh auth status`), bloqueante si se usa `--create-repo`.
 - `infisical`: diagnóstico de estado de sesión para gestión centralizada de secretos.
 
-### 2. Onboarding en Proyecto Existente (Con Vida Previa)
+### 3. Onboarding en Proyecto Existente (Con Vida Previa)
 Si el repositorio ya tiene desarrollo, commits e historial, ejecuta la auditoría inteligente en modo de detección:
 ```bash
 # Fase 1: Detección (Solo lectura, genera docs/agent-os-audit.md)
@@ -54,7 +72,7 @@ bash /ruta/a/agent-os/scripts/agent/audit-repo.sh
 bash /ruta/a/agent-os/scripts/agent/audit-repo.sh --apply
 ```
 
-### 3. Sincronización de Actualizaciones
+### 4. Sincronización de Actualizaciones
 Para propagar mejoras del núcleo de `agent-os` a un proyecto ya configurado:
 ```bash
 # Simular cambios y detectar personalizaciones locales sin tocar disco:

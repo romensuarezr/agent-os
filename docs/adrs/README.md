@@ -11,3 +11,4 @@ Este directorio contiene el registro histórico de las decisiones clave de arqui
 | **003** | [Ciclo de vida de sesión y concurrencia por locks](adr-003-session-lifecycle.md) | **Accepted** | 2026-06-16 | Sprint 02 — Core |
 | **004** | [Control Plane 24/7 y Federación de Repositorios](adr-004-agent-control-plane-architecture.md) | **Accepted** | 2026-09-24 | Sprint 05 — Core |
 | **005** | [Motor de Orquestación Paralela, Metas y Aislamiento por Git Worktrees](adr-005-multi-agent-parallel-orchestration.md) | **Accepted** | 2026-09-27 | Sprint 09 — Core |
+| **006** | [Distribución Universal del Core como Sistema Operativo de Agentes](adr-006-universal-distribution.md) | **Accepted** | 2026-09-30 | Sprint 13 — Core |
