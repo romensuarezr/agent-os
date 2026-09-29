@@ -14,27 +14,47 @@ CHECK_MODE=false
 CREATE_REPO=false
 MINIMAL_MODE=false
 FULL_MODE=false
+REQUESTED_TAG=""
 
-for arg in "$@"; do
-    case "$arg" in
+while [ $# -gt 0 ]; do
+    case "$1" in
         --self)
             SELF_MODE=true
+            shift
             ;;
         --check)
             CHECK_MODE=true
+            shift
             ;;
         --minimal)
             MINIMAL_MODE=true
+            shift
             ;;
         --full)
             FULL_MODE=true
+            shift
             ;;
         --create-repo)
             CREATE_REPO=true
+            shift
+            ;;
+        --tag)
+            if [ -n "${2:-}" ]; then
+                REQUESTED_TAG="$2"
+                shift 2
+            else
+                echo "❌ Error: La opción --tag requiere un valor (ej: --tag v1.11.0)." >&2
+                exit 1
+            fi
+            ;;
+        --tag=*)
+            REQUESTED_TAG="${1#*=}"
+            shift
             ;;
         -h|--help)
             echo "Uso: install.sh [opciones] /ruta/al/proyecto"
             echo "Opciones:"
+            echo "  --tag <version> Pinear la instalación a un release tag específico (ej: v1.11.0)."
             echo "  --minimal      Instala únicamente el conjunto base universal de habilidades."
             echo "  --full         Instala todas las habilidades (incluyendo stack e infraestructura)."
             echo "  --check        Modo simulación (dry-run): valida pre-flights y describe qué se instalaría sin tocar disco."
@@ -44,8 +64,9 @@ for arg in "$@"; do
             ;;
         *)
             if [ -z "$TARGET_PROJECT" ]; then
-                TARGET_PROJECT="$arg"
+                TARGET_PROJECT="$1"
             fi
+            shift
             ;;
     esac
 done
@@ -136,9 +157,87 @@ else
     fi
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
+_has_local_core_assets() {
+    local path="${1:-}"
+    [ -n "$path" ] && [ -d "$path/.agents" ] && [ -f "$path/scripts/agent/install.sh" ]
+}
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || true)"
+DEFAULT_CORE=""
+if [ -n "$SCRIPT_DIR" ]; then
+    DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." 2>/dev/null && pwd || true)"
+fi
 AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"
+
+# Leer VERSION canónica si está disponible localmente
+CANONICAL_VERSION_FILE=""
+if [ -f "$AGENT_OS_PATH/VERSION" ]; then
+    CANONICAL_VERSION_FILE="$AGENT_OS_PATH/VERSION"
+elif [ -n "$DEFAULT_CORE" ] && [ -f "$DEFAULT_CORE/VERSION" ]; then
+    CANONICAL_VERSION_FILE="$DEFAULT_CORE/VERSION"
+fi
+
+LOCAL_CANONICAL_VERSION=""
+if [ -n "$CANONICAL_VERSION_FILE" ]; then
+    LOCAL_CANONICAL_VERSION=$(tr -d '[:space:]' < "$CANONICAL_VERSION_FILE" 2>/dev/null || true)
+fi
+
+# Determinar tag canónico a utilizar:
+# 1. Flag --tag explícito
+# 2. Variable de entorno AGENT_OS_TAG
+# 3. Archivo VERSION local (si corre desde clon del core)
+# 4. Fallback canónico de seguridad (v1.11.0)
+TAG="${REQUESTED_TAG:-${AGENT_OS_TAG:-}}"
+if [ -z "$TAG" ]; then
+    if [ -n "$LOCAL_CANONICAL_VERSION" ]; then
+        TAG="v${LOCAL_CANONICAL_VERSION#v}"
+    else
+        TAG="v1.11.0"
+    fi
+fi
+
+# Advertir si se especificaron ramas flotantes en lugar de tags inmutables
+if [[ "$TAG" == "main" || "$TAG" == "master" || "$TAG" == "latest" ]]; then
+    echo "⚠️  ADVERTENCIA: Se especificó '$TAG'. Para garantizar reproducibilidad y estabilidad, se recomienda pinear siempre a un tag de release inmutable (ej: v1.11.0)." >&2
+fi
+
+EPHEMERAL_CORE=false
+TEMP_CORE_DIR=""
+
+# Si no tenemos los assets locales de Agent OS (ej. ejecutado vía `curl ... | bash`):
+if ! _has_local_core_assets "$AGENT_OS_PATH"; then
+    CORE_REPO_URL="${AGENT_OS_CORE_URL:-https://github.com/romensuarezr/agent-os.git}"
+    TEMP_CORE_DIR=$(mktemp -d -t agent-os-core-XXXXXX)
+    EPHEMERAL_CORE=true
+
+    # Registro de trampa determinista para garantizar limpieza de assets efímeros
+    trap 'if [ "$EPHEMERAL_CORE" = true ] && [ -d "$TEMP_CORE_DIR" ]; then rm -rf "$TEMP_CORE_DIR"; fi' EXIT INT TERM
+
+    echo "📥 Aprovisionando assets del núcleo Agent OS ($TAG) desde $CORE_REPO_URL..." >&2
+
+    DOWNLOAD_OK=false
+    if command -v git >/dev/null 2>&1; then
+        if git clone --depth 1 --branch "$TAG" "$CORE_REPO_URL" "$TEMP_CORE_DIR" >/dev/null 2>&1; then
+            DOWNLOAD_OK=true
+        fi
+    fi
+
+    if [ "$DOWNLOAD_OK" = false ] && command -v curl >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
+        TARBALL_URL="https://github.com/romensuarezr/agent-os/archive/refs/tags/${TAG}.tar.gz"
+        if curl -fsSL "$TARBALL_URL" 2>/dev/null | tar -xz -C "$TEMP_CORE_DIR" --strip-components=1 2>/dev/null; then
+            DOWNLOAD_OK=true
+        fi
+    fi
+
+    if [ "$DOWNLOAD_OK" = true ] && _has_local_core_assets "$TEMP_CORE_DIR"; then
+        AGENT_OS_PATH="$TEMP_CORE_DIR"
+        echo "✅ Núcleo Agent OS ($TAG) aprovisionado temporalmente para la instalación." >&2
+    else
+        echo "❌ ERROR: No se pudieron obtener los assets del núcleo de Agent OS para el tag '$TAG'." >&2
+        echo "💡 Guía: Verifica tu conexión a internet o especifica un repositorio/directorio válido mediante AGENT_OS_PATH o AGENT_OS_CORE_URL." >&2
+        exit 1
+    fi
+fi
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_WORKFLOWS="$AGENT_OS_PATH/.agents/workflows"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
@@ -433,9 +532,9 @@ fi
 if [ -d "$AGENT_OS_RULES" ]; then
     for rule in "$AGENT_OS_RULES"/*.md; do
         [ -f "$rule" ] || continue
-        cp "$rule" "$TARGET_RULES/"
+        cp -n "$rule" "$TARGET_RULES/"
     done
-    echo "✅ Reglas globales instaladas."
+    echo "✅ Reglas globales instaladas (sin sobreescribir)."
 fi
 
 # 4. Copiar workflows (sin sobreescribir)
