@@ -7,6 +7,11 @@ description: Auditoría pre-build, dockerización multi-stage standalone de Next
 
 Esta habilidad guía al agente para preparar, auditar y desplegar aplicaciones Next.js en Coolify mediante Docker multi-stage, automatizando el aprovisionamiento de registros DNS en Cloudflare con soporte multi-entorno.
 
+## Cuándo usar
+- Preparar y dockerizar aplicaciones Next.js 14/15 con modo `output: standalone`.
+- Auditar configuraciones pre-build (`audit-next.sh`) antes de desplegar en producción.
+- Aprovisionar y gestionar registros DNS en Cloudflare vinculados a instancias de Coolify.
+
 ---
 
 ## 📋 Flujo de Trabajo Operativo
@@ -68,6 +73,6 @@ Ejecuta el script determinista de Cloudflare para crear/actualizar los registros
 ## 🛠️ Resolución de Errores Frecuentes (Troubleshooting)
 
 - **Error 522 Cloudflare (Connection Timed Out)**:
-  Ocurre cuando el registro DNS apunta a la IP equivocada (ej: IP local) o cuando Traefik no está escuchando en el puerto 80/443 de la IP del VPS. Ejecuta `cloudflare-dns.sh tudominio.com IP_REAL_VPS` para corregir la IP en Cloudflare al instante.
+  Ocurre cuando el registro DNS apunta a la IP equivocada (ej: IP local) o cuando Traefik no está escuchando en el puerto 80/443 de la IP del VPS. Ejecuta `./scripts/cloudflare-dns.sh tudominio.com IP_REAL_VPS` para corregir la IP en Cloudflare al instante.
 - **Error ACME SSL Challenge**:
   Si Let's Encrypt falla en el primer despliegue de Coolify por bloqueo de Cloudflare HTTPS redirect, conmuta temporalmente a Nube Gris con `./scripts/cloudflare-dns.sh tudominio.com --unproxied`, emite el certificado en Coolify, y reconmuta a Nube Naranja con `--proxied`.

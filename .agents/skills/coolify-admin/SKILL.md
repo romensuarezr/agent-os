@@ -7,6 +7,11 @@ description: Gestión programática, despliegues y control de aplicaciones y sta
 
 Habilidad estándar de `agent-os` para interactuar programáticamente con la API de Coolify (v4+) para listar aplicaciones, inspeccionar configuraciones, actualizar stacks Docker Compose y disparar redeploys de forma determinista (a 0 tokens de inferencia).
 
+## Cuándo usar
+- Desplegar, reiniciar o verificar el estado de aplicaciones y servicios en Coolify PaaS.
+- Automatizar despliegues continuos o actualizar variables de entorno y stacks Docker Compose.
+- Consultar recursos, UUIDs de aplicaciones o logs de ejecución en nodos gestionados por Coolify.
+
 ## Prerrequisitos y Gestión de Credenciales
 
 La habilidad requiere acceso a la API de Coolify mediante token Bearer. Sigue el estándar de inyección efímera de secretos:

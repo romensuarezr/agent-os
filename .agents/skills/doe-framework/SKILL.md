@@ -1,6 +1,6 @@
 ---
 name: doe-framework
-description: Crea un task file (contrato escrito) antes de abrir Antigravity para cualquier tarea de desarrollo. Activa cuando la tarea dure más de 30 min estimados o afecte a más de 2 archivos.
+description: Crea un task file (contrato escrito) antes de iniciar la sesión de desarrollo para cualquier tarea de envergadura. Activa cuando la tarea dure más de 30 min estimados o afecte a más de 2 archivos.
 ---
 
 # DOE Framework — Directive → Orchestration → Execution
@@ -21,7 +21,7 @@ directamente sin task file.
 3. El número XXX es el siguiente disponible en `.agents/tasks/`.
 
 ### O — Orchestration
-1. Abrir Antigravity.
+1. Iniciar la sesión del agente en el runtime de desarrollo (Antigravity, Claude Code, OpenCode, Hermes o terminal shell).
 2. Primer mensaje = contenido completo del task file. Sin añadir contexto extra.
 3. Activar `implementar-feature-dry` para que el agente mapee antes de actuar.
 

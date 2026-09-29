@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Paso 1: Verificación de Procesos Locales de Orca Desktop
+## 1. Verificación de Procesos Locales de Orca Desktop
 
 Orca opera como una aplicación Electron con múltiples subprocesos de renderizado y terminales embebidos.
 
@@ -58,7 +58,7 @@ if os.path.exists(db_path):
 
 ---
 
-## 2. Paso 2: Auditoría Rápida vía `audit-orca.sh`
+## 2. Auditoría Rápida vía `audit-orca.sh`
 
 El script determinista unifica todas las comprobaciones en un digest:
 

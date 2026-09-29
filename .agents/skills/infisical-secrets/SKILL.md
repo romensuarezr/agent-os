@@ -9,6 +9,11 @@ Esta habilidad proporciona el protocolo operativo, runbooks y comandos necesario
 
 Infisical opera como el gestor centralizado de secretos de la flota de **Agent OS**, alojado en el nodo de infraestructura PaaS (Coolify/Docker).
 
+## Cuándo usar
+- Inyectar secretos o variables de entorno efímeramente en subprocesos (`infisical run`) sin persistir archivos `.env` en disco.
+- Configurar autenticación Universal Auth (Machine Identity: Client ID + Secret) para agentes o servicios de la flota.
+- Importar, exportar o rotar credenciales y variables de entorno de producción y staging de forma centralizada.
+
 ---
 
 ## 🌐 Topología del Servicio y Conectividad Dinámica

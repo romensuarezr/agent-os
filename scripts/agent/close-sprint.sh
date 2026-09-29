@@ -12,6 +12,21 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "close-sprint.sh" \
+      "bash scripts/agent/close-sprint.sh <nombre-sprint|--auto>" \
+      "Archiva un sprint completado en docs/sprints/_archived/ y sus tareas asociadas, verificando guardias de finalización." \
+      "<nombre-sprint>          Nombre o archivo del sprint a archivar (ej: sprint-11 o docs/sprints/sprint-11-core.md)" \
+      "--auto                   Busca y archiva automáticamente los sprints marcados como completados" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/close-sprint.sh sprint-11" \
+      "ejemplo: bash scripts/agent/close-sprint.sh --auto"
+  fi
+done
+
 # Pre-flight: verificación determinista de dependencias
 for cmd in git grep mkdir basename wc; do
   if ! command -v "$cmd" &>/dev/null; then
