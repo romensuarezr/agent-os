@@ -32,4 +32,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-29T18:59:46+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-078-core-docs-hygiene
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
