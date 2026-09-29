@@ -268,12 +268,22 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
         [ -e "$skill" ] || continue
         skill_name=$(basename "$skill")
         
-        # Si el proyecto hijo no tiene instalada esta skill, no reintroducirla
+        # Si el proyecto hijo no tiene instalada esta skill, verificar si tiene la versión legacy .md
         if [ ! -e "$TARGET_SKILLS/$skill_name" ]; then
-            if [ "$DRY_RUN" = true ]; then
-                echo "    [dry-run] omitir skill no presente en hijo: $skill_name"
+            if [ -f "$TARGET_SKILLS/${skill_name}.md" ]; then
+                if [ "$DRY_RUN" = true ]; then
+                    echo "    [dry-run] migrar skill legacy: ${skill_name}.md -> ${skill_name}/SKILL.md"
+                else
+                    echo "    📦 Migrando skill legacy ${skill_name}.md -> ${skill_name}/..."
+                    mkdir -p "$TARGET_SKILLS/$skill_name"
+                    rm -f "$TARGET_SKILLS/${skill_name}.md"
+                fi
+            else
+                if [ "$DRY_RUN" = true ]; then
+                    echo "    [dry-run] omitir skill no presente en hijo: $skill_name"
+                fi
+                continue
             fi
-            continue
         fi
 
         if [ -d "$skill" ]; then
