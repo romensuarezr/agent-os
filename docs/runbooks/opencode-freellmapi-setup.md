@@ -2,7 +2,7 @@
 
 > **Versión**: 1.0.0  
 > **Fecha**: 2026-09-24  
-> **Ámbito**: Control Plane Local & Remoto (`agent-os` ↔ `datamanager`)  
+> **Ámbito**: Control Plane Local & Remoto (`agent-os` ↔ `<worker-node>`)  
 > **Propósito**: Establecer el procedimiento estándar para configurar, operar y diagnosticar OpenCode CLI consumiendo los modelos locales autoalojados en FreeLLMAPI con coste verificado $0.
 
 ---
@@ -12,26 +12,26 @@
 ```
 ┌──────────────────────────────────────────────┐
 │  Host Local (Desarrollador / Agente)         │
-│  - Binario: ~/.opencode/bin/opencode (1.3.9) │
+│  - Binario: ~/.opencode/bin/opencode         │
 │  - Config: ~/.config/opencode/opencode.json  │
 │    (o ./opencode.json a nivel de proyecto)   │
 └──────────────────────┬───────────────────────┘
                        │ HTTP / Bearer Auth (puerto 3001)
-                       │ Red privada Tailscale (100.77.82.13)
+                       │ Red privada Tailscale (<TAILSCALE_IP>)
 ┌──────────────────────▼───────────────────────┐
-│  VPS `datamanager`                           │
+│  VPS `<worker-node>` (config/fleet.yaml)     │
 │  ├── Contenedor `freellmapi` (:3001)         │
 │  │   - Enrutador OpenAI-compatible           │
 │  │   - Unified API Key en SQLite             │
-│  │   - Base URL: http://100.77.82.13:3001/v1 │
-│  └── Contenedor `datamanager-ollama-1`       │
-│      - Backend de inferencia local CPU       │
+│  │   - Base URL: http://<TAILSCALE_IP>:3001/v1│
+│  └── Contenedor `ollama`                     │
+│      - Backend de inferencia local           │
 │      - Modelos: qwen2.5:7b, llama3.1:8b, etc.│
 └──────────────────────────────────────────────┘
 ```
 
-- **Aislamiento de red**: El puerto 3001 de FreeLLMAPI está vinculado exclusivamente a la IP de Tailscale (`100.77.82.13`). No existe exposición a internet público.
-- **Coste cero ($0)**: Todas las inferencias son procesadas en el backend local de Ollama en `datamanager`. No se realizan llamadas a APIs cloud externas de pago.
+- **Aislamiento de red**: El puerto 3001 de FreeLLMAPI está vinculado exclusivamente a la IP de Tailscale (`<TAILSCALE_IP>`). No existe exposición a internet público.
+- **Coste cero ($0)**: Todas las inferencias son procesadas en el backend local de Ollama en el nodo. No se realizan llamadas a APIs cloud externas de pago.
 
 ---
 
@@ -42,7 +42,7 @@ FreeLLMAPI protege sus endpoints OpenAI-compatibles (`/v1/*`) mediante un token 
 ### Obtención no destructiva de la clave
 
 ```bash
-UNIFIED_KEY=$(ssh datamanager "docker exec freellmapi node -e \"console.log(require('better-sqlite3')('/app/server/data/freeapi.db').prepare(\\\"SELECT value FROM settings WHERE key='unified_api_key'\\\").get().value)\"")
+UNIFIED_KEY=$(ssh <worker-node> "docker exec freellmapi node -e \"console.log(require('better-sqlite3')('/app/server/data/freeapi.db').prepare(\\\"SELECT value FROM settings WHERE key='unified_api_key'\\\").get().value)\"")
 echo "Clave obtenida: $UNIFIED_KEY"
 ```
 
@@ -50,7 +50,7 @@ echo "Clave obtenida: $UNIFIED_KEY"
 
 ```bash
 curl -s -H "Authorization: Bearer $UNIFIED_KEY" \
-  http://100.77.82.13:3001/v1/models | jq '.data[] | select(.owned_by=="freellmapi") | .id'
+  http://<TAILSCALE_IP>:3001/v1/models | jq '.data[] | select(.owned_by=="freellmapi") | .id'
 ```
 
 ---
@@ -66,11 +66,11 @@ OpenCode lee su configuración desde `~/.config/opencode/opencode.json` (global)
   "$schema": "https://opencode.ai/config.json",
   "provider": {
     "freellmapi": {
-      "name": "FreeLLMAPI (datamanager)",
+      "name": "FreeLLMAPI (<worker-node>)",
       "npm": "@ai-sdk/openai",
       "options": {
-        "baseURL": "http://100.77.82.13:3001/v1",
-        "apiKey": "freellmapi-dfabc2cbb27c69b4a29053996ae9463f9240ce48afc57f84",
+        "baseURL": "http://<TAILSCALE_IP>:3001/v1",
+        "apiKey": "freellmapi-<UNIFIED_KEY>",
         "timeout": 300000,
         "headerTimeout": 300000,
         "chunkTimeout": 300000
@@ -162,7 +162,7 @@ Ambos modelos de 7B/8B fueron verificados respondiendo con formato OpenAI Functi
     "message": {
       "role": "assistant",
       "tool_calls": [{
-        "id": "call_dv75r206",
+        "id": "call_sample",
         "type": "function",
         "function": { "name": "add", "arguments": "{\"a\":2,\"b\":2}" }
       }]
@@ -230,8 +230,8 @@ Salida esperada:
 Si una petición se demora o no responde:
 ```bash
 # Comprobar logs en tiempo real de FreeLLMAPI
-ssh datamanager "docker logs --tail 20 -f freellmapi"
+ssh <worker-node> "docker logs --tail 20 -f freellmapi"
 
 # Comprobar uso de CPU/RAM de Ollama
-ssh datamanager "docker stats --no-stream datamanager-ollama-1"
+ssh <worker-node> "docker stats --no-stream"
 ```

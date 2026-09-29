@@ -2,6 +2,37 @@
 
 Historial de cambios y releases del núcleo de Agent OS.
 
+### 📋 Procedimiento de Versionado
+1. **SemVer estándar**: El core utiliza Versionado Semántico (`MAJOR.MINOR.PATCH`).
+2. **Versión Sprint 11**: Corresponde a la versión `1.10.0` (evolución y hardening del core sobre `1.9.0`).
+3. **Momento de incremento**: La versión se incrementa formalmente en `changelog.md` al completar y cerrar cada sprint (o vía `close-sprint.sh`).
+4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
+5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
+
+## [1.10.0] — sprint-11 — 2026-09-29
+
+### ✨ Features & Universalización
+
+- **T-067**: `fleet-doctor.sh`: diagnóstico determinista de flota y Check 12 condicional en `validate-control-plane.sh`.
+- **T-069**: Blindaje de `install.sh`: rutas dinámicas, pre-flights, `--check`, `set -euo pipefail`, instala `AGENT_ONBOARDING.md`, `sync.sh` no destructivo.
+- **T-070**: Regla global `deterministic-execution.md` y resolución de contradicciones entre reglas existentes.
+- **T-071**: Reparación del descubrimiento 0-contexto: inventario de skills, eliminación de referencias fantasma, inbox canónico y secuencia de boot `AGENT_ONBOARDING.md`.
+- **T-072**: Purga de infraestructura personal en scripts y config (`/home/romen`, IPs fijas; `fleet.yaml` como overlay privado).
+- **T-073**: Reglas, skills y perfiles agnósticos de stack, flota y herramientas propietarias.
+- **T-074**: `detect-stack.sh` universal (11 stacks soportados: Python, TypeScript, JavaScript, Go, Rust, Java, PHP, Ruby, .NET, Bun, Static) con fallback honesto `unknown`.
+- **T-076**: Instalación selectiva de skills por stack (`--minimal`/`--full`, manifiesto `config/skills-manifest.yaml`).
+- **T-077**: `tool-inventory` y `repo-onboarding`: detección de stack, CI/CD (.github, .gitlab-ci, Jenkins), IaC (*.tf, docker-compose) y CLIs cloud (`aws`, `gcloud`, `az`).
+
+### 🐛 Bug Fixes & Portabilidad
+
+- **T-066**: Fix de renderizado y configuración en Homepage en producción.
+- **T-068**: Saneamiento definitivo de Homepage en producción (dominios ficticios, ping `/health`, Ollama paramétrico).
+- **T-075**: Barrido integral de portabilidad shell: compatibilidad Linux y macOS, comprobación determinista de dependencias requeridas.
+
+### 📚 Documentación
+
+- **T-078**: Higiene documental del core: unificación de versiones en changelog, roadmap sincronizado, integración de `DEFINITION_OF_DONE.md` en `AGENTS.md` y sanitización agnóstica de runbooks.
+
 ## [1.9.0] — sprint-10 — 2026-09-27
 
 ### ✨ Features
