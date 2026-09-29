@@ -14,7 +14,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| T-085 | Namespacing de configuración runtime (`config/` → `.agents/config/`) y blindaje de overlays | Arquitectura / Core Standard | M | 🟡 En curso | — | `.agents/tasks/task-085.md` |
+| T-085 | Namespacing de configuración runtime (`config/` → `.agents/config/`) y blindaje de overlays | Arquitectura / Core Standard | M | 🟢 Completada | — | [.agents/tasks/_archived/task-085.md](file:///home/romen/orca/workspaces/agent-os/Core-Hardening/.agents/tasks/_archived/task-085.md) |
 | T-086 | Detección defensiva de stack y runtimes en `detect-stack.sh` (resolución lockfile vs PATH) | Bug del sistema / DX | S | ⬜ Pendiente | — | `.agents/tasks/task-086.md` |
 | T-087 | Distribución universal del Core — One-Liner reejecutable e instalación idempotente pineada a release tag | Universalización / Core | M | ⬜ Pendiente | T-085 | `.agents/tasks/task-087.md` |
 | T-088 | Ledger de versiones del core y auditoría de salud en satélites (`audit-child.sh` con suite dedicada) | Gobernanza / DX | M | ⬜ Pendiente | T-087 | `.agents/tasks/task-088.md` |

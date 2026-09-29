@@ -77,4 +77,4 @@ Archivos autorizados para modificación / creación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-29T23:23:02+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-085-namespacing-config
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
