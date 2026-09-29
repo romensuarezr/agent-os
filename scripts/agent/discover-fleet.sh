@@ -64,7 +64,7 @@ command -v python3 >/dev/null 2>&1 || {
 
 # Ejecutar motor de descubrimiento determinista en Python
 python3 - "$REPO_ROOT" "$APPLY" "$GEN_DOCS" "$OUTPUT_JSON" << 'EOF'
-import sys, os, json, glob, re, subprocess, platform, datetime
+import sys, os, json, glob, re, subprocess, platform, datetime, shutil
 
 repo_root = sys.argv[1]
 apply_flag = sys.argv[2] == "true"
@@ -103,7 +103,7 @@ if os.path.exists("/etc/os-release"):
 # 2. Detección de Gestores de Paquetes
 pkg_managers = []
 for pm in ["apt", "pacman", "dnf", "brew", "npm", "pnpm", "yarn", "bun", "pip", "pip3", "cargo", "composer", "gem", "bundle", "dotnet", "mvn", "gradle", "snap", "flatpak"]:
-    if run_cmd(f"which {pm}"):
+    if shutil.which(pm):
         pkg_managers.append(pm)
 
 # 3. Construcción de PATH expandido (incluye binarios locales y perfiles de usuario)
@@ -146,7 +146,7 @@ for p in expanded_path.split(":"):
                 agy_binaries.add(os.path.basename(f))
 
 for agy_name in sorted(agy_binaries):
-    raw_path = run_cmd(f"PATH=\"{expanded_path}\" which {agy_name} 2>/dev/null")
+    raw_path = shutil.which(agy_name, path=expanded_path)
     if not raw_path:
         continue
     
@@ -226,7 +226,7 @@ standard_clis = [
 
 for item in standard_clis:
     name = item["name"]
-    check = run_cmd(f"PATH=\"{expanded_path}\" which {item['cmd']} 2>/dev/null" if not item['cmd'].startswith("test") else item['cmd'])
+    check = run_cmd(item['cmd']) if item['cmd'].startswith("test") else shutil.which(item['cmd'], path=expanded_path)
     if check:
         ver = None
         if item.get("ver_cmd"):
