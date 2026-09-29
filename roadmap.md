@@ -2,7 +2,8 @@
 
 ## En curso
 - **Sprint 12**: Core Hardening, Gobernanza & Pilotaje Portable (T-080 a T-084) — Fichero: `docs/sprints/sprint-12-core.md`.
-  - ⬜ **Pendiente**: T-080 (Purga extendida), T-081 (Portabilidad shell & sync), T-082 (Gobernanza & perfiles), T-083 (CLI --help & skills), T-084 (Pilotaje romensuarez-web).
+  - ✅ **Done**: T-080 (Purga extendida infraestructura personal).
+  - ⬜ **Pendiente**: T-081 (Portabilidad shell & sync), T-082 (Gobernanza & perfiles), T-083 (CLI --help & skills), T-084 (Pilotaje romensuarez-web).
 
 ## Completado recientemente
 - Sprint 11: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079).
