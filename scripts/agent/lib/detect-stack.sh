@@ -51,8 +51,10 @@
 #      - Si ningún marcador coincide -> unknown (emite STACK_GUIDE accionable)
 #
 # Variables Exportadas:
-#   AGENT_OS_STACK:    Nombre del stack ('go', 'rust', 'python', 'unknown', etc.)
-#   STACK_GUIDE:       Mensaje de orientación cuando AGENT_OS_STACK es 'unknown'
+#   AGENT_OS_STACK:             Nombre del stack ('go', 'rust', 'python', 'bun', etc.)
+#   AGENT_OS_PACKAGE_MANAGER:   Gestor de paquetes verificado en $PATH (bun, pnpm, yarn, npm, etc.)
+#   AGENT_OS_DETECTED_LOCKFILE: Nombre del lockfile causante de la clasificacion declarativa
+#   STACK_GUIDE:                Mensaje de orientación cuando AGENT_OS_STACK es 'unknown'
 #   SRC_DIR:           Ruta al directorio de código fuente principal
 #   CODE_EXTS_FIND:    Array de argumentos para find (ej: -name "*.go")
 #   CODE_EXTS_GREP:    Array de argumentos para grep (ej: --include=*.go)
@@ -84,14 +86,22 @@ detect_stack() {
     return 1
   }
 
+  AGENT_OS_STACK=""
+  AGENT_OS_PACKAGE_MANAGER=""
+  AGENT_OS_DETECTED_LOCKFILE=""
+
   local detected_stack=""
+  local detected_lockfile=""
+  local native_pm=""
+  local resolved_pm=""
 
   # =========================================================================
   # 1. OVERRIDE MANUAL: VARIABLE DE ENTORNO AGENT_OS_STACK
   # =========================================================================
-  if [[ -n "${AGENT_OS_STACK:-}" ]]; then
-    if _is_supported_stack "$AGENT_OS_STACK"; then
-      detected_stack="$AGENT_OS_STACK"
+  local initial_env_stack="${AGENT_OS_STACK:-}"
+  if [[ -n "$initial_env_stack" ]]; then
+    if _is_supported_stack "$initial_env_stack"; then
+      detected_stack="$initial_env_stack"
     fi
   fi
 
@@ -111,35 +121,95 @@ detect_stack() {
   # =========================================================================
   if [[ -z "$detected_stack" ]]; then
     # 3.1 Bun (prevalece sobre tsconfig/package.json)
-    if [[ -f "$root/bun.lock" || -f "$root/bun.lockb" ]]; then
+    if [[ -f "$root/bun.lock" ]]; then
       detected_stack="bun"
+      detected_lockfile="bun.lock"
+      native_pm="bun"
+    elif [[ -f "$root/bun.lockb" ]]; then
+      detected_stack="bun"
+      detected_lockfile="bun.lockb"
+      native_pm="bun"
     # 3.2 TypeScript (prevalece sobre package.json solo)
     elif [[ -f "$root/tsconfig.json" ]]; then
       detected_stack="typescript"
+      if [[ -f "$root/pnpm-lock.yaml" ]]; then
+        detected_lockfile="pnpm-lock.yaml"
+        native_pm="pnpm"
+      elif [[ -f "$root/yarn.lock" ]]; then
+        detected_lockfile="yarn.lock"
+        native_pm="yarn"
+      elif [[ -f "$root/package-lock.json" ]]; then
+        detected_lockfile="package-lock.json"
+        native_pm="npm"
+      fi
     # 3.3 JavaScript
-    elif [[ -f "$root/package.json" ]]; then
+    elif [[ -f "$root/package.json" || -f "$root/package-lock.json" || -f "$root/yarn.lock" || -f "$root/pnpm-lock.yaml" ]]; then
       detected_stack="javascript"
+      if [[ -f "$root/pnpm-lock.yaml" ]]; then
+        detected_lockfile="pnpm-lock.yaml"
+        native_pm="pnpm"
+      elif [[ -f "$root/yarn.lock" ]]; then
+        detected_lockfile="yarn.lock"
+        native_pm="yarn"
+      elif [[ -f "$root/package-lock.json" ]]; then
+        detected_lockfile="package-lock.json"
+        native_pm="npm"
+      fi
     # 3.4 Go
     elif [[ -f "$root/go.mod" || -f "$root/go.sum" ]]; then
       detected_stack="go"
+      if [[ -f "$root/go.sum" ]]; then
+        detected_lockfile="go.sum"
+      fi
+      native_pm="go"
     # 3.5 Rust
     elif [[ -f "$root/Cargo.toml" || -f "$root/Cargo.lock" ]]; then
       detected_stack="rust"
+      if [[ -f "$root/Cargo.lock" ]]; then
+        detected_lockfile="Cargo.lock"
+      fi
+      native_pm="cargo"
     # 3.6 Java / Kotlin
     elif [[ -f "$root/pom.xml" || -f "$root/build.gradle" || -f "$root/build.gradle.kts" ]]; then
       detected_stack="java"
+      if [[ -f "$root/pom.xml" ]]; then
+        native_pm="mvn"
+      elif [[ -f "$root/build.gradle" || -f "$root/build.gradle.kts" ]]; then
+        native_pm="gradle"
+      fi
     # 3.7 PHP
     elif [[ -f "$root/composer.json" || -f "$root/composer.lock" ]]; then
       detected_stack="php"
+      if [[ -f "$root/composer.lock" ]]; then
+        detected_lockfile="composer.lock"
+      fi
+      native_pm="composer"
     # 3.8 Ruby
     elif [[ -f "$root/Gemfile" || -f "$root/Gemfile.lock" ]]; then
       detected_stack="ruby"
+      if [[ -f "$root/Gemfile.lock" ]]; then
+        detected_lockfile="Gemfile.lock"
+      fi
+      native_pm="bundle"
     # 3.9 .NET / C#
     elif compgen -G "$root/*.csproj" >/dev/null 2>&1 || compgen -G "$root/*.sln" >/dev/null 2>&1 || compgen -G "$root/*/*.csproj" >/dev/null 2>&1; then
       detected_stack="dotnet"
+      if [[ -f "$root/packages.lock.json" ]]; then
+        detected_lockfile="packages.lock.json"
+      fi
+      native_pm="dotnet"
     # 3.10 Python
-    elif [[ -f "$root/pyproject.toml" || -f "$root/requirements.txt" || -f "$root/setup.py" || -f "$root/Pipfile" || -f "$root/Pipfile.lock" ]]; then
+    elif [[ -f "$root/pyproject.toml" || -f "$root/requirements.txt" || -f "$root/setup.py" || -f "$root/Pipfile" || -f "$root/Pipfile.lock" || -f "$root/poetry.lock" ]]; then
       detected_stack="python"
+      if [[ -f "$root/poetry.lock" ]]; then
+        detected_lockfile="poetry.lock"
+        native_pm="poetry"
+      elif [[ -f "$root/Pipfile.lock" ]]; then
+        detected_lockfile="Pipfile.lock"
+        native_pm="pipenv"
+      else
+        native_pm="pip"
+      fi
     # 3.11 Sitios estáticos puros (sin manifiestos de compilación)
     elif [[ -f "$root/index.html" || -f "$root/index.htm" ]]; then
       detected_stack="static"
@@ -147,9 +217,125 @@ detect_stack() {
       # 3.12 Fallback honesto: unknown declarado
       detected_stack="unknown"
     fi
+  else
+    # Si detected_stack vino por override (env o stack.env), identificar lockfile correspondiente si existe
+    case "$detected_stack" in
+      bun)
+        if [[ -f "$root/bun.lock" ]]; then
+          detected_lockfile="bun.lock"
+          native_pm="bun"
+        elif [[ -f "$root/bun.lockb" ]]; then
+          detected_lockfile="bun.lockb"
+          native_pm="bun"
+        fi
+        ;;
+      typescript|javascript)
+        if [[ -f "$root/bun.lock" ]]; then
+          detected_lockfile="bun.lock"
+          native_pm="bun"
+        elif [[ -f "$root/bun.lockb" ]]; then
+          detected_lockfile="bun.lockb"
+          native_pm="bun"
+        elif [[ -f "$root/pnpm-lock.yaml" ]]; then
+          detected_lockfile="pnpm-lock.yaml"
+          native_pm="pnpm"
+        elif [[ -f "$root/yarn.lock" ]]; then
+          detected_lockfile="yarn.lock"
+          native_pm="yarn"
+        elif [[ -f "$root/package-lock.json" ]]; then
+          detected_lockfile="package-lock.json"
+          native_pm="npm"
+        fi
+        ;;
+      go)
+        [[ -f "$root/go.sum" ]] && detected_lockfile="go.sum"
+        native_pm="go"
+        ;;
+      rust)
+        [[ -f "$root/Cargo.lock" ]] && detected_lockfile="Cargo.lock"
+        native_pm="cargo"
+        ;;
+      php)
+        [[ -f "$root/composer.lock" ]] && detected_lockfile="composer.lock"
+        native_pm="composer"
+        ;;
+      ruby)
+        [[ -f "$root/Gemfile.lock" ]] && detected_lockfile="Gemfile.lock"
+        native_pm="bundle"
+        ;;
+      dotnet)
+        [[ -f "$root/packages.lock.json" ]] && detected_lockfile="packages.lock.json"
+        native_pm="dotnet"
+        ;;
+      python)
+        if [[ -f "$root/poetry.lock" ]]; then
+          detected_lockfile="poetry.lock"
+          native_pm="poetry"
+        elif [[ -f "$root/Pipfile.lock" ]]; then
+          detected_lockfile="Pipfile.lock"
+          native_pm="pipenv"
+        else
+          native_pm="pip"
+        fi
+        ;;
+    esac
+  fi
+
+  # =========================================================================
+  # 3.5 RESOLUCIÓN DEFENSIVA DE GESTOR DE PAQUETES (LOCKFILE VS $PATH)
+  # =========================================================================
+  resolved_pm=""
+
+  if [[ -n "$native_pm" ]] && command -v "$native_pm" >/dev/null 2>&1; then
+    resolved_pm="$native_pm"
+  else
+    # Fallback ordenado si el gestor nativo no está en PATH o no se determinó
+    case "$detected_stack" in
+      bun|typescript|javascript)
+        # Precedencia para Node/TS/JS/Bun: bun -> pnpm -> yarn -> npm
+        for candidate in bun pnpm yarn npm; do
+          if command -v "$candidate" >/dev/null 2>&1; then
+            resolved_pm="$candidate"
+            break
+          fi
+        done
+        ;;
+      python)
+        # Precedencia para Python: poetry -> pip3 -> pip -> uv
+        for candidate in poetry pip3 pip uv; do
+          if command -v "$candidate" >/dev/null 2>&1; then
+            resolved_pm="$candidate"
+            break
+          fi
+        done
+        ;;
+      java)
+        for candidate in mvn gradle; do
+          if command -v "$candidate" >/dev/null 2>&1; then
+            resolved_pm="$candidate"
+            break
+          fi
+        done
+        ;;
+      *)
+        # Para go, rust, php, ruby, dotnet u otros: sin alias alternativo en PATH
+        resolved_pm=""
+        ;;
+    esac
+
+    # Notificación de divergencia obligatoria a stderr si había un lockfile detectado
+    if [[ -n "$detected_lockfile" ]]; then
+      if [[ -n "$resolved_pm" ]]; then
+        echo "⚠️  DIVERGENCE: $detected_lockfile detectado pero '$native_pm' no está en PATH. Fallback a '$resolved_pm'." >&2
+      else
+        echo "⚠️  DIVERGENCE: $detected_lockfile detectado pero ningún gestor compatible está instalado en PATH." >&2
+      fi
+    fi
   fi
 
   AGENT_OS_STACK="$detected_stack"
+  AGENT_OS_PACKAGE_MANAGER="$resolved_pm"
+  AGENT_OS_DETECTED_LOCKFILE="$detected_lockfile"
 
   # =========================================================================
   # 4. CONFIGURAR VARIABLES ESPECÍFICAS SEGÚN EL STACK RESUELTO
@@ -354,4 +540,6 @@ detect_stack() {
       STACK_GUIDE="Guía: Stack no reconocido automáticamente. Puedes declarar el stack exportando la variable AGENT_OS_STACK o creando el archivo '.agents/context/stack.env' con 'AGENT_OS_STACK=<stack>' (valores soportados: python, typescript, javascript, go, rust, java, php, ruby, dotnet, bun, static)."
       ;;
   esac
+
+  export AGENT_OS_STACK AGENT_OS_PACKAGE_MANAGER AGENT_OS_DETECTED_LOCKFILE
 }
