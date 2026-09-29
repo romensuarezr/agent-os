@@ -111,7 +111,7 @@ El comando `/promote` consolida la rama de trabajo hacia `main` (o la rama princ
 
 ### 6.1 Salvaguardas Deterministas
 1. **Working Tree Limpio**: Comprueba de forma preventiva que no existan modificaciones o archivos huérfanos sin confirmar.
-2. **Resolución de Topología de Worktrees**: Si la rama `main` está en uso por otro worktree (ej. `/home/romen/Proyectos/agent-os`), el script detecta automáticamente su ubicación mediante `git worktree list --porcelain`, valida su limpieza y ejecuta la consolidación `git -C <target_wt> merge --ff-only <source>` allí directamente, evitando colisiones de working tree.
+2. **Resolución de Topología de Worktrees**: Si la rama `main` está en uso por otro worktree (ej. `<project-root>`), el script detecta automáticamente su ubicación mediante `git worktree list --porcelain`, valida su limpieza y ejecuta la consolidación `git -C <target_wt> merge --ff-only <source>` allí directamente, evitando colisiones de working tree.
 3. **Ejecución Mandatoria de Pruebas**: Ejecuta la suite completa `tests/validate-control-plane.sh` antes de realizar cualquier cambio en las ramas.
 
 ### 6.2 Decision Gate Mandatorio (Human-in-the-loop)

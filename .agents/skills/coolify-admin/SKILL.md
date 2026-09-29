@@ -18,9 +18,9 @@ La habilidad requiere acceso a la API de Coolify mediante token Bearer. Sigue el
    export COOLIFY_TOKEN="<token>"
    ```
 2. **Fallback Local**:
-   Si no se define en variables de entorno, el CLI buscará automáticamente en `/home/romen/Proyectos/configuraciones/api_keys.env`.
+   Si no se define en variables de entorno, el CLI buscará automáticamente en la ruta configurada en `${COOLIFY_ENV_FILE:-$HOME/.config/coolify/api_keys.env}` o en `config/fleet.yaml`.
 3. **Endpoint Base**:
-   Por defecto apunta a `https://coolify.romensuarez.com/api/v1` (configurable mediante `COOLIFY_BASE_URL`).
+   Configurable mediante la variable de entorno `COOLIFY_BASE_URL` (por defecto `http://localhost:8000/api/v1` o endpoint público seguro con SSL).
 
 ---
 
