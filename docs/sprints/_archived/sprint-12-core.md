@@ -6,19 +6,19 @@
 ---
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ---
 
 ## Tareas del Sprint
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
-| :--- | :--- | :---: | :---: | :---: | :--- | :--- |
-| T-080 | Purga extendida de infraestructura personal en Workflows, Skills, Scripts y Templates | Universalización / Core | M | 🟢 Done | — | `.agents/tasks/task-080.md` |
-| T-081 | Portabilidad Shell, Robustez CLI y Validación de Sincronización en `sync.sh` | Bug del sistema / DX | S | 🟢 Done | — | `.agents/tasks/task-081.md` |
-| T-082 | Coherencia de Gobernanza, Resolución de Contradicciones y Precedencia de Perfiles | Gobernanza / Core Standard | M | 🟢 Done | — | `.agents/tasks/task-082.md` |
-| T-083 | Estandarización de Interfaz CLI (`--help` en 15 scripts) y Normalización de Skills | DX / Universalización | M | 🟢 Done | — | `.agents/tasks/task-083.md` |
-| T-084 | Pilotaje del core portable en repo real (`romensuarez-web`) | Validación Externa / DX | S | 🟢 Done | T-080, T-081 | `.agents/tasks/task-084.md` |
+| :--- | :--- | :--- | :---: | :---: | :--- | :--- |
+| T-080 | Purga extendida de infraestructura personal en Workflows, Skills, Scripts y Templates | Universalización / Core | M | ✅ Completada | — | `.agents/tasks/task-080.md` |
+| T-081 | Portabilidad Shell, Robustez CLI y Validación de Sincronización en `sync.sh` | Bug del sistema / DX | S | ✅ Completada | — | `.agents/tasks/task-081.md` |
+| T-082 | Coherencia de Gobernanza, Resolución de Contradicciones y Precedencia de Perfiles | Gobernanza / Core Standard | M | ✅ Completada | — | `.agents/tasks/task-082.md` |
+| T-083 | Estandarización de Interfaz CLI (`--help` en 15 scripts) y Normalización de Skills | DX / Universalización | M | ✅ Completada | — | `.agents/tasks/task-083.md` |
+| T-084 | Pilotaje del core portable en repo real (`romensuarez-web`) | Validación Externa / DX | S | ✅ Completada | T-080, T-081 | `.agents/tasks/task-084.md` |
 
 ---
 
@@ -40,9 +40,9 @@
 
 ## Criterios de cierre del sprint
 
-- [ ] Las 5 tareas completadas con sus criterios verificados.
-- [ ] `tests/validate-control-plane.sh` 12/12 sin regresiones.
-- [ ] `grep -rn "/home/romen" .agents/ templates/ scripts/` → 0 ocurrencias.
-- [ ] T-084 en verde: pilotaje en repositorio real completado con éxito.
-- [ ] `docs/external-inbox/triaje-post-sprint-11.md` archivado al cierre del sprint.
-- [ ] `changelog.md` y `roadmap.md` actualizados atómicamente.
+- [x] Las 5 tareas completadas con sus criterios verificados.
+- [x] `tests/validate-control-plane.sh` 12/12 sin regresiones.
+- [x] `grep -rn "/home/romen" .agents/ templates/ scripts/` → 0 ocurrencias.
+- [x] T-084 en verde: pilotaje en repositorio real completado con éxito.
+- [x] `docs/external-inbox/triaje-post-sprint-11.md` archivado al cierre del sprint.
+- [x] `changelog.md` y `roadmap.md` actualizados atómicamente.

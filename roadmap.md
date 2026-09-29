@@ -1,10 +1,10 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 12**: Core Hardening, Gobernanza & Pilotaje Portable (T-080 a T-084) — Fichero: `docs/sprints/sprint-12-core.md`.
-  - ✅ **Done**: T-080 (Purga extendida infraestructura personal), T-081 (Portabilidad shell, robustez CLI & sync), T-082 (Gobernanza & perfiles), T-083 (CLI --help & skills), T-084 (Pilotaje romensuarez-web).
+- (Sin sprint activo — planificar Sprint 13 con sprint-planning.md)
 
 ## Completado recientemente
+- Sprint 12: Core Hardening, Gobernanza & Pilotaje Portable (T-080 a T-084).
 - Sprint 11: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079).
 - Sprint 10: Homepage Fleet Observability, Perimetral Security & AI Telemetry (T-060 a T-065).
 - Sprint 09: Multi-Agent Parallel Orchestration & Deterministic Goals Engine (T-054 a T-059).

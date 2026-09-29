@@ -9,6 +9,27 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.11.0] — sprint-12 — 2026-09-29
+
+### ✨ Features & Universalización
+
+- **T-080**: Purga extendida de infraestructura personal en workflows (`session-start.md`, `session-close.md`), skills (`orchestrator`, `remote-admin`, `coolify-admin`), scripts (`discover-fleet.sh`) y templates (`fleet.example.yaml`, `agent-registry.yaml`).
+- **T-081**: Blindaje de portabilidad shell: función `portable_timeout` unificada en `scripts/agent/lib/portable-timeout.sh`, validación de `AGENT_OS_PATH` por marcadores canónicos, pre-flight de permisos de escritura `[ -w ]`, trazabilidad de commit SHA del core en `last-sync.md` y robustez con `set -euo pipefail`.
+- **T-082**: Coherencia de gobernanza y precedencia de perfiles: formalización canónica en `.agents/profiles/README.md` (`.yaml` declarativo estructurado > `.md` narrativo), resolución de ambigüedades en `AGENT_ONBOARDING.md` y renombrado preventivo a `changelog-workflow.md` para evitar colisiones case-insensitive en macOS.
+- **T-083**: Estandarización de interfaz CLI unificada mediante `scripts/agent/lib/cli-help.sh` con flag `-h`/`--help` en la primera línea ejecutable de los 15 scripts del core, y normalización canónica de skills a directorios con `SKILL.md` (migración de `external-inbox/SKILL.md`).
+- **T-084**: Validación y pilotaje empírico del core portable en repositorio real satélite (`romensuarez-web`): sincronización no destructiva (`sync.sh`), migración automática de skills legacy preservando personalizaciones locales, superación del protocolo de prueba ciega 0-contexto (H1-H5') y documentación del riesgo operativo de la dualidad `bun.lock`/`npm`.
+
+### 🐛 Bug Fixes & Refactor
+
+- **T-080**: Eliminadas referencias fijas a `/home/romen`, `/Users`, endpoints privados y sockets de producción.
+- **T-081**: Eliminada duplicación de lógica de timeouts en bash y reemplazada invocación de `which` por `shutil.which` en Python.
+- **T-083**: Normalizada sintaxis de scripts de Cloudflare DNS y armonizado vocabulario de fases y gatillos en rules y workflows.
+- **T-084**: Corregida migración legacy en `sync.sh` sustituyendo `rm -f` por `mv` para permitir la reconciliación segura y no destructiva de personalizaciones locales.
+
+### 📚 Documentación & Trazabilidad
+
+- **T-084**: Acta de pilotaje formalizada en `.agents/tasks/task-084.md` con transcripción verbatim, rúbrica de evaluación externa y documentación de la dualidad técnica entre lockfile declarado y runtime del anfitrión.
+
 ## [1.10.0] — sprint-11 — 2026-09-29
 
 ### ✨ Features & Universalización
