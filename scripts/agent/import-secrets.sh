@@ -99,8 +99,13 @@ if [ -z "${INFISICAL_API_URL:-}" ] || [ -z "${INFISICAL_CLIENT_ID:-}" ] || [ -z 
   fi
 fi
 
-# Fallback desde config/fleet.yaml si existe
-FLEET_CONFIG="$SCRIPT_DIR/../../config/fleet.yaml"
+# Fallback desde .agents/config/fleet.yaml si existe
+FLEET_CONFIG="$SCRIPT_DIR/../../.agents/config/fleet.yaml"
+if [ ! -f "$FLEET_CONFIG" ] && [ -f "$SCRIPT_DIR/../../config/fleet.yaml" ]; then
+  # Fallback retrocompatible para proyectos hijos desactualizados
+  echo "⚠️  DEPRECATED: $SCRIPT_DIR/../../config/fleet.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.yaml" >&2
+  FLEET_CONFIG="$SCRIPT_DIR/../../config/fleet.yaml"
+fi
 if [ -f "$FLEET_CONFIG" ]; then
   if [ -z "${INFISICAL_API_URL:-}" ]; then
     INFISICAL_API_URL=$(python3 -c "import yaml; data=yaml.safe_load(open('$FLEET_CONFIG')) or {}; print(next((n.get('services',{}).get('infisical',{}).get('api_url','') for n in data.get('nodes',{}).values() if isinstance(n, dict) and n.get('services',{}).get('infisical',{}).get('api_url')), ''))" 2>/dev/null || echo "")

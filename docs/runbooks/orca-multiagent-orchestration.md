@@ -19,7 +19,7 @@ PROYECTO (Durable Project)
   │  Ej: github:<owner>/<repo> (identidad del repositorio y metadata)
   │
   ├── HOST LOCAL (/ruta/local/al/repositorio)
-  └── HOSTS REMOTOS (servidores definidos en config/fleet.yaml vía SSH)
+  └── HOSTS REMOTOS (servidores definidos en .agents/config/fleet.yaml vía SSH)
         │
         ├── WORKSPACE / WORKTREE 1 (feat/auth) ──▶ Worker A (Developer en OpenCode - $0)
         ├── WORKSPACE / WORKTREE 2 (test/auth) ──▶ Worker B (Reviewer en OpenCode - $0)

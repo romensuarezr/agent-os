@@ -70,7 +70,7 @@ bash scripts/agent/audit-orca.sh
 
 ## 3. Verificación de Conectividad con Servidores Remotos
 
-Orca delega la ejecución de agentes en servidores configurados en `config/fleet.yaml` o `~/.ssh/config`:
+Orca delega la ejecución de agentes en servidores configurados en `.agents/config/fleet.yaml` o `~/.ssh/config`:
 
 ```bash
 # Diagnóstico de conexión desatendida (sin prompt interactivo):

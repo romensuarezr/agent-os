@@ -20,7 +20,7 @@
 - **0 tokens de inferencia**: Ejecutado enteramente mediante lógica local Bash y Python (`socket`, `urllib`, `subprocess`). No requiere llamadas a LLMs.
 - **Enmascaramiento estricto de privacidad e infraestructura**: Ninguna dirección IP, hostname interno o token de autenticación se expone en texto plano ni en modo texto ni en modo `--json`.
 - **Digest de texto acotado**: El modo texto estándar está limitado rígidamente a un máximo de 20 líneas legibles para consumo inmediato por agentes y humanos.
-- **Agnosticismo y desacoplamiento**: Si `config/fleet.yaml` no existe en el entorno (por ser un archivo gitignored específico del operador), el script opera contra `config/fleet.example.yaml` en modo documentación (`SKIPPED-NO-FLEET`), evitando falsos positivos en pipelines de CI o máquinas nuevas.
+- **Agnosticismo y desacoplamiento**: Si `.agents/config/fleet.yaml` no existe en el entorno (por ser un archivo gitignored específico del operador), el script opera contra `.agents/config/fleet.example.yaml` en modo documentación (`SKIPPED-NO-FLEET`), evitando falsos positivos en pipelines de CI o máquinas nuevas.
 
 ---
 
@@ -32,7 +32,7 @@ bash scripts/agent/fleet-doctor.sh [OPCIONES]
 
 | Opción | Argumento | Valor por defecto | Descripción |
 | :--- | :--- | :--- | :--- |
-| `--fleet` | `<ruta>` | `config/fleet.yaml` (o `fleet.example.yaml`) | Archivo declarativo de topología de flota a auditar. |
+| `--fleet` | `<ruta>` | `.agents/config/fleet.yaml` (o `fleet.example.yaml`) | Archivo declarativo de topología de flota a auditar. |
 | `--json` | Flag booleano | `false` | Emite la telemetría en JSON estructurado para agentes u orquestadores (`Orca ADE`, `Hermes`). |
 | `--timeout` | `<segundos>` | `2` | Timeout máximo no bloqueante para probes TCP o peticiones HTTP por endpoint. |
 | `--strict` | Flag booleano | `false` | Retorna código de salida `1` si hay servicios caídos (`DOWN`) o CLIs esenciales rotos. |
@@ -68,10 +68,10 @@ Por directiva de gobernanza de Agent OS, ningún log o digest de diagnóstico pu
 
 ### 4.1 Modo Texto Estándar (Digest ≤ 20 líneas)
 
-#### Con `config/fleet.yaml` activo (entorno con flota configurada):
+#### Con `.agents/config/fleet.yaml` activo (entorno con flota configurada):
 ```text
 === FLEET DOCTOR DIGEST ===
-Fleet: config/fleet.yaml (active overlay)
+Fleet: .agents/config/fleet.yaml (active overlay)
 CLIs: git:CLEAN | gh:AUTH (romensuarezr) | docker:UP | infisical:PROFILE-ACTIVE | tailscale:CONNECTED
 • [worker-node-01] (inference-and-data): freellmapi:3001:UP (HTTP 200) [auth:masked], ollama:11434:UP, glances:61208:UP
 • [saas-node-02] (orchestration-and-paas): coolify:UP, orca_gateway:8000:UP, bytebox:UP, homepage:UP
@@ -79,10 +79,10 @@ Summary: CLIs 5/5 OK | Services: 7 UP, 0 DOWN, 0 SKIPPED
 === FIN FLEET DOCTOR (0 tokens inferidos, 0 IPs expuestas) ===
 ```
 
-#### Sin `config/fleet.yaml` (modo agnóstico / documentación con `fleet.example.yaml`):
+#### Sin `.agents/config/fleet.yaml` (modo agnóstico / documentación con `fleet.example.yaml`):
 ```text
 === FLEET DOCTOR DIGEST ===
-Fleet: config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]
+Fleet: .agents/config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]
 CLIs: git:DIRTY | gh:AUTH (romensuarezr) | docker:DOWN | infisical:NO-PROFILE | tailscale:CONNECTED
 Nodes: (Sin fleet.yaml local — conectividad de flota omitida en modo agnóstico)
 Summary: CLIs 3/5 OK | Services: 0 UP, 0 DOWN, 10 SKIPPED
@@ -120,7 +120,7 @@ Invocación: `bash scripts/agent/fleet-doctor.sh --json`
     "docker": { "ok": true, "status": "UP" }
   },
   "fleet": {
-    "source": "config/fleet.yaml",
+    "source": ".agents/config/fleet.yaml",
     "mode": "ACTIVE",
     "nodes": {
       "worker-node-01": {
@@ -163,12 +163,12 @@ Invocación: `bash scripts/agent/fleet-doctor.sh --json`
 
 ```bash
 🔍 [12/12] Verificando diagnóstico determinista de flota (fleet-doctor.sh)...
-  ✅ fleet-doctor.sh valida sintaxis y procesa config/fleet.example.yaml deterministamente.
-  ℹ️  [SKIP CONDICIONAL] config/fleet.yaml no existe en este entorno: conectividad viva omitida de forma segura.
+  ✅ fleet-doctor.sh valida sintaxis y procesa .agents/config/fleet.example.yaml deterministamente.
+  ℹ️  [SKIP CONDICIONAL] .agents/config/fleet.yaml no existe en este entorno: conectividad viva omitida de forma segura.
 ```
 
-- **Si `config/fleet.yaml` existe**: Ejecuta el chequeo completo de flota y reporta estado en vivo (12/12 checks).
-- **Si `config/fleet.yaml` no existe**: Valida la sintaxis del parser y las opciones agnósticas contra `config/fleet.example.yaml`, emite un `[SKIP CONDICIONAL]` informativo y concluye la suite con 11/12 aprobados + 1 SKIP (código de salida `0`).
+- **Si `.agents/config/fleet.yaml` existe**: Ejecuta el chequeo completo de flota y reporta estado en vivo (12/12 checks).
+- **Si `.agents/config/fleet.yaml` no existe**: Valida la sintaxis del parser y las opciones agnósticas contra `.agents/config/fleet.example.yaml`, emite un `[SKIP CONDICIONAL]` informativo y concluye la suite con 11/12 aprobados + 1 SKIP (código de salida `0`).
 
 ---
 

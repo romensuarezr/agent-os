@@ -1,7 +1,7 @@
 # Runbook: Normalización de Autenticación GitHub SSH en Servidores Remotos
 
 > **Fecha**: 2026-09-24  
-> **Hosts**: Nodos configurados en `config/fleet.yaml` (ej: `<worker-node>` y `<infra-node>`, o alias SSH definidos en `~/.ssh/config`)  
+> **Hosts**: Nodos configurados en `.agents/config/fleet.yaml` (ej: `<worker-node>` y `<infra-node>`, o alias SSH definidos en `~/.ssh/config`)  
 > **Objetivo**: Resolver de forma determinista el error `Host key verification failed` y establecer una arquitectura segura de autenticación Git SSH sin prompts interactivos ni exposición de credenciales.  
 > **Herramienta de diagnóstico**: `.agents/skills/remote-admin/scripts/check-git-remote.sh`
 
@@ -55,7 +55,7 @@ En su lugar, el estándar recomendado es:
 
 ## 4. Procedimiento de Aprovisionamiento (Decision Gates)
 
-> ⚠️ **IMPORTANTE**: Estos comandos requieren ejecución supervisada. Sigue los pasos en orden parametrizando con los nombres de host de tu flota (`config/fleet.yaml`).
+> ⚠️ **IMPORTANTE**: Estos comandos requieren ejecución supervisada. Sigue los pasos en orden parametrizando con los nombres de host de tu flota (`.agents/config/fleet.yaml`).
 
 ### Paso 1: Fijar `known_hosts` de GitHub en los servidores (L1 - Seguro)
 

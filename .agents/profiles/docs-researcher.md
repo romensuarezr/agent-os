@@ -48,7 +48,7 @@ El **Docs-Researcher** es el especialista encargado de salvaguardar la memoria t
 - **`adr-decision-recorder`**: Protocolo estandarizado para capturar trade-offs técnicos (QUÉ, POR QUÉ y CONSECUENCIAS) en `docs/adrs/ADR-[NNN]-[titulo].md`.
 - **`doc-maintainer`**: Supervisión y actualización obligatoria de fechas, índices y runbooks operativos en `docs/runbooks/` y `docs/sprints/`.
 - **`tech-scout`**: Evaluación sistemática de dependencias, licencias y actividad comunitaria antes de adoptar paquetes externos.
-- **`tool-inventory`**: Consulta dinámica del catálogo de herramientas de la flota en `config/fleet.yaml` para evitar reinventar conectores.
+- **`tool-inventory`**: Consulta dinámica del catálogo de herramientas de la flota en `.agents/config/fleet.yaml` para evitar reinventar conectores.
 
 ---
 

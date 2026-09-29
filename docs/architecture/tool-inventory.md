@@ -13,9 +13,12 @@ Para garantizar que el núcleo de **Agent OS** sea completamente agnóstico y po
 
 ```
 agent-os/
-├── config/
-│   ├── fleet.example.yaml                ← Plantilla pública agnóstica versionada en git
-│   └── fleet.yaml                        ← Configuración real local del usuario (IGNORADA en git)
+├── .agents/
+│   ├── config/
+│   │   ├── fleet.example.yaml                ← Plantilla pública agnóstica versionada en git
+│   │   └── fleet.yaml                        ← Configuración real local del usuario (IGNORADA en git)
+│   └── skills/tool-inventory/
+│       └── SKILL.md                          ← Habilidad operativa pura (lectura dinámica de fleet.yaml)
 ├── docs/architecture/
 │   ├── tool-inventory.md                 ← Este documento: arquitectura y matriz de decisión
 │   └── tools/                            ← Catálogos pedagógicos y legibles por humanos (en core)
@@ -23,13 +26,11 @@ agent-os/
 │       ├── persistent-agents-vps.md       ← Capa 2: Worker Nodes (Inferencia & Agentes)
 │       ├── saas-infrastructure-vps.md     ← Capa 3: SaaS Nodes (PaaS & Automatizaciones)
 │       └── cloud-and-web-ai.md           ← Capa 4: Cloud & Web AI
-└── .agents/skills/tool-inventory/
-    └── SKILL.md                          ← Habilidad operativa pura (lectura dinámica de fleet.yaml)
 ```
 
 ### Principio de Operación
 1. **El repositorio versiona la abstracción**: Esquemas estándar (YAML, especificación MCP) y documentación pedagógica con marcadores educativos (`worker-node-01`, `saas-node-02`, `100.x.y.z`, `example.com`).
-2. **El entorno local define la realidad**: Cada desarrollador o servidor cuenta con su propio `config/fleet.yaml` donde se mapean las IPs privadas (ej. Tailscale), credenciales o endpoints específicos.
+2. **El entorno local define la realidad**: Cada desarrollador o servidor cuenta con su propio `.agents/config/fleet.yaml` donde se mapean las IPs privadas (ej. Tailscale), credenciales o endpoints específicos.
 
 ---
 
@@ -49,7 +50,7 @@ agent-os/
 
 Agent OS adopta la especificación de servidores **MCP** como el protocolo estándar de la industria para exponer herramientas operativas a los agentes de IA de forma estructurada y segura.
 
-Los servidores MCP se configuran de manera declarativa en `config/fleet.yaml` bajo la clave `mcpServers`:
+Los servidores MCP se configuran de manera declarativa en `.agents/config/fleet.yaml` bajo la clave `mcpServers`:
 
 ```yaml
 mcpServers:
@@ -96,7 +97,7 @@ mcpServers:
 
 ## 🔒 Reglas de Oro y Seguridad
 
-1. **Secreto Cero en Git**: Nunca registres credenciales o tokens en claro dentro de ningún archivo del repositorio. Refiérelos como variables de entorno (`$N8N_MCP_TOKEN`, `$UNIFIED_KEY`) o en el archivo ignorado `config/fleet.yaml`.
+1. **Secreto Cero en Git**: Nunca registres credenciales o tokens en claro dentro de ningún archivo del repositorio. Refiérelos como variables de entorno (`$N8N_MCP_TOKEN`, `$UNIFIED_KEY`) o en el archivo ignorado `.agents/config/fleet.yaml`.
 2. **Centralización en Gestor de Secretos (Infisical)**: Todas las variables sensibles se gestionarán en Infisical con inyección directa en memoria (`infisical run`) vía identidades máquina (Universal Auth).
 3. **No duplicar infraestructura**:
    - Para bases de datos PostgreSQL: reutilizar instancias unificadas (`Unified-DB`) en nodos dedicados.
@@ -107,8 +108,8 @@ mcpServers:
 
 ## 🔄 Gobernanza: Cómo Añadir Nuevas Herramientas a la Flota
 
-1. Añadir la herramienta o servicio a tu archivo local privado `config/fleet.yaml`.
+1. Añadir la herramienta o servicio a tu archivo local privado `.agents/config/fleet.yaml`.
 2. Si la herramienta aporta un nuevo patrón arquitectónico reutilizable para otros desarrolladores:
-   - Añadir su especificación pedagógica en `config/fleet.example.yaml`.
+   - Añadir su especificación pedagógica en `.agents/config/fleet.example.yaml`.
    - Documentarla en el archivo de referencia correspondiente de `.agents/skills/tool-inventory/references/`.
    - Actualizar este Hub y notificar en el commit: `docs(tools): update fleet tool hub`.

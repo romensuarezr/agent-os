@@ -91,7 +91,7 @@ Desde el propio nodo `<worker-node>` o desde el host de control/infraestructura:
 
 ### 4.1 Comprobación de API v4 / v3
 ```bash
-# Variables del entorno (definidas en config/fleet.yaml o localmente)
+# Variables del entorno (definidas en .agents/config/fleet.yaml o localmente)
 WORKER_IP="${WORKER_TAILSCALE_IP:-127.0.0.1}"
 
 # Comprobación API v4

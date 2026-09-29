@@ -2,7 +2,7 @@
 
 > **Ámbito**: Nodos de cómputo dedicados a agentes continuos 24/7 e inferencia de modelos locales sin coste de API  
 > **Acceso**: Conexión vía VPN Mesh (ej. Tailscale `100.x.y.z`) o SSH a host de computación  
-> **Configuración Activa**: Consultar la sección `nodes` en `config/fleet.yaml`
+> **Configuración Activa**: Consultar la sección `nodes` en `.agents/config/fleet.yaml`
 
 ---
 
