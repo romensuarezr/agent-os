@@ -73,6 +73,6 @@ El VPS `oracle` (`vnic-rsr`) alberga la infraestructura de producción web (Cool
 
 ## 4. Referencias
 - [docs/architecture/control-plane-topology.md](file:///home/romen/Proyectos/agent-os/docs/architecture/control-plane-topology.md)
-- [config/agent-registry.yaml](file:///home/romen/Proyectos/agent-os/config/agent-registry.yaml)
-- [config/routing-policy.yaml](file:///home/romen/Proyectos/agent-os/config/routing-policy.yaml)
+- [.agents/config/agent-registry.yaml](file:///home/romen/Proyectos/agent-os/.agents/config/agent-registry.yaml)
+- [.agents/config/routing-policy.yaml](file:///home/romen/Proyectos/agent-os/.agents/config/routing-policy.yaml)
 - [.agents/rules/global/agent-permissions.md](file:///home/romen/Proyectos/agent-os/.agents/rules/global/agent-permissions.md)

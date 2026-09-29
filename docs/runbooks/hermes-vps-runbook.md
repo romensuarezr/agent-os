@@ -4,7 +4,7 @@ Entorno validado para operar Hermes Desktop local contra un backend remoto en VP
 
 ## Arquitectura
 
-La topología validada separa interfaz y ejecución: Hermes Desktop corre en local, mientras el backend vive en el VPS y se expone de forma privada por la red Tailnet (`config/fleet.yaml`).
+La topología validada separa interfaz y ejecución: Hermes Desktop corre en local, mientras el backend vive en el VPS y se expone de forma privada por la red Tailnet (`.agents/config/fleet.yaml`).
 
 Componentes:
 - Hermes Desktop local, usado como cliente de sesión remoto.

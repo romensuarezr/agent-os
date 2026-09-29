@@ -45,4 +45,4 @@ Los agentes pueden descubrir workspaces hermanos consultando el directorio comú
 | **Frontends / Portafolios** | Sitios web y aplicaciones Next.js, Astro, React. | Configuraciones Dockerfile, pipelines CI/CD y despliegues PaaS. |
 
 > [!TIP]
-> Para conocer el inventario real y actualizado de binarios y repositorios en la máquina actual, consulta la sección `local_environment` de `config/fleet.yaml` o ejecuta el script de auto-descubrimiento (`scripts/agent/discover-fleet.sh`).
+> Para conocer el inventario real y actualizado de binarios y repositorios en la máquina actual, consulta la sección `local_environment` de `.agents/config/fleet.yaml` o ejecuta el script de auto-descubrimiento (`scripts/agent/discover-fleet.sh`).

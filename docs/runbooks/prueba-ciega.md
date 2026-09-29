@@ -78,8 +78,7 @@ Core-Hardening/
 ├── roadmap.md                 ← Plan de evolución y tareas de sprints
 ├── CONTRIBUTING.md            ← Guía de contribución
 ├── .agent-session.lock        ← Cerrojo de sesión activa de agente
-├── .agents/                   ← Cerebro operativo (onboarding, skills, workflows, rules, context)
-├── config/                    ← Registros declarativos de agentes, flota y skills
+├── .agents/                   ← Cerebro operativo (onboarding, config, skills, workflows, rules, context)
 ├── docs/                      ← Documentación, sprints, runbooks e inboxes de ideas/manifiestos
 ├── scripts/                   ← Herramientas ejecutables CLI en Bash y Python
 ├── templates/                 ← Plantillas estandarizadas para proyectos hijos y servicios
@@ -153,13 +152,13 @@ Se ejecutó el diagnóstico determinista de infraestructura:
 - **Salida obtenida (Digest determinista)**:
   ```
   === FLEET DOCTOR DIGEST ===
-  Fleet: config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]
+  Fleet: .agents/config/fleet.example.yaml [MODE: SKIPPED-NO-FLEET]
   CLIs: git:DIRTY | gh:UNAUTHENTICATED | docker:DOWN | infisical:NO-PROFILE | tailscale:STOPPED
   Nodes: (Sin fleet.yaml local — conectividad de flota omitida en modo agnóstico)
   Summary: CLIs 1/5 OK | Services: 0 UP, 0 DOWN, 10 SKIPPED
   === FIN FLEET DOCTOR (0 tokens inferidos, infraestructura enmascarada) ===
   ```
-- **Conclusión de flota**: Al no existir `config/fleet.yaml` privado (sólo el archivo agnóstico `config/fleet.example.yaml`), el sistema entra limpiamente en `MODE: SKIPPED-NO-FLEET`, protegiendo al agente de alucinar conectividades o intentar invocar endpoints inexistentes.
+- **Conclusión de flota**: Al no existir `.agents/config/fleet.yaml` privado (sólo el archivo agnóstico `.agents/config/fleet.example.yaml`), el sistema entra limpiamente en `MODE: SKIPPED-NO-FLEET`, protegiendo al agente de alucinar conectividades o intentar invocar endpoints inexistentes.
 
 ---
 
@@ -173,7 +172,7 @@ El ecosistema de Agent OS clasifica sus herramientas operativas en cuatro compar
 
 ### Mecanismos Oficiales de Auto-Descubrimiento:
 1. **Inventario de Skills**: `.agents/context/skills-inventory.md` contiene la tabla consolidada y un script generador determinista en Python embebido a coste $0.
-2. **Manifiestos Declarativos**: `config/skills-manifest.yaml` y `config/agent-registry.yaml`.
+2. **Manifiestos Declarativos**: `.agents/config/skills-manifest.yaml` y `.agents/config/agent-registry.yaml`.
 3. **Herramientas de Diagnóstico de Entorno**: `scripts/agent/discover-fleet.sh` e `scripts/agent/inventory-check.sh`.
 
 ---
@@ -233,7 +232,7 @@ El ecosistema de Agent OS clasifica sus herramientas operativas en cuatro compar
   - `scripts/agent/check-inbox.sh` ➔ **Existe y es ejecutable**.
   - `scripts/agent/install.sh` ➔ **Existe y es ejecutable**.
   - `.agents/context/skills-inventory.md` ➔ **Existe y está sincronizado**.
-  - `config/skills-manifest.yaml` ➔ **Existe y es conforme**.
+  - `.agents/config/skills-manifest.yaml` ➔ **Existe y es conforme**.
   - `.agents/rules/global/deterministic-execution.md` ➔ **Existe**.
   - `.agents/workflows/session-start.md` ➔ **Existe**.
   - `.agents/skills/tool-inventory/` ➔ **Existe**.
