@@ -1,8 +1,12 @@
-# ==========================================
-# Agent OS — Central Agent Registry
-# ==========================================
+# ==============================================================================
+# Agent OS — Central Agent Registry (Declarative Template)
+# ==============================================================================
+# Maps execution engines and declarative profiles to node topologies.
+# Replace placeholders (<worker-node>, <infra-node>) with the node names
+# declared in your config/fleet.yaml.
+# ==============================================================================
 version: "1.0.0"
-updated_at: "2026-09-24"
+updated_at: "2026-09-29"
 
 execution_engines:
   antigravity:
@@ -12,15 +16,15 @@ execution_engines:
     active_profile_default: "developer"
   hermes:
     role: "Front Door 24/7, Triage & Operational Memory"
-    host: "datamanager"
+    host: "<worker-node>"
     service: "hermes-gateway.service"
     active_profile_default: "coordinator"
   orca:
     role: "Supervised Execution Plane & Decision Gates"
     host: "local"
     relays:
-      - "datamanager"
-      - "oracle"
+      - "<worker-node>"
+      - "<infra-node>"
     active_profile_default: "ops-auditor"
   opencode:
     role: "Autonomous Code Implementer & ACP Worker"
@@ -34,7 +38,7 @@ profiles:
     path: ".agents/profiles/coordinator.yaml"
     category: "coordination"
     assigned_engine: "hermes"
-    target_host: "datamanager"
+    target_host: "<worker-node>"
     human_approval_required: true
 
   - id: ops-auditor

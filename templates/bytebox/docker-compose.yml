@@ -6,7 +6,7 @@
 services:
   bytebox:
     build:
-      context: https://github.com/pinkpixel-dev/bytebox.git#main
+      context: ${BYTEBOX_REPO_CONTEXT:-https://github.com/example/bytebox.git#main}
       dockerfile: Dockerfile
     image: bytebox:latest
     container_name: bytebox

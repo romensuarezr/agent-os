@@ -103,10 +103,10 @@ fi
 FLEET_CONFIG="$SCRIPT_DIR/../../config/fleet.yaml"
 if [ -f "$FLEET_CONFIG" ]; then
   if [ -z "${INFISICAL_API_URL:-}" ]; then
-    INFISICAL_API_URL=$(python3 -c "import yaml; data=yaml.safe_load(open('$FLEET_CONFIG')); print(data.get('nodes',{}).get('oracle',{}).get('services',{}).get('infisical',{}).get('api_url',''))" 2>/dev/null || echo "")
+    INFISICAL_API_URL=$(python3 -c "import yaml; data=yaml.safe_load(open('$FLEET_CONFIG')) or {}; print(next((n.get('services',{}).get('infisical',{}).get('api_url','') for n in data.get('nodes',{}).values() if isinstance(n, dict) and n.get('services',{}).get('infisical',{}).get('api_url')), ''))" 2>/dev/null || echo "")
   fi
   if [ -z "${INFISICAL_PROJECT_ID:-}" ]; then
-    INFISICAL_PROJECT_ID=$(python3 -c "import yaml; data=yaml.safe_load(open('$FLEET_CONFIG')); print(data.get('nodes',{}).get('oracle',{}).get('services',{}).get('infisical',{}).get('project_id',''))" 2>/dev/null || echo "")
+    INFISICAL_PROJECT_ID=$(python3 -c "import yaml; data=yaml.safe_load(open('$FLEET_CONFIG')) or {}; print(next((n.get('services',{}).get('infisical',{}).get('project_id','') for n in data.get('nodes',{}).values() if isinstance(n, dict) and n.get('services',{}).get('infisical',{}).get('project_id')), ''))" 2>/dev/null || echo "")
   fi
 fi
 
