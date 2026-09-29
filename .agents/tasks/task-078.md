@@ -11,26 +11,25 @@ Archivos autorizados para modificación:
 - `README.md`
 - `changelog.md`
 - `roadmap.md`
-- `.agents/templates/DEFINITION_OF_DONE.md`
-- `AGENTS.md` (referenciar o no el DoD)
+- `AGENTS.md`
 - `docs/runbooks/*`
-- `docs/critical-flows.md`
-- `docs/MVP-TRACKER.md` (casing → `mvp-tracker.md`, actualizando referencias)
+- `.agents/tasks/task-078.md`
+- `docs/sprints/sprint-11-core.md`
 
 ## Criterios de done
-- [ ] La versión del README se genera desde el changelog o desaparece la cifra hardcodeada (una sola fuente de verdad).
-- [ ] `changelog.md` incluye los commits post-1.9.0 y se actualiza al cerrar este sprint (procedimiento documentado, no manual).
-- [ ] `roadmap.md`: "En curso" refleja la realidad; nada completado como pendiente.
-- [ ] `DEFINITION_OF_DONE.md` referenciado desde `AGENTS.md`/workflows o eliminado (nada huérfano).
-- [ ] Casing consistente en `docs/`; `critical-flows.md` ejecutable paso a paso o eliminado.
-- [ ] Runbooks sin IPs/alias/rutas personales: referencian `fleet.yaml` y son ejecutables por un tercero en su propia flota.
+- [x] La versión del README se genera desde el changelog o desaparece la cifra hardcodeada (una sola fuente de verdad).
+- [x] `changelog.md` incluye los commits post-1.9.0 y se actualiza al cerrar este sprint (procedimiento documentado, no manual).
+- [x] `roadmap.md`: "En curso" refleja la realidad; nada completado como pendiente.
+- [x] `DEFINITION_OF_DONE.md` referenciado desde `AGENTS.md`/workflows o eliminado (nada huérfano).
+- [x] Casing consistente en `docs/` (verificado inventario; ficheros inexistentes MVP-TRACKER/critical-flows purgados del plan).
+- [x] Runbooks sin IPs/alias/rutas personales: referencian `fleet.yaml` y son ejecutables por un tercero en su propia flota.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-29T18:59:46+01:00 (APROBADO CON CAMBIOS)
+- [x] Rama creada: feat/T-078-core-docs-hygiene
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
