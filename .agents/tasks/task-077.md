@@ -30,4 +30,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-29T14:25:50+01:00 (APROBADO CON CAMBIOS)
 - [x] Rama creada: feat/T-077-tool-inventory-repo-onboarding
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
