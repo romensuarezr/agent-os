@@ -8,9 +8,23 @@
 # ==============================================================================
 # COMPROBACIÓN DE ACTUALIZACIONES DEL CORE
 # ==============================================================================
+
+set -euo pipefail
+
+# Pre-flight de dependencias básicas
+for cmd in git bash sed awk date; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
+    exit 1
+  fi
+done
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/date-utils.sh" ]; then
   source "$SCRIPT_DIR/lib/date-utils.sh"
+fi
+if [ -f "$SCRIPT_DIR/lib/portable-timeout.sh" ]; then
+  source "$SCRIPT_DIR/lib/portable-timeout.sh"
 fi
 
 DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -22,11 +36,22 @@ if [ -z "$AGENT_OS_CORE_DIR" ]; then
 fi
 
 # Omitir si estamos dentro del propio repositorio core de agent-os (incluso en worktrees)
-CURRENT_REPO_NAME=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null)
+CURRENT_REPO_RAW=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
+CURRENT_REPO_NAME=""
+[ -n "$CURRENT_REPO_RAW" ] && CURRENT_REPO_NAME=$(basename "$CURRENT_REPO_RAW" 2>/dev/null || echo "")
+
 REAL_CURRENT=$(pwd -P)
-REAL_CORE=$( ( [ -n "$AGENT_OS_CORE_DIR" ] && cd "$AGENT_OS_CORE_DIR" 2>/dev/null && pwd -P ) || echo "$AGENT_OS_CORE_DIR" )
+REAL_CORE=""
+if [ -n "$AGENT_OS_CORE_DIR" ]; then
+  REAL_CORE=$( (cd "$AGENT_OS_CORE_DIR" 2>/dev/null && pwd -P) || echo "$AGENT_OS_CORE_DIR" )
+fi
+
 GIT_COMMON_RAW=$(git rev-parse --git-common-dir 2>/dev/null || echo "")
-GIT_COMMON_DIR=$( (cd "$GIT_COMMON_RAW" 2>/dev/null && pwd -P) || echo "$GIT_COMMON_RAW" )
+GIT_COMMON_DIR=""
+if [ -n "$GIT_COMMON_RAW" ]; then
+  GIT_COMMON_DIR=$( (cd "$GIT_COMMON_RAW" 2>/dev/null && pwd -P) || echo "$GIT_COMMON_RAW" )
+fi
+
 ORIGIN_URL=$(git config --get remote.origin.url 2>/dev/null || git remote get-url origin 2>/dev/null || echo "")
 
 if [ "$CURRENT_REPO_NAME" = "agent-os" ] || \
@@ -43,10 +68,10 @@ if [ "$is_core" = "false" ]; then
   LAST_SYNC_FILE=".agents/context/last-sync.md"
   CHANGELOG_FILE=".agents/context/agent-os-changelog.md"
   
-  # 1. Leer fecha de última sync
+  # 1. Leer fecha de última sync (primer token de la primera línea para retrocompatibilidad)
   LAST_SYNC_DATE=""
   if [ -f "$LAST_SYNC_FILE" ]; then
-    LAST_SYNC_DATE=$(cat "$LAST_SYNC_FILE" 2>/dev/null | sed 's/skipped: //g' | xargs)
+    LAST_SYNC_DATE=$(head -n 1 "$LAST_SYNC_FILE" 2>/dev/null | sed 's/skipped: //g' | awk '{print $1}' || echo "")
   fi
   
   REQUIRES_CHECK_BY_TIME=false
@@ -56,7 +81,7 @@ if [ "$is_core" = "false" ]; then
   
   # Calcular días transcurridos si hay fecha
   if [ "$REQUIRES_CHECK_BY_TIME" = "false" ]; then
-    LAST_SYNC_EPOCH=$(portable_epoch "$LAST_SYNC_DATE")
+    LAST_SYNC_EPOCH=$(portable_epoch "$LAST_SYNC_DATE" 2>/dev/null || echo 0)
     CURRENT_EPOCH=$(date +%s)
     DIFF_SECONDS=$((CURRENT_EPOCH - LAST_SYNC_EPOCH))
     DIFF_DAYS=$((DIFF_SECONDS / 86400))
@@ -66,21 +91,30 @@ if [ "$is_core" = "false" ]; then
   fi
 
   # 2. Obtener hash de commit local registrado
-  LOCAL_COMMIT=$(head -n 1 "$CHANGELOG_FILE" 2>/dev/null | grep -E -o '[0-9a-f]{40}')
-  if [ -z "$LOCAL_COMMIT" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
-    LOCAL_COMMIT=$(git -C "$AGENT_OS_CORE_DIR" rev-parse HEAD 2>/dev/null)
+  LOCAL_COMMIT=""
+  if [ -f "$LAST_SYNC_FILE" ]; then
+    LOCAL_COMMIT=$(grep -E '^commit:' "$LAST_SYNC_FILE" 2>/dev/null | awk '{print $2}' || echo "")
+  fi
+  if [ -z "$LOCAL_COMMIT" ] && [ -f "$CHANGELOG_FILE" ]; then
+    LOCAL_COMMIT=$(head -n 1 "$CHANGELOG_FILE" 2>/dev/null | grep -E -o '[0-9a-f]{40}' || echo "")
+  fi
+  if [ -z "$LOCAL_COMMIT" ] && [ -n "$AGENT_OS_CORE_DIR" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
+    LOCAL_COMMIT=$(git -C "$AGENT_OS_CORE_DIR" rev-parse HEAD 2>/dev/null || echo "")
   fi
 
-  # 3. Consultar commit remoto (con timeout estricto de 3s)
+  # 3. Consultar commit remoto (con timeout portable estricto de 3s)
   AGENT_OS_URL="https://github.com/romensuarezr/agent-os.git"
-  if [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
-    DETECTED_URL=$(git -C "$AGENT_OS_CORE_DIR" remote get-url origin 2>/dev/null)
+  if [ -n "$AGENT_OS_CORE_DIR" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
+    DETECTED_URL=$(git -C "$AGENT_OS_CORE_DIR" remote get-url origin 2>/dev/null || echo "")
     [ -n "$DETECTED_URL" ] && AGENT_OS_URL="$DETECTED_URL"
   fi
 
   REMOTE_COMMIT=""
-  # Usar timeout de 3 segundos para evitar bloqueos si no hay red
-  REMOTE_COMMIT=$(timeout 3s git ls-remote "$AGENT_OS_URL" HEAD 2>/dev/null | awk '{print $1}')
+  if command -v portable_timeout >/dev/null 2>&1; then
+    REMOTE_COMMIT=$(portable_timeout 3 git ls-remote "$AGENT_OS_URL" HEAD 2>/dev/null | awk '{print $1}' || echo "")
+  else
+    REMOTE_COMMIT=$(git ls-remote "$AGENT_OS_URL" HEAD 2>/dev/null | awk '{print $1}' || echo "")
+  fi
 
   HAS_NEW_COMMIT=false
   if [ -n "$REMOTE_COMMIT" ] && [ -n "$LOCAL_COMMIT" ] && [ "$REMOTE_COMMIT" != "$LOCAL_COMMIT" ]; then
@@ -151,7 +185,7 @@ LOCK_FILE=".agent-session.lock"
 
 if [ -f "$LOCK_FILE" ]; then
   # Verificar que el archivo no es la plantilla comentada (status = "template")
-  STATUS=$(grep -o '"status"[[:space:]]*:[[:space:]]*"[^"]*"' "$LOCK_FILE" | grep -o '"[^"]*"$' | tr -d '"')
+  STATUS=$(grep -o '"status"[[:space:]]*:[[:space:]]*"[^"]*"' "$LOCK_FILE" 2>/dev/null | grep -o '"[^"]*"$' | tr -d '"' || echo "")
   if [ "$STATUS" = "template" ] || [ -z "$STATUS" ]; then
     echo "NO_ACTIVE_SESSION"
     exit 0
@@ -162,8 +196,8 @@ else
   # Sin lock activo: comprobar si hay cambios en src/ sin commitear
   # Esto puede indicar que el agente actuó sin haber recibido APROBADO
   if git rev-parse --git-dir > /dev/null 2>&1; then
-    UNSTAGED=$(git diff --name-only 2>/dev/null | grep '^src/' | head -5)
-    STAGED=$(git diff --cached --name-only 2>/dev/null | grep '^src/' | head -5)
+    UNSTAGED=$(git diff --name-only 2>/dev/null | grep '^src/' | head -5 || true)
+    STAGED=$(git diff --cached --name-only 2>/dev/null | grep '^src/' | head -5 || true)
     if [ -n "$UNSTAGED" ] || [ -n "$STAGED" ]; then
       YELLOW='\033[0;33m'
       NC='\033[0m'
