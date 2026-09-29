@@ -120,6 +120,22 @@ if [ -z "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
+# Pre-flight de comprobación de permisos de escritura en destino (SCR-B4)
+if [ -d "$TARGET_PROJECT" ]; then
+    if [ ! -w "$TARGET_PROJECT" ]; then
+        echo "❌ ERROR: Sin permisos de escritura en el directorio destino: $TARGET_PROJECT" >&2
+        echo "💡 Guía: Verifica los permisos de usuario sobre el directorio antes de instalar." >&2
+        exit 1
+    fi
+else
+    TARGET_PARENT="$(dirname "$TARGET_PROJECT")"
+    if [ ! -d "$TARGET_PARENT" ] || [ ! -w "$TARGET_PARENT" ]; then
+        echo "❌ ERROR: No se puede crear el directorio destino (sin permisos de escritura en: $TARGET_PARENT)." >&2
+        echo "💡 Guía: Crea el directorio con permisos adecuados o instala en una ruta con permisos de escritura." >&2
+        exit 1
+    fi
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"

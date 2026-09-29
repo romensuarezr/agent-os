@@ -86,7 +86,14 @@ if [ ! -d "$TARGET_PROJECT" ]; then
     exit 1
 fi
 
+if [ ! -w "$TARGET_PROJECT" ]; then
+    echo "❌ ERROR: Sin permisos de escritura en el directorio destino: $TARGET_PROJECT" >&2
+    echo "💡 Guía: Verifica los permisos de usuario sobre el directorio antes de sincronizar." >&2
+    exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/portable-timeout.sh"
 DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"
 
@@ -97,6 +104,13 @@ REAL_TARGET=$(realpath "$TARGET_PROJECT" 2>/dev/null || echo "$TARGET_PROJECT")
 if [ "$REAL_AGENT_OS" = "$REAL_TARGET" ]; then
     echo "❌ ERROR: AGENT_OS_PATH y TARGET_PROJECT apuntan al mismo directorio." >&2
     echo "Guía: sync.sh sincroniza el core hacia proyectos hijos, nunca sobre sí mismo." >&2
+    exit 1
+fi
+
+# Validar que AGENT_OS_PATH apunta a un core real de Agent OS con marcadores canónicos
+if [ ! -f "$AGENT_OS_PATH/AGENTS.md" ] || [ ! -d "$AGENT_OS_PATH/.agents" ] || [ ! -d "$AGENT_OS_PATH/scripts/agent" ]; then
+    echo "❌ ERROR: AGENT_OS_PATH ($AGENT_OS_PATH) no contiene los marcadores canónicos de un núcleo válido de Agent OS." >&2
+    echo "💡 Guía: Asegúrate de que AGENT_OS_PATH contenga AGENTS.md, .agents/ y scripts/agent/." >&2
     exit 1
 fi
 
@@ -120,7 +134,7 @@ fi
 # Comprobar actualizaciones de Agent OS Core remoto
 if [ -d "$AGENT_OS_PATH/.git" ]; then
     AGENT_OS_LOCAL=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || true)
-    AGENT_OS_REMOTE=$(timeout 3 git -C "$AGENT_OS_PATH" ls-remote origin HEAD 2>/dev/null | cut -f1 || true)
+    AGENT_OS_REMOTE=$(portable_timeout 3 git -C "$AGENT_OS_PATH" ls-remote origin HEAD 2>/dev/null | cut -f1 || true)
     if [[ -n "$AGENT_OS_REMOTE" && -n "$AGENT_OS_LOCAL" && "$AGENT_OS_LOCAL" != "$AGENT_OS_REMOTE" ]]; then
         echo "⚠️  WARNING: El núcleo tiene actualizaciones pendientes en origin/main." >&2
         echo "💡 Guía: Haz 'git pull' en $AGENT_OS_PATH antes de propagar cambios a los proyectos hijos." >&2
@@ -361,7 +375,11 @@ if [ "$DRY_RUN" = false ]; then
         cp "$AGENT_OS_PATH/changelog.md" "$TARGET_PROJECT/.agents/context/agent-os-changelog.md"
         echo "  Sincronizando changelog del core..."
     fi
-    date -u +%Y-%m-%d > "$TARGET_PROJECT/.agents/context/last-sync.md"
+    CORE_SHA=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || echo "unknown")
+    {
+        date -u +%Y-%m-%d
+        echo "commit: $CORE_SHA"
+    } > "$TARGET_PROJECT/.agents/context/last-sync.md"
     if [ -f "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" ]; then
         cp "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" "$TARGET_PROJECT/.agents/context/assets-manifest.txt"
         echo "  Sincronizando manifiesto de assets..."
