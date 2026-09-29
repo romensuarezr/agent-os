@@ -8,6 +8,21 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "close-task.sh" \
+      "bash scripts/agent/close-task.sh [TASK_ID] [mensaje]" \
+      "Ejecuta el cierre formal y commit atómico de una tarea, archivando su task file y liberando el lock de sesión." \
+      "[TASK_ID]                Identificador opcional de la tarea (por defecto se deduce del nombre de la rama feat/T-XXX-...)" \
+      "[mensaje]                Mensaje opcional de commit (por defecto se genera automáticamente)" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/close-task.sh" \
+      "ejemplo: SKIP_SPRINT_CHECK=1 bash scripts/agent/close-task.sh"
+  fi
+done
+
 ROOT="$(git rev-parse --show-toplevel)"
 BRANCH=$(git -C "$ROOT" branch --show-current)
 

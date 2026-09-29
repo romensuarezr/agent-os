@@ -3,6 +3,22 @@
 # contribute.sh - Promoción inversa: de proyecto local a Agent OS
 # Uso: ./scripts/agent/contribute.sh /ruta/proyecto nombre-archivo.md [--workflow|--skill]
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "contribute.sh" \
+      "bash scripts/agent/contribute.sh <ruta-proyecto> <nombre-archivo> [--workflow|--skill]" \
+      "Promoción inversa: empaqueta mejoras desarrolladas en proyectos satélites hacia el core de Agent OS." \
+      "<ruta-proyecto>          Ruta al proyecto satélite de origen" \
+      "<nombre-archivo>         Nombre del archivo a promover (ej: mi-workflow.md)" \
+      "--workflow               Indica que el recurso es un workflow" \
+      "--skill                  Indica que el recurso es una skill" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/contribute.sh ~/proyectos/kanarii sync-rules.md --workflow"
+  fi
+done
+
 for cmd in git cp; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2

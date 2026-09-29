@@ -10,6 +10,19 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "update-changelog.sh" \
+      "bash scripts/agent/update-changelog.sh <sprint-XX>" \
+      "Genera de forma automatizada la entrada correspondiente del sprint en changelog.md agrupando commits y sugiriendo semver." \
+      "<sprint-XX>              Identificador del sprint que se cierra (ej: sprint-11)" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/update-changelog.sh sprint-11"
+  fi
+done
+
 # Pre-flight: verificación determinista de dependencias
 for cmd in git grep head sed awk mktemp date mv; do
   if ! command -v "$cmd" &>/dev/null; then

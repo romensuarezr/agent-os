@@ -4,8 +4,8 @@
 # Recalcula el % global del MVP Tracker leyendo la tabla de capacidades
 # en docs/MVP-TRACKER.md y actualiza la fila TOTAL y el historial.
 #
-# Uso (manual o desde sprint-planning):
-#   bash scripts/agent/update-mvp-tracker.sh [--sprint sprint-16] [--dry-run]
+# Uso:
+#   bash scripts/agent/update-mvp-tracker.sh [--sprint sprint-XX] [--dry-run]
 #
 # Qué hace:
 #   1. Lee las filas | C? | ... | peso | ... | % | de MVP-TRACKER.md
@@ -15,11 +15,26 @@
 #   5. Hace git add del archivo (no commitea — el agente decide el mensaje)
 #
 # Qué NO hace:
-#   - No modifica % individuales de capacidades (eso es decisin humana/agente)
+#   - No modifica % individuales de capacidades (eso es decisión humana/agente)
 #   - No commitea directamente
 # =============================================================================
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "update-mvp-tracker.sh" \
+      "bash scripts/agent/update-mvp-tracker.sh [--sprint <sprint-XX>] [--dry-run]" \
+      "Recalcula el porcentaje global de avance del MVP Tracker leyendo la tabla de capacidades y actualiza la fila TOTAL y el historial." \
+      "--sprint <sprint-XX>     Identificador del sprint para registrar en el historial" \
+      "--dry-run                Calcula y muestra el resultado sin modificar el archivo" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/update-mvp-tracker.sh" \
+      "ejemplo: bash scripts/agent/update-mvp-tracker.sh --sprint sprint-12"
+  fi
+done
 
 # Pre-flight: verificación determinista de dependencias
 for cmd in git python3 date; do

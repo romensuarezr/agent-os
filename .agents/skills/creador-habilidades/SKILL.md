@@ -53,6 +53,9 @@ Pasos detallados, secuenciales y deterministas que el agente debe seguir.
 ```
 
 ### 3. Implementación
+
+> **Nota de compatibilidad de runtime**: Las referencias a herramientas como `run_command` y `write_to_file` aplican al runtime de Antigravity; en otros entornos de agente (Claude Code, OpenCode, Hermes o CLI) se emplean las herramientas equivalentes de edición/bash o los comandos directos de shell POSIX documentados a continuación.
+
 1.  **Crear Directorio**:
     - **Vía Tool**: Usa `run_command` con `mkdir -p .agents/skills/<nombre-tecnico>`.
     - **Alternativa Portable Shell/POSIX**: Ejecución directa en terminal: `mkdir -p .agents/skills/<nombre-tecnico>`.

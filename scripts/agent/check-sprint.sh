@@ -5,6 +5,18 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "check-sprint.sh" \
+      "bash scripts/agent/check-sprint.sh" \
+      "Recopila el contexto determinista para la planificación del sprint: roadmap, tareas activas, spillover, ideas y git log reciente." \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/check-sprint.sh"
+  fi
+done
+
 for cmd in git grep head tail wc; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
