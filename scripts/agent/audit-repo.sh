@@ -3,6 +3,20 @@
 # audit-repo.sh - Audita y adapta repositorios con vida previa al estándar de Agent OS
 # Uso: bash scripts/agent/audit-repo.sh [--apply]
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "audit-repo.sh" \
+      "bash scripts/agent/audit-repo.sh [--apply]" \
+      "Audita y adapta repositorios con vida previa para alinearlos con el estándar de Agent OS." \
+      "--apply                  Aplica automáticamente las adaptaciones y correcciones propuestas" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/audit-repo.sh" \
+      "ejemplo: bash scripts/agent/audit-repo.sh --apply"
+  fi
+done
+
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$PROJECT_ROOT"
 AUDIT_FILE="docs/agent-os-audit.md"

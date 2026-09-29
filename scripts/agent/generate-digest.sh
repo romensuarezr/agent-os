@@ -13,6 +13,19 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "generate-digest.sh" \
+      "bash scripts/agent/generate-digest.sh [--filter <subpath>]" \
+      "Genera un digest LLM-friendly de una subcarpeta o módulo del repositorio para contextualizar agentes con coste 0." \
+      "--filter <subpath>       Ruta relativa a inspeccionar (ej: src/components/propuestas)" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/generate-digest.sh --filter src/components"
+  fi
+done
+
 for cmd in git awk sed tr cut wc; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2

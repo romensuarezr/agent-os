@@ -55,8 +55,8 @@ Antes de llamar al script de cierre, edita manualmente:
 > Para saltarte la guardia en casos excepcionales: `SKIP_SPRINT_CHECK=1 bash scripts/agent/close-task.sh`
 
 **Verificación lazy-planning:** Antes de ejecutar el script, confirma que el campo
-`📂 ARCHIVOS LEÍDOS` del plan aprobado (Fase 3.5) coincide con el checkpoint
-lazy-planning declarado en Fase 2.5. Si hubo una violación no resuelta, añádela
+`📂 ARCHIVOS LEÍDOS` del plan aprobado (Fase 3.5) coincide con el límite
+declarado en el pre-flight de Fase 2 / Fase 3.5. Si hubo una violación no resuelta, añádela
 como nota en el task file bajo `## Notas de sesión` antes de archivar:
 
 ```markdown

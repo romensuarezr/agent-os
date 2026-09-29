@@ -7,6 +7,12 @@ description: Skill de orquestación declarativa multi-agente con gramática de c
 
 Esta skill proporciona la interfaz de comandos operativos y el motor declarativo para que el agente **Coordinator** descomponga, despache, evalúe y consolide lotes de trabajo ejecutados por agentes concurrentes en Git Worktrees efímeros, garantizando coste 0 de tokens en las compuertas duras y preservación estricta de disco (ADR 004).
 
+## Cuándo usar
+- Coordinar flujos multi-agente complejos que requieren división en submetas y DAG de dependencias.
+- Despachar subagentes a Git Worktrees efímeros aislados (`/dispatch`) sin ensuciar el workspace principal.
+- Invocar compuertas de validación independiente (`/judge`) o compuertas de decisión humana (`/gate`).
+- Integrar ramas completadas y purgar inodos de worktrees de forma segura (`/merge` y `/promote`).
+
 ---
 
 ## 1. Gramática de Comandos Declarativos y Mapeo Determinista

@@ -7,6 +7,11 @@ description: Protocolo para que un agente actúe como Judge independiente (Ralph
 
 Esta skill formaliza el papel del **Judge Independiente** (o agente `qa-judge`) dentro de la arquitectura multi-agente de agent-os. Implementa el patrón **Ralph Loop** de NousResearch / Hermes Agent para desacoplar al obrero de código (Worker / Coder) de la compuerta de validación técnica, evitando sesgos de auto-evaluación y alucinaciones.
 
+## Cuándo usar
+- Actuar como Judge independiente (rol `qa-judge`) para auditar la entrega de un worker o subagente antes del merge.
+- Ejecutar ciclos de validación Ralph Loop sobre contratos de meta (`.agents/goals/*.yaml`).
+- Evaluar deterministamente mediante `verify-goal.sh` y diffs si los cambios respetan la caja de archivos y tests sin sesgo de auto-evaluación.
+
 ---
 
 ## Principios del Judge Independiente

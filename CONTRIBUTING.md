@@ -61,7 +61,7 @@ Agent OS es ciudadano de primera clase de sí mismo: sigue su propio sprint y su
 2. **Inicio formal de sesión (`/session-start`)**:
    - Todo trabajo se asocia a una tarea activa definida en `docs/sprints/sprint-XX-core.md` con su correspondiente task file `.agents/tasks/task-XXX.md`.
    - Se delimita la **Caja de archivos autorizados**.
-   - Se formula un **Plan en Fase 3.5** con el token bloqueante `⏳ ESPERANDO` antes de crear ramas o modificar archivos.
+   - Se formula un **Plan en Fase 3.5** con el token bloqueante `⏳ ESPERANDO` antes de crear ramas o modificar archivos (ver [`session-start.md`](.agents/workflows/session-start.md)).
 3. **Ramificación**:
    - Crea ramas semánticas descriptivas a partir de `main`:
      ```bash
