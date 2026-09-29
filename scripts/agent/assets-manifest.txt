@@ -16,7 +16,7 @@
 .agents/workflows/honesto.md
 .agents/workflows/sprint-planning.md
 .agents/workflows/sprint-inicial.md
-.agents/workflows/changelog.md
+.agents/workflows/changelog-workflow.md
 .agents/workflows/session-start.md
 .agents/skills/remote-admin/SKILL.md
 .agents/context/agent-os-changelog.md
@@ -43,3 +43,4 @@ scripts/agent/assets-manifest.txt
 # fecha       archivo                              motivo
 2026-06-17    docs/IMPLEMENTED.md                  redundante con changelog.md
 2026-06-17    .agents/workflows/core-planning.md   absorbido en AGENTS.md
+2026-09-29    .agents/workflows/changelog.md       renombrado a changelog-workflow.md

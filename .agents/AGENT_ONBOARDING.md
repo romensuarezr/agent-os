@@ -53,9 +53,28 @@ Verifica deterministamente el estado operativo del tooling local ejecutando los 
 | **Tareas Activas** | [.agents/tasks/](.agents/tasks/) | Contratos escritos de tareas del sprint activo (`task-XXX.md`). |
 | **Plantillas** | [templates/](templates/) | Plantillas de servicios de infraestructura, documentos raíz y metas (`goals`). |
 
+### 6. Mapa de Fases de Auditoría ("¿Qué regla cubre qué fase?")
+
+Para evitar duplicidades o dispersión, las 4 reglas globales de análisis y auditoría cubren fases sucesivas del ciclo de desarrollo:
+
+| Fase del Ciclo | Regla Canónica | Responsabilidad y Pregunta Clave |
+|---|---|---|
+| **1. Diagnóstico Inicial** | [.agents/rules/global/analysis-principles.md](.agents/rules/global/analysis-principles.md) | **¿Cuál es el problema real?** Análisis riguroso, lectura de logs y evidencia empírica sin asumir causas a ciegas. |
+| **2. Selección de Tooling** | [.agents/rules/global/tool-decision-flow.md](.agents/rules/global/tool-decision-flow.md) | **¿Cómo lo resolvemos sin reinventar la rueda?** Árbol de decisión determinista: Flota > OSS > Free > Premium. |
+| **3. Prevención de Duplicados** | [.agents/rules/global/dry-architecture.md](.agents/rules/global/dry-architecture.md) | **¿Existe ya esta lógica?** Firewall DRY: reutilizar módulos y helpers existentes antes de crear archivos nuevos. |
+| **4. Modificación Segura** | [.agents/rules/global/audit-before-refactor.md](.agents/rules/global/audit-before-refactor.md) | **¿Qué impacto tiene el cambio?** Auditoría de acoplamiento, dependencias y contratos antes de editar código vivo. |
+
+### 7. Gobernanza de Secretos y Fricción Deliberada (.env vs Infisical)
+
+Agent OS impone **fricción explícita e intencional** en la gestión de credenciales y secretos (Decisión 5B):
+- **Cero creación mágica de `.env`**: Ningún script ni agente debe generar o autocompletar archivos `.env` sin intervención consciente. El manejo de claves privadas requiere deliberación humana.
+- **Fuente Canónica Centralizada**: La flota delega la gestión de secretos en **Infisical**. Para validar o inyectar variables de entorno de forma efímera y segura, utiliza `bash scripts/agent/import-secrets.sh` o el cliente oficial de Infisical.
+- **Invariante L3**: Queda estrictamente prohibido versionar o commitear archivos `.env`, tokens o claves privadas (ver [`agent-permissions.md`](.agents/rules/global/agent-permissions.md) nivel L3). Los repositorios deben versionar únicamente plantillas desensibilizadas (`.env.example`).
+
 ---
 
 ## 🚫 Restricciones Críticas de Gobernanza
 - **Ejecución determinista obligatoria**: Regida canónicamente por [.agents/rules/global/deterministic-execution.md](.agents/rules/global/deterministic-execution.md). Prohibido improvisar código o scripts ad-hoc en caliente.
 - **Verificación determinista previa**: Nunca asumir que un servicio o endpoint existe sin comprobación previa mediante `bash scripts/agent/fleet-doctor.sh`.
 - **Nunca trabajar directamente en la rama principal (`main`)**: utiliza siempre ramas de feature (`feat/T-XXX-...`).
+

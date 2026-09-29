@@ -9,6 +9,7 @@ Este repositorio contiene las reglas, skills y workflows universales que compart
 - `.agents/rules/global/`: Reglas de comportamiento y estándares de ingeniería universales.
 - `.agents/skills/`: Habilidades transversales (auditoría, planificación, onboarding).
 - `.agents/workflows/`: Plantillas para el ciclo de vida de las sesiones y sprints.
+- `.agents/profiles/`: Perfiles declarativos de agentes (`.yaml` y `.md`, ver [guía de precedencia](.agents/profiles/README.md)).
 - `scripts/agent/`: Scripts del núcleo para instalación, sincronización y auditoría.
 
 ## Cómo Usar
