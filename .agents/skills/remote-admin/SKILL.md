@@ -7,6 +7,11 @@ description: Ejecución remota de comandos, diagnósticos y gestión de contened
 
 Habilidad estándar de `agent-os` para interactuar con servidores remotos (VPS, instancias cloud o nodos privados) para diagnósticos de salud, inspección de logs y gestión de contenedores Docker.
 
+## Cuándo usar
+- Ejecutar diagnósticos remotos de salud de servidor, memoria, CPU o consumo de disco vía SSH.
+- Inspeccionar contenedores Docker, revisar logs de servicios o reiniciar contenedores en nodos remotos.
+- Descubrir y listar los alias SSH disponibles en el entorno (`list-hosts.sh`).
+
 ## Prerrequisitos
 - Acceso SSH configurado en el entorno local (típicamente en `~/.ssh/config`).
 - Claves privadas accesibles y con permisos correctos (`chmod 600`).

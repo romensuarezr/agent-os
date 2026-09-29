@@ -19,7 +19,7 @@ Responde estas preguntas en orden. Si alguna es SÍ, adapta en lugar de crear:
 - Si es similar en un 80% o más, **extiende el componente existente** usando parámetros/props en lugar de crear uno nuevo.
 
 ### 3. Modelo de Datos y Base de Datos
-- ¿Los campos propuestos siguen las convenciones de naming del proyecto (ej: `.agents/rules/naming-convention.md`)?
+- ¿Los campos propuestos siguen las convenciones de naming y arquitectura del proyecto?
 - ¿El modelo de datos propuesto encaja con las entidades o tablas existentes sin añadir redundancia o duplicación?
 
 ### 4. Servicios y Capa de API / DB

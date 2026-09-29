@@ -11,6 +11,18 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "check-session.sh" \
+      "bash scripts/agent/check-session.sh" \
+      "Detecta si existe una sesión de desarrollo activa, verifica el lock .agent-session.lock y el estado del árbol de trabajo." \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/check-session.sh"
+  fi
+done
+
 # Pre-flight de dependencias básicas
 for cmd in git bash sed awk date; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -18,8 +30,6 @@ for cmd in git bash sed awk date; do
     exit 1
   fi
 done
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/date-utils.sh" ]; then
   source "$SCRIPT_DIR/lib/date-utils.sh"
 fi

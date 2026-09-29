@@ -8,6 +8,21 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "scout.sh" \
+      "bash scripts/agent/scout.sh \"<keywords>\" [--limit N]" \
+      "Prospección tecnológica determinista pre-código (GitHub OSS, NPM Registry, Hacker News) con coste 0 de tokens." \
+      "\"<keywords>\"            Términos de búsqueda tecnológica" \
+      "--limit N                Límite de resultados por fuente (por defecto: 3)" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/scout.sh \"hotel booking nextjs\"" \
+      "ejemplo: bash scripts/agent/scout.sh \"tailwind dashboard\" --limit 5"
+  fi
+done
+
 KEYWORDS="${1:-}"
 LIMIT=3
 

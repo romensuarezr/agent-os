@@ -3,6 +3,18 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "audit-mvp-tracker.sh" \
+      "bash scripts/agent/audit-mvp-tracker.sh" \
+      "Audita de forma determinista los criterios del MVP Tracker frente al código fuente y las tareas implementadas." \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/audit-mvp-tracker.sh"
+  fi
+done
+
 for cmd in git grep wc cut; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2
@@ -11,7 +23,6 @@ for cmd in git grep wc cut; do
   }
 done
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/find-tracker.sh" ]; then
   source "$SCRIPT_DIR/lib/find-tracker.sh"
 else

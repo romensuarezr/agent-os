@@ -4,6 +4,20 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "check-lazy-planning.sh" \
+      "bash scripts/agent/check-lazy-planning.sh [T-XXX]" \
+      "Verifica violaciones de lazy-planning y archivos leídos sin autorización en la sesión activa." \
+      "[T-XXX]                  Identificador opcional de la tarea a auditar" \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/check-lazy-planning.sh" \
+      "ejemplo: bash scripts/agent/check-lazy-planning.sh T-083"
+  fi
+done
+
 for cmd in git grep; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2

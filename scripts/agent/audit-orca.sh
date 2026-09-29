@@ -10,6 +10,18 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/cli-help.sh"
+for arg in "$@"; do
+  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+    show_help "audit-orca.sh" \
+      "bash scripts/agent/audit-orca.sh" \
+      "Diagnóstico integral y no destructivo del orquestador Orca Desktop (procesos, DB de orquestación, relays remotos y workspaces)." \
+      "-h, --help               Muestra este mensaje de ayuda" \
+      "ejemplo: bash scripts/agent/audit-orca.sh"
+  fi
+done
+
 for cmd in sqlite3 awk du; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "❌ Error: Dependencia requerida '$cmd' no encontrada." >&2

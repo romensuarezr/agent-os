@@ -17,7 +17,7 @@
 | 7 | **creador-habilidades** | Creación y scaffolding de nuevas habilidades modulares (`SKILL.md`) para el ecosistema siguiendo la convención estándar. | `.agents/skills/creador-habilidades/` |
 | 8 | **doc-maintainer** | Supervisión, análisis de ubicación previa y actualización obligatoria de fechas y formatos en documentación técnica. | `.agents/skills/doc-maintainer/` |
 | 9 | **doe-framework** | Formalización del contrato de tarea (`task-XXX.md`) bajo el patrón Declare-Orchestrate-Execute antes de codificar. | `.agents/skills/doe-framework/` |
-| 10 | **external-inbox** | Ingesta, saneamiento y auditoría previa de código externo, prototipos o auditorías depositadas en `docs/external-inbox/`. | `.agents/skills/external-inbox.md` |
+| 10 | **external-inbox** | Ingesta, saneamiento y auditoría previa de código externo, prototipos o auditorías depositadas en `docs/external-inbox/`. | `.agents/skills/external-inbox/` |
 | 11 | **git-gardener** | Mantenimiento e higiene del repositorio eliminando ramas remotas/locales mergeadas o huérfanas bajo confirmación. | `.agents/skills/git-gardener/` |
 | 12 | **goal-evaluation** | Actuación como Judge independiente (Ralph Loop) validando desacopladamente metas y diffs vía `verify-goal.sh`. | `.agents/skills/goal-evaluation/` |
 | 13 | **implementar-feature-dry** | Protocolo estricto de desarrollo para evitar duplicación de código e imponer reutilización de componentes existentes. | `.agents/skills/implementar-feature-dry/` |

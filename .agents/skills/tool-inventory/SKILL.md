@@ -9,6 +9,11 @@ Esta habilidad permite a cualquier agente de **Agent OS** descubrir, evaluar y r
 
 Su objetivo es evitar la duplicación de esfuerzos, prevenir costes innecesarios de APIs externas y aprovechar capacidades operativas avanzadas ya desplegadas (como pasarelas OpenAI-compatibles a coste $0, servidores MCP de infraestructura, mensajería y almacenamiento S3).
 
+## Cuándo usar
+- Descubrir herramientas, servidores MCP, pasarelas de inferencia y nodos remotos disponibles en la flota antes de crear soluciones desde cero.
+- Consultar las capacidades de `config/fleet.yaml` para resolver routing de modelos, endpoints o utilidades CLI locales.
+- Actualizar o regenerar el inventario local de herramientas ejecutando `discover-fleet.sh`.
+
 ---
 
 ## ⚡ Dinámica de Carga: La Fuente de Verdad es `config/fleet.yaml`
