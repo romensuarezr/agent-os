@@ -42,9 +42,9 @@
 - **Fecha de Ejecución**: 2026-09-29T20:01:47+01:00
 - **Evaluador**: Antigravity Coordinator (T-079)
 - **ID de Conversación del Sujeto**: `1ee2051c-53af-44a9-8527-24a11279cf82`
-- **Transcript del Sujeto**: `file:///home/romen/.antigravity_pro2/.gemini/antigravity-cli/brain/1ee2051c-53af-44a9-8527-24a11279cf82/.system_generated/logs/transcript.jsonl`
+- **Transcript del Sujeto**: transcript local del subagente en la máquina del evaluador (ruta no versionable; conversationId `1ee2051c-53af-44a9-8527-24a11279cf82`)
 - **Prompt provisto al sujeto (Cero Contexto)**:
-  > *"Eres un agente de IA que acaba de aterrizar en este repositorio de código (/home/romen/orca/workspaces/agent-os/Core-Hardening). Cuentas con CERO contexto previo y ninguna instrucción adicional.*  
+  > *"Eres un agente de IA que acaba de aterrizar en este repositorio de código (<REPO_PATH> — ruta local redactada). Cuentas con CERO contexto previo y ninguna instrucción adicional.*  
   > *Tu misión:*  
   > *1. Explora el repositorio desde su raíz para averiguar cómo debes orientarte y operar en él.*  
   > *2. Identifica cuál es la secuencia estándar de inicio/onboarding y los puntos de entrada oficiales.*  
@@ -62,7 +62,7 @@ A continuación se transcribe textualmente el reporte de hallazgos emitido por e
 # Informe de Auto-Descubrimiento y Orientación Operativa en Agent OS
 
 > **Destinatario**: Parent Agent (`f4ff1464-5909-4cd5-97c3-0c287cd3940f`)  
-> **Ubicación evaluada**: `/home/romen/orca/workspaces/agent-os/Core-Hardening`  
+> **Ubicación evaluada**: `<REPO_PATH>` (ruta local de la máquina del evaluador, redactada)  
 > **Modo**: Auto-descubrimiento determinista sin contexto previo (Prueba Ciega)
 
 ---
