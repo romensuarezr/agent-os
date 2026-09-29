@@ -8,23 +8,26 @@ Auditoría 2026-09-28: `tool-inventory` descubre bien el plano local Linux (SO, 
 
 ## Caja de archivos
 Archivos autorizados para modificación:
+- `scripts/agent/discover-fleet.sh`
+- `scripts/agent/audit-repo.sh`
 - `.agents/skills/tool-inventory/SKILL.md` (y sus scripts, si los tiene)
 - `.agents/skills/repo-onboarding/SKILL.md`
-- `scripts/agent/audit-repo.sh` (informe incluye stack detectado)
+- `.agents/tasks/task-077.md`
+- `docs/sprints/sprint-11-core.md`
 
 ## Criterios de done
-- [ ] Detecta: `.github/workflows/`, `.gitlab-ci.yml`, `Jenkinsfile`, `terraform/`/`*.tf`, `docker-compose*.yml`, CLIs `aws`/`gcloud`/`az`, y gestores de paquetes del stack.
-- [ ] Firefox: implementado o promesa eliminada de la documentación (sin estados intermedios).
-- [ ] MCPs y servicios cloud documentados honestamente como configuración manual (`fleet.yaml`), no como detección.
-- [ ] `repo-onboarding`/`audit-repo.sh` informan el stack vía `detect-stack.sh` (T-074), incluyendo el caso `unknown`.
-- [ ] Verificado sin falsos positivos en 3 repos de prueba (Node, Python, Go): el digest refleja la realidad.
+- [x] Detecta: `.github/workflows/`, `.gitlab-ci.yml`, `Jenkinsfile`, `terraform/`/`*.tf`, `docker-compose*.yml`, CLIs `aws`/`gcloud`/`az`, y gestores de paquetes del stack.
+- [x] Firefox: implementado o promesa eliminada de la documentación (sin estados intermedios).
+- [x] MCPs y servicios cloud documentados honestamente como configuración manual (`fleet.yaml`), no como detección.
+- [x] `repo-onboarding`/`audit-repo.sh` informan el stack vía `detect-stack.sh` (T-074), incluyendo el caso `unknown`.
+- [x] Verificado sin falsos positivos en 3 repos de prueba (Node, Python, Go): el digest refleja la realidad.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-09-29T14:25:50+01:00 (APROBADO CON CAMBIOS)
+- [x] Rama creada: feat/T-077-tool-inventory-repo-onboarding
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente

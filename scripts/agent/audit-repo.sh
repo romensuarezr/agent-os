@@ -3,7 +3,8 @@
 # audit-repo.sh - Audita y adapta repositorios con vida previa al estándar de Agent OS
 # Uso: bash scripts/agent/audit-repo.sh [--apply]
 
-PROJECT_ROOT="$(pwd)"
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$PROJECT_ROOT"
 AUDIT_FILE="docs/agent-os-audit.md"
 
 # Asegurar que existe la carpeta docs/
@@ -336,6 +337,66 @@ if [ -f "$SCRIPT_DIR/lib/detect-stack.sh" ]; then
     fi
 fi
 
+# ------------------------------------------
+# Detección de CI/CD e Infraestructura (IaC)
+# ------------------------------------------
+detected_cicd=()
+if [ -d ".github/workflows" ]; then
+    if [ -n "$(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null | head -n 1)" ]; then
+        detected_cicd+=("GitHub Actions (.github/workflows/)")
+    else
+        detected_cicd+=("GitHub Actions (.github/workflows/ [vacío])")
+    fi
+fi
+if [ -f ".gitlab-ci.yml" ]; then
+    detected_cicd+=("GitLab CI (.gitlab-ci.yml)")
+fi
+if [ -f "Jenkinsfile" ] || compgen -G "Jenkinsfile*" >/dev/null 2>&1; then
+    detected_cicd+=("Jenkins (Jenkinsfile)")
+fi
+
+cicd_summary=""
+for item in "${detected_cicd[@]}"; do
+    if [ -z "$cicd_summary" ]; then
+        cicd_summary="$item"
+    else
+        cicd_summary="$cicd_summary, $item"
+    fi
+done
+if [ -z "$cicd_summary" ]; then
+    cicd_summary="ninguno detectado"
+    echo "ℹ️  CI/CD: ninguno detectado"
+else
+    echo "ℹ️  CI/CD detectado: $cicd_summary"
+fi
+
+detected_iac=()
+tf_files=$(find . -maxdepth 2 -type f -name "*.tf" ! -path "./.*/*" 2>/dev/null | head -n 3)
+if [ -n "$tf_files" ] || [ -d "terraform" ]; then
+    detected_iac+=("Terraform (*.tf)")
+fi
+
+compose_files=$(find . -maxdepth 2 -type f \( -name "docker-compose*.yml" -o -name "docker-compose*.yaml" -o -name "compose*.yml" -o -name "compose*.yaml" \) ! -path "./.*/*" 2>/dev/null | head -n 3)
+if [ -n "$compose_files" ]; then
+    detected_iac+=("Docker Compose (compose)")
+fi
+
+iac_summary=""
+for item in "${detected_iac[@]}"; do
+    if [ -z "$iac_summary" ]; then
+        iac_summary="$item"
+    else
+        iac_summary="$iac_summary, $item"
+    fi
+done
+if [ -z "$iac_summary" ]; then
+    iac_summary="ninguno detectado"
+    echo "ℹ️  IaC: ninguno detectado"
+else
+    echo "ℹ️  IaC detectado: $iac_summary"
+fi
+
+
 incompatibilidades=""
 propuestas=""
 sprint_sugerido=""
@@ -526,6 +587,10 @@ fi
         echo -e "- ⚠️ **Aviso**: Stack no reconocido automáticamente por marcadores de compilación o empaquetado."
         echo -e "- **Guía**: Puedes declarar el stack creando \`.agents/context/stack.env\` con \`AGENT_OS_STACK=<stack>\` (valores soportados: python, typescript, javascript, go, rust, java, php, ruby, dotnet, bun, static)."
     fi
+
+    echo -e "\n## CI/CD e Infraestructura (IaC)\n"
+    echo "- **CI/CD**: $cicd_summary"
+    echo "- **IaC**: $iac_summary"
 
     echo -e "\n## Incompatibilidades\n"
     if [ -n "$incompatibilidades" ]; then
