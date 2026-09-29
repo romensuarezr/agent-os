@@ -31,7 +31,7 @@ Archivos autorizados para modificación:
 - [x] `parallel-orchestration.md`: hosts `<host-local>` y `<nodo-orquestacion>` sustituidos por `<control-node>`, `<worker-node>` y referencias a `fleet.yaml`.
 - [x] `coolify-admin/SKILL.md`: ruta `api_keys.env` y dominio personal sustituidos por variables de entorno `${COOLIFY_ENV_FILE}` y `${COOLIFY_BASE_URL}`.
 - [x] `orchestrator/SKILL.md`: ruta `$AGENT_OS_HOME` sustituida por `<project-root>`.
-- [x] `remote-admin/scripts/list-hosts.sh`: `"$HOME/.ssh/config"` sustituido por `"$HOME/.ssh/config"`.
+- [x] `remote-admin/scripts/list-hosts.sh`: eliminada línea personal `$HOME/.ssh/config`, quedando `${HOME}/.ssh/config` como candidato canónico portable.
 - [x] `import-secrets.sh`: resolución de Infisical desacoplada del host `<nodo-orquestacion>`.
 - [x] `glances-compose.yml`: binding y comentarios parametrizados (`${GLANCES_BIND_IP:-127.0.0.1}`, `<worker-node>`).
 - [x] `bytebox/docker-compose.yml`: context parametrizado con fallback a variable de entorno / imagen oficial.
