@@ -276,7 +276,7 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
                 else
                     echo "    📦 Migrando skill legacy ${skill_name}.md -> ${skill_name}/..."
                     mkdir -p "$TARGET_SKILLS/$skill_name"
-                    rm -f "$TARGET_SKILLS/${skill_name}.md"
+                    mv "$TARGET_SKILLS/${skill_name}.md" "$TARGET_SKILLS/$skill_name/SKILL.md"
                 fi
             else
                 if [ "$DRY_RUN" = true ]; then
