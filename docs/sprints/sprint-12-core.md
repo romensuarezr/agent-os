@@ -14,7 +14,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :---: | :---: | :---: | :--- | :--- |
-| T-080 | Purga extendida de infraestructura personal en Workflows, Skills, Scripts y Templates | Universalización / Core | M | ⬜ Pendiente | — | `.agents/tasks/task-080.md` |
+| T-080 | Purga extendida de infraestructura personal en Workflows, Skills, Scripts y Templates | Universalización / Core | M | 🟡 En curso | — | `.agents/tasks/task-080.md` |
 | T-081 | Portabilidad Shell, Robustez CLI y Validación de Sincronización en `sync.sh` | Bug del sistema / DX | S | ⬜ Pendiente | — | `.agents/tasks/task-081.md` |
 | T-082 | Coherencia de Gobernanza, Resolución de Contradicciones y Precedencia de Perfiles | Gobernanza / Core Standard | M | ⬜ Pendiente | — | `.agents/tasks/task-082.md` |
 | T-083 | Estandarización de Interfaz CLI (`--help` en 15 scripts) y Normalización de Skills | DX / Universalización | M | ⬜ Pendiente | — | `.agents/tasks/task-083.md` |

@@ -19,8 +19,8 @@ description: Runbook operativo paso a paso para la orquestación concurrente de 
 
 > ⚠️ **RESTRICCIÓN CRÍTICA DE ALMACENAMIENTO Y HOSTS**:
 >
-> 1. **Hosts Autorizados para Paralelismo**: La creación de Git Worktrees concurrentes está permitida **únicamente** en el entorno local de desarrollo (`<host-local>`) o en nodos worker de cómputo dedicados con espacio en disco suficiente (>20 GB disponibles).
-> 2. **Prohibición Estricta en Nodo `<nodo-orquestacion>`**: Queda **terminantemente prohibido** aprovisionar lotes de worktrees en el servidor de producción `<nodo-orquestacion>` (`<nodo-datos>`). Dicho nodo presenta un 72% de uso en su volumen raíz y aloja bases de datos operativas críticas. Toda tarea sobre `<nodo-orquestacion>` se ejecuta en modo secuencial y directo según el runbook de mantenimiento.
+> 1. **Hosts Autorizados para Paralelismo**: La creación de Git Worktrees concurrentes está permitida **únicamente** en el entorno local de desarrollo (`<control-node>`) o en nodos worker de cómputo dedicados con espacio en disco suficiente (>20 GB disponibles declarados en `config/fleet.yaml`).
+> 2. **Prohibición Estricta en Servidores de Infraestructura/Producción**: Queda **terminantemente prohibido** aprovisionar lotes de worktrees en nodos de infraestructura con almacenamiento restringido (`<infra-node>`). Dichos nodos pueden presentar volúmenes raíz saturados y alojar bases de datos críticas. Toda tarea sobre `<infra-node>` se ejecuta en modo secuencial y directo según el runbook operativo correspondiente.
 
 ---
 
