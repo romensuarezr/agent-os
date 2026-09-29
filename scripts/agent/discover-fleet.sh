@@ -102,7 +102,7 @@ if os.path.exists("/etc/os-release"):
 
 # 2. Detección de Gestores de Paquetes
 pkg_managers = []
-for pm in ["apt", "pacman", "dnf", "brew", "npm", "pnpm", "yarn", "pip", "pip3", "cargo", "snap", "flatpak"]:
+for pm in ["apt", "pacman", "dnf", "brew", "npm", "pnpm", "yarn", "bun", "pip", "pip3", "cargo", "composer", "gem", "bundle", "dotnet", "mvn", "gradle", "snap", "flatpak"]:
     if run_cmd(f"which {pm}"):
         pkg_managers.append(pm)
 
@@ -218,7 +218,10 @@ standard_clis = [
     {"name": "sentry-cli", "cmd": "sentry-cli", "ver_cmd": "sentry-cli --version", "desc": "Sentry command-line tool for release management and sourcemaps"},
     {"name": "python3", "cmd": "python3", "ver_cmd": "python3 --version", "desc": "Python runtime"},
     {"name": "node", "cmd": "node", "ver_cmd": "node --version", "desc": "Node.js JavaScript runtime"},
-    {"name": "bun", "cmd": "bun", "ver_cmd": "bun --version", "desc": "Bun JavaScript runtime"}
+    {"name": "bun", "cmd": "bun", "ver_cmd": "bun --version", "desc": "Bun JavaScript runtime"},
+    {"name": "aws", "cmd": "aws", "ver_cmd": "aws --version", "desc": "Amazon Web Services CLI"},
+    {"name": "gcloud", "cmd": "gcloud", "ver_cmd": "gcloud --version", "desc": "Google Cloud SDK CLI"},
+    {"name": "az", "cmd": "az", "ver_cmd": "az --version", "desc": "Microsoft Azure CLI"}
 ]
 
 for item in standard_clis:

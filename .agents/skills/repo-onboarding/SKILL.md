@@ -32,16 +32,20 @@ Ejecuta la auditoría en modo pasivo desde la raíz del repositorio de destino:
 bash scripts/agent/audit-repo.sh
 ```
 
-El script buscará:
-1. Incompatibilidades de casing (`ROADMAP.md` vs `roadmap.md`, etc.).
-2. Ubicación no estándar del inbox (`external-inbox` en la raíz en lugar de `docs/external-inbox/`).
-3. Estructuras de `MVP-TRACKER.md` sin columna Peso o fila TOTAL.
-4. Secciones faltantes en `roadmap.md`.
-5. Commits históricos en Git para proponer un Sprint 00.
+El script buscará y reportará:
+1. **Stack Tecnológico** (mediante `detect-stack.sh`): identifica el ecosistema entre los 11 stacks soportados o emite honestamente `unknown` con guía para declarar `.agents/context/stack.env`.
+2. **Pipelines de CI/CD e Infraestructura (IaC)**: detecta marcadores de integración continua (`.github/workflows/`, `.gitlab-ci.yml`, `Jenkinsfile`) e infraestructura como código (`terraform/`, `*.tf`, `docker-compose*.yml`), reportando honestamente `ninguno detectado` si están ausentes.
+3. Incompatibilidades de casing (`ROADMAP.md` vs `roadmap.md`, `CHANGELOG.md` vs `changelog.md`, etc.).
+4. Ubicación no estándar del inbox (`external-inbox` en la raíz en lugar de `docs/external-inbox/`).
+5. Estructuras de `MVP-TRACKER.md` sin columna Peso o fila TOTAL.
+6. Secciones faltantes en `roadmap.md`.
+7. Commits históricos en Git para proponer un Sprint 00.
 
 ### Paso 2: Revisión y Presentación
 Abre el reporte autogenerado en `docs/agent-os-audit.md` y preséntale un resumen claro al usuario:
-- Describe las incompatibilidades estructurales encontradas.
+- El stack tecnológico detectado (o recomendación de override si resultó `unknown`).
+- Los componentes de CI/CD e IaC identificados (o su ausencia honesta).
+- Las incompatibilidades estructurales encontradas.
 - Lista exactamente qué archivos se renombrarán o moverán.
 - Presenta el diff propuesto para `MVP-TRACKER.md` y `roadmap.md`.
 - Muestra el esquema propuesto para `docs/sprints/sprint-00-historical.md`.
@@ -94,18 +98,37 @@ El archivo `sprint-00-historical.md` tiene como objetivo encapsular el trabajo p
 
 ---
 
-## ⚙️ Configuración del Stack Tecnológico (Override)
+## ⚙️ Detección y Configuración del Stack Tecnológico (`detect-stack.sh`)
 
-Los scripts del núcleo de Agent OS (`inventory-check.sh`, `generate-digest.sh`) autodetectan el stack del proyecto (Python, TypeScript, JavaScript) basándose en la presencia de archivos clave como `pyproject.toml`, `requirements.txt`, `tsconfig.json` o `package.json`.
+Los scripts del núcleo de Agent OS (`audit-repo.sh`, `inventory-check.sh`, `generate-digest.sh`) utilizan el motor universal `scripts/agent/lib/detect-stack.sh` (introducido en T-074). Este motor autodetecta el stack del proyecto según la presencia canónica de marcadores de compilación y empaquetado:
 
-### Cómo forzar un Stack
-Si trabajas en un proyecto híbrido o con una estructura no estándar que confunde a la autodetección, puedes forzar el stack del proyecto de forma manual:
+| Stack | Marcadores canónicos evaluados |
+| :--- | :--- |
+| `bun` | `bun.lock`, `bun.lockb` |
+| `typescript` | `tsconfig.json` |
+| `javascript` | `package.json` |
+| `go` | `go.mod`, `go.sum` |
+| `rust` | `Cargo.toml`, `Cargo.lock` |
+| `java` | `pom.xml`, `build.gradle`, `build.gradle.kts` |
+| `php` | `composer.json`, `composer.lock` |
+| `ruby` | `Gemfile`, `Gemfile.lock` |
+| `dotnet` | `*.csproj`, `*.sln` |
+| `python` | `pyproject.toml`, `requirements.txt`, `setup.py`, `Pipfile` |
+| `static` | `index.html`, `index.htm` (sin manifiestos backend) |
+| `unknown` | Fallback honesto si ningún marcador coincide |
 
-1. Crea el archivo de configuración `.agents/context/stack.env` en la raíz del proyecto destino.
-2. Define la variable `AGENT_OS_STACK` con uno de los siguientes valores:
+### Cómo forzar o declarar un Stack (Override)
+Si el repositorio es híbrido, tiene monorepo o una estructura no estándar que resulta en `unknown`, puedes declarar el stack de forma determinista:
+
+1. Crea o edita el archivo de configuración `.agents/context/stack.env` en la raíz del proyecto destino.
+2. Define la variable `AGENT_OS_STACK` con uno de los 11 valores soportados:
    ```env
-   # Valores válidos: python | typescript | javascript
+   # Valores válidos: python | typescript | javascript | go | rust | java | php | ruby | dotnet | bun | static
    AGENT_OS_STACK="python"
    ```
 
-Esto saltará las heurísticas de detección y aplicará las variables, rutas y extensiones correctas para ese stack en particular de forma inmediata.
+Alternativamente, puedes exportar la variable de entorno temporalmente en tu shell o sesión:
+```bash
+export AGENT_OS_STACK="go"
+```
+Esto tiene precedencia sobre las heurísticas automáticas y configura de inmediato las rutas fuente, patrones de tipos y exclusiones correspondientes para ese ecosistema.
