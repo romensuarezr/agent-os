@@ -1,7 +1,7 @@
 # Runbook: Normalización de Autenticación GitHub SSH en Servidores Remotos
 
 > **Fecha**: 2026-09-24  
-> **Hosts**: `datamanager` (`100.77.82.13`) y `oracle` (`100.96.20.7`)  
+> **Hosts**: Nodos configurados en `config/fleet.yaml` (ej: `<worker-node>` y `<infra-node>`, o alias SSH definidos en `~/.ssh/config`)  
 > **Objetivo**: Resolver de forma determinista el error `Host key verification failed` y establecer una arquitectura segura de autenticación Git SSH sin prompts interactivos ni exposición de credenciales.  
 > **Herramienta de diagnóstico**: `.agents/skills/remote-admin/scripts/check-git-remote.sh`
 
@@ -9,15 +9,15 @@
 
 ## 1. Diagnóstico Actual (Estado Detectado)
 
-| Parámetro | Host `datamanager` | Host `oracle` |
+| Parámetro | Host Worker (`<worker-node>`) | Host Infra (`<infra-node>`) |
 | :--- | :--- | :--- |
-| **Rol en el Control Plane** | Hermes Agent 24/7 + FreeLLMAPI + Ollama | Docker Infra + Coolify + SSH target Orca |
-| **Usuario / Home** | `ubuntu` (`/home/ubuntu`) | `ubuntu` (`/home/ubuntu`) |
-| **`known_hosts` para GitHub** | ❌ No registrado (`Host key verification failed`) | ❌ No existe archivo `known_hosts` |
-| **Clave SSH cliente existente** | ✅ `~/.ssh/id_ed25519` presente | ❌ Ninguna clave cliente en `~/.ssh/` |
-| **Huella clave pública** | `256 SHA256:XIwNZsvrx...` (`ubuntu@vnic-susana`) | Ninguna |
-| **Handshake `git@github.com`** | ❌ `Host key verification failed` | ❌ `Host key verification failed` |
-| **Configuración Git Global** | `Romén Suárez` / `romen@hermes.local` | ❌ No configurado |
+| **Rol en el Control Plane** | Agentes persistentes + Inferencia local | Docker Infra + PaaS / Coolify |
+| **Usuario / Home** | `<usuario>` (`/home/<usuario>`) | `<usuario>` (`/home/<usuario>`) |
+| **`known_hosts` para GitHub** | Verificar presencia de `github.com` | Verificar presencia de `github.com` |
+| **Clave SSH cliente existente** | `~/.ssh/id_ed25519` | `~/.ssh/id_ed25519` |
+| **Huella clave pública** | `ssh-ed25519 <CLAVE_PUBLICA> <usuario>@<host>` | `ssh-ed25519 <CLAVE_PUBLICA> <usuario>@<host>` |
+| **Handshake `git@github.com`** | `Host key verification failed` si falta en `known_hosts` | `Host key verification failed` si falta en `known_hosts` |
+| **Configuración Git Global** | `<Nombre de Agente> / <email@dominio.local>` | `<Nombre de Agente> / <email@dominio.local>` |
 
 ---
 
@@ -30,7 +30,7 @@
    fatal: Could not read from remote repository.
    ```
 2. **Falta de autorización de la clave en GitHub**:
-   Incluso al omitir la verificación de host, la clave existente en `datamanager` devuelve `Permission denied (publickey)`, indicando que no está vinculada a ninguna cuenta ni como Deploy Key en el repositorio.
+   Incluso al omitir la verificación de host, una clave no registrada devuelve `Permission denied (publickey)`, indicando que no está vinculada a ninguna cuenta ni como Deploy Key en el repositorio.
 
 ---
 
@@ -44,10 +44,10 @@ En su lugar, el estándar recomendado es:
 1. **Deploy Keys de solo lectura (`read-only`)**:
    - Cada servidor dispone de su propio par de claves `Ed25519`.
    - La clave pública se añade en GitHub en:  
-     `https://github.com/romensuarezr/agent-os/settings/keys`
+     `https://github.com/<owner>/<repo>/settings/keys`
    - Permite al servidor hacer `git pull`, `git fetch` y clonar repositorios para tareas de auditoría, sincronización o ejecución sin riesgo de escrituras no controladas.
 2. **Deploy Keys con permiso de escritura (`read/write`)**:
-   - Sólo si el agente en el servidor debe crear ramas o hacer push directamente al repositorio core (requiere supervisión estricta L3).
+   - Sólo si el agente en el servidor debe crear ramas o hacer push directamente al repositorio core (requiere supervisión estricta).
 3. **Aprovisionamiento no interactivo de `known_hosts`**:
    - Inserción determinista de las claves públicas de GitHub (`ssh-keyscan`) antes de cualquier intento de conexión.
 
@@ -55,46 +55,40 @@ En su lugar, el estándar recomendado es:
 
 ## 4. Procedimiento de Aprovisionamiento (Decision Gates)
 
-> ⚠️ **IMPORTANTE**: Estos comandos requieren ejecución supervisada. Sigue los pasos en orden.
+> ⚠️ **IMPORTANTE**: Estos comandos requieren ejecución supervisada. Sigue los pasos en orden parametrizando con los nombres de host de tu flota (`config/fleet.yaml`).
 
-### Paso 1: Fijar `known_hosts` de GitHub en ambos servidores (L1 - Seguro)
+### Paso 1: Fijar `known_hosts` de GitHub en los servidores (L1 - Seguro)
 
-Ejecutar en la consola local para provisionar `github.com` de forma no interactiva:
+Ejecutar en la consola local para provisionar `github.com` de forma no interactiva en cada nodo:
 
 ```bash
-# En datamanager:
-ssh datamanager "mkdir -p ~/.ssh && chmod 700 ~/.ssh && ssh-keyscan -t ed25519,ecdsa,rsa github.com >> ~/.ssh/known_hosts && chmod 600 ~/.ssh/known_hosts"
+# En el nodo worker:
+ssh <worker-node> "mkdir -p ~/.ssh && chmod 700 ~/.ssh && ssh-keyscan -t ed25519,ecdsa,rsa github.com >> ~/.ssh/known_hosts && chmod 600 ~/.ssh/known_hosts"
 
-# En oracle:
-ssh oracle "mkdir -p ~/.ssh && chmod 700 ~/.ssh && ssh-keyscan -t ed25519,ecdsa,rsa github.com >> ~/.ssh/known_hosts && chmod 600 ~/.ssh/known_hosts"
+# En el nodo infra:
+ssh <infra-node> "mkdir -p ~/.ssh && chmod 700 ~/.ssh && ssh-keyscan -t ed25519,ecdsa,rsa github.com >> ~/.ssh/known_hosts && chmod 600 ~/.ssh/known_hosts"
 ```
 
 ---
 
-### Paso 2: Configurar Clave SSH en `datamanager`
+### Paso 2: Configurar Clave SSH en `<worker-node>`
 
-`datamanager` ya cuenta con su clave `Ed25519` generada.
-
-1. **Obtener la clave pública de `datamanager`**:
+1. **Obtener la clave pública de `<worker-node>`** (o generarla si no existe con `ssh-keygen -t ed25519`):
    ```bash
-   ssh datamanager "cat ~/.ssh/id_ed25519.pub"
-   ```
-   *Valor detectado en auditoría:*
-   ```text
-   ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ7c5FH6kWH2Tfm52TkueaQNtbhEb2SJBclKOvhr5L6E ubuntu@vnic-susana
+   ssh <worker-node> "cat ~/.ssh/id_ed25519.pub || ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N '' && cat ~/.ssh/id_ed25519.pub"
    ```
 
 2. **Acción humana en GitHub (L3 Gate)**:
-   - Ir a [GitHub agent-os Deploy Keys](https://github.com/romensuarezr/agent-os/settings/keys).
+   - Ir a `https://github.com/<owner>/<repo>/settings/keys`.
    - Pulsar **Add deploy key**.
-   - Título: `datamanager-hermes-vps`
-   - Key: Pegar la clave pública anterior.
+   - Título: `<worker-node>-deploy-key`
+   - Key: Pegar la clave pública obtenida.
    - Dejar desmarcada la opción *Allow write access* (solo lectura) a menos que se requiera push explícito.
    - Pulsar **Add key**.
 
-3. **Configurar `~/.ssh/config` en `datamanager`**:
+3. **Configurar `~/.ssh/config` en `<worker-node>`**:
    ```bash
-   ssh datamanager 'cat << "EOF" >> ~/.ssh/config
+   ssh <worker-node> 'cat << "EOF" >> ~/.ssh/config
 
 Host github.com
     HostName github.com
@@ -109,28 +103,28 @@ chmod 600 ~/.ssh/config'
 
 ---
 
-### Paso 3: Configurar Clave SSH y Git en `oracle`
+### Paso 3: Configurar Clave SSH y Git en `<infra-node>`
 
-1. **Generar nuevo par de claves Ed25519 en `oracle` (L3 Gate)**:
+1. **Generar o verificar par de claves Ed25519 en `<infra-node>`**:
    ```bash
-   ssh oracle 'ssh-keygen -t ed25519 -C "oracle-vps@agent-os" -f ~/.ssh/id_ed25519 -N ""'
+   ssh <infra-node> 'ssh-keygen -t ed25519 -C "<infra-node>@agent-os" -f ~/.ssh/id_ed25519 -N ""'
    ```
 
 2. **Obtener la clave pública generada**:
    ```bash
-   ssh oracle "cat ~/.ssh/id_ed25519.pub"
+   ssh <infra-node> "cat ~/.ssh/id_ed25519.pub"
    ```
 
 3. **Acción humana en GitHub (L3 Gate)**:
-   - Ir a [GitHub agent-os Deploy Keys](https://github.com/romensuarezr/agent-os/settings/keys).
+   - Ir a `https://github.com/<owner>/<repo>/settings/keys`.
    - Pulsar **Add deploy key**.
-   - Título: `oracle-infra-vps`
+   - Título: `<infra-node>-deploy-key`
    - Key: Pegar la clave pública obtenida.
    - Pulsar **Add key**.
 
-4. **Configurar `~/.ssh/config` y Git Global en `oracle`**:
+4. **Configurar `~/.ssh/config` y Git Global en `<infra-node>`**:
    ```bash
-   ssh oracle 'cat << "EOF" >> ~/.ssh/config
+   ssh <infra-node> 'cat << "EOF" >> ~/.ssh/config
 
 Host github.com
     HostName github.com
@@ -142,7 +136,7 @@ Host github.com
 EOF
 chmod 600 ~/.ssh/config'
 
-   ssh oracle 'git config --global user.name "Oracle VPS Agent" && git config --global user.email "oracle-agent@agent-os.local"'
+   ssh <infra-node> 'git config --global user.name "Infra VPS Agent" && git config --global user.email "infra-agent@agent-os.local"'
    ```
 
 ---
@@ -152,20 +146,20 @@ chmod 600 ~/.ssh/config'
 Para comprobar que la normalización ha tenido éxito sin requerir múltiples comandos manuales, ejecuta desde el entorno local:
 
 ```bash
-# Verificar datamanager:
-bash .agents/skills/remote-admin/scripts/check-git-remote.sh datamanager
+# Verificar nodo worker:
+bash .agents/skills/remote-admin/scripts/check-git-remote.sh <worker-node>
 
-# Verificar oracle:
-bash .agents/skills/remote-admin/scripts/check-git-remote.sh oracle
+# Verificar nodo infra:
+bash .agents/skills/remote-admin/scripts/check-git-remote.sh <infra-node>
 ```
 
 **Resultado esperado en Sección 5 (Handshake)**:
 ```text
-Hi romensuarezr/agent-os! You've successfully authenticated, but GitHub does not provide shell access.
+Hi <owner>/<repo>! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 O, si se usó una cuenta de usuario:
 ```text
-Hi romensuarezr! You've successfully authenticated, but GitHub does not provide shell access.
+Hi <username>! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
 El código de salida `1` en `ssh -T git@github.com` con el mensaje de bienvenida de GitHub confirma la autenticación completa y sin errores.

@@ -1,8 +1,8 @@
 # Runbook: Despliegue de Homepage en Coolify con Docker Compose y MCP Tooling
 
 > **Fecha**: 2026-09-28  
-> **Objetivo**: Procedimiento Operativo Estándar (SOP) para migrar y desplegar Homepage en Coolify (`oracle`) como stack Docker Compose desacoplado, contención de Docker Socket con `tecnativa/docker-socket-proxy` RO (32MB RAM, ADR 004), mapeo persistente de configuraciones y automatización mediante Coolify MCP / API.  
-> **Hosts aplicables**: `oracle` (PaaS/Coolify, dominio `https://homepage.example.com`).
+> **Objetivo**: Procedimiento Operativo Estándar (SOP) para migrar y desplegar Homepage en Coolify (`<infra-node>`) como stack Docker Compose desacoplado, contención de Docker Socket con `tecnativa/docker-socket-proxy` RO (32MB RAM, ADR 004), mapeo persistente de configuraciones y automatización mediante Coolify MCP / API.  
+> **Hosts aplicables**: `<infra-node>` (PaaS/Coolify, dominio `https://homepage.example.com`).
 
 ---
 
@@ -11,8 +11,8 @@
 Actualmente, el despliegue original de Homepage en Coolify consistía en una aplicación monolítica ("Docker Image" simple) con montaje directo de `/var/run/docker.sock` en el contenedor web.
 
 ### 1.1 El Problema
-1. **Riesgo de Seguridad en el Host**: El montaje directo de `/var/run/docker.sock` otorga privilegios equivalentes a `root` en `oracle`. Si Homepage sufriera una vulnerabilidad RCE, el host quedaría comprometido.
-2. **Restricción de Recursos (ADR 004)**: El nodo `oracle` aloja servicios esenciales de la flota y cuenta con almacenamiento y memoria limitados. Cualquier componente auxiliar debe ser ultra-ligero y predecible.
+1. **Riesgo de Seguridad en el Host**: El montaje directo de `/var/run/docker.sock` otorga privilegios equivalentes a `root` en el host de infraestructura (`<infra-node>`). Si Homepage sufriera una vulnerabilidad RCE, el host quedaría comprometido.
+2. **Restricción de Recursos (ADR 004)**: El nodo `<infra-node>` aloja servicios esenciales de la flota y cuenta con almacenamiento y memoria limitados. Cualquier componente auxiliar debe ser ultra-ligero y predecible.
 3. **Fricción Operativa**: Actualizar configuraciones YAML mediante la GUI web de Coolify genera deriva de configuración respecto al repositorio Git y dificulta despliegues reproducibles.
 
 ### 1.2 La Solución
@@ -141,7 +141,7 @@ Los siguientes archivos deben generarse previamente mediante `scripts/agent/gene
 | Archivo | Función |
 | :--- | :--- |
 | `settings.yaml` | Título del dashboard, tema visual, layout y buscador DuckDuckGo. |
-| `widgets.yaml` | Banner de recursos: CPU/RAM/Disco local y Glances en `datamanager` (`100.99.88.77:61208`). |
+| `widgets.yaml` | Banner de recursos: CPU/RAM/Disco local y Glances en `<worker-node>` (`${WORKER_TAILSCALE_IP:-127.0.0.1}:61208`). |
 | `services.yaml` | Grupos de servicios: Inferencia IA ($0) con pings seguros a `/health`, Docker Apps, ByteBox y GitHub. |
 | `bookmarks.yaml` | Accesos rápidos a documentación, consola Coolify y repositorios. |
 | `custom.css` | Personalización visual y contraste adaptativo. |
@@ -157,7 +157,7 @@ Para evitar bucles de diagnóstico y falsas alarmas operativas en los agentes:
 ## 5. Procedimiento de Migración Paso a Paso en Coolify
 
 ### Paso 1: Inventario del Recurso Existente
-1. Acceder al dashboard de Coolify en `oracle` (`http://100.99.88.78:8000` o dominio Coolify).
+1. Acceder al dashboard de Coolify en `<infra-node>` (`http://<TAILSCALE_IP_INFRA>:8000` o dominio Coolify).
 2. Localizar la aplicación `Homepage` actual.
 3. Copiar las variables de entorno existentes y el UUID del recurso.
 4. Si la app actual estaba montando `/var/run/docker.sock`, proceder a detenerla antes de migrar para evitar colisión de puertos o nombres de contenedores.
@@ -174,10 +174,10 @@ Para evitar bucles de diagnóstico y falsas alarmas operativas en los agentes:
 ### Paso 3: Aprovisionar los Archivos de Configuración
 Desde la terminal o vía SSH/SCP con `remote-admin`:
 ```bash
-# Directorio base en el servidor oracle
+# Directorio base en el servidor de infraestructura
 APP_DIR="/data/coolify/source" # o ruta gestionada por Coolify
 # Transferir configuración generada
-scp -r templates/homepage/config/* romen@oracle:/data/coolify/applications/<uuid>/config/
+scp -r templates/homepage/config/* <ssh-user>@<infra-node>:/data/coolify/applications/<uuid>/config/
 ```
 
 ### Paso 4: Despliegue Inicial
@@ -195,7 +195,7 @@ El servidor MCP de Coolify permite interactuar de forma programática con la ins
 ### 6.1 Variables de Entorno del Entorno de Agente
 Para interactuar con la API de Coolify:
 ```bash
-COOLIFY_API_URL="http://100.99.88.78:8000/api/v1"  # O endpoint público con SSL
+COOLIFY_API_URL="http://${COOLIFY_HOST:-<infra-node>}:8000/api/v1"  # O endpoint público con SSL
 COOLIFY_API_TOKEN="<coolify-bearer-token>"
 ```
 
@@ -247,7 +247,7 @@ curl -fsSL -s https://homepage.example.com | grep -q "<title>Homepage</title>" &
 ```
 
 ### 7.3 Verificación de Aislamiento de Socket (Prueba Red-Team en Proxy)
-Desde el host `oracle`:
+Desde el host de infraestructura (`<infra-node>`):
 ```bash
 # Verificar que las llamadas GET a contenedores están permitidas
 curl -fsSL http://127.0.0.1:2375/containers/json >/dev/null && echo "✅ GET /containers/json permitido"
@@ -261,7 +261,7 @@ else
 fi
 ```
 
-### 7.4 Verificación de Consumo de Recursos en `oracle`
+### 7.4 Verificación de Consumo de Recursos en `<infra-node>`
 ```bash
 docker stats --no-stream --format "table {{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}" | grep -E "homepage|docker-socket-proxy"
 ```

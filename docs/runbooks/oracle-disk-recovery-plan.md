@@ -1,15 +1,14 @@
-# Plan de Recuperación de Espacio en Disco por Lotes en `oracle`
+# Plan de Recuperación de Espacio en Disco por Lotes en Servidores VPS
 
-> **Fecha de Auditoría Inicial**: 2026-09-27 08:52 UTC  
-> **Fecha de Ejecución Lote C**: 2026-09-27 09:37 UTC  
-> **Host**: `oracle` (`vnic-rsr` / IP Tailscale `100.96.20.7`)  
-> **Sistema Operativo**: Ubuntu 24.04 LTS (Kernel `6.8.0-1011-oracle aarch64`)  
-> **Motor de Contenedores**: Docker Engine 29.1.2 / containerd 2.2.0  
-> **Objetivo**: Registro de auditoría, ejecución del Lote C y delimitación estricta de exclusiones de seguridad para volúmenes e imágenes en el VPS de infraestructura.
+> **Fecha de Auditoría Inicial**: 2026-09-27  
+> **Host**: `<infra-node>` (IP Tailscale `<TAILSCALE_IP>`, configurado en `config/fleet.yaml` o `~/.ssh/config`)  
+> **Sistema Operativo**: Linux / Ubuntu LTS  
+> **Motor de Contenedores**: Docker Engine  
+> **Objetivo**: Registro de auditoría, ejecución del saneamiento y delimitación estricta de exclusiones de seguridad para volúmenes e imágenes en el VPS de infraestructura.
 
 ---
 
-## 1. Cifras Actualizadas de Almacenamiento (Post-Lote C)
+## 1. Cifras Actualizadas de Almacenamiento (Post-Ejecución)
 
 ### 1.1 Estado de la Partición Raíz (`df -hT` y `df -ih`)
 
@@ -25,7 +24,7 @@ Filesystem     Inodes   IUsed   IFree IUse% Mounted on
 /dev/sda1         25M    1.5M     24M    6% /
 ```
 
-- **Uso de Bloques**: Ha pasado de **146 GB (76%)** a **63 GB (33%)**, liberando **83 GB netos** tras la purga del Lote C.
+- **Uso de Bloques**: Ha pasado de **146 GB (76%)** a **63 GB (33%)**, liberando **83 GB netos** tras la purga del lote de medios.
 - **Espacio Libre Disponible**: **131 GB disponibles** (frente a 48 GB previos).
 - **Uso de Inodos**: Totalmente desahogado (6% en uso, 24M libres).
 
@@ -35,10 +34,10 @@ Filesystem     Inodes   IUsed   IFree IUse% Mounted on
 
 | Ruta Principal | Tamaño Ocupado | Componentes Principales |
 | :--- | :--- | :--- |
-| **`/var/lib/docker`** | **36.0 GB** | Capas de imágenes / rootfs (32 GB), volúmenes activos/huérfanos (3.3 GB), contenedores (406 MB), buildkit (267 MB). |
-| **`/home/ubuntu`** | **~4.0 GB** | `.cache` (1.5 GB), `.hermes` (1.1 GB), seedbox scripts/config (345 MB), backups SQL (20 MB). |
-| **`/var/log`** | **2.8 GB** | Journald (`/var/log/journal`: 2.4 GB), logs de Docker (100 MB), logs de auditoría/syslog. |
-| **`/usr`, `/snap`, `/opt`** | **~5.1 GB** | Binarios del sistema, paquetes snap de Ubuntu e instaladores base de Oracle Cloud. |
+| **`/var/lib/docker`** | **36.0 GB** | Capas de imágenes / rootfs, volúmenes activos/huérfanos, contenedores, buildkit. |
+| **`~/`** | **~4.0 GB** | `.cache`, memoria operativa de agentes, scripts y backups SQL. |
+| **`/var/log`** | **2.8 GB** | Journald, logs de Docker, logs de auditoría/syslog. |
+| **`/usr`, `/snap`, `/opt`** | **~5.1 GB** | Binarios del sistema, paquetes snap e instaladores base. |
 
 ---
 
@@ -54,20 +53,13 @@ Build Cache     9         9         2.183GB   0B
 
 ---
 
-### 1.4 Estado de la Infraestructura Crítica (Coolify, Traefik, Health)
+### 1.4 Estado de la Infraestructura Crítica
 
-- **Total contenedores en ejecución**: 38 contenedores UP (0 caídos, 0 reiniciando).
+- **Total contenedores en ejecución**: Verificados contenedores activos UP (0 caídos, 0 reiniciando).
 - **Core de Infraestructura**:
-  - `coolify` (`ghcr.io/coollabsio/coolify:4.0.0-beta.460`): `Up 7 months (healthy)`
-  - `coolify-proxy` (`traefik:v3.6`): `Up 7 months (healthy)`
-  - `coolify-db` (`postgres:15-alpine`): `Up 7 months (healthy)`
-  - `coolify-redis` (`redis:7-alpine`): `Up 7 months (healthy)`
-  - `coolify-realtime` (`ghcr.io/coollabsio/coolify-realtime:1.0.10`): `Up 4 months (healthy)`
-  - `coolify-sentinel` (`ghcr.io/coollabsio/sentinel:1.0.1`): `Up 9 hours (healthy)`
-  - `jdownloader2-vps` (`jlesage/jdownloader-2`): `Up 4 months` (directorio `/output:rw` operativo y saneado).
-- **Contenedores Unhealthy Detectados (2)**:
-  1. `piper-tts-server`: Falla por ausencia de `curl` en la imagen (`/bin/sh: 1: curl: not found`). El servicio responde pero Docker lo marca unhealthy.
-  2. `hd-api-r0ooksg444g4g0wc8ogcs404-130357610433`: Falla en conexión a `localhost:8000`.
+  - Reverse Proxy (Traefik/Nginx): `Up (healthy)`
+  - Bases de Datos (Postgres/Redis): `Up (healthy)`
+  - Servicios de gestión y colas: `Up (healthy)`
 
 ---
 
@@ -81,11 +73,11 @@ Quedan formalmente blindados y fuera de cualquier acción de poda:
 
 ### 2.2 Política de Bloqueo sobre Volúmenes e Imágenes Huérfanas
 
-Se ha determinado pausar y **no autorizar** la eliminación de volúmenes huérfanos (`surfsense-db-data`, `surfsense-data`, `grafana-data`, `minio-data`, `postgres-data`, etc.) ni de imágenes huérfanas sin inspección profunda previa, fundamentado en tres razones directivas:
+Se ha determinado pausar y **no autorizar** la eliminación de volúmenes huérfanos ni de imágenes huérfanas sin inspección profunda previa, fundamentado en tres razones directivas:
 
-1. **Estado durmiente de apps**: Un volumen puede figurar sin enlaces directos (`links=0`) en Docker y aun así corresponder al estado íntegro de una aplicación de Coolify que se decida reactivar.
-2. **Naturaleza persistente crítica**: Volúmenes como `postgres-data`, `minio-data` y `grafana-data` albergan datos relacionales y de almacenamiento de objetos que, incluso proviniendo de servicios retirados, pueden contener información histórica o configuraciones valiosas.
-3. **Ratio de riesgo / beneficio desproporcionado**: El ahorro estimado total en volúmenes es de únicamente **0.45 GB** (~0.23% del disco). Tras haber recuperado 83 GB y situar el disco al 33% de ocupación, no existe urgencia operativa que justifique asumir ningún riesgo de pérdida de datos.
+1. **Estado durmiente de apps**: Un volumen puede figurar sin enlaces directos (`links=0`) en Docker y aun así corresponder al estado íntegro de una aplicación que se decida reactivar.
+2. **Naturaleza persistente crítica**: Volúmenes de bases de datos albergan datos relacionales y de almacenamiento de objetos que, incluso proviniendo de servicios retirados, pueden contener información histórica o configuraciones valiosas.
+3. **Ratio de riesgo / beneficio desproporcionado**: El ahorro estimado total en volúmenes huérfanos es marginal (<1 GB). Tras haber recuperado 83 GB y situar el disco al 33% de ocupación, no existe urgencia operativa que justifique asumir ningún riesgo de pérdida de datos.
 
 ---
 
@@ -93,7 +85,7 @@ Se ha determinado pausar y **no autorizar** la eliminación de volúmenes huérf
 
 ```mermaid
 flowchart TD
-    Init["Auditoría Inicial: 146 GB Usados (76%)"] --> LotC["LOTE C: Purgado de Seedbox Media<br/>(-83 GB) ✅ EJECUTADO"]
+    Init["Auditoría Inicial: 146 GB Usados (76%)"] --> LotC["LOTE C: Purgado de Descargas Residuales<br/>(-83 GB) ✅ EJECUTADO"]
     LotC --> StateC["Estado Actual: 63 GB Usados (33%)<br/>131 GB Libres"]
     StateC --> PauseB{"Volúmenes e Imágenes Huérfanas<br/>⏸️ PAUSADO POR SEGURIDAD"}
     PauseB --> LotA["LOTE A: Cachés y Logs del Sistema<br/>(Pendiente de evaluar: ~3.38 GB)"]
@@ -101,28 +93,24 @@ flowchart TD
 
 ---
 
-### LOTE C: Purgado de Seedbox Media [✅ COMPLETADO]
+### LOTE C: Purgado de Archivos de Medios Huérfanos [✅ COMPLETADO]
 
-- **Estado**: **Completado con éxito el 2026-09-27 09:37 UTC**.
-- **Acción realizada**: Eliminación de 2,339 vídeos y fotos huérfanos en `/home/ubuntu/seedbox/downloads` tras confirmación de respaldo completo en el equipo local del usuario.
-- **Comando ejecutado con éxito**:
+- **Estado**: **Completado con éxito**.
+- **Acción realizada**: Eliminación de vídeos y fotos residuales en `~/downloads` tras confirmación de respaldo completo en el equipo local del usuario.
+- **Comando ejecutado**:
   ```bash
-  ssh oracle "sudo -n find /home/ubuntu/seedbox/downloads -mindepth 1 -delete"
+  ssh <infra-node> "sudo -n find ~/downloads -mindepth 1 -delete"
   ```
 - **Resultado comprobado**:
-  - Directorio `/home/ubuntu/seedbox/downloads` preservado con permisos intactos (`drwxr-xr-x opc:opc`).
+  - Directorio `~/downloads` preservado con permisos intactos.
   - Espacio liberado: **83.0 GB**.
-  - Los 38 contenedores continúan en ejecución (`Up`).
+  - Los contenedores continúan en ejecución (`Up`).
 
 ---
 
 ### LOTE B: Volúmenes Huérfanos Obsoletos [🛑 BLOQUEADO / NO AUTORIZADO]
 
 - **Estado**: **Pausado indefinidamente**.
-- **Comando retenido (NO AUTORIZADO)**:
-  ```bash
-  # docker volume rm surfsense-db-data surfsense-data grafana-data minio-data ... [RECHAZADO]
-  ```
 - **Criterio**: Exclusión total. No se tocará ningún volumen hasta realizar auditorías específicas de contenido cuando se requiera.
 
 ---
@@ -141,10 +129,6 @@ flowchart TD
 
 | Hito | Espacio Usado | Espacio Libre | Ocupación (`/dev/sda1`) | Estado Operativo |
 | :--- | :---: | :---: | :---: | :--- |
-| **Auditoría Previa (2026-09-24)** | 139 GB | 55 GB | 72% | Alerta por consumo elevado. |
-| **Inicio Sesión (2026-09-27 08:52)** | 146 GB | 48 GB | 76% | Despliegue de Infisical, ByteBox y Homepage (+7 GB). |
-| **Post-Lote C (2026-09-27 09:37)** | **63 GB** | **131 GB** | **33%** | **✅ 83 GB liberados. 38 contenedores 100% operativos.** |
-
----
-
-*Última actualización: 27 Sep 2026*
+| **Auditoría Previa** | 139 GB | 55 GB | 72% | Alerta por consumo elevado. |
+| **Inicio de Despliegues** | 146 GB | 48 GB | 76% | Nuevos contenedores (+7 GB). |
+| **Post-Lote C** | **63 GB** | **131 GB** | **33%** | **✅ 83 GB liberados. Contenedores 100% operativos.** |

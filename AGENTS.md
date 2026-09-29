@@ -150,6 +150,16 @@ Ante un breaking change:
 
 ---
 
+## Definición de Terminado (Definition of Done)
+
+Todo trabajo, tarea o sprint desarrollado en el ecosistema de Agent OS debe satisfacer los criterios de calidad y completitud estipulados en la plantilla canónica [.agents/templates/DEFINITION_OF_DONE.md](.agents/templates/DEFINITION_OF_DONE.md):
+- Pruebas y validaciones ejecutadas sin regresiones (`tests/validate-control-plane.sh` 12/12).
+- Cero infraestructura personal ni secretos commiteados en el repositorio.
+- Scripts y utilidades 100% deterministas y portables entre Linux y macOS.
+- Documentación, changelog y roadmap sincronizados atómicamente antes del cierre.
+
+---
+
 ## Convenciones de commits
 
 ```

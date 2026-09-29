@@ -1,7 +1,7 @@
-# Auditoría de Capacidad de Disco y Exposición de Puertos en `oracle`
+# Auditoría de Capacidad de Disco y Exposición de Puertos en Servidores Remotos (Host VPS)
 
 > **Fecha**: 2026-09-24  
-> **Host**: `oracle` (`vnic-rsr` / `100.96.20.7`)  
+> **Host**: `<infra-node>` (IP Tailscale `<TAILSCALE_IP>`, configurado en `config/fleet.yaml` o `~/.ssh/config`)  
 > **Objetivo**: Diagnóstico integral y no destructivo del almacenamiento y superficie de ataque del VPS de infraestructura.  
 > **Herramienta utilizada**: `.agents/skills/remote-admin/scripts/audit-host.sh`
 
@@ -11,10 +11,10 @@
 
 | Métrica | Estado Actual | Diagnóstico | Potencial de Recuperación / Remediación |
 | :--- | :--- | :--- | :--- |
-| **Uso de Disco (`/dev/sda1`)** | 139 GB usados de 193 GB (**72%**) | 83 GB en descargas residuales de seedbox + 33 GB en Docker | **~116 GB recuperables** (el uso caería de 72% a **~12%**) |
+| **Uso de Disco (`/dev/sda1`)** | 139 GB usados de 193 GB (**72%**) | 83 GB en descargas residuales + 33 GB en Docker | **~116 GB recuperables** (el uso caería de 72% a **~12%**) |
 | **Salud de Docker** | 33 contenedores activos, 0 caídos | 30.91 GB de imágenes recuperables (91%), 25 volúmenes huérfanos | 31 GB imágenes + 480 MB volúmenes + 2.18 GB build cache |
 | **Firewall del Host (UFW)** | **No instalado** / Inactivo | Iptables en `-P INPUT ACCEPT`. Docker expone directo a WAN | Requiere política de firewall o blindaje en `DOCKER-USER` |
-| **Superficie de Red** | Múltiples servicios en `0.0.0.0` | Puertos `5800` (JDownloader), `8000` (Coolify), `5050`, `8888`, `111` expuestos | Restringir a `127.0.0.1` o IP Tailscale (`100.96.20.7`) |
+| **Superficie de Red** | Múltiples servicios en `0.0.0.0` | Puertos administrativos expuestos en WAN | Restringir a `127.0.0.1` o IP Tailscale (`<TAILSCALE_IP>`) |
 
 ---
 
@@ -39,10 +39,10 @@ El análisis reveló que el grueso del espacio consumido **no está en los conte
 ```
 
 ### 2.3 Localización Exacta del Consumo en `/home`
-Dentro de `/home/ubuntu`:
-- **`/home/ubuntu/seedbox/downloads`**: **83 GB** (miles de archivos de vídeo `.mp4` residuales descargados en julio de 2024, pertenecientes al usuario `opc`).
-- **`/home/ubuntu/.hermes`**: 1.7 GB (contexto operativo / memoria de Hermes).
-- **`/home/ubuntu/.cache`**: 894 MB.
+Dentro del directorio de usuario:
+- **`~/downloads`**: **83 GB** (archivos de medios residuales).
+- **`~/.hermes`**: 1.7 GB (contexto operativo / memoria de agentes).
+- **`~/.cache`**: 894 MB.
 - Resto de directorios: < 100 MB.
 
 ### 2.4 Estado del Almacenamiento en Docker (`docker system df`)
@@ -54,9 +54,9 @@ Local Volumes   39        14        3.44GB    480.4MB (13%)
 Build Cache     9         9         2.183GB   0B
 ```
 
-- **Imágenes residuales/intermedias**: 30.91 GB marcadas como recuperables por Docker (capas de compilaciones antiguas de Coolify).
-- **Volúmenes huérfanos (`dangling=true`)**: 25 volúmenes locales sin contenedor asociado (antiguas apps de Coolify como `evolution-api_*`, `surfsense-*`, `grafana-*`, `minio-*`).
-- **Logs de contenedores (`*-json.log`)**: Se encuentran acotados de forma saludable (el mayor mide 9.5 MB), lo que demuestra que la rotación de logs de Coolify/Docker está funcionando correctamente.
+- **Imágenes residuales/intermedias**: 30.91 GB marcadas como recuperables por Docker (capas de compilaciones antiguas).
+- **Volúmenes huérfanos (`dangling=true`)**: 25 volúmenes locales sin contenedor asociado de aplicaciones retiradas.
+- **Logs de contenedores (`*-json.log`)**: Se encuentran acotados de forma saludable, demostrando rotación de logs efectiva.
 
 ---
 
@@ -71,36 +71,33 @@ Build Cache     9         9         2.183GB   0B
 
 | Puerto / Protocolo | Proceso / Contenedor | Destino de Enlace | Nivel de Riesgo | Recomendación |
 | :--- | :--- | :--- | :---: | :--- |
-| `0.0.0.0:80`, `443` | `coolify-proxy` (Traefik) | Público (WAN) | 🟢 Esperado | Tráfico web público con certificados Let's Encrypt |
+| `0.0.0.0:80`, `443` | Reverse Proxy (Traefik) | Público (WAN) | 🟢 Esperado | Tráfico web público con certificados SSL |
 | `0.0.0.0:22` | OpenSSH daemon | Público (WAN) | 🟡 Medio | Autenticado por clave. Se recomienda mover a Tailscale o endurecer |
 | `0.0.0.0:111` | `rpcbind` (SunRPC) | Público (WAN) | 🔴 Alto | Innecesario en VPS web; vector de amplificación DDoS. Deshabilitar servicio `rpcbind` |
-| `0.0.0.0:5800` | `jdownloader2-vps` | Público (WAN) | 🔴 Alto | Interfaz gráfica Web/VNC de descargas accesible sin cifrado desde internet. Enlazar a `127.0.0.1` o `100.96.20.7` |
-| `0.0.0.0:8000` | `coolify` (Admin Dashboard) | Público (WAN) | 🔴 Alto | Panel de control de infraestructura accesible en crudo. Acceder sólo vía dominio Traefik o VPN |
-| `0.0.0.0:5050` | `piper-tts-server` | Público (WAN) | 🔴 Alto | Motor de síntesis de voz expuesto públicamente. Enlazar a Tailscale o red interna Docker |
-| `0.0.0.0:8888` | `bot-zk8csgs040w8wscg4...` | Público (WAN) | 🟡 Medio | Mapeo de puerto directo de bot. Evaluar si debe ser público o pasar por Traefik |
-| `0.0.0.0:3000` | `dashboard-zk8csgs...` | Público (WAN) | 🟡 Medio | Dashboard mapeado a `0.0.0.0`. Enrutar por Traefik o aislar |
-| `0.0.0.0:6001-6002` | `coolify-realtime` | Público (WAN) | 🟡 Medio | WebSockets de Coolify. Deberían estar proxificados bajo HTTPS |
-| `127.0.0.1:5432` | `db-zk8csgs040w8...` (Postgres) | Localhost | 🟢 Seguro | Correctamente aislado en loopback |
-| `100.96.20.7:53444` | Tailscale | VPN Privada | 🟢 Seguro | Conexión segura de la malla interna |
+| `0.0.0.0:5800` | UI de descargas | Público (WAN) | 🔴 Alto | Interfaz gráfica Web/VNC accesible sin cifrado desde internet. Enlazar a `127.0.0.1` o `<TAILSCALE_IP>` |
+| `0.0.0.0:8000` | Admin Dashboard PaaS | Público (WAN) | 🔴 Alto | Panel de control de infraestructura accesible en crudo. Acceder sólo vía dominio con TLS o VPN |
+| `0.0.0.0:5050` | TTS Service | Público (WAN) | 🔴 Alto | Motor de síntesis expuesto públicamente. Enlazar a Tailscale o red interna Docker |
+| `127.0.0.1:5432` | Postgres interno | Localhost | 🟢 Seguro | Correctamente aislado en loopback |
+| `<TAILSCALE_IP>:53444` | Tailscale | VPN Privada | 🟢 Seguro | Conexión segura de la malla interna |
 
 ---
 
 ## 4. Plan de Remediación Propuesto (Decision Gates Requeridos)
 
-> ⚠️ **IMPORTANTE**: Ninguna de estas acciones se ejecutó en esta tarea T-035 (estricto modo solo lectura). Quedan formuladas aquí con su comando exacto para aprobación humana expresa.
+> ⚠️ **IMPORTANTE**: Ninguna acción destructiva debe ejecutarse sin aprobación humana expresa.
 
 ### 4.1 Remediación de Almacenamiento (Recuperación de hasta 116 GB)
 
-#### Acción 1: Limpieza del directorio de descargas huérfanas de seedbox (~83 GB)
+#### Acción 1: Limpieza del directorio de descargas huérfanas (~83 GB)
 - **Impacto**: Libera 83 GB de inmediato en `/dev/sda1`.
-- **Riesgo**: Pérdida de vídeos antiguos si no han sido respaldados por el usuario.
+- **Riesgo**: Pérdida de archivos si no han sido respaldados previamente por el usuario.
 - **Comando de verificación previo**:
   ```bash
-  ssh oracle "ls -la /home/ubuntu/seedbox/downloads | head -20"
+  ssh <infra-node> "ls -la ~/downloads | head -20"
   ```
 - **Comando propuesto tras aprobación**:
   ```bash
-  ssh oracle "rm -rf /home/ubuntu/seedbox/downloads/*"
+  ssh <infra-node> "rm -rf ~/downloads/*"
   ```
 
 #### Acción 2: Poda de imágenes Docker y caché de construcción huérfana (~33 GB)
@@ -108,16 +105,16 @@ Build Cache     9         9         2.183GB   0B
 - **Riesgo**: Mínimo. Docker no borra imágenes en uso por contenedores activos.
 - **Comando propuesto tras aprobación**:
   ```bash
-  ssh oracle "docker image prune -a -f"
-  ssh oracle "docker builder prune -f"
+  ssh <infra-node> "docker image prune -a -f"
+  ssh <infra-node> "docker builder prune -f"
   ```
 
 #### Acción 3: Poda de volúmenes huérfanos (`dangling`) (~480 MB)
-- **Impacto**: Elimina los 25 volúmenes de proyectos destruidos de Coolify.
-- **Riesgo**: Ninguno para contenedores activos; los 14 volúmenes en uso están protegidos.
+- **Impacto**: Elimina volúmenes de proyectos destruidos.
+- **Riesgo**: Ninguno para contenedores activos; los volúmenes en uso están protegidos.
 - **Comando propuesto tras aprobación**:
   ```bash
-  ssh oracle "docker volume prune -f"
+  ssh <infra-node> "docker volume prune -f"
   ```
 
 ---
@@ -128,14 +125,14 @@ Build Cache     9         9         2.183GB   0B
 - **Impacto**: Cierra el puerto 111 y elimina el vector de ataque UDP.
 - **Comando propuesto tras aprobación**:
   ```bash
-  ssh oracle "sudo systemctl stop rpcbind rpcbind.socket && sudo systemctl disable rpcbind rpcbind.socket"
+  ssh <infra-node> "sudo systemctl stop rpcbind rpcbind.socket && sudo systemctl disable rpcbind rpcbind.socket"
   ```
 
-#### Acción 2: Re-enlazar puertos de servicios administrativos a Tailscale (`100.96.20.7`)
-- **Impacto**: `jdownloader2` (5800) y `coolify` (8000) dejan de responder en la IP pública y sólo son accesibles a través de la red privada Tailscale de nuestros dispositivos autorizados.
-- **Procedimiento**: En la configuración de Coolify / Docker Compose, cambiar la publicación de puertos de:
-  `- "5800:5800"`  ➡️  `- "100.96.20.7:5800:5800"`
-  `- "8000:8080"`  ➡️  `- "100.96.20.7:8000:8080"`
+#### Acción 2: Re-enlazar puertos de servicios administrativos a Tailscale (`<TAILSCALE_IP>`)
+- **Impacto**: Los puertos administrativos dejan de responder en la IP pública y sólo son accesibles a través de la red privada Tailscale de dispositivos autorizados.
+- **Procedimiento**: En la configuración de Docker Compose, cambiar la publicación de puertos de:
+  `- "5800:5800"`  ➡️  `- "<TAILSCALE_IP>:5800:5800"`
+  `- "8000:8080"`  ➡️  `- "<TAILSCALE_IP>:8000:8080"`
 
 #### Acción 3: Instalación y configuración de UFW con salvaguarda de Docker
 - **Impacto**: Proteger el host a nivel de kernel mediante reglas por defecto `DEFAULT_FORWARD_POLICY="DROP"` y allowlist explícito en `DOCKER-USER` para puertos públicos (80, 443, 22) y allow total en interfaz `tailscale0`.
@@ -144,7 +141,7 @@ Build Cache     9         9         2.183GB   0B
 
 ## 5. Conclusión y Estado de la Tarea
 
-La auditoría T-035 ha identificado con precisión quirúrgica:
-1. La causa raíz de la alerta de disco al 72% (no es Coolify, sino 83 GB de vídeos descargados en `seedbox/downloads` + 31 GB de capas de imágenes Docker huérfanas).
-2. La topología de exposición de puertos y la ausencia de firewall en el host.
+La auditoría permite diagnosticar:
+1. La causa raíz de la alerta de disco (archivos huérfanos en disco + capas de imágenes Docker intermedias).
+2. La topología de exposición de puertos y el estado del firewall en el host.
 3. El script reutilizable `.agents/skills/remote-admin/scripts/audit-host.sh` queda integrado en el core de `agent-os` y en la skill `remote-admin`, permitiendo auditar cualquier servidor en 1 sola llamada rápida de solo lectura para ahorrar tokens.

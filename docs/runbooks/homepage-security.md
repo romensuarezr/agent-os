@@ -2,7 +2,7 @@
 
 > **Fecha**: 2026-09-27  
 > **Objetivo**: Blindaje de Homepage contra accesos externos no autorizados y contención estricta del socket de Docker conforme a ADR 004.  
-> **Hosts aplicables**: `oracle` (PaaS/Coolify) y nodos de la flota Agent OS.
+> **Hosts aplicables**: `<infra-node>` (PaaS/Coolify) y nodos de la flota Agent OS.
 
 ---
 
@@ -12,7 +12,7 @@ Homepage es el centro de visualización de métricas y servicios de la flota. Si
 1. **Escalada de Privilegios vía Docker Socket**: Montar `/var/run/docker.sock` directamente en un contenedor web permite a un atacante enviar comandos a la API de Docker y tomar control de root del host.
 2. **Exposición Pública de Topología**: Dejar el dashboard accesible a internet sin autenticación filtra URLs internas, nombres de contenedores, topología de red privada e IPs de Tailscale.
 
-Para mitigar ambos riesgos sin penalizar la infraestructura de `oracle` (**ADR 004**), se aplica una política de defensa en profundidad en dos capas:
+Para mitigar ambos riesgos sin penalizar la infraestructura de `<infra-node>` (**ADR 004**), se aplica una política de defensa en profundidad en dos capas:
 - **Capa Interna**: Aislamiento del Docker daemon mediante `tecnativa/docker-socket-proxy` en modo solo lectura (`CONTAINERS=1`, `INFO=1`, `POST=0`) con cuota de memoria limitada a **32MB**.
 - **Capa Perimetral**: Protección de acceso web mediante Cloudflare Zero Trust (Access) o middleware Basic Auth en Traefik.
 
@@ -52,7 +52,7 @@ El proxy (`tecnativa/docker-socket-proxy`) se configura con reglas HAProxy embeb
 
 ### 2.3 Restricción de Recursos (ADR 004)
 
-Para garantizar que el proxy no degrade la RAM disponible en el VPS `oracle`:
+Para garantizar que el proxy no degrade la RAM disponible en el VPS `<infra-node>`:
 ```yaml
 mem_limit: 32m
 deploy:

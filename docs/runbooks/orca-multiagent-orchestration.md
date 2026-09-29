@@ -16,10 +16,10 @@ Para operar eficazmente con Orca ADE, es esencial comprender la jerarquía de su
 
 ```
 PROYECTO (Durable Project)
-  │  Ej: github:romensuarezr/agent-os (identidad del repositorio y metadata)
+  │  Ej: github:<owner>/<repo> (identidad del repositorio y metadata)
   │
-  ├── HOST LOCAL (/home/romen/Proyectos/agent-os)
-  └── HOSTS REMOTOS (datamanager o oracle vía SSH)
+  ├── HOST LOCAL (/ruta/local/al/repositorio)
+  └── HOSTS REMOTOS (servidores definidos en config/fleet.yaml vía SSH)
         │
         ├── WORKSPACE / WORKTREE 1 (feat/auth) ──▶ Worker A (Developer en OpenCode - $0)
         ├── WORKSPACE / WORKTREE 2 (test/auth) ──▶ Worker B (Reviewer en OpenCode - $0)
@@ -28,7 +28,7 @@ PROYECTO (Durable Project)
 
 ### Diferencias Clave:
 1. **Proyecto (`Project`)**: Entidad permanente en Orca que asocia tu repositorio git con tus cuentas (GitHub, etc.), variables y entornos de computación (local y servidores SSH).
-2. **Espacio de Trabajo / Worktree (`Workspace / Worktree`)**: Un checkout independiente de git (`git worktree`) generado en un subdirectorio aislado (ej. `/home/romen/orca/workspaces/agent-os/tarea-1`).
+2. **Espacio de Trabajo / Worktree (`Workspace / Worktree`)**: Un checkout independiente de git (`git worktree`) generado en un subdirectorio aislado (ej. `~/.orca/workspaces/<repo>/tarea-1`).
    - Cada agente trabaja en su propio directorio con su propia rama.
    - **Aislamiento total**: Múltiples agentes pueden editar archivos al mismo tiempo sin colisiones de git ni sobrescritura accidental.
    - Cada worktree posee sus propios terminales PTY y navegador embebido para pruebas visuales o webviews.
@@ -42,9 +42,9 @@ Para garantizar que el trabajo en paralelo no dispare costes ni agote las cuotas
 
 - **Coordinador**: Se ejecuta en **Antigravity CLI (`agy` / `agy2`)** utilizando modelos de alto razonamiento (Claude 3.5 Sonnet / Gemini Pro). Su labor es puramente estratégica: trocear la épica, redactar contratos de subtareas y auditar el diff final.
 - **Workers (Trabajadores de Ejecución)**: Tienen **prohibido consumir saldo o cuotas de pago**. Se despachan con **OpenCode CLI** conectándose a nuestras pasarelas de coste $0:
-  - `freellmapi` en `datamanager:3001` ($0.00 / token).
+  - `freellmapi` en `<worker-node>:3001` ($0.00 / token).
   - `omniroute` (pasarela con 150+ modelos gratuitos).
-  - `ollama` en `datamanager:11434` (offline / privado).
+  - `ollama` en `<worker-node>:11434` (offline / privado).
 
 ---
 
@@ -55,10 +55,10 @@ Para garantizar que el trabajo en paralelo no dispare costes ni agote las cuotas
 
 ```bash
 # Despachar Agente 1 (OpenCode en rama feat-auth)
-orca worktree create --repo name:agent-os --name feat-auth --no-parent --agent opencode --prompt "Implementar validador de tokens JWT en auth.ts"
+orca worktree create --repo name:<repo> --name feat-auth --no-parent --agent opencode --prompt "Implementar validador de tokens JWT en auth.ts"
 
 # Despachar Agente 2 en paralelo (OpenCode en rama feat-docs)
-orca worktree create --repo name:agent-os --name feat-docs --no-parent --agent opencode --prompt "Documentar endpoints en docs/api.md"
+orca worktree create --repo name:<repo> --name feat-docs --no-parent --agent opencode --prompt "Documentar endpoints en docs/api.md"
 
 # Consultar el estado de todos los worktrees activos
 orca worktree ps
