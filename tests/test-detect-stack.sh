@@ -73,6 +73,7 @@ for expected_stack in python typescript javascript go rust java php ruby dotnet 
   mkdir -p "$target_dir"
   touch "$target_dir/$marker"
 
+  unset AGENT_OS_STACK AGENT_OS_PACKAGE_MANAGER AGENT_OS_DETECTED_LOCKFILE
   detect_stack "$target_dir" >/dev/null 2>&1
 
   if [[ "$AGENT_OS_STACK" == "$expected_stack" ]]; then
@@ -81,6 +82,7 @@ for expected_stack in python typescript javascript go rust java php ruby dotnet 
     log_fail "Stack '$expected_stack' esperado, pero se obtuvo '$AGENT_OS_STACK' (marcador: $marker)"
   fi
 done
+unset AGENT_OS_STACK AGENT_OS_PACKAGE_MANAGER AGENT_OS_DETECTED_LOCKFILE
 
 # ------------------------------------------------------------------------------
 # 2. Escenario Nominal con PATH (bun.lock + bun en PATH)
@@ -325,6 +327,44 @@ if bash -n "$ROOT_DIR/scripts/agent/install.sh" && \
   log_pass "Sintaxis de consumidores verificada: install, inventory-check, generate-digest, audit-repo"
 else
   log_fail "Sintaxis de algún script consumidor está dañada"
+fi
+
+# ------------------------------------------------------------------------------
+# 7. Escenario Override Manual por Variable de Entorno (AGENT_OS_STACK)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [7/7] Verificando override manual por variable de entorno (AGENT_OS_STACK)..."
+
+CASE_ENV_OVERRIDE="$TMP_DIR/case_env_override"
+mkdir -p "$CASE_ENV_OVERRIDE"
+# Crear marcador de static en disco, pero forzar AGENT_OS_STACK=python
+touch "$CASE_ENV_OVERRIDE/index.html"
+
+ENV_OUT=$("$BASH" -c '
+  source "'"$ROOT_DIR"'/scripts/agent/lib/detect-stack.sh"
+  AGENT_OS_STACK=python detect_stack "'"$CASE_ENV_OVERRIDE"'"
+  echo "STACK=$AGENT_OS_STACK"
+')
+
+STACK_ENV_VAL=$(echo "$ENV_OUT" | grep "^STACK=" | cut -d= -f2)
+if [[ "$STACK_ENV_VAL" == "python" ]]; then
+  log_pass "Override manual por entorno: AGENT_OS_STACK=python respetado frente a marcador en disco"
+else
+  log_fail "Override manual por entorno falló: esperado 'python', obtenido '$STACK_ENV_VAL'"
+fi
+
+# Override con stack no soportado debe ignorar y usar detección por marcador
+ENV_INVALID_OUT=$("$BASH" -c '
+  source "'"$ROOT_DIR"'/scripts/agent/lib/detect-stack.sh"
+  AGENT_OS_STACK=unsupported_stack_xyz detect_stack "'"$CASE_ENV_OVERRIDE"'"
+  echo "STACK=$AGENT_OS_STACK"
+')
+
+STACK_INVALID_VAL=$(echo "$ENV_INVALID_OUT" | grep "^STACK=" | cut -d= -f2)
+if [[ "$STACK_INVALID_VAL" == "static" ]]; then
+  log_pass "Override no soportado ignorado: fallback determinista a detección por marcadores ('static')"
+else
+  log_fail "Override no soportado falló: esperado 'static', obtenido '$STACK_INVALID_VAL'"
 fi
 
 echo ""
