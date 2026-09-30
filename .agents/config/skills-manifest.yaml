@@ -108,6 +108,10 @@ skills:
     optional: true
     description: "Formalización de requerimientos de comportamiento del usuario en reglas persistentes en .agents/rules/."
 
+  skill-inspector:
+    scope: universal
+    description: "Auditoría estática determinista de seguridad, higiene y confianza en habilidades (.agents/skills)."
+
   structure-guardian:
     scope: universal
     optional: true

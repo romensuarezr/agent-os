@@ -40,6 +40,7 @@ scripts/agent/check-lazy-planning.sh
 scripts/agent/generate-digest.sh
 scripts/agent/audit-child.sh
 scripts/agent/setup-profiles.sh
+scripts/agent/inspect-skills.sh
 scripts/agent/assets-manifest.txt
 
 [deprecated]
