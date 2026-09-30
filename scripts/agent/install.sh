@@ -724,5 +724,26 @@ else
     echo "✅ Entradas de Agent OS añadidas a .gitignore."
 fi
 
+# 12. Registrar ledger de sincronización / versión en .agents/context/last-sync.md
+mkdir -p "$TARGET_PROJECT/.agents/context"
+CORE_SHA=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || echo "unknown")
+CORE_VER=""
+if [ -n "$LOCAL_CANONICAL_VERSION" ]; then
+    CORE_VER="$LOCAL_CANONICAL_VERSION"
+elif [ -f "$AGENT_OS_PATH/VERSION" ]; then
+    CORE_VER=$(tr -d '[:space:]' < "$AGENT_OS_PATH/VERSION" 2>/dev/null || true)
+fi
+if [ -z "$CORE_VER" ]; then
+    CORE_VER="${TAG#v}"
+fi
+[ -z "$CORE_VER" ] && CORE_VER="unknown"
+{
+    date -u +%Y-%m-%d
+    echo "version: $CORE_VER"
+    echo "tag: v${CORE_VER#v}"
+    echo "commit: $CORE_SHA"
+} > "$TARGET_PROJECT/.agents/context/last-sync.md"
+echo "✅ Ledger de versión registrado en .agents/context/last-sync.md."
+
 echo "✨ Instalación de Agent OS completada en $TARGET_PROJECT"
 echo "💡 Recuerda configurar el .agents/AGENT_ONBOARDING.md del proyecto."
