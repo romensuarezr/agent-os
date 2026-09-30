@@ -5,6 +5,9 @@ Este archivo contiene la visión general y hoja de ruta del proyecto. Es un docu
 ## En curso
 - Inicialización del repositorio y configuración de Agent OS.
 
+## Completado
+- (Sin tareas completadas aún)
+
 ## Próximo
 - Configuración del flujo de despliegue continuo.
 - Capacidad de pruebas automatizadas iniciales.
