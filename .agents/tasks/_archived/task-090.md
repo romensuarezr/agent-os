@@ -56,4 +56,4 @@ Archivos autorizados para modificación / creación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-30T09:55:00+01:00
 - [x] Rama creada: feat/T-090-blind-install-test
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
