@@ -44,6 +44,23 @@ Si existen otros artefactos temporales o de validación, deben quedar:
 - Confirma que no quedan cambios funcionales pendientes.
 - Si hay dudas abiertas, no cierres todavía.
 
+### 1b. Automejora y Destilación Procedimental (Self-Reflection)
+> Conforme a la regla global `.agents/rules/global/self-improvement-distillation.md`. El conocimiento procedimental, los gotchas resueltos y las secuencias operativas novedosas nunca mueren en el transcript.
+
+Antes de preparar la documentación de cierre, evalúa reflexivamente las 3 preguntas:
+1. **¿Sufrí por alguna convención, truco o dependencia no documentada?**
+2. **¿Encontré un gotcha o trampa técnica que el siguiente agente inevitablemente volverá a pisar?**
+3. **¿Desarrollé una secuencia operativa o herramienta multi-paso reutilizable?**
+
+**Si la respuesta a alguna es SÍ:**
+- **Clasificar el hallazgo** según la Matriz de Destino Canónico:
+  - Procedimiento multi-paso/tool recurrente (≥ 3x) → Propuesta de Skill (`.agents/skills/<nombre>/SKILL.md`) vía `creador-habilidades`.
+  - Invariante o directiva universal → Propuesta de Regla (`.agents/rules/global/<regla>.md`) vía `rule-creator`.
+  - Paso a paso operativo/infraestructura → Runbook (`docs/runbooks/<procedimiento>.md`).
+  - Patrón incipiente (< 3x) → Entrada fechada en `docs/idea-inbox/YYYY-MM-DD-<nombre>.md`.
+  - Corrección o aclaración a contrato existente → Edición in-situ directa del documento vivo (*retrospective* sin crear silos muertos de lecciones aprendidas).
+- **Presentar propuesta al usuario** (QUÉ, POR QUÉ y DESTINO) y esperar confirmación antes de consolidar.
+
 ### 2. Preparar documentación (antes del script)
 Antes de llamar al script de cierre, edita manualmente:
 1. **`docs/sprints/sprint-{{SPRINT_ACTIVE}}.md`** — marca la tarea como `✅ Completada` en la tabla.
