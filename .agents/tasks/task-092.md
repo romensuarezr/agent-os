@@ -39,7 +39,7 @@ Archivos autorizados para modificación:
   - [x] Caso B: Roadmap incompleto (falta un bloque real) emite advertencia precisa (no laxo).
   - [x] Caso C: Auto-fix `--apply` sobre roadmap de plantilla no duplica secciones.
 - [x] Validación de control plane: `tests/validate-control-plane.sh` pasa sin errores.
-- [ ] Working tree limpio tras la ejecución.
+- [x] Working tree limpio tras la ejecución.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
@@ -49,4 +49,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO CON CAMBIOS recibido — fecha/hora: 2026-09-30 11:30:00+01:00
 - [x] Rama creada: feat/T-092-fix-roadmap-sections-consistency
 - [x] Lock activo: 2026-09-30T11:30:35+01:00
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente

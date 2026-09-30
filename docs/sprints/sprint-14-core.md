@@ -18,7 +18,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
 | T-091 | Regla de destilación y automejora procedimental (Self-Improvement Distillation) | Gobernanza / Core | M | ✅ Completada | — | [.agents/tasks/task-091.md](.agents/tasks/task-091.md) |
-| T-092 | Fix consistencia de secciones en `roadmap.md` y `audit-repo.sh` (HIGH) | Bug del sistema / DX | S | 🟡 En curso | — | [.agents/tasks/task-092.md](.agents/tasks/task-092.md) |
+| T-092 | Fix consistencia de secciones en `roadmap.md` y `audit-repo.sh` (HIGH) | Bug del sistema / DX | S | ✅ Completada | — | [.agents/tasks/task-092.md](.agents/tasks/task-092.md) |
 | T-093 | Port de patrones estáticos de SkillSpector adaptado a `.agents/skills/` | Seguridad / Confianza | M | ⬜ Pendiente | — | [.agents/tasks/task-093.md](.agents/tasks/task-093.md) |
 | T-094 | Unificación de firma CLI con soporte `--path` en `audit-repo.sh` | DX / Universalización | S | ⬜ Pendiente | — | [.agents/tasks/task-094.md](.agents/tasks/task-094.md) |
 | T-095 | Sección de secretos (Infisical) en plantilla de onboarding del satélite | Gobernanza / Seguridad | S | ⬜ Pendiente | — | [.agents/tasks/task-095.md](.agents/tasks/task-095.md) |
