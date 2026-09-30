@@ -299,11 +299,15 @@ if [ "$1" == "--apply" ]; then
         
         if [ -f "$roadmap_file" ]; then
             echo "⚙️ Añadiendo secciones requeridas a $roadmap_file..."
-            for sec in "## En progreso" "## Completado" "## Backlog"; do
-                if ! grep -q "$sec" "$roadmap_file"; then
-                    echo -e "\n$sec\n- [ ] Tareas iniciales por categorizar" >> "$roadmap_file"
-                fi
-            done
+            if ! grep -qiE "^##[[:space:]]+(En curso|En progreso)" "$roadmap_file"; then
+                echo -e "\n## En curso\n- [ ] Tareas iniciales por categorizar" >> "$roadmap_file"
+            fi
+            if ! grep -qiE "^##[[:space:]]+(Completado|Completado recientemente)" "$roadmap_file"; then
+                echo -e "\n## Completado\n- (Sin tareas completadas aún)" >> "$roadmap_file"
+            fi
+            if ! grep -qiE "^##[[:space:]]+(Próximo|Backlog)" "$roadmap_file"; then
+                echo -e "\n## Próximo\n- [ ] Backlog inicial" >> "$roadmap_file"
+            fi
             echo "✅ roadmap.md actualizado con secciones estándar."
             applied_changes=$((applied_changes + 1))
         fi
@@ -545,11 +549,16 @@ fi
 
 if [ -n "$roadmap_file" ]; then
     missing_sections=""
-    for sec in "## En progreso" "## Completado" "## Backlog"; do
-        if ! grep -q "$sec" "$roadmap_file"; then
-            missing_sections+="\`$sec\`, "
-        fi
-    done
+    if ! grep -qiE "^##[[:space:]]+(En curso|En progreso)" "$roadmap_file"; then
+        missing_sections+="\`## En curso\` (o \`## En progreso\`), "
+    fi
+    if ! grep -qiE "^##[[:space:]]+(Completado|Completado recientemente)" "$roadmap_file"; then
+        missing_sections+="\`## Completado\` (o \`## Completado recientemente\`), "
+    fi
+    if ! grep -qiE "^##[[:space:]]+(Próximo|Backlog)" "$roadmap_file"; then
+        missing_sections+="\`## Próximo\` (o \`## Backlog\`), "
+    fi
+
     if [ -n "$missing_sections" ]; then
         incompatibilidades+="- ⚠️ Faltan secciones requeridas en \`$roadmap_file\`: ${missing_sections%, }\n"
         propuestas+="- [ ] Añadir secciones requeridas a roadmap.md\n"
