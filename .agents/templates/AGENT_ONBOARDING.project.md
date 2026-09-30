@@ -2,6 +2,16 @@
 
 > Guía rápida para que el agente entienda este repositorio.
 
+## 🩺 Pre-flight de Inicio de Sesión (Salud del Repositorio)
+Antes de iniciar cualquier tarea o planificar trabajo, ejecuta la auditoría de salud local de Agent OS:
+```bash
+bash scripts/agent/audit-child.sh
+```
+**Interpretación obligatoria del resultado:**
+- `✅ CONFORME`: El entorno y configuración están sincronizados y estables. Operar normal.
+- `⚠️ DRIFT DETECTADO`: Se detectaron advertencias o desactualización (>7 días, configs obsoletas). Informar al usuario y proponer sincronización (`bash scripts/agent/sync.sh`).
+- `❌ NO CONFORME`: Fallos estructurales críticos, permisos corruptos o desactualización severa. No improvisar: acogerse estrictamente a `.agents/rules/global/deterministic-execution.md` para subsanar antes de intervenir el código.
+
 ## 🚀 Stack Tecnológico
 - **Frontend**: [React / Next.js / etc.]
 - **Backend**: [Node.js / Python / etc.]

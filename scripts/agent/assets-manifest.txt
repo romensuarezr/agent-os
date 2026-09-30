@@ -37,6 +37,7 @@ scripts/agent/install.sh
 scripts/agent/audit-mvp-tracker.sh
 scripts/agent/check-lazy-planning.sh
 scripts/agent/generate-digest.sh
+scripts/agent/audit-child.sh
 scripts/agent/assets-manifest.txt
 
 [deprecated]
