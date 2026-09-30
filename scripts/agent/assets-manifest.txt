@@ -12,6 +12,7 @@
 .agents/rules/global/deployment-safety.md
 .agents/rules/global/analysis-principles.md
 .agents/rules/global/audit-before-refactor.md
+.agents/rules/global/self-improvement-distillation.md
 .agents/workflows/session-close.md
 .agents/workflows/honesto.md
 .agents/workflows/sprint-planning.md
