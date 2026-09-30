@@ -9,6 +9,21 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.12.0] — sprint-13 — 2026-09-30
+
+### ✨ Features & Universalización
+
+- **T-085**: Namespacing de configuración runtime (`config/` → `.agents/config/`) blindando overlays privados (`fleet.yaml`), reubicando 12 archivos y actualizando todos los scripts y tests sin dejar rutas deprecadas.
+- **T-086**: Detección defensiva de stack y runtimes en `detect-stack.sh`: resolución declarativa preservada ante la dualidad lockfile vs PATH, exportando `AGENT_OS_PACKAGE_MANAGER` y `AGENT_OS_DETECTED_LOCKFILE` con warnings formales de divergencia.
+- **T-087**: Distribución universal del Core y ADR-006: instalador desatendido reejecutable e idempotente (`mv-no-rm`) pineado a release tags (`v1.11.0`+), fuente canónica `VERSION` y one-liner documentado en `README.md`.
+- **T-088**: Ledger de versiones del core y auditoría de salud en satélites: herramienta `scripts/agent/audit-child.sh` 100% local y offline (cero telemetría), ledger enriquecido en `last-sync.md` y cableado del pre-flight de inicio de sesión en `AGENT_ONBOARDING.project.md`.
+- **T-089**: Setup guiado y generación determinista de perfiles adaptados al stack (`scripts/agent/setup-profiles.sh`): política de artefacto regenerable con marcadores `# BEGIN/END AGENT-OS-GENERATED-STACK` y adaptación de comandos en `developer.yaml` y `AGENT_ONBOARDING.md`.
+- **T-090**: Prueba ciega 0-contexto de distribución e instalación desatendida: harness determinista `tests/test-blind-distribution.sh` (5/5 hitos) y fase ciega con sujeto real en sesión fresca, verificando el descubrimiento espontáneo del pre-flight de salud y capturando 4 tropiezos para el backlog.
+
+### 🐛 Bug Fixes & Refactor
+
+- **Fase 0**: Reparada regresión en `detect-stack.sh` capturando `${AGENT_OS_STACK:-}` antes del blanqueo de variables, restaurando la funcionalidad de override por entorno (`AGENT_OS_STACK=override detect_stack`).
+
 ## [1.11.0] — sprint-12 — 2026-09-29
 
 ### ✨ Features & Universalización
