@@ -400,8 +400,15 @@ if [ "$DRY_RUN" = false ]; then
         echo "  Sincronizando changelog del core..."
     fi
     CORE_SHA=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || echo "unknown")
+    CORE_VER=""
+    if [ -f "$AGENT_OS_PATH/VERSION" ]; then
+        CORE_VER=$(tr -d '[:space:]' < "$AGENT_OS_PATH/VERSION" 2>/dev/null || true)
+    fi
+    [ -z "$CORE_VER" ] && CORE_VER="unknown"
     {
         date -u +%Y-%m-%d
+        echo "version: $CORE_VER"
+        echo "tag: v${CORE_VER#v}"
         echo "commit: $CORE_SHA"
     } > "$TARGET_PROJECT/.agents/context/last-sync.md"
     if [ -f "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" ]; then
