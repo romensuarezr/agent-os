@@ -17,7 +17,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| T-091 | Regla de destilación y automejora procedimental (Self-Improvement Distillation) | Gobernanza / Core | M | ⬜ Pendiente | — | [.agents/tasks/task-091.md](file:///home/romen/orca/workspaces/agent-os/mahimahi/.agents/tasks/task-091.md) |
+| T-091 | Regla de destilación y automejora procedimental (Self-Improvement Distillation) | Gobernanza / Core | M | 🟡 En curso | — | [.agents/tasks/task-091.md](file:///home/romen/orca/workspaces/agent-os/mahimahi/.agents/tasks/task-091.md) |
 | T-092 | Fix consistencia de secciones en `roadmap.md` y `audit-repo.sh` (HIGH) | Bug del sistema / DX | S | ⬜ Pendiente | — | [.agents/tasks/task-092.md](file:///home/romen/orca/workspaces/agent-os/mahimahi/.agents/tasks/task-092.md) |
 | T-093 | Port de patrones estáticos de SkillSpector adaptado a `.agents/skills/` | Seguridad / Confianza | M | ⬜ Pendiente | — | [.agents/tasks/task-093.md](file:///home/romen/orca/workspaces/agent-os/mahimahi/.agents/tasks/task-093.md) |
 | T-094 | Unificación de firma CLI con soporte `--path` en `audit-repo.sh` | DX / Universalización | S | ⬜ Pendiente | — | [.agents/tasks/task-094.md](file:///home/romen/orca/workspaces/agent-os/mahimahi/.agents/tasks/task-094.md) |
