@@ -86,6 +86,8 @@ detect_stack() {
     return 1
   }
 
+  local initial_env_stack="${AGENT_OS_STACK:-}"
+
   AGENT_OS_STACK=""
   AGENT_OS_PACKAGE_MANAGER=""
   AGENT_OS_DETECTED_LOCKFILE=""
@@ -98,7 +100,6 @@ detect_stack() {
   # =========================================================================
   # 1. OVERRIDE MANUAL: VARIABLE DE ENTORNO AGENT_OS_STACK
   # =========================================================================
-  local initial_env_stack="${AGENT_OS_STACK:-}"
   if [[ -n "$initial_env_stack" ]]; then
     if _is_supported_stack "$initial_env_stack"; then
       detected_stack="$initial_env_stack"
