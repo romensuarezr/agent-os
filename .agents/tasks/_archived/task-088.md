@@ -52,4 +52,4 @@ Archivos autorizados para modificación / creación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-30T00:57:50+01:00
 - [x] Rama creada: feat/T-088-audit-child-version-ledger
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
