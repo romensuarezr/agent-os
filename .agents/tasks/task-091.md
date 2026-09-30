@@ -26,7 +26,7 @@ Archivos autorizados para modificación:
 - [x] Cableado de distribución: `.agents/rules/global/self-improvement-distillation.md` registrado en `scripts/agent/assets-manifest.txt`.
 - [x] Verificación empírica de herencia: prueba de instalación/sincronización en repositorio satélite efímero demostrando que la regla se despliega e instala intacta en el hijo.
 - [x] Validación del control plane: `tests/validate-control-plane.sh` ejecutado con éxito (12/12 ✅).
-- [ ] Working tree limpio tras la ejecución.
+- [x] Working tree limpio tras la ejecución.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
@@ -36,4 +36,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-30 11:07:51+01:00
 - [x] Rama creada: feat/T-091-self-improvement-distillation
 - [x] Lock activo: 2026-09-30T11:10:00+01:00
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
