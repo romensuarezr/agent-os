@@ -51,4 +51,4 @@ Archivos autorizados para modificación / creación:
 - [x] APROBADO recibido — fecha/hora: 2026-09-30T09:21:54+01:00
 - [x] Rama creada: feat/T-089-setup-profiles-stack
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
