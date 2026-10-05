@@ -62,4 +62,4 @@ Archivos autorizados para modificación / creación:
 - [x] APROBADO CON CAMBIOS recibido — fecha/hora: 2026-09-30 12:17:27+01:00
 - [x] Rama creada: feat/T-093-skill-inspector-static-port
 - [x] Lock activo: 2026-09-30T12:18:20+01:00
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
