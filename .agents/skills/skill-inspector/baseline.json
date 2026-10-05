@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-09-30T12:00:00Z",
+  "description": "Baseline de hallazgos estáticos justificados o revisados en el catálogo de skills de Agent OS",
+  "suppressions": [
+    {
+      "fingerprint": "infisical-secrets:DANGEROUS_CODE:SKILL.md:CODE_BLIND_EVAL",
+      "skill": "infisical-secrets",
+      "category": "DANGEROUS_CODE",
+      "rule_id": "CODE_BLIND_EVAL",
+      "severity": "HIGH",
+      "reason": "Uso legítimo y documentado de eval para inyección efímera de variables de entorno en memoria desde la CLI de Infisical sin tocar disco.",
+      "approved_by": "core-reviewer",
+      "approved_at": "2026-09-30"
+    }
+  ]
+}
