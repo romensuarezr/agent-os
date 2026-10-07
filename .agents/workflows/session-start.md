@@ -66,7 +66,7 @@ bash scripts/agent/check-session.sh
 > 🔒 **LÍMITE FASE 2**: Solo leer documentos de planificación del task activo. Ver lista completa de prohibiciones en FASE 3.5.
 
 3. **Investigación previa:** buscar `docs/sprints/sprint-{{SPRINT_ACTIVE}}-research.md`.
-   - Existe → integrar en `## Contexto técnico` del task file. Informar: `"📚 Research integrado."`
+   - Existe → integrar en `## Contexto técnico` del task file. Si el research contiene una subsección `### T-XXX` bajo `## Descubrimientos Scout (por tarea)` correspondiente a la tarea activa, integrarla explícitamente en el Contexto técnico (alternativa adoptada con versión/licencia, o justificación de desarrollo a medida). Informar: `"📚 Research integrado."`
    - No existe → preguntar `"¿Tienes investigación previa de Perplexity? (S/N)"`. Si S → pegar y guardar en `sprint-{{SPRINT_ACTIVE}}-research.md`. Si N → continuar.
 
 > ⚠️ Completar el task file **no autoriza la ejecución**. La única autorización es el APROBADO en Fase 3.5.
