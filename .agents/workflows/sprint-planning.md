@@ -133,6 +133,22 @@ Para cada tarea candidata al nuevo sprint que plantee nuevas funcionalidades, he
 |---|---|---|---|---|
 | T-XXX [nombre] | [repo o paquete] | ★ [stars] / [licencia] | Adoptar / Crear a medida | [Esperando] |
 
+### 2e. Persistencia de descubrimientos Scout en el research
+
+Tras la decisión del usuario sobre la tabla del paso 7 (adoptar / desarrollo a medida), escribir en `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` —crearlo si no existe, con la cabecera estándar del 6b— la sección:
+
+```markdown
+## Descubrimientos Scout (por tarea)
+
+### T-XXX — [nombre de la tarea]
+- **Alternativa detectada:** [paquete/repo, ★, licencia, versión o commit]
+- **Recomendación del agente:** adoptar / desarrollo a medida
+- **Decisión del usuario:** [adoptar | desarrollo a medida justificado — motivo en 1 línea]
+- **Notas de integración:** [cómo usarla en la tarea, o N/A]
+```
+
+Una subsección por cada tarea candidata evaluada en 2d, incluidas las marcadas "desarrollo a medida justificado".
+
 ---
 
 ### 3. Vaciado de inboxes priorizando MVP
@@ -250,7 +266,7 @@ Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta
 ### 6b. Recepción de hallazgos de Perplexity (cuando el usuario vuelve)
 
 1. Recibir el output de Perplexity del usuario.
-2. Crear `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md`:
+2. Si `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` ya existe (creado por el paso 2e), **NO sobrescribirlo**: añadir las secciones de Perplexity (`## Hallazgos clave`, `## Decisiones tomadas`, `## Descartado`) sin tocar `## Descubrimientos Scout (por tarea)`. Si no existe, crearlo con esta estructura:
 
 ```markdown
 # Research Sprint {{SPRINT_SIGUIENTE}}
