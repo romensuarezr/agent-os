@@ -12,6 +12,7 @@ TARGET_PROJECT=""
 CLEANUP=false
 FORCE=false
 DRY_RUN=false
+COMMIT=false
 
 for arg in "$@"; do
     case "$arg" in
@@ -24,12 +25,16 @@ for arg in "$@"; do
         --dry-run)
             DRY_RUN=true
             ;;
+        --commit)
+            COMMIT=true
+            ;;
         -h|--help)
             echo "Uso: sync.sh [opciones] /ruta/al/proyecto"
             echo "Opciones:"
             echo "  --dry-run   Simula la sincronización y detecta diferencias sin escribir en disco."
             echo "  --force     Sobrescribe personalizaciones locales sin pedir confirmación."
             echo "  --cleanup   Elimina archivos deprecados marcados en assets-manifest.txt."
+            echo "  --commit    Crea un commit local atómico en el satélite con los archivos modificados."
             exit 0
             ;;
         *)
@@ -114,6 +119,29 @@ if [ ! -f "$AGENT_OS_PATH/AGENTS.md" ] || [ ! -d "$AGENT_OS_PATH/.agents" ] || [
     exit 1
 fi
 
+# ==============================================================================
+# GUARDIA 1: SNAPSHOT DE STAGED PREEXISTENTE SI SE USA --COMMIT
+# ==============================================================================
+if [ "$COMMIT" = true ] && [ "$DRY_RUN" = false ]; then
+    if git -C "$TARGET_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        PREEXISTING_STAGED=$(git -C "$TARGET_PROJECT" diff --cached --name-only 2>/dev/null || true)
+        if [ -n "$PREEXISTING_STAGED" ]; then
+            echo "❌ ERROR [Guardia 1]: Se detectaron cambios preexistentes en stage en el repositorio destino:" >&2
+            while IFS= read -r f; do
+                [ -n "$f" ] && echo "    - $f" >&2
+            done <<< "$PREEXISTING_STAGED"
+            echo "💡 Guía: Haz commit o unstage ('git reset HEAD') de tus cambios antes de ejecutar sync.sh con --commit." >&2
+            exit 1
+        fi
+    else
+        echo "⚠️  Aviso: El proyecto destino no es un repositorio git. Flag --commit ignorado." >&2
+        COMMIT=false
+    fi
+fi
+
+TOUCHED_FILES=()
+CORE_SHA=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || echo "unknown")
+
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_SCRIPTS="$AGENT_OS_PATH/scripts/agent"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
@@ -164,6 +192,7 @@ sync_file() {
             mkdir -p "$(dirname "$dst")"
             cp "$src" "$dst"
             echo "    [creado] $label"
+            TOUCHED_FILES+=("${dst#"$TARGET_PROJECT/"}")
         fi
         return 0
     fi
@@ -187,6 +216,7 @@ sync_file() {
     if [ "$FORCE" = true ]; then
         cp "$src" "$dst"
         echo "    [force] sobrescrito: $label"
+        TOUCHED_FILES+=("${dst#"$TARGET_PROJECT/"}")
         return 0
     fi
 
@@ -199,6 +229,7 @@ sync_file() {
         if [[ "$resp" == "s" || "$resp" == "si" ]]; then
             cp "$src" "$dst"
             echo "    [sobrescrito] $label"
+            TOUCHED_FILES+=("${dst#"$TARGET_PROJECT/"}")
         else
             echo "    [omitido] $label mantenido sin cambios"
         fi
@@ -354,6 +385,7 @@ if [ -d "$AGENT_OS_PATH/templates/docs" ]; then
             else
                 cp "$tmpl" "$TARGET_PROJECT/docs/$fname"
                 echo "    [propagado] template doc: $fname"
+                TOUCHED_FILES+=("docs/$fname")
             fi
         fi
     done
@@ -375,6 +407,7 @@ if [ -d "$AGENT_OS_PATH/templates/root" ]; then
             else
                 cp "$tmpl" "$TARGET_PROJECT/$fname"
                 echo "    [propagado] template root: $fname"
+                TOUCHED_FILES+=("$fname")
             fi
         fi
     done
@@ -389,6 +422,7 @@ if [ -f "$PROJECT_ONBOARDING_SRC" ] && [ ! -f "$TARGET_ONBOARDING" ]; then
     else
         cp "$PROJECT_ONBOARDING_SRC" "$TARGET_ONBOARDING"
         echo "    [propagado] plantilla: .agents/AGENT_ONBOARDING.md"
+        TOUCHED_FILES+=(".agents/AGENT_ONBOARDING.md")
     fi
 fi
 
@@ -396,24 +430,36 @@ fi
 mkdir -p "$TARGET_PROJECT/.agents/context"
 if [ "$DRY_RUN" = false ]; then
     if [ -f "$AGENT_OS_PATH/changelog.md" ]; then
-        cp "$AGENT_OS_PATH/changelog.md" "$TARGET_PROJECT/.agents/context/agent-os-changelog.md"
-        echo "  Sincronizando changelog del core..."
+        if [ ! -f "$TARGET_PROJECT/.agents/context/agent-os-changelog.md" ] || ! cmp -s "$AGENT_OS_PATH/changelog.md" "$TARGET_PROJECT/.agents/context/agent-os-changelog.md"; then
+            cp "$AGENT_OS_PATH/changelog.md" "$TARGET_PROJECT/.agents/context/agent-os-changelog.md"
+            echo "  Sincronizando changelog del core..."
+            TOUCHED_FILES+=(".agents/context/agent-os-changelog.md")
+        fi
     fi
-    CORE_SHA=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || echo "unknown")
     CORE_VER=""
     if [ -f "$AGENT_OS_PATH/VERSION" ]; then
         CORE_VER=$(tr -d '[:space:]' < "$AGENT_OS_PATH/VERSION" 2>/dev/null || true)
     fi
     [ -z "$CORE_VER" ] && CORE_VER="unknown"
+    NEW_LAST_SYNC=$(mktemp)
     {
         date -u +%Y-%m-%d
         echo "version: $CORE_VER"
         echo "tag: v${CORE_VER#v}"
         echo "commit: $CORE_SHA"
-    } > "$TARGET_PROJECT/.agents/context/last-sync.md"
+    } > "$NEW_LAST_SYNC"
+    if [ ! -f "$TARGET_PROJECT/.agents/context/last-sync.md" ] || ! cmp -s "$NEW_LAST_SYNC" "$TARGET_PROJECT/.agents/context/last-sync.md"; then
+        cp "$NEW_LAST_SYNC" "$TARGET_PROJECT/.agents/context/last-sync.md"
+        TOUCHED_FILES+=(".agents/context/last-sync.md")
+    fi
+    rm -f "$NEW_LAST_SYNC"
+
     if [ -f "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" ]; then
-        cp "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" "$TARGET_PROJECT/.agents/context/assets-manifest.txt"
-        echo "  Sincronizando manifiesto de assets..."
+        if [ ! -f "$TARGET_PROJECT/.agents/context/assets-manifest.txt" ] || ! cmp -s "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" "$TARGET_PROJECT/.agents/context/assets-manifest.txt"; then
+            cp "$AGENT_OS_PATH/scripts/agent/assets-manifest.txt" "$TARGET_PROJECT/.agents/context/assets-manifest.txt"
+            echo "  Sincronizando manifiesto de assets..."
+            TOUCHED_FILES+=(".agents/context/assets-manifest.txt")
+        fi
     fi
 else
     echo "  [dry-run] marcas de contexto omitidas (last-sync.md, changelog.md, assets-manifest.txt)."
@@ -510,6 +556,7 @@ if [ "${#DETECTED_DEPRECATED[@]}" -gt 0 ]; then
                         fi
                         rm -f "$full_path"
                         echo "✅ Eliminado: $dep_file"
+                        TOUCHED_FILES+=("$dep_file")
                     else
                         echo "Omitido: $dep_file"
                     fi
@@ -519,8 +566,62 @@ if [ "${#DETECTED_DEPRECATED[@]}" -gt 0 ]; then
     fi
 fi
 
+# ==============================================================================
+# NIVEL 1 & 2: RESUMEN DE CAMBIOS, SNIPPET Y COMMIT OPT-IN
+# ==============================================================================
+UNIQUE_TOUCHED=()
+if [ "${#TOUCHED_FILES[@]}" -gt 0 ]; then
+    while IFS= read -r f; do
+        [ -n "$f" ] && UNIQUE_TOUCHED+=("$f")
+    done < <(printf "%s\n" "${TOUCHED_FILES[@]}" | sort -u)
+fi
+
+IS_GIT_REPO=false
+TARGET_BRANCH=""
+if git -C "$TARGET_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    IS_GIT_REPO=true
+    TARGET_BRANCH=$(git -C "$TARGET_PROJECT" branch --show-current 2>/dev/null || true)
+    [ -z "$TARGET_BRANCH" ] && TARGET_BRANCH="HEAD (detached)"
+fi
+
 if [ "$DRY_RUN" = true ]; then
+    if [ "$COMMIT" = true ]; then
+        if [ "$IS_GIT_REPO" = true ]; then
+            echo "  [dry-run] commit: se crearía commit atómico local en [$TARGET_BRANCH] con mensaje 'chore(agent-os): sync core assets ($CORE_SHA)'"
+        else
+            echo "  [dry-run] commit: omitido porque el destino no es un repositorio git."
+        fi
+    fi
     echo "✅ [DRY-RUN] Simulación completada sin escrituras en disco."
 else
+    if [ "${#UNIQUE_TOUCHED[@]}" -eq 0 ]; then
+        echo "ℹ️  Sin cambios en archivos gestionados: el proyecto destino ya está al día."
+    else
+        if [ "$IS_GIT_REPO" = true ]; then
+            echo ""
+            echo "=============================================================================="
+            echo "📋 RESUMEN DE CAMBIOS EN ARCHIVOS GESTIONADOS"
+            echo "=============================================================================="
+            echo "🌿 Rama actual en satélite: $TARGET_BRANCH"
+            echo "📁 Archivos modificados (${#UNIQUE_TOUCHED[@]}):"
+            for f in "${UNIQUE_TOUCHED[@]}"; do
+                echo "    - $f"
+            done
+            echo ""
+            echo "💡 Snippet para commit manual:"
+            echo "    git -C \"$TARGET_PROJECT\" add -- ${UNIQUE_TOUCHED[*]}"
+            echo "    git -C \"$TARGET_PROJECT\" commit -m \"chore(agent-os): sync core assets ($CORE_SHA)\""
+            echo "=============================================================================="
+            echo ""
+
+            if [ "$COMMIT" = true ]; then
+                echo "🔄 Creando commit local atómico en satélite..."
+                git -C "$TARGET_PROJECT" add -- "${UNIQUE_TOUCHED[@]}"
+                git -C "$TARGET_PROJECT" commit -m "chore(agent-os): sync core assets ($CORE_SHA)"
+                SYNC_COMMIT_SHA=$(git -C "$TARGET_PROJECT" rev-parse --short HEAD 2>/dev/null || echo "ok")
+                echo "✅ Commit local atómico creado en satélite [$TARGET_BRANCH]: $SYNC_COMMIT_SHA"
+            fi
+        fi
+    fi
     echo "✅ Sincronización completada."
 fi
