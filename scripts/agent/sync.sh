@@ -616,6 +616,11 @@ else
                 if git -C "$TARGET_PROJECT" check-ignore -q "$f" 2>/dev/null; then
                     continue
                 fi
+                if [ ! -e "$TARGET_PROJECT/$f" ]; then
+                    if git -C "$TARGET_PROJECT" diff --cached --name-only 2>/dev/null | grep -qx "$f"; then
+                        continue
+                    fi
+                fi
                 COMMIT_FILES+=("$f")
             done
 
