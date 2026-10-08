@@ -307,7 +307,11 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
                 else
                     echo "    📦 Migrando skill legacy ${skill_name}.md -> ${skill_name}/..."
                     mkdir -p "$TARGET_SKILLS/$skill_name"
-                    mv "$TARGET_SKILLS/${skill_name}.md" "$TARGET_SKILLS/$skill_name/SKILL.md"
+                    if git -C "$TARGET_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+                        git -C "$TARGET_PROJECT" rm -f ".agents/skills/${skill_name}.md" >/dev/null 2>&1 || true
+                    fi
+                    mv "$TARGET_SKILLS/${skill_name}.md" "$TARGET_SKILLS/$skill_name/SKILL.md" 2>/dev/null || true
+                    TOUCHED_FILES+=(".agents/skills/${skill_name}.md")
                 fi
             else
                 if [ "$DRY_RUN" = true ]; then
