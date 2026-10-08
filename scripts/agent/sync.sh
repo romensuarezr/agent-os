@@ -607,19 +607,31 @@ else
             for f in "${UNIQUE_TOUCHED[@]}"; do
                 echo "    - $f"
             done
+            COMMIT_FILES=()
+            for f in "${UNIQUE_TOUCHED[@]}"; do
+                if git -C "$TARGET_PROJECT" check-ignore -q "$f" 2>/dev/null; then
+                    continue
+                fi
+                COMMIT_FILES+=("$f")
+            done
+
             echo ""
             echo "💡 Snippet para commit manual:"
-            echo "    git -C \"$TARGET_PROJECT\" add -- ${UNIQUE_TOUCHED[*]}"
+            echo "    git -C \"$TARGET_PROJECT\" add -- ${COMMIT_FILES[*]}"
             echo "    git -C \"$TARGET_PROJECT\" commit -m \"chore(agent-os): sync core assets ($CORE_SHA)\""
             echo "=============================================================================="
             echo ""
 
             if [ "$COMMIT" = true ]; then
-                echo "🔄 Creando commit local atómico en satélite..."
-                git -C "$TARGET_PROJECT" add -- "${UNIQUE_TOUCHED[@]}"
-                git -C "$TARGET_PROJECT" commit -m "chore(agent-os): sync core assets ($CORE_SHA)"
-                SYNC_COMMIT_SHA=$(git -C "$TARGET_PROJECT" rev-parse --short HEAD 2>/dev/null || echo "ok")
-                echo "✅ Commit local atómico creado en satélite [$TARGET_BRANCH]: $SYNC_COMMIT_SHA"
+                if [ "${#COMMIT_FILES[@]}" -gt 0 ]; then
+                    echo "🔄 Creando commit local atómico en satélite..."
+                    git -C "$TARGET_PROJECT" add -- "${COMMIT_FILES[@]}"
+                    git -C "$TARGET_PROJECT" commit -m "chore(agent-os): sync core assets ($CORE_SHA)"
+                    SYNC_COMMIT_SHA=$(git -C "$TARGET_PROJECT" rev-parse --short HEAD 2>/dev/null || echo "ok")
+                    echo "✅ Commit local atómico creado en satélite [$TARGET_BRANCH]: $SYNC_COMMIT_SHA"
+                else
+                    echo "ℹ️  Todos los archivos modificados están ignorados por .gitignore. Omitiendo commit."
+                fi
             fi
         fi
     fi
