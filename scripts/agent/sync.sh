@@ -319,11 +319,11 @@ if [ -d "$AGENT_OS_SKILLS" ]; then
 
         if [ -d "$skill" ]; then
             # Sincronizar recursivamente respetando personalizaciones locales
-            find "$skill" -type f | while IFS= read -r fsrc; do
+            while IFS= read -r fsrc; do
                 rel_path="${fsrc#"$AGENT_OS_SKILLS/"}"
                 fdst="$TARGET_SKILLS/$rel_path"
                 sync_file "$fsrc" "$fdst" "skill: $rel_path"
-            done
+            done < <(find "$skill" -type f)
         elif [ -f "$skill" ]; then
             sync_file "$skill" "$TARGET_SKILLS/$skill_name" "skill: $skill_name"
         fi
