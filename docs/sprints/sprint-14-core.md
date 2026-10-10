@@ -23,6 +23,7 @@
 | T-094 | Unificación de firma CLI con soporte `--path` en `audit-repo.sh` | DX / Universalización | S | ⬜ Pendiente | — | [.agents/tasks/task-094.md](.agents/tasks/task-094.md) |
 | T-095 | Sección de secretos (Infisical) en plantilla de onboarding del satélite | Gobernanza / Seguridad | S | ⬜ Pendiente | — | [.agents/tasks/task-095.md](.agents/tasks/task-095.md) |
 | T-096 | Guidance operativo del working tree post-instalación en `install.sh` | DX / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-096.md](.agents/tasks/task-096.md) |
+| T-097 | Remediación inmediata y desbloqueo de Hermes en datamanager y oracle | Bug del sistema / Infra | M | ✅ Completada | — | [.agents/tasks/task-097.md](.agents/tasks/task-097.md) |
 
 ---
 

@@ -1,7 +1,7 @@
 # Research Sprint 14 — Automejora y Confianza
 
 > **Fuente**: Perplexity / Investigación técnica validada — 2026-09-30  
-> **Tareas impactadas**: T-091 (Destilación de automejora) y T-093 (Port estático de SkillSpector)
+> **Tareas impactadas**: T-091 (Destilación de automejora), T-093 (Port estático de SkillSpector) y T-097 (Inferencia resiliente $0 para Hermes)
 
 ---
 
@@ -70,3 +70,19 @@
 La literatura destaca que la principal carencia de los frameworks multi-agente actuales es la falta de **aprendizaje organizacional** (*"agents don't learn from each other"*). En Agent OS, este problema se resuelve arquitectónicamente:
 - La regla se versiona en el **core** (`.agents/rules/`).
 - Se distribuye deterministamente a toda la flota satélite vía `install.sh` y `sync.sh`.
+
+---
+
+## 4. Arquitectura de Inferencia Resiliente: Free-Tier LLM Gateway (T-097)
+
+### Topología en 3 Niveles:
+1. **Nivel 1: Cloud Free Proxies**: FreeLLMAPI (`<TAILSCALE_IP>:3001/v1`) y OmniRoute (`<TAILSCALE_IP>:20128/v1`). Retorno inmediato bajo 200 OK; ante 429/403/timeout, apertura de circuito con cooldown de 5 min.
+2. **Nivel 2: OpenRouter Free strictly isolated**: Model whitelisting con regex estricto `^.*:free$`. Ante 429/402/403, trip circuit hasta reseteo de cuota a las 00:00 UTC.
+3. **Nivel 3: Ollama Local GGUF (`127.0.0.1:11434`)**: Garantía determinista in-host (`qwen2.5:7b` / `llama3.1:8b`).
+
+### Checklist Técnico para Agentes Headless:
+- **Bind de red**: Servicios que escuchan en el VPS deben enlazar la IP de Tailscale (`<TAILSCALE_IP>`, definida en el overlay gitignored `.agents/config/fleet.yaml`) o `0.0.0.0`, nunca exclusivamente `127.0.0.1`.
+- **Eliminación de endpoints temporales**: Sustituir túneles efímeros `*.trycloudflare.com` por rutas canónicas en la malla privada de Tailscale (`http://<TAILSCALE_IP>:<puerto>`).
+- **Inyección segura en memoria vía Infisical**: Cero almacenamiento de claves en archivos `.env` o comandos en claro.
+
+
