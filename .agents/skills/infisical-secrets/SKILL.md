@@ -367,3 +367,68 @@ una acción con consecuencias que requiere aprobación humana.
   descripción**. Existe por costumbre, no por diseño.
 - Conviven hasta que se migren los consumidores. Retirarla exige verificar quién la usa, así
   que es una pasada posterior, no una decisión automática.
+
+
+---
+
+## 📇 Catálogo de secretos por repositorio
+
+### Qué es
+
+`.agents/config/secrets-catalog.yaml` es el **contrato** de secretos de un repositorio: qué
+claves declara, de qué carpeta de la bóveda viene cada una, qué etiquetas tiene y si su valor
+sigue vivo. **No contiene valores.**
+
+```yaml
+generated_at: 2026-10-12T18:13:33Z
+source: infisical+local      # o 'local-only' si no hay bóveda
+complete: true
+secrets_declared: 56
+secrets:
+  - key: HF_TOKEN
+    scope: shared
+    status: unknown
+    locations: [kanairos, polymarket, shared]
+    tags: [env-dev, scope-shared, uses-polymarket]
+    required_by: [.env, packages/agents/agent-data-manager/.env]
+```
+
+### Por qué se versiona en git
+
+Un `.env` es una foto ciega: no dice de dónde vino una clave, qué más la usa ni si sigue
+viva. El catálogo sí. Versionarlo hace que un PR muestre los cambios de contexto:
+"esta clave pasó a `scope-shared`", "esta carpeta ya no la consume", "esto está revocado".
+Ese es el motivo de que sea un artefacto **generado y versionado**, y no un fichero de
+memoria.
+
+### Cómo se genera y quién lo escribe
+
+**Lo escribe el script. El agente no lo edita a mano.**
+
+```bash
+bash scripts/agent/generate-secrets-catalog.sh --path .            # regenerar
+bash scripts/agent/generate-secrets-catalog.sh --path . --check    # pre-flight: 1 si está desfasado
+```
+
+Degrada sin red: si la bóveda no responde, genera solo la parte derivable del repo y marca
+`source: local-only` y `complete: false`. Un proyecto hijo que **no** use Infisical también
+tiene catálogo: refleja sus referencias locales.
+
+### El ciclo completo
+
+```
+bóveda (fuente de verdad)  ──generate──▶  catálogo (versionado)  ──materialize──▶  .env
+  tags, descripciones                        contrato sin valores                  copia local
+                                                                                   (gitignored)
+```
+
+`.env` es una **materialización** para trabajar sin conexión, nunca la fuente. Si el valor
+cambia en la bóveda, hay que regenerar el `.env`: ese es el hueco pendiente de automatizar.
+
+### Cuándo falta una clave en un proyecto
+
+1. `secret-locate.sh --name X` primero. Si ya existe en otra carpeta, **no la copies**: cámbiala.
+2. Si no existe en absoluto, decide el alcance: credencial del proyecto → su carpeta;
+   credencial de proveedor usada por varios → `shared` con `scope-shared`.
+3. **Etiqueta en el momento de crearla.** Es la única vez que tienes el contexto fresco.
+4. Regenera el catálogo.
