@@ -16,9 +16,12 @@ for arg in "$@"; do
       "bash scripts/agent/close-task.sh [TASK_ID] [mensaje]" \
       "Ejecuta el cierre formal y commit atómico de una tarea, archivando su task file y liberando el lock de sesión." \
       "[TASK_ID]                Identificador opcional de la tarea (por defecto se deduce del nombre de la rama feat/T-XXX-...)" \
-      "[mensaje]                Mensaje opcional de commit (por defecto se genera automáticamente)" \
+      "[mensaje]                Mensaje opcional de commit (por defecto: 'tipo(TASK_ID): descripcion')" \
+      "-m, --message            Flag alternativo para especificar el mensaje de commit" \
       "-h, --help               Muestra este mensaje de ayuda" \
       "ejemplo: bash scripts/agent/close-task.sh" \
+      "ejemplo: bash scripts/agent/close-task.sh \"feat(scope): descripcion\"" \
+      "ejemplo: bash scripts/agent/close-task.sh T-026 \"feat(marketplace): acuerdo detail\"" \
       "ejemplo: SKIP_SPRINT_CHECK=1 bash scripts/agent/close-task.sh"
   fi
 done
@@ -26,20 +29,66 @@ done
 ROOT="$(git rev-parse --show-toplevel)"
 BRANCH=$(git -C "$ROOT" branch --show-current)
 
-# Derivar TASK_NUM desde la rama (feat/T-026-... → 026)
-TASK_NUM=$(echo "$BRANCH" | sed -n 's/.*T-\([0-9][0-9]*\).*/\1/p')
-if [ -z "$TASK_NUM" ]; then
-  RED='\033[0;31m'
-  NC='\033[0m'
-  echo -e "${RED}❌ ERROR: No se puede derivar el TASK_ID desde la rama: $BRANCH${NC}"
-  echo -e "${RED}Guía: Cambia el nombre de la rama actual usando: git branch -m feat/T-XXX-descripcion${NC}"
-  exit 1
-fi
-TASK_ID="T-${TASK_NUM}"
+CUSTOM_MSG=""
+EXPLICIT_TASK_ID=""
 
-# Derivar mensaje desde la rama (feat/T-026-marketplace-acuerdo-detail → feat: marketplace acuerdo detail (T-026))
-SCOPE=$(echo "$BRANCH" | sed "s|feat/T-${TASK_NUM}-||" | tr '-' ' ')
-MESSAGE="feat: ${SCOPE}(${TASK_ID})"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      # Ya atendido por show_help
+      exit 0
+      ;;
+    -m|--message)
+      shift
+      CUSTOM_MSG="${1:-}"
+      shift
+      ;;
+    T-[0-9]*|[0-9]*)
+      if [ -z "$EXPLICIT_TASK_ID" ]; then
+        EXPLICIT_TASK_ID="$1"
+      else
+        CUSTOM_MSG="${CUSTOM_MSG:+${CUSTOM_MSG} }$1"
+      fi
+      shift
+      ;;
+    *)
+      CUSTOM_MSG="${CUSTOM_MSG:+${CUSTOM_MSG} }$1"
+      shift
+      ;;
+  esac
+done
+
+# Derivar TASK_NUM y TASK_ID (explícito o deducido de la rama)
+if [ -n "$EXPLICIT_TASK_ID" ]; then
+  TASK_NUM=$(echo "$EXPLICIT_TASK_ID" | sed 's/^T-//')
+  TASK_ID="T-${TASK_NUM}"
+else
+  TASK_NUM=$(echo "$BRANCH" | sed -n 's/.*T-\([0-9][0-9]*\).*/\1/p')
+  if [ -z "$TASK_NUM" ]; then
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "${RED}❌ ERROR: No se puede derivar el TASK_ID desde la rama: $BRANCH${NC}"
+    echo -e "${RED}Guía: Cambia el nombre de la rama actual usando: git branch -m feat/T-XXX-descripcion o pásalo como argumento: bash scripts/agent/close-task.sh T-XXX${NC}"
+    exit 1
+  fi
+  TASK_ID="T-${TASK_NUM}"
+fi
+
+# Derivar mensaje de commit (personalizado o convención estándar tipo(scope): descripción)
+if [ -n "$CUSTOM_MSG" ]; then
+  if echo "$CUSTOM_MSG" | grep -q "$TASK_ID"; then
+    MESSAGE="$CUSTOM_MSG"
+  else
+    MESSAGE="${CUSTOM_MSG} (${TASK_ID})"
+  fi
+else
+  BRANCH_TYPE=$(echo "$BRANCH" | sed -n 's|^\([a-zA-Z0-9_-]*\)/T-.*|\1|p')
+  [ -z "$BRANCH_TYPE" ] && BRANCH_TYPE="feat"
+  BRANCH_DESC=$(echo "$BRANCH" | sed -n "s|.*T-${TASK_NUM}-\(.*\)|\1|p" | tr '-' ' ')
+  [ -z "$BRANCH_DESC" ] && BRANCH_DESC="cierre de tarea"
+
+  MESSAGE="${BRANCH_TYPE}(${TASK_ID}): ${BRANCH_DESC}"
+fi
 
 TASK_FILE="$ROOT/.agents/tasks/task-${TASK_NUM}.md"
 ARCHIVE_DIR="$ROOT/.agents/tasks/_archived"
