@@ -18,7 +18,7 @@ Historial de cambios y releases del núcleo de Agent OS.
 
 ### 🐛 Bug Fixes & Refactor
 
-- **Fix en `scripts/agent/close-task.sh`**: Soporte completo para mensajes personalizados de commit pasados como argumento o flag `-m`. Se corrige la generación automática para cumplir la convención estándar `tipo(TASK_ID): descripcion` (o `tipo(scope): descripcion (TASK_ID)`) en lugar de generar mensajes malformados como `feat: slug(TASK_ID)` sin espacio ni scope y descartar los argumentos del llamador.
+- **Fix en `scripts/agent/close-task.sh`**: Soporte completo para mensajes personalizados de commit pasados como argumento o flag `-m`. Se corrige la generación automática para cumplir la convención estándar `tipo(TASK_ID): descripcion` (o `tipo(scope): descripcion (TASK_ID)`). Asimismo, se endurece la guardia de sprint localizando dinámicamente el archivo de sprint que contiene la tarea (activo o archivado) y ampliando el regex de verificación para reconocer todos los sinónimos canónicos (`✅`, `🟢 Done`, `🟢 Completada`, `🟢 Completado`, `Done`) sin abortar erróneamente.
 - **Endurecimiento de habilidad `infisical-secrets`**: Runbook y guía actualizados con patrón obligatorio de 2 pasos (`infisical login` con Machine Identity -> token efímero), resolución de secretos en subcarpetas por proyecto (`--path="/<proyecto>"`), flag `--type=shared` para eliminación de variables y especificación exacta del endpoint REST `POST /v1/auth/universal-auth/login` (evitando alucinaciones de ruta/puerto).
 - **T-098**: Suite de control plane ampliada a 13/13 con cobertura del nuevo script: ayuda sin conectividad, validación de invocación sin `--url` (código 64) y clasificación JSON de gateway inaccesible sin filtrado de secretos.
 

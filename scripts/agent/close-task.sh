@@ -105,14 +105,22 @@ if [ ! -f "$TASK_FILE" ]; then
   exit 1
 fi
 
-# 1b. Guardia: verificar que la tarea está marcada como completada en el sprint activo
+# 1b. Guardia: verificar que la tarea está marcada como completada en su sprint file
 if [ "${SKIP_SPRINT_CHECK:-0}" != "1" ]; then
-  # shellcheck disable=SC2010
-  SPRINT_ACTIVE=$(ls "$ROOT/docs/sprints"/sprint-[0-9][0-9]*.md 2>/dev/null \
-    | grep -v "research" | sort -V | tail -1 || true)
+  # Localizar dinámicamente el sprint file que contiene la tarea (en docs/sprints/ activo o archivado)
+  SPRINT_ACTIVE=$(grep -l "^| ${TASK_ID}" "$ROOT/docs/sprints"/sprint-*.md 2>/dev/null | grep -v "research" | head -1 || true)
+  if [ -z "$SPRINT_ACTIVE" ]; then
+    SPRINT_ACTIVE=$(grep -l "^| ${TASK_ID}" "$ROOT/docs/sprints/_archived"/sprint-*.md 2>/dev/null | grep -v "research" | head -1 || true)
+  fi
+  if [ -z "$SPRINT_ACTIVE" ]; then
+    # Fallback al sprint más reciente si no se encuentra explícitamente
+    SPRINT_ACTIVE=$(ls "$ROOT/docs/sprints"/sprint-[0-9][0-9]*.md 2>/dev/null \
+      | grep -v "research" | sort -V | tail -1 || true)
+  fi
+
   if [ -n "$SPRINT_ACTIVE" ]; then
     if grep -q "^| ${TASK_ID}" "$SPRINT_ACTIVE" 2>/dev/null; then
-      if ! grep "^| ${TASK_ID}" "$SPRINT_ACTIVE" | grep -qE "✅|🟢 Completada"; then
+      if ! grep "^| ${TASK_ID}" "$SPRINT_ACTIVE" | grep -qiE "✅|🟢[[:space:]]*(Completad[oa]|Done|Hecho)|(Completad[oa]|Done)"; then
         YELLOW='\033[0;33m'
         NC='\033[0m'
         echo ""
