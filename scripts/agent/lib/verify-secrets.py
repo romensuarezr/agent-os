@@ -9,6 +9,9 @@ import sys
 import re
 import json
 import argparse
+import subprocess
+import collections
+import urllib.parse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.request
@@ -264,12 +267,142 @@ def scan_projects(root_dir: str, skip_liveness: bool = False):
 
     return summary
 
+def scan_infisical(api: str, pid: str, env_name: str, token: str,
+                   skip_liveness: bool = False) -> dict:
+    """Audita la boveda de Infisical reutilizando el verificador de vigencia existente.
+
+    Los valores se traen a memoria para comprobarlos y se descartan acto seguido:
+    ni el informe JSON ni la salida legible los contienen jamas.
+    """
+    result = {
+        "source": "infisical",
+        "environment": env_name,
+        "folders_scanned": 0,
+        "total_entries": 0,
+        "valid_secrets_count": 0,
+        "revoked_secrets_count": 0,
+        "untested_count": 0,
+        "revoked": [],
+        "duplicated_same_value": [],
+        "shadowing_conflicts": [],
+        "errors": [],
+    }
+
+    def _get(path, **params):
+        url = f"{api}{path}?" + urllib.parse.urlencode(
+            {"workspaceId": pid, "environment": env_name, **params})
+        req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.load(r)
+
+    try:
+        folders = sorted(f.get("name", "") for f in _get("/v1/folders").get("folders", []))
+    except Exception as e:
+        result["errors"].append(f"No se pudieron listar carpetas: {e}")
+        return result
+
+    result["folders_scanned"] = len(folders)
+    seen = collections.defaultdict(list)  # clave -> [(carpeta, valor)]
+
+    for folder in folders:
+        try:
+            out = subprocess.run(
+                ["infisical", "secrets", "--path", f"/{folder}", "--projectId", pid,
+                 "--env", env_name, "--domain", api, "--output", "json", "--silent"],
+                capture_output=True, text=True, timeout=30).stdout
+            data = json.loads(out)
+            items = data if isinstance(data, list) else data.get("secrets", [])
+        except Exception as e:
+            result["errors"].append(f"/{folder}: {e}")
+            continue
+
+        for item in items:
+            key = item if isinstance(item, str) else item.get("secretKey", "")
+            val = "" if isinstance(item, str) else (item.get("secretValue") or "")
+            if not key:
+                continue
+            result["total_entries"] += 1
+            seen[key].append((folder, val))
+
+            if skip_liveness or not val:
+                result["untested_count"] += 1
+                continue
+            status = check_single_liveness(key, val)
+            if status == "VALID":
+                result["valid_secrets_count"] += 1
+            elif status == "REVOKED":
+                result["revoked_secrets_count"] += 1
+                result["revoked"].append({"key": key, "folder": folder})
+            else:
+                result["untested_count"] += 1
+
+    # Mismo nombre, mismo valor -> duplicado inocuo.
+    # Mismo nombre, VALOR DISTINTO -> la revocacion de una copia deja vivas las otras.
+    for key, places in seen.items():
+        if len(places) < 2:
+            continue
+        values = {v for _, v in places}
+        folders = [f for f, _ in places]
+        if len(values) == 1:
+            result["duplicated_same_value"].append({"key": key, "folders": folders})
+        else:
+            result["shadowing_conflicts"].append(
+                {"key": key, "folders": folders, "distinct_values": len(values)})
+
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description="Auditor y verificador de secretos para Agent OS")
     parser.add_argument("root", nargs="?", default=".", help="Directorio raíz para escanear")
     parser.add_argument("--json", action="store_true", help="Salida en formato JSON compacto")
     parser.add_argument("--skip-liveness", action="store_true", help="Omitir validación de APIs externas")
+    parser.add_argument("--source", choices=["local", "infisical"], default="local",
+                        help="Origen a auditar: archivos .env locales (defecto) o la bóveda de Infisical")
+    parser.add_argument("--infisical-env", default=os.environ.get("INFISICAL_ENVIRONMENT", "dev"),
+                        help="Entorno de Infisical a auditar")
     args = parser.parse_args()
+
+    if args.source == "infisical":
+        api = os.environ.get("INFISICAL_API_URL", "")
+        pid = os.environ.get("INFISICAL_PROJECT_ID", "")
+        token = os.environ.get("INFISICAL_TOKEN", "")
+        missing = [n for n, v in (("INFISICAL_API_URL", api), ("INFISICAL_PROJECT_ID", pid),
+                                  ("INFISICAL_TOKEN", token)) if not v]
+        if missing:
+            print(f"❌ Faltan variables para auditar Infisical: {', '.join(missing)}", file=sys.stderr)
+            print("   Genera el token con 'infisical login --method=universal-auth ...' "
+                  "y expórtalo como INFISICAL_TOKEN.", file=sys.stderr)
+            sys.exit(1)
+        results = scan_infisical(api, pid, args.infisical_env, token,
+                                 skip_liveness=args.skip_liveness)
+        if args.json:
+            print(json.dumps(results, indent=2))
+            return
+        print("\n" + "=" * 65)
+        print("  🔐 AGENT OS: AUDITORÍA DE LA BÓVEDA DE INFISICAL")
+        print("=" * 65)
+        print(f"🌐 Entorno: {results['environment']}")
+        print(f"📂 Carpetas: {results['folders_scanned']} | entradas: {results['total_entries']}")
+        print("-" * 65)
+        print(f"✅ Válidas verificadas: {results['valid_secrets_count']}")
+        print(f"❌ Revocadas / caducadas: {results['revoked_secrets_count']}")
+        print(f"➖ Sin comprobable: {results['untested_count']}")
+        print(f"🔁 Duplicadas con idéntico valor: {len(results['duplicated_same_value'])}")
+        print(f"⚠️  CONFLICTO (mismo nombre, valores distintos): {len(results['shadowing_conflicts'])}")
+        for c in results["shadowing_conflicts"]:
+            print(f"    {c['key']}  ({c['distinct_values']} valores distintos en {len(c['folders'])} carpetas)")
+        if results["revoked"]:
+            print("-" * 65)
+            print("   Claves revocadas que hay que rotar:")
+            for r in results["revoked"]:
+                print(f"    ❌ {r['key']}  (carpeta /{r['folder']})")
+        if results["errors"]:
+            print("-" * 65)
+            for e in results["errors"]:
+                print(f"    ⚠️  {e}")
+        print("=" * 65)
+        return
 
     results = scan_projects(args.root, skip_liveness=args.skip_liveness)
 

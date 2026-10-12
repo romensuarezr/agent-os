@@ -38,6 +38,7 @@ agent-os/
 │   ├── check-session.sh         ← contexto de sesión para el agente
 │   ├── check-inbox.sh           ← auditoría y lectura de inboxes
 │   ├── check-inference-gateway.sh ← pre-flight de pasarelas de inferencia OpenAI-compatible
+│   ├── secret-locate.sh          ← localizador y auditoría de secretos (solo lectura)
 │   ├── close-sprint.sh          ← cierra y archiva el sprint
 │   ├── close-task.sh            ← cierra una tarea individual
 │   ├── audit-repo.sh            ← detecta incompatibilidades en repos con vida previa
@@ -154,7 +155,7 @@ Ante un breaking change:
 ## Definición de Terminado (Definition of Done)
 
 Todo trabajo, tarea o sprint desarrollado en el ecosistema de Agent OS debe satisfacer los criterios de calidad y completitud estipulados en la plantilla canónica [.agents/templates/DEFINITION_OF_DONE.md](.agents/templates/DEFINITION_OF_DONE.md):
-- Pruebas y validaciones ejecutadas sin regresiones (`tests/validate-control-plane.sh` 12/12).
+- Pruebas y validaciones ejecutadas sin regresiones (`tests/validate-control-plane.sh` 14/14).
 - Cero infraestructura personal ni secretos commiteados en el repositorio.
 - Scripts y utilidades 100% deterministas y portables entre Linux y macOS.
 - Documentación, changelog y roadmap sincronizados atómicamente antes del cierre.

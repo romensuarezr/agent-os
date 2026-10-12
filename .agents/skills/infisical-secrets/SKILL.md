@@ -162,10 +162,14 @@ Esto genera un archivo `.infisical.json` que contiene únicamente el `projectId`
 
 ```bash
 # Listar claves de secretos disponibles (sin mostrar valores)
-infisical secrets \
-  --domain="${INFISICAL_API_URL}" \
-  --projectId="${INFISICAL_PROJECT_ID}" \
-  --env=prod
+# ⚠️ NO uses `infisical secrets` para inventariar: imprime los VALORES en claro y los
+#    vierte en tu contexto y en el log de la sesión. Usa el localizador del core.
+bash scripts/agent/secret-locate.sh --list
+bash scripts/agent/secret-locate.sh --name NOMBRE_DE_LA_CLAVE
+
+# Auditar la bóveda: revocados, duplicados y conflictos de shadowing
+bash scripts/agent/secret-locate.sh --audit
+python3 scripts/agent/lib/verify-secrets.py --source=infisical
 
 # Crear o actualizar un secreto
 infisical secrets set CLAVE="valor" \
@@ -218,3 +222,70 @@ bash scripts/agent/import-secrets.sh /ruta/a/proyectos --apply --env=dev --clean
    - `prod`: Claves de producción de servicios desplegados en hosting/Coolify.
 3. **Rotación Rápida**:
    - En caso de sospecha de compromiso de un token (ej. GitHub PAT o API key de LLM), la rotación se ejecuta en la consola de Infisical; todos los agentes y servicios consumen el nuevo valor en la siguiente ejecución sin necesidad de re-desplegar ni tocar código fuente.
+
+---
+
+## 📐 Taxonomía y alcance de los secretos
+
+### Protocolo cuando un secreto no está en la carpeta del proyecto
+
+**No adivines, no iteres carpeta por carpeta y no preguntes al usuario.** Es la causa más
+frecuente de turnos quemados:
+
+```bash
+bash scripts/agent/secret-locate.sh --name NOMBRE_DE_LA_CLAVE
+```
+
+El script responde en una sola llamada dónde vive la clave. Si aparece en varias carpetas,
+avisa del conflicto: puede ser una clave transversal o una copia obsoleta.
+
+### Metadatos obligatorios
+
+Usa la **descripción** del secreto en Infisical para declarar el alcance. Convención:
+
+```
+scope=project|shared   shared solo si la consumen 2 o más proyectos
+env=dev|staging|prod
+owner=<equipo>
+consumers=<proyectos que la leen>
+rot=<periodicidad de rotación>
+```
+
+### Reglas de ubicación (no son opiniones: están medidas)
+
+1. **Transversal → carpeta compartida.** Una clave consumida por **≥2 proyectos** va en la
+   carpeta compartida, con `scope=shared` y `consumers=` listados. El umbral sale de la
+   auditoría de la bóveda, no de criterio subjetivo.
+2. **Específica → carpeta del proyecto.** Claves atadas a un entorno concreto
+   (`DATABASE_URL`, `TELEGRAM_CHAT_ID`, `PORT`) **no** se comparten ni se replican, aunque
+   dos proyectos usen el mismo nombre de variable.
+3. **No se replica un secreto "porque ya se usó aquí".** Duplicar credenciales multiplica la
+   superficie de revocación: si copias una clave a dos carpetas, rotarla exige recordar ambas.
+   Solo se replica cuando el aislamiento lo exige (producción vs desarrollo), y siempre
+   declarando `consumers`.
+4. **Nada de carpetas `_backup` dentro de la bóveda.** Un respaldo vive fuera del gestor de
+   secretos. Dentro de la bóveda se convierte en una copia obsoleta que nadie rota.
+5. **Nunca borres una clave revocada.** Márcala y repórtala: borrarla destruye el rastro del
+   incidente y deja al servicio sin credencial sin explicación.
+
+### Shadowing: el fallo más peligroso y silencioso
+
+Si el **mismo nombre** existe en varias carpetas con **valores distintos**, revocar una copia
+deja vivas las demás, y un agente que elija la carpeta equivocada usa otra credencial sin
+enterarse. Ninguna herramienta lo detecta por defecto:
+
+```bash
+python3 scripts/agent/lib/verify-secrets.py --source=infisical
+```
+
+Salida relevante: `CONFLICTO (mismo nombre, valores distintos)`. Cada conflicto debe
+resolverse eligiendo **una** carpeta canónica y borrando el resto.
+
+### Auditoría periódica
+
+```bash
+bash scripts/agent/secret-locate.sh --audit          # duplicados y carpetas clonadas
+python3 scripts/agent/lib/verify-secrets.py --source=infisical   # revocados y shadowing
+```
+
+Ambas son de **solo lectura** y comparten motor de vigencia, así que no pueden divergir.
