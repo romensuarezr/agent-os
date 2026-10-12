@@ -15,6 +15,7 @@
 #  10. Frontmatter YAML estricto de perfiles declarativos (.md).
 #  11. Generador declarativo de Homepage (generate-homepage-config.sh).
 #  12. Diagnóstico determinista de flota y salud local (fleet-doctor.sh).
+#  13. Pre-flight de pasarela de inferencia OpenAI-compatible (check-inference-gateway.sh).
 # ==============================================================================
 
 set -euo pipefail
@@ -56,7 +57,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/12] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/13] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -76,7 +77,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/12] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/13] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -113,7 +114,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/12] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/13] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -148,7 +149,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/12] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/13] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -183,7 +184,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/12] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/13] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -207,7 +208,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/12] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/13] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -226,7 +227,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/12] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/13] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -245,7 +246,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/12] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/13] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -268,7 +269,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/12] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/13] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -290,7 +291,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/12] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/13] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -356,7 +357,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/12] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/13] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -374,7 +375,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/12] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/13] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -401,6 +402,62 @@ else
     fi
   else
     echo -e "  ℹ️  [SKIP CONDICIONAL] .agents/config/fleet.yaml no existe en este entorno: conectividad viva omitida de forma segura."
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [13/13] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
+
+if [ ! -x "$GATEWAY_SCRIPT" ]; then
+  echo -e "  ❌ El script $GATEWAY_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+elif ! bash -n "$GATEWAY_SCRIPT" 2>/dev/null; then
+  echo -e "  ❌ Error de sintaxis (bash -n) en: $GATEWAY_SCRIPT"
+  ERRORS=$((ERRORS + 1))
+else
+  # 1. La ayuda debe exponerse sin tocar la red
+  if bash "$GATEWAY_SCRIPT" --help >/dev/null 2>&1; then
+    echo -e "  ✅ check-inference-gateway.sh expone ayuda estándar sin conectividad."
+  else
+    echo -e "  ❌ ERROR: check-inference-gateway.sh no responde a --help."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 2. Sin --url debe fallar con código de uso (64), no con un error opaco
+  if bash "$GATEWAY_SCRIPT" >/dev/null 2>&1; then
+    echo -e "  ❌ ERROR: check-inference-gateway.sh no valida la presencia de --url."
+    ERRORS=$((ERRORS + 1))
+  else
+    rc=$?
+    if [ "$rc" -eq 64 ]; then
+      echo -e "  ✅ check-inference-gateway.sh rechaza invocaciones sin --url con código 64."
+    else
+      echo -e "  ❌ ERROR: se esperaba código 64 y se obtuvo $rc."
+      ERRORS=$((ERRORS + 1))
+    fi
+  fi
+
+  # 3. Digest JSON determinista frente a un puerto cerrado (sin red ni secretos)
+  if python3 -c "
+import json, os, subprocess
+env = dict(os.environ, LEAK_CANARY='sk-canary-no-debe-aparecer')
+r = subprocess.run(
+    ['bash', '$GATEWAY_SCRIPT', '--url', 'http://127.0.0.1:9/v1', '--key-env', 'LEAK_CANARY', '--timeout', '2', '--json'],
+    env=env, capture_output=True, text=True)
+assert r.returncode == 5, r.returncode
+data = json.loads(r.stdout)
+assert data['verdict'] == 'UNREACHABLE', data['verdict']
+assert data['auth'].startswith('bearer:present'), data['auth']
+assert 'sk-canary-no-debe-aparecer' not in r.stdout
+" 2>/dev/null; then
+    echo -e "  ✅ check-inference-gateway.sh clasifica gateway inaccesible y emite JSON sin filtrar la credencial."
+  else
+    echo -e "  ❌ ERROR: check-inference-gateway.sh no clasifica correctamente un gateway inaccesible."
+    ERRORS=$((ERRORS + 1))
   fi
 fi
 

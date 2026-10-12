@@ -37,6 +37,7 @@ agent-os/
 │   ├── check-sprint.sh          ← verifica estado del sprint activo
 │   ├── check-session.sh         ← contexto de sesión para el agente
 │   ├── check-inbox.sh           ← auditoría y lectura de inboxes
+│   ├── check-inference-gateway.sh ← pre-flight de pasarelas de inferencia OpenAI-compatible
 │   ├── close-sprint.sh          ← cierra y archiva el sprint
 │   ├── close-task.sh            ← cierra una tarea individual
 │   ├── audit-repo.sh            ← detecta incompatibilidades en repos con vida previa
