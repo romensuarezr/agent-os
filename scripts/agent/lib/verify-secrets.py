@@ -127,6 +127,28 @@ def check_single_liveness(key: str, val: str) -> str:
         url = "https://api.perplexity.ai/models"
         req_headers["Authorization"] = f"Bearer {val}"
 
+    # Cloudflare (API Tokens). /user/tokens/verify responde success:false si el token
+    # fue revocado, expirado o nunca existio. Distingue "invalido" de "sin red".
+    elif val.startswith("eyJ") is False and key in {
+            "CLOUDFLARE_API_TOKEN", "CLOUDFLARE_DNS_API_TOKEN",
+            "CF_API_TOKEN", "CLOUDFLARE_ZONE_TOKEN"} or (
+            "CLOUDFLARE" in key and "TOKEN" in key):
+        url = "https://api.cloudflare.com/client/v4/user/tokens/verify"
+        req_headers["Authorization"] = f"Bearer {val}"
+
+    # Telegram (bot tokens). getMe es definitivo: 200 con el bot o 401 Unauthorized.
+    elif key in {"TELEGRAM_BOT_TOKEN", "TELEGRAM_TOKEN"} or (
+            "TELEGRAM" in key and "TOKEN" in key):
+        url = f"https://api.telegram.org/bot{val}/getMe"
+
+    # Sentry DSN: https<llave>@<org>.ingest.sentry.io/<project>
+    # Verificarlo exigiria enviar un evento de prueba al proyecto, es decir ESCRIBIR en un
+    # sistema de produccion. No se hace de forma automatica: se marca como no comprobable.
+    elif val.startswith("https://") and "@" in val and "sentry.io" in val:
+        return "UNTESTED_NO_WRITE"
+    elif "SENTRY_DSN" in key:
+        return "UNTESTED_NO_WRITE"
+
     if not url:
         return "UNTESTED_LOCAL"
 
@@ -137,10 +159,25 @@ def check_single_liveness(key: str, val: str) -> str:
                 return "VALID"
             return "VALID"
     except urllib.error.HTTPError as e:
+        # Cloudflare responde 400 con success:false para un token invalido
+        if url and "cloudflare.com" in url and e.code == 400:
+            try:
+                body = json.loads(e.read().decode() or "{}")
+                if body.get("success") is False:
+                    return "REVOKED"
+            except Exception:
+                return "REVOKED"
+        if url and "telegram.org" in url and e.code in (401, 404):
+            return "REVOKED"
+        if url and "sentry.io" in url:
+            return "UNTESTED_NO_WRITE"
         if e.code in (401, 403):
             return "REVOKED"
         if e.code == 429: # Rate limit -> Token válido pero saturado
             return "VALID_RATELIMITED"
+        if e.code == 400 and url and "googleapis.com" in url:
+            # Gemini responde 400 "API key not valid" para una clave invalida
+            return "REVOKED"
         return "UNTESTED_LOCAL"
     except Exception:
         # Timeout o fallo de red -> No asumir revocado, catalogar como local
