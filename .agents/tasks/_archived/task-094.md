@@ -24,20 +24,20 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-094.md`
 
 ## Criterios de done
-- [ ] `bash scripts/agent/audit-repo.sh --path <repo>` audita el repo indicado y no el directorio actual.
-- [ ] `bash scripts/agent/audit-repo.sh` sin flags conserva el comportamiento actual (directorio actual).
-- [ ] `--path` sin argumento falla con mensaje de uso y código de error coherente con `audit-child.sh` y `setup-profiles.sh`.
-- [ ] Ejecutar dos veces consecutivas sobre el mismo `--path` produce el mismo resultado (idempotencia).
-- [ ] `docs/critical-flows.md` existe con estructura de tabla de flujos, estado de cobertura (⬜/🟡/✅) y al menos el caso de T-098 registrado.
-- [ ] `bash tests/validate-control-plane.sh` sin regresiones.
-- [ ] `--help` de `audit-repo.sh` documenta `--path`.
+- [x] `bash scripts/agent/audit-repo.sh --path <repo>` audita el repo indicado y no el directorio actual.
+- [x] `bash scripts/agent/audit-repo.sh` sin flags conserva el comportamiento actual (directorio actual).
+- [x] `--path` sin argumento falla con mensaje de uso y código de error coherente con `audit-child.sh` y `setup-profiles.sh`.
+- [x] Ejecutar dos veces consecutivas sobre el mismo `--path` produce el mismo resultado (idempotencia).
+- [x] `docs/critical-flows.md` existe con estructura de tabla de flujos, estado de cobertura (⬜/🟡/✅) y al menos el caso de T-098 registrado.
+- [x] `bash tests/validate-control-plane.sh` sin regresiones.
+- [x] `--help` de `audit-repo.sh` documenta `--path`.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-12T13:58:02+01:00 (APROBADO CON CAMBIOS: --apply en cualquier posición)
+- [x] Rama creada: feat/T-094-audit-repo-path
+- [x] Lock activo: `.agent-session.lock`
+- [x] Sesión cerrada correctamente

@@ -1,23 +1,88 @@
 #!/usr/bin/env bash
 
 # audit-repo.sh - Audita y adapta repositorios con vida previa al estándar de Agent OS
-# Uso: bash scripts/agent/audit-repo.sh [--apply]
+# Uso: bash scripts/agent/audit-repo.sh [--path <dir>] [--apply]
+#
+# Contrato CLI (homologado con audit-child.sh y setup-profiles.sh):
+#   --path <dir>   Ruta al repositorio a auditar (por defecto: directorio actual).
+#   --apply        Aplica las adaptaciones propuestas. Acepta cualquier posición.
+#   -h, --help     Muestra la ayuda. Acepta cualquier posición.
+#
+# --path y --apply pueden combinarse y enunciarse en cualquier orden:
+#   audit-repo.sh --apply --path <dir>
+#   audit-repo.sh --path <dir> --apply
+# Un argumento posicional suelto se interpreta como --path <dir>.
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# SCRIPT_DIR debe resolverse de forma ABSOLUTA antes de cualquier cd: las rutas relativas
+# a BASH_SOURCE dejan de resolver en cuanto el script cambia de directorio (p. ej. con --path).
+SCRIPT_SRC="${BASH_SOURCE[0]}"
+case "$SCRIPT_SRC" in
+    /*) ;;
+    *) SCRIPT_SRC="$PWD/$SCRIPT_SRC" ;;
+esac
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SRC")" && pwd)"
 source "$SCRIPT_DIR/lib/cli-help.sh"
-for arg in "$@"; do
-  if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
-    show_help "audit-repo.sh" \
-      "bash scripts/agent/audit-repo.sh [--apply]" \
-      "Audita y adapta repositorios con vida previa para alinearlos con el estándar de Agent OS." \
-      "--apply                  Aplica automáticamente las adaptaciones y correcciones propuestas" \
-      "-h, --help               Muestra este mensaje de ayuda" \
-      "ejemplo: bash scripts/agent/audit-repo.sh" \
-      "ejemplo: bash scripts/agent/audit-repo.sh --apply"
-  fi
+
+TARGET_DIR=""
+EXPLICIT_PATH=false
+APPLY_MODE=false
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --apply)
+            APPLY_MODE=true
+            shift
+            ;;
+        --path)
+            if [ -n "${2:-}" ]; then
+                TARGET_DIR="$2"
+                EXPLICIT_PATH=true
+                shift 2
+            else
+                echo "❌ Error: La opción --path requiere una ruta como argumento." >&2
+                exit 1
+            fi
+            ;;
+        --path=*)
+            TARGET_DIR="${1#*=}"
+            EXPLICIT_PATH=true
+            shift
+            ;;
+        -h|--help)
+            show_help "audit-repo.sh" \
+                "bash scripts/agent/audit-repo.sh [--path <dir>] [--apply]" \
+                "Audita y adapta repositorios con vida previa para alinearlos con el estándar de Agent OS." \
+                "--path <dir>            Ruta al repositorio a auditar (por defecto: directorio actual)" \
+                "--apply                 Aplica automáticamente las adaptaciones y correcciones propuestas (admite cualquier posición)" \
+                "-h, --help              Muestra este mensaje de ayuda (admite cualquier posición)" \
+                "ejemplo: bash scripts/agent/audit-repo.sh" \
+                "ejemplo: bash scripts/agent/audit-repo.sh --path /ruta/al/satelite" \
+                "ejemplo: bash scripts/agent/audit-repo.sh --path /ruta/al/satelite --apply"
+            ;;
+        --*)
+            echo "❌ Error: Opción desconocida: $1" >&2
+            echo "💡 Guía: ejecuta 'bash scripts/agent/audit-repo.sh --help' para ver las opciones válidas." >&2
+            exit 1
+            ;;
+        *)
+            if [ -z "$TARGET_DIR" ]; then
+                TARGET_DIR="$1"
+                EXPLICIT_PATH=true
+            fi
+            shift
+            ;;
+    esac
 done
 
-PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ -n "$TARGET_DIR" ]; then
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "❌ ERROR: El directorio destino no existe: $TARGET_DIR" >&2
+        exit 1
+    fi
+    PROJECT_ROOT="$(cd "$TARGET_DIR" 2>/dev/null && pwd -P || echo "$TARGET_DIR")"
+else
+    PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+fi
 cd "$PROJECT_ROOT"
 AUDIT_FILE="docs/agent-os-audit.md"
 
@@ -27,7 +92,7 @@ mkdir -p "docs"
 # ==========================================
 # MODO APLICACIÓN
 # ==========================================
-if [ "$1" == "--apply" ]; then
+if [ "$APPLY_MODE" == true ]; then
     ONBOARDING_MARK_FILE=".agents/context/onboarding-complete.md"
     if [ -f "$ONBOARDING_MARK_FILE" ]; then
         echo "✅ INFO: El proceso de onboarding y adaptación ya fue completado previamente en este repositorio."
@@ -37,7 +102,13 @@ if [ "$1" == "--apply" ]; then
     fi
 
     echo "⚙️ Iniciando modo aplicación en $PROJECT_ROOT..."
-    
+
+    # Salvaguarda: el modo --apply opera sobre un repositorio git
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "❌ ABORTADO: $PROJECT_ROOT no es un repositorio git. El modo --apply requiere git."
+        exit 1
+    fi
+
     # Salvaguarda: verificar que el working tree está limpio
     if ! git diff --quiet || ! git diff --cached --quiet; then
         echo "❌ ABORTADO: Hay cambios sin commitear. Haz commit o stash antes de ejecutar --apply."
@@ -341,7 +412,6 @@ fi
 # ==========================================
 echo "🔍 Iniciando auditoría de estructura en $PROJECT_ROOT..."
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/date-utils.sh" ]; then
     source "$SCRIPT_DIR/lib/date-utils.sh"
 fi
@@ -517,7 +587,6 @@ fi
 
 # 4. Validar estructura del MVP Tracker usando find_tracker
 tracker_file=""
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/find-tracker.sh" ]; then
     source "$SCRIPT_DIR/lib/find-tracker.sh"
     tracker_file=$(find_tracker "$PROJECT_ROOT")
