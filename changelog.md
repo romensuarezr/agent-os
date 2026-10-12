@@ -15,6 +15,7 @@ Historial de cambios y releases del núcleo de Agent OS.
 
 - **T-098**: `scripts/agent/check-inference-gateway.sh`, pre-flight determinista y agnóstico de stack para cualquier pasarela OpenAI-compatible (FreeLLMAPI, OmniRoute, LiteLLM, vLLM, Ollama). Clasifica el estado en `OK`/`AUTH_FAIL`/`UPSTREAM_DOWN`/`UNREACHABLE`, ejecuta un probe mínimo opcional que revela el modelo realmente servido, nunca imprime la credencial, enmascara el host y expone digest `--json` para orquestadores, con códigos de salida canónicos para scripting.
 - **T-098**: `docs/runbooks/local-agent-inference-runbook.md` documenta, sobre evidencia verificada con peticiones reales, el montaje de agentes locales (Hermes/OpenCode) contra pasarelas OpenAI-compatible en malla Tailscale con coste cero: taxonomía de fallos (502 por `tailscale serve` apuntando a `127.0.0.1` mientras el contenedor solo publica en la IP de Tailscale, 401 por credencial cruzada entre gateways, 503 por reintentos del combo `auto/*`, 402 por modelos que exigen clave de OpenCode), resolución de `<GATEWAY_HOST>` por MagicDNS sin literales de infraestructura versionados, y la trampa de `max_tokens` que produce falsos negativos de contenido vacío.
+- **T-099**: Sincronización remota desde GitHub mediante flag `--remote` en `scripts/agent/sync.sh` con aprovisionamiento efímero en `/tmp`, soporte para `--branch` y `--tag`, limpieza determinista mediante `trap` y paridad en `scripts/agent/check-session.sh` para actualizar satélites autónomos sin requerir un clon local del core en disco.
 
 ### 🐛 Bug Fixes & Refactor
 

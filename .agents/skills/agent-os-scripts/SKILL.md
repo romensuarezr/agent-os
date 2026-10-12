@@ -23,19 +23,37 @@ Se utiliza para **inicializar Agent OS** en un proyecto nuevo.
   3. Copia las reglas globales, workflows, habilidades y templates sin sobreescribir los archivos locales preexistentes (usa `-n` / `-rn`).
 
 ### 2. `sync.sh`
-Sincroniza y propaga las reglas globales y los scripts del agente desde `agent-os` hacia el proyecto destino.
-- **Cuándo usar**: Cuando se actualizan reglas globales en `agent-os` y se desea propagar el cambio a los proyectos de destino, o tras promover una regla.
-- **Cómo usar**:
-  ```bash
-  ./scripts/agent/sync.sh /ruta/al/proyecto-destino
-  ```
+Sincroniza y propaga las reglas globales, scripts y habilidades desde el núcleo de Agent OS hacia el proyecto destino.
+
+- **Cuándo usar**: Cuando se actualizan reglas o scripts globales en el core y se desea propagar el cambio a los satélites, o tras promover una mejora con `contribute.sh`.
+- **Modos de ejecución**:
+  1. **Modo Local (por defecto)**:
+     Sincroniza desde el directorio del core en disco hacia el satélite:
+     ```bash
+     bash scripts/agent/sync.sh /ruta/al/proyecto-destino
+     ```
+  2. **Modo Remoto (`--remote`)**:
+     Sincroniza directamente desde GitHub sin requerir tener el repositorio del core clonado en la máquina (ideal para agentes trabajando en satélites autónomos):
+     ```bash
+     # Sincronizar el satélite actual desde origin/main de GitHub:
+     bash scripts/agent/sync.sh --remote
+     
+     # Sincronizar un tag o rama específica:
+     bash scripts/agent/sync.sh --remote --tag=v1.12.0
+     ```
+     *(Descarga efímeramente el núcleo en `/tmp` con limpieza determinista mediante `trap` al finalizar).*
+
+- **Opciones útiles**:
+  - `--dry-run`: Simula la sincronización y lista diferencias sin escribir en disco.
+  - `--force`: Sobrescribe archivos gestionados sin confirmación interactiva (recomendado para agentes).
+  - `--commit`: Crea un commit local atómico en el satélite conteniendo **únicamente** los archivos gestionados por Agent OS.
 
 > [!WARNING]
-> **ADVERTENCIA DE PODER DESTRUCTIVO**
-> El script `sync.sh` **sobrescribe de forma agresiva y por completo** las reglas globales y scripts del agente en el proyecto destino con las versiones globales del repositorio `agent-os`. Cualquier cambio local hecho manualmente a estos archivos en el proyecto de destino se perderá de forma permanente.
+> **PRESERVACIÓN Y SEGURIDAD**
+> Por defecto, `sync.sh` preserva archivos modificados localmente (`diferir`) a menos que se use `--force`.
 > **Medidas de mitigación**:
-> - Revisa siempre `git diff` en el proyecto destino tras sincronizar.
-> - Si hiciste una mejora en una regla en un proyecto de destino y quieres conservarla globalmente, utiliza `contribute.sh` **antes** de hacer un `sync.sh`.
+> - Revisa siempre `git diff` en el proyecto destino tras sincronizar o ejecuta con `--dry-run` primero.
+> - Si hiciste una mejora en una regla o script en un satélite y quieres conservarla globalmente, utiliza `contribute.sh` **antes** de sincronizar con `--force`.
 
 ### 3. `contribute.sh`
 Promoción inversa. Envía una regla, workflow o skill desarrollada localmente en un proyecto de destino de vuelta al repositorio central `agent-os`.

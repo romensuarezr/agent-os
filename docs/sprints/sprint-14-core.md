@@ -25,6 +25,7 @@
 | T-096 | Guidance operativo del working tree post-instalación en `install.sh` | DX / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-096.md](.agents/tasks/task-096.md) |
 | T-097 | Remediación inmediata y desbloqueo de Hermes en <nodo-inferencia> y <nodo-orquestacion> | Bug del sistema / Infra | M | ✅ Completada | — | [.agents/tasks/_archived/task-097.md](.agents/tasks/_archived/task-097.md) |
 | T-098 | Pre-flight determinista de pasarelas de inferencia y formalización de la remediación de inferencia local | DX / Bug del sistema | S | ✅ Completada | T-097 | [.agents/tasks/_archived/task-098.md](.agents/tasks/_archived/task-098.md) |
+| T-099 | Sincronización remota desde GitHub (`--remote`) en `sync.sh` y paridad en `check-session.sh` | Universalización / DX | M | ✅ Completada | — | [.agents/tasks/_archived/task-099.md](.agents/tasks/_archived/task-099.md) |
 
 ---
 

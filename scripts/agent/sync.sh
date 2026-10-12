@@ -13,34 +13,60 @@ CLEANUP=false
 FORCE=false
 DRY_RUN=false
 COMMIT=false
+REMOTE=false
+REMOTE_REF="${AGENT_OS_REF:-main}"
+CORE_REPO_URL="${AGENT_OS_CORE_URL:-https://github.com/romensuarezr/agent-os.git}"
 
-for arg in "$@"; do
-    case "$arg" in
+while [[ $# -gt 0 ]]; do
+    case "$1" in
         --cleanup)
             CLEANUP=true
+            shift
             ;;
         --force)
             FORCE=true
+            shift
             ;;
         --dry-run)
             DRY_RUN=true
+            shift
             ;;
         --commit)
             COMMIT=true
+            shift
+            ;;
+        --remote)
+            REMOTE=true
+            shift
+            ;;
+        --branch=*|--ref=*|--tag=*)
+            REMOTE_REF="${1#*=}"
+            REMOTE=true
+            shift
+            ;;
+        --branch|--ref|--tag)
+            REMOTE_REF="$2"
+            REMOTE=true
+            shift 2
             ;;
         -h|--help)
-            echo "Uso: sync.sh [opciones] /ruta/al/proyecto"
+            echo "Uso: sync.sh [opciones] [/ruta/al/proyecto]"
             echo "Opciones:"
-            echo "  --dry-run   Simula la sincronización y detecta diferencias sin escribir en disco."
-            echo "  --force     Sobrescribe personalizaciones locales sin pedir confirmación."
-            echo "  --cleanup   Elimina archivos deprecados marcados en assets-manifest.txt."
-            echo "  --commit    Crea un commit local atómico en el satélite con los archivos modificados."
+            echo "  --remote        Sincroniza remotamente descargando efímeramente el core desde GitHub."
+            echo "  --branch=B      Rama remota a sincronizar con --remote (por defecto: main)."
+            echo "  --tag=T         Tag remoto a sincronizar con --remote."
+            echo "  --dry-run       Simula la sincronización y detecta diferencias sin escribir en disco."
+            echo "  --force         Sobrescribe personalizaciones locales sin pedir confirmación."
+            echo "  --cleanup       Elimina archivos deprecados marcados en assets-manifest.txt."
+            echo "  --commit        Crea un commit local atómico en el satélite con los archivos modificados."
+            echo "  -h, --help      Muestra esta ayuda."
             exit 0
             ;;
         *)
             if [ -z "$TARGET_PROJECT" ]; then
-                TARGET_PROJECT="$arg"
+                TARGET_PROJECT="$1"
             fi
+            shift
             ;;
     esac
 done
@@ -80,9 +106,13 @@ if [ "$PREFLIGHT_FAIL" = true ]; then
 fi
 
 if [ -z "$TARGET_PROJECT" ]; then
-    echo "❌ ERROR: Debes proporcionar la ruta al proyecto destino." >&2
-    echo "💡 Guía: bash scripts/agent/sync.sh /ruta/al/proyecto" >&2
-    exit 1
+    if [ -d ".agents" ]; then
+        TARGET_PROJECT="."
+    else
+        echo "❌ ERROR: Debes proporcionar la ruta al proyecto destino." >&2
+        echo "💡 Guía: bash scripts/agent/sync.sh [opciones] /ruta/al/proyecto" >&2
+        exit 1
+    fi
 fi
 
 if [ ! -d "$TARGET_PROJECT" ]; then
@@ -102,10 +132,53 @@ source "$SCRIPT_DIR/lib/portable-timeout.sh"
 DEFAULT_CORE="$(cd "$SCRIPT_DIR/../.." && pwd)"
 AGENT_OS_PATH="${AGENT_OS_PATH:-$DEFAULT_CORE}"
 
-# Validar que no se intente sincronizar el core sobre sí mismo
 REAL_AGENT_OS=$(realpath "$AGENT_OS_PATH" 2>/dev/null || echo "$AGENT_OS_PATH")
 REAL_TARGET=$(realpath "$TARGET_PROJECT" 2>/dev/null || echo "$TARGET_PROJECT")
 
+TEMP_CORE_DIR=""
+
+# Si se solicitó --remote, o si AGENT_OS_PATH y TARGET_PROJECT apuntan al mismo directorio (satélite autónomo)
+if [ "$REMOTE" = true ] || [ "$REAL_AGENT_OS" = "$REAL_TARGET" ]; then
+    if [ "$REAL_AGENT_OS" = "$REAL_TARGET" ] && [ "$REMOTE" = false ]; then
+        echo "ℹ️  Detectado satélite autónomo (sin clon local del core). Activando sincronización remota desde GitHub..."
+        REMOTE=true
+    fi
+
+    echo "📥 Aprovisionando efímeramente el núcleo Agent OS ($REMOTE_REF) desde $CORE_REPO_URL..."
+    TEMP_CORE_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'agent-os-core')
+    trap 'rm -rf "$TEMP_CORE_DIR"' EXIT INT TERM
+
+    DOWNLOAD_OK=false
+    if command -v git >/dev/null 2>&1; then
+        if git clone --depth 1 --branch "$REMOTE_REF" "$CORE_REPO_URL" "$TEMP_CORE_DIR" >/dev/null 2>&1; then
+            DOWNLOAD_OK=true
+        fi
+    fi
+
+    if [ "$DOWNLOAD_OK" = false ] && command -v curl >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
+        TARBALL_URL="https://github.com/romensuarezr/agent-os/archive/refs/heads/${REMOTE_REF}.tar.gz"
+        if curl -fsSL --max-time 20 "$TARBALL_URL" 2>/dev/null | tar -xz -C "$TEMP_CORE_DIR" --strip-components=1 2>/dev/null; then
+            DOWNLOAD_OK=true
+        else
+            TARBALL_URL="https://github.com/romensuarezr/agent-os/archive/refs/tags/${REMOTE_REF}.tar.gz"
+            if curl -fsSL --max-time 20 "$TARBALL_URL" 2>/dev/null | tar -xz -C "$TEMP_CORE_DIR" --strip-components=1 2>/dev/null; then
+                DOWNLOAD_OK=true
+            fi
+        fi
+    fi
+
+    if [ "$DOWNLOAD_OK" = true ] && [ -f "$TEMP_CORE_DIR/AGENTS.md" ]; then
+        AGENT_OS_PATH="$TEMP_CORE_DIR"
+        REAL_AGENT_OS=$(realpath "$AGENT_OS_PATH" 2>/dev/null || echo "$AGENT_OS_PATH")
+        echo "✅ Núcleo Agent OS ($REMOTE_REF) aprovisionado temporalmente para la sincronización."
+    else
+        echo "❌ ERROR: No se pudieron obtener los assets del núcleo de Agent OS para el ref '$REMOTE_REF' desde $CORE_REPO_URL." >&2
+        echo "💡 Guía: Verifica tu conexión a internet o especifica un directorio local válido mediante AGENT_OS_PATH." >&2
+        exit 1
+    fi
+fi
+
+# Validar que no se intente sincronizar el core sobre sí mismo
 if [ "$REAL_AGENT_OS" = "$REAL_TARGET" ]; then
     echo "❌ ERROR: AGENT_OS_PATH y TARGET_PROJECT apuntan al mismo directorio." >&2
     echo "Guía: sync.sh sincroniza el core hacia proyectos hijos, nunca sobre sí mismo." >&2
@@ -159,8 +232,13 @@ else
     echo "🔄 Sincronizando Agent OS con $TARGET_PROJECT..."
 fi
 
-# Comprobar actualizaciones de Agent OS Core remoto
-if [ -d "$AGENT_OS_PATH/.git" ]; then
+if [ "$CORE_SHA" = "unknown" ] && [ -n "$TEMP_CORE_DIR" ]; then
+    CORE_SHA=$(portable_timeout 3 git ls-remote "$CORE_REPO_URL" "refs/heads/$REMOTE_REF" 2>/dev/null | awk '{print $1}' || echo "")
+    [ -z "$CORE_SHA" ] && CORE_SHA="remote-${REMOTE_REF}"
+fi
+
+# Comprobar actualizaciones de Agent OS Core remoto (solo en modo local)
+if [ "$REMOTE" = false ] && [ -d "$AGENT_OS_PATH/.git" ]; then
     AGENT_OS_LOCAL=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || true)
     AGENT_OS_REMOTE=$(portable_timeout 3 git -C "$AGENT_OS_PATH" ls-remote origin HEAD 2>/dev/null | cut -f1 || true)
     if [[ -n "$AGENT_OS_REMOTE" && -n "$AGENT_OS_LOCAL" && "$AGENT_OS_LOCAL" != "$AGENT_OS_REMOTE" ]]; then

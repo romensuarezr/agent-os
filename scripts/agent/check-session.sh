@@ -159,7 +159,11 @@ if [ "$is_core" = "false" ]; then
     
     if [ "$response" = "sync" ] && [ -f "scripts/agent/sync.sh" ]; then
       echo "Ejecutando sincronización..."
-      bash scripts/agent/sync.sh .
+      if [ -n "$AGENT_OS_CORE_DIR" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
+        bash scripts/agent/sync.sh .
+      else
+        bash scripts/agent/sync.sh --remote .
+      fi
     else
       # Registrar skipped en last-sync.md
       mkdir -p "$(dirname "$LAST_SYNC_FILE")"
