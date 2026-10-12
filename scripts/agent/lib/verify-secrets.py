@@ -11,6 +11,7 @@ import json
 import argparse
 import subprocess
 import collections
+import hashlib
 import urllib.parse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -285,6 +286,7 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
         "revoked": [],
         "duplicated_same_value": [],
         "shadowing_conflicts": [],
+        "legitimate_per_project": [],
         "errors": [],
     }
 
@@ -336,18 +338,50 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
             else:
                 result["untested_count"] += 1
 
-    # Mismo nombre, mismo valor -> duplicado inocuo.
-    # Mismo nombre, VALOR DISTINTO -> la revocacion de una copia deja vivas las otras.
+    # Evidencia de uso: hash de cada valor frente a los .env reales de la flota.
+    # IMPORTANTE: mismo nombre con valores distintos NO es por si solo un conflicto.
+    # DATABASE_URL o TELEGRAM_CHAT_ID son configuracion POR PROYECTO que comparten
+    # nombre a proposito; forzar un unico valor romperia servicios en marcha.
+    usage = collections.defaultdict(set)
+    for root in ("$HOME/orca/workspaces", "$LOCAL_PROJECTS"):
+        rp = Path(root)
+        if not rp.exists():
+            continue
+        for dotenv in rp.rglob(".env*"):
+            try:
+                txt = dotenv.read_text(errors="ignore")
+            except Exception:
+                continue
+            for line in txt.splitlines():
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    k, _, val = line.partition("=")
+                    usage[k.strip()].add(
+                        hashlib.sha256(val.strip().strip("\"'").encode()).hexdigest()[:8])
+
     for key, places in seen.items():
         if len(places) < 2:
             continue
         values = {v for _, v in places}
-        folders = [f for f, _ in places]
+        folders = sorted(f for f, _ in places)
         if len(values) == 1:
             result["duplicated_same_value"].append({"key": key, "folders": folders})
+            continue
+        hashed = {f: hashlib.sha256(v.encode()).hexdigest()[:8] for f, v in places}
+        in_use = [f for f, h in hashed.items() if h in usage.get(key, set())]
+        without = [f for f, h in hashed.items() if h not in usage.get(key, set())]
+        if len(in_use) == len(hashed):
+            verdict = "LEGITIMO_CONFIG_POR_PROYECTO"
+        elif not in_use:
+            verdict = "SIN_EVIDENCIA_DE_USO"
         else:
-            result["shadowing_conflicts"].append(
-                {"key": key, "folders": folders, "distinct_values": len(values)})
+            verdict = "REVISAR"
+        entry = {"key": key, "folders": folders, "distinct_values": len(values),
+                 "verdict": verdict, "in_use": in_use, "without_usage_evidence": without}
+        if verdict == "LEGITIMO_CONFIG_POR_PROYECTO":
+            result["legitimate_per_project"].append(entry)
+        else:
+            result["shadowing_conflicts"].append(entry)
 
     return result
 
@@ -389,9 +423,12 @@ def main():
         print(f"❌ Revocadas / caducadas: {results['revoked_secrets_count']}")
         print(f"➖ Sin comprobable: {results['untested_count']}")
         print(f"🔁 Duplicadas con idéntico valor: {len(results['duplicated_same_value'])}")
-        print(f"⚠️  CONFLICTO (mismo nombre, valores distintos): {len(results['shadowing_conflicts'])}")
+        print(f"✅ Config por proyecto que comparte nombre (NO es conflicto): "
+              f"{len(results['legitimate_per_project'])}")
+        print(f"⚠️  Conflictos reales a revisar: {len(results['shadowing_conflicts'])}")
         for c in results["shadowing_conflicts"]:
-            print(f"    {c['key']}  ({c['distinct_values']} valores distintos en {len(c['folders'])} carpetas)")
+            print(f"    {c['key']}  ({c['distinct_values']} valores en {len(c['folders'])} carpetas)"
+                  f"  sin evidencia de uso: {', '.join('/' + f for f in c['without_usage_evidence'])}")
         if results["revoked"]:
             print("-" * 65)
             print("   Claves revocadas que hay que rotar:")
