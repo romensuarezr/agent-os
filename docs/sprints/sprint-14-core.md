@@ -24,6 +24,7 @@
 | T-095 | Sección de secretos (Infisical) en plantilla de onboarding del satélite | Gobernanza / Seguridad | S | ⬜ Pendiente | — | [.agents/tasks/task-095.md](.agents/tasks/task-095.md) |
 | T-096 | Guidance operativo del working tree post-instalación en `install.sh` | DX / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-096.md](.agents/tasks/task-096.md) |
 | T-097 | Remediación inmediata y desbloqueo de Hermes en <nodo-inferencia> y <nodo-orquestacion> | Bug del sistema / Infra | M | ✅ Completada | — | [.agents/tasks/task-097.md](.agents/tasks/task-097.md) |
+| T-098 | Pre-flight determinista de pasarelas de inferencia y formalización de la remediación de inferencia local | DX / Bug del sistema | S | ✅ Completada | T-097 | [.agents/tasks/task-098.md](.agents/tasks/task-098.md) |
 
 ---
 
@@ -41,14 +42,18 @@
    - `audit-repo.sh` debe aceptar sinónimos canónicos (`## En curso`/`## En progreso`, `## Completado`/`## Completado recientemente`, `## Próximo`/`## Backlog`) sin advertencias espurias sobre plantillas estándar.
    - `--path` en `audit-repo.sh` debe ser idempotente y coherente con `audit-child.sh` y `setup-profiles.sh`.
 4. **Validación Continua**:
-   - Toda tarea debe superar `tests/validate-control-plane.sh` (12/12) y mantener working tree limpio.
+   - Toda tarea debe superar `tests/validate-control-plane.sh` (13/13 desde T-098) y mantener working tree limpio.
+5. **Lección incorporada en T-098** (evidencia en vivo sobre el research §4):
+   - El fallo de inferencia en local **no** provenía de un túnel efímero de Cloudflare, sino de que `tailscale serve` proxyaba a `127.0.0.1:20128` mientras el contenedor publicaba el puerto solo en la IP de Tailscale. El requisito de bind del research se cumplía; lo que faltaba era alinear el destino del proxy inverso con el bind real.
+   - Cada pasarela tiene **credencial propia**: la `api_key` de OmniRoute devuelve 401 contra FreeLLMAPI, cuya clave es `settings.unified_api_key` en su SQLite.
+   - Un `content` vacío con `max_tokens` bajo no implica gateway roto: los modelos con razonamiento consumen el presupuesto en `reasoning_content`. Los sondeos usan ≥256 tokens.
 
 ---
 
 ## Criterios de Cierre del Sprint
 
-- [ ] Las 6 tareas (T-091 a T-096) completadas con task files individuales en `.agents/tasks/`.
-- [ ] `tests/validate-control-plane.sh` 12/12 sin regresiones.
+- [ ] Las tareas del sprint completadas con task files individuales en `.agents/tasks/`.
+- [ ] `tests/validate-control-plane.sh` 13/13 sin regresiones.
 - [ ] Regla de automejora y workflow de cierre de sesión probados y documentados.
 - [ ] Script determinista de inspección de skills operativo en modo estático (0 tokens).
 - [ ] Plantilla de onboarding de satélites con sección de secretos (Infisical).
