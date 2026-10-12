@@ -9,6 +9,18 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [Unreleased]
+
+### ✨ Features & Universalización
+
+- **Runbook de inferencia local**: `docs/runbooks/local-agent-inference-runbook.md` documenta, sobre evidencia verificada con peticiones reales, el montaje de agentes locales (Hermes/OpenCode) contra pasarelas OpenAI-compatible en malla Tailscale con coste cero: taxonomía de fallos (502 por `tailscale serve` apuntando a `127.0.0.1`, 401 por credencial cruzada entre gateways, 503 por reintentos del combo `auto/*`, 402 por modelos que exigen clave de OpenCode), resolución de `<GATEWAY_HOST>` por MagicDNS sin literales de infraestructura versionados, y la trampa de `max_tokens` que produce falsos negativos de contenido vacío.
+- **`scripts/agent/check-inference-gateway.sh`**: pre-flight determinista y agnóstico de stack para cualquier pasarela OpenAI-compatible (FreeLLMAPI, OmniRoute, LiteLLM, vLLM, Ollama). Clasifica el estado en `OK`/`AUTH_FAIL`/`UPSTREAM_DOWN`/`UNREACHABLE`, ejecuta un probe mínimo opcional que revela el modelo realmente servido, nunca imprime la credencial, enmascara el host y expone digest `--json` para orquestadores. Códigos de salida canónicos para scripting.
+
+### 🐛 Bug Fixes & Refactor
+
+- **Endurecimiento de habilidad `infisical-secrets`**: Runbook y guía actualizados con patrón obligatorio de 2 pasos (`infisical login` con Machine Identity -> token efímero), resolución de secretos en subcarpetas por proyecto (`--path="/<proyecto>"`), flag `--type=shared` para eliminación de variables y especificación exacta del endpoint REST `POST /v1/auth/universal-auth/login` (evitando alucinaciones de ruta/puerto).
+- **Suite de control plane ampliada a 13/13** con cobertura del nuevo script: ayuda sin conectividad, validación de invocación sin `--url` (código 64) y clasificación JSON de gateway inaccesible sin filtrado de secretos.
+
 ## [1.12.0] — sprint-13 — 2026-09-30
 
 ### ✨ Features & Universalización

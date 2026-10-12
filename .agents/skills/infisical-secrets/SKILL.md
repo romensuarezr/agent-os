@@ -48,24 +48,47 @@ Para la interacción automatizada de agentes de IA, CLI local y scripts desatend
    - **Client Secret**: Secreto de un solo visionado.
 8. Obtener el **Project ID** desde la URL o la pestaña de configuración del proyecto (`Project Settings` → `General`).
 
-### 2. Autenticación Universal Auth con el CLI
+### 2. Autenticación Universal Auth con el CLI (Machine Identity)
 
-Para ejecuciones desatendidas de agentes o runners, se canjean las credenciales de la Machine Identity (`INFISICAL_CLIENT_ID` e `INFISICAL_CLIENT_SECRET`) por un token efímero de acceso (válido por 30 días / 2,592,000s):
+Para ejecuciones desatendidas de agentes o runners, **NUNCA** se usa login interactivo de navegador. El flujo es estrictamente en 2 pasos: primero se canjea el token con `infisical login` y luego se consume con `infisical run` o `infisical export`:
+
+> ⚠️ **TRAMPA COMÚN**: `infisical run` **NO** tiene el flag `--method=universal-auth` (ese flag es de `infisical login`). Si ejecutas `infisical run` sin definir `INFISICAL_TOKEN` o `--token`, la CLI intentará abrir un navegador solicitando login de usuario.
 
 ```bash
-# 1. Variables de Machine Identity en el host o runner (~/.bashrc o entorno)
-export INFISICAL_API_URL="${INFISICAL_API_URL:-http://localhost:8080/api}"
-export INFISICAL_CLIENT_ID="<tu-client-id>"
-export INFISICAL_CLIENT_SECRET="<tu-client-secret>"
-export INFISICAL_PROJECT_ID="<tu-project-id>"
-
-# 2. Canje del token Universal Auth en memoria (sin interacción humana)
+# PASO 1: Canjear el token Universal Auth en memoria (sin interacción humana)
 export INFISICAL_TOKEN=$(infisical login \
   --domain="${INFISICAL_API_URL}" \
   --method=universal-auth \
   --client-id="${INFISICAL_CLIENT_ID}" \
   --client-secret="${INFISICAL_CLIENT_SECRET}" \
-  --plain)
+  --plain 2>/dev/null | tail -n 1)
+
+# PASO 2: Ejecutar subproceso con los secretos inyectados en memoria
+infisical run \
+  --token="$INFISICAL_TOKEN" \
+  --domain="${INFISICAL_API_URL}" \
+  --projectId="${INFISICAL_PROJECT_ID}" \
+  --env=dev \
+  --path="/<nombre-del-proyecto>" \
+  -- <comando_a_ejecutar>
+```
+
+---
+
+## 📁 Organización por Carpetas de Proyectos (`--path`)
+
+En la flota de **Agent OS**, todos los proyectos comparten un workspace central en Infisical (`Agent OS`), organizados en carpetas jerárquicas:
+- `/romensuarez-web`
+- `/kanarii`
+- `/polymarket`
+- etc.
+
+> ⚠️ **TRAMPA COMÚN**: Por defecto, la CLI consulta la raíz (`/`), donde hay **0 secretos**. Si estás trabajando en un proyecto específico, **SIEMPRE debes incluir `--path="/<nombre-del-proyecto>"`** al consultar, exportar o inyectar secretos.
+
+Para descubrir qué carpetas existen en el proyecto:
+```bash
+curl -s -X GET "$INFISICAL_API_URL/v1/folders?workspaceId=$INFISICAL_PROJECT_ID&environment=dev" \
+  -H "Authorization: Bearer $INFISICAL_TOKEN" | jq -r '.folders[].name'
 ```
 
 ---
@@ -76,19 +99,54 @@ El CLI de Infisical está disponible en el entorno local (bien como binario nati
 
 ### 1. Inyección de Secretos en Memoria (`infisical run`)
 
-Este es el comando primordial para agentes. Ejecuta el proceso hijo inyectando los secretos descifrados en su memoria (`process.env`) sin escribir ningún archivo en el disco:
+Ejecuta el subproceso inyectando las variables descifradas directamente en `process.env` sin tocar disco:
 
 ```bash
-# Inyección usando INFISICAL_TOKEN y apuntando al proyecto activo
+# Ejemplo en romensuarez-web:
 infisical run \
+  --token="$INFISICAL_TOKEN" \
   --domain="${INFISICAL_API_URL}" \
-  --env=prod \
   --projectId="${INFISICAL_PROJECT_ID}" \
-  -- <comando_a_ejecutar>
-
-# Ejemplo con OpenCode o tests
-infisical run --env=dev --projectId="${INFISICAL_PROJECT_ID}" -- npm test
+  --env=dev \
+  --path="/romensuarez-web" \
+  -- npm run dev
 ```
+
+### 2. Exportación Directa a la Sesión Shell (`infisical export`)
+
+Si necesitas tener las variables disponibles en el entorno bash actual (por ejemplo para scripts de despliegue):
+
+```bash
+eval $(infisical export \
+  --token="$INFISICAL_TOKEN" \
+  --domain="${INFISICAL_API_URL}" \
+  --projectId="${INFISICAL_PROJECT_ID}" \
+  --env=dev \
+  --path="/romensuarez-web" \
+  --format=dotenv-export)
+```
+
+### 3. Autenticación Alternativa vía API REST Directa (curl / Python)
+
+Si por alguna razón la CLI no estuviera instalada, la API REST oficial de Universal Auth se consume exactamente así:
+
+- **Endpoint**: `POST ${INFISICAL_API_URL}/v1/auth/universal-auth/login`
+- **Body JSON**: `{"clientId": "$INFISICAL_CLIENT_ID", "clientSecret": "$INFISICAL_CLIENT_SECRET"}` (*en camelCase*)
+
+```bash
+# Obtención del access token vía curl
+RESP=$(curl -s -X POST "$INFISICAL_API_URL/v1/auth/universal-auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"clientId\":\"$INFISICAL_CLIENT_ID\",\"clientSecret\":\"$INFISICAL_CLIENT_SECRET\"}")
+
+export INFISICAL_TOKEN=$(echo "$RESP" | jq -r '.accessToken')
+```
+
+> ⚠️ **NO ALUCINAR CON LA RED**:
+> - `INFISICAL_API_URL` ya termina en `/api` (ej. `http://<host>/api`).
+> - La ruta exacta es `/v1/auth/universal-auth/login`. No inventes `/v3/...` ni omitas `/login`.
+> - Las claves del JSON son `clientId` y `clientSecret` (camelCase), no `client_id` (snake_case).
+> - La instancia corre detrás del proxy inverso de Coolify. **NUNCA** intentes conectar a puertos internos como `:8080`.
 
 ### 2. Inicialización en un Proyecto Hijo (`infisical init`)
 
@@ -100,7 +158,7 @@ infisical init --domain="${INFISICAL_API_URL}"
 ```
 Esto genera un archivo `.infisical.json` que contiene únicamente el `projectId` y la configuración de workspace (sin ningún secreto ni token sensible).
 
-### 3. Consulta de Secretos sin Exposición
+### 3. Consulta, Creación y Borrado de Secretos
 
 ```bash
 # Listar claves de secretos disponibles (sin mostrar valores)
@@ -108,6 +166,19 @@ infisical secrets \
   --domain="${INFISICAL_API_URL}" \
   --projectId="${INFISICAL_PROJECT_ID}" \
   --env=prod
+
+# Crear o actualizar un secreto
+infisical secrets set CLAVE="valor" \
+  --domain="${INFISICAL_API_URL}" \
+  --projectId="${INFISICAL_PROJECT_ID}" \
+  --env=dev
+
+# Eliminar un secreto (IMPORTANTE: requiere --type=shared al usar Machine Identity)
+infisical secrets delete CLAVE \
+  --type=shared \
+  --domain="${INFISICAL_API_URL}" \
+  --projectId="${INFISICAL_PROJECT_ID}" \
+  --env=dev
 ```
 
 ### 4. Volcado Efímero por Pipe (Nunca a archivo rastreado)
