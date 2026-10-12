@@ -29,6 +29,29 @@ Archivos autorizados para modificación:
 - [x] La plantilla de onboarding incluye la sección de secretos con el protocolo de "no adivinar".
 - [x] `bash tests/validate-control-plane.sh` sin regresiones (14/14).
 
+## Resultado del saneamiento (Fase B)
+
+Ejecutado tras la puerta de aprobación, con verificación previa clave por clave:
+
+- **Carpeta `shared` creada** y poblada con las 5 claves transversales migradas desde
+  `/configuraciones`, con integridad verificada por hash. `/configuraciones` se conserva
+  intacta para no romper consumidores; su retirada es una pasada posterior.
+- **`/kanairos_backup` eliminada**: 0 claves exclusivas en toda la bóveda.
+- **`/codigo_descargado` eliminada**: 21 claves exclusivas, de las cuales 4 son
+  credenciales reales (`EVOLUTION_API_SECRET_KEY`, `NGROK_AUTHTOKEN`,
+  `N8N_BASIC_AUTH_PASSWORD`, `SENTRY_API_KEY`) que **no** se migraron: preservar
+  credenciales de código borrado perpetuaría superficie de ataque sin dueño. Su revocación
+  corresponde al operador en la consola de cada proveedor.
+- **Balance**: 13 → 12 carpetas, 236 → 207 claves únicas. Desaparecen 29 claves en total
+  (21 exclusivas + 8 que solo existían en esas dos carpetas simultáneamente), todas
+  presentes en los repositorios locales.
+- **Copia de seguridad**: ambas carpetas exportadas antes de borrar en
+  `~/.local/share/agent-os/secret-backups/2026-10-12-pre-sanitation/` (permisos 600).
+
+**Pendiente para el operador**: revocar `OPENROUTER_API_KEY` (detectada revocada en
+`/Agencia_IA`) y rotar las 3 credenciales de `/kanarii` que quedaron expuestas al ejecutar
+por error un comando de la CLI que imprime valores en claro.
+
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
