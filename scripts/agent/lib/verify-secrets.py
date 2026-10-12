@@ -305,13 +305,14 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
 
     result["folders_scanned"] = len(folders)
     seen = collections.defaultdict(list)  # clave -> [(carpeta, valor)]
+    scopes = collections.defaultdict(set)  # clave -> {"project"|"shared", ...}
 
     for folder in folders:
         try:
             out = subprocess.run(
-                ["infisical", "secrets", "--path", f"/{folder}", "--projectId", pid,
-                 "--env", env_name, "--domain", api, "--output", "json", "--silent"],
-                capture_output=True, text=True, timeout=30).stdout
+                ["infisical", "export", "--path", f"/{folder}", "--env", env_name,
+                 "--projectId", pid, "--domain", api, "--format", "json", "--silent"],
+                capture_output=True, text=True, timeout=45).stdout
             data = json.loads(out)
             items = data if isinstance(data, list) else data.get("secrets", [])
         except Exception as e:
@@ -319,8 +320,12 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
             continue
 
         for item in items:
-            key = item if isinstance(item, str) else item.get("secretKey", "")
-            val = "" if isinstance(item, str) else (item.get("secretValue") or "")
+            key = item.get("key") or item.get("secretKey", "") if isinstance(item, dict) else item
+            val = "" if isinstance(item, str) else (item.get("value") or item.get("secretValue") or "")
+            tg = (item.get("tags") or []) if isinstance(item, dict) else []
+            for t in tg:
+                if str(t).startswith("scope="):
+                    scopes[key].add(str(t).split("=", 1)[1])
             if not key:
                 continue
             result["total_entries"] += 1
@@ -370,7 +375,9 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
         hashed = {f: hashlib.sha256(v.encode()).hexdigest()[:8] for f, v in places}
         in_use = [f for f, h in hashed.items() if h in usage.get(key, set())]
         without = [f for f, h in hashed.items() if h not in usage.get(key, set())]
-        if len(in_use) == len(hashed):
+        if "project" in scopes.get(key, set()):
+            verdict = "INTENCIONAL_SCOPE_PROJECT"
+        elif len(in_use) == len(hashed):
             verdict = "LEGITIMO_CONFIG_POR_PROYECTO"
         elif not in_use:
             verdict = "SIN_EVIDENCIA_DE_USO"
@@ -378,7 +385,7 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
             verdict = "REVISAR"
         entry = {"key": key, "folders": folders, "distinct_values": len(values),
                  "verdict": verdict, "in_use": in_use, "without_usage_evidence": without}
-        if verdict == "LEGITIMO_CONFIG_POR_PROYECTO":
+        if verdict in ("LEGITIMO_CONFIG_POR_PROYECTO", "INTENCIONAL_SCOPE_PROJECT"):
             result["legitimate_per_project"].append(entry)
         else:
             result["shadowing_conflicts"].append(entry)
@@ -423,7 +430,7 @@ def main():
         print(f"❌ Revocadas / caducadas: {results['revoked_secrets_count']}")
         print(f"➖ Sin comprobable: {results['untested_count']}")
         print(f"🔁 Duplicadas con idéntico valor: {len(results['duplicated_same_value'])}")
-        print(f"✅ Config por proyecto que comparte nombre (NO es conflicto): "
+        print(f"✅ No es conflicto (config por proyecto, incl. etiqueta scope=project): "
               f"{len(results['legitimate_per_project'])}")
         print(f"⚠️  Conflictos reales a revisar: {len(results['shadowing_conflicts'])}")
         for c in results["shadowing_conflicts"]:

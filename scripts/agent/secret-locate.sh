@@ -211,7 +211,7 @@ if do_hygiene:
     print(f"=== HIGIENE DE METADATOS (entorno {envn}) ===")
     print(f"Entradas: {result['total_keys']} | sin descripcion o etiquetas: {len(undocumented)}")
     print("\nClaves completables por un agente. La CLI soporta etiquetas:")
-    print("  infisical secrets set <CLAVE>='<valor>' --path=/<carpeta> --tag scope=shared --tag env=dev")
+    print("  infisical secrets set <CLAVE>='<valor>' --path=/<carpeta> --tag scope-shared --tag env-dev")
     by_folder = collections.defaultdict(list)
     for u in undocumented:
         by_folder[u["folder"]].append(u["key"])

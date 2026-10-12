@@ -320,10 +320,26 @@ escribir las etiquetas; simplemente nadie los ha usado.
 ```bash
 infisical secrets set NOMBRE_DE_LA_CLAVE="<valor>" \
   --path=/<carpeta> \
-  --tag scope=shared --tag env=prod --tag owner=plataforma
+  --tag scope-project --tag env-prod --tag owner-plataforma
 ```
 
-> ⚠️ `--tag` **reemplaza** las etiquetas existentes, no las añade. Lee antes de escribir.
+> ⚠️ **`--tag` REEMPLAZA** las etiquetas existentes, no las añade. Lee antes de escribir.
+> ⚠️ **Los slugs solo admiten minúsculas, números y guiones.** `scope=project` se rechaza
+> con un 422; la forma válida es `scope-project`. El `=` no existe como separador: el
+> prefijo hace de namespace.
+
+### Etiquetas ya aplicadas en la flota
+
+Tras la auditoría se etiquetaron con `scope-project` + `env-dev` las claves que comparten
+nombre entre carpetas pero son **configuración por proyecto**, para que la auditoría deje de
+reportarlas como shadowing:
+
+`APP_URL`, `DATABASE_URL`, `GOOGLE_API_KEY`, `GROQ_API_KEY`, `HF_TOKEN`, `N8N_API_KEY`,
+`N8N_API_URL`, `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NOTION_API_KEY`, `PORT`,
+`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+
+La auditoría respeta esa etiqueta: una clave con `scope-project` se clasifica como
+`INTENCIONAL_SCOPE_PROJECT` y nunca como conflicto.
 
 ### Descripciones: límite real
 
@@ -333,8 +349,8 @@ CLI documentada. Mientras tanto, la taxonomía **debe vivir en las etiquetas**, 
 escribibles:
 
 ```
-scope=project|shared    env=dev|staging|prod
-owner=<equipo>          consumers=<proyectos>      rot=<periodicidad>
+scope-project|scope-shared    env-dev|env-staging|env-prod
+owner-<equipo>                consumers-<proyectos>       rot-<periodicidad>
 ```
 
 ### El agente debe proponer, no mutar solo
