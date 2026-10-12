@@ -29,6 +29,7 @@ done
 NAME=""
 LIST_MODE=false
 AUDIT_MODE=false
+HYGIENE_MODE=false
 JSON_OUTPUT=false
 ENV_NAME="${INFISICAL_ENVIRONMENT:-dev}"
 TIMEOUT=15
@@ -36,16 +37,17 @@ TIMEOUT=15
 for arg in "$@"; do
     if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
         show_help "secret-locate.sh" \
-            "bash scripts/agent/secret-locate.sh [--name <CLAVE>] [--list] [--audit] [--env <entorno>] [--json]" \
+            "bash scripts/agent/secret-locate.sh [--name <CLAVE>] [--list] [--audit] [--hygiene] [--env <entorno>] [--json]" \
             "Localiza secretos en la bóveda de Infisical sin revelar valores. Herramienta de solo lectura para agentes que no deben adivinar la ubicación de una clave." \
-            "--name <CLAVE>    Nombre del secreto a localizar. Devuelve las carpetas donde existe." \
-            "--list            Digest de todas las carpetas con su número de claves (sin valores)." \
-            "--audit           Auditoría de la bóveda: duplicados en varias carpetas y claves exclusivas." \
+            "--name <CLAVE>    Nombre del secreto a localizar. Devuelve las carpetas donde existe, ordenadas por última modificación." \
+            "--list            Digest de todas las carpetas con su número de claves, ordenadas por última modificación." \
+            "--audit           Auditoría de la bóveda: duplicados, shadowing y carpetas casi clonadas." \
+            "--hygiene         Claves sin descripción ni etiquetas, que un agente puede proponer completar." \
             "--env <entorno>   Entorno a consultar (defecto: \$INFISICAL_ENVIRONMENT o dev)" \
             "--json            Emite el resultado estructurado para agentes y orquestadores" \
             "-h, --help        Muestra este mensaje de ayuda" \
             "ejemplo: bash scripts/agent/secret-locate.sh --name CLOUDFLARE_API_TOKEN" \
-            "ejemplo: bash scripts/agent/secret-locate.sh --audit --json"
+            "ejemplo: bash scripts/agent/secret-locate.sh --hygiene --json"
     fi
 done
 
@@ -54,14 +56,15 @@ while [[ $# -gt 0 ]]; do
         --name) NAME="$2"; shift 2 ;;
         --list) LIST_MODE=true; shift ;;
         --audit) AUDIT_MODE=true; shift ;;
+        --hygiene) HYGIENE_MODE=true; shift ;;
         --env) ENV_NAME="$2"; shift 2 ;;
         --json) JSON_OUTPUT=true; shift ;;
         *) echo "❌ Argumento desconocido: $1" >&2; exit 64 ;;
     esac
 done
 
-if [ -z "$NAME" ] && [ "$LIST_MODE" != true ] && [ "$AUDIT_MODE" != true ]; then
-    echo "❌ Error: indica --name <CLAVE>, --list o --audit." >&2
+if [ -z "$NAME" ] && [ "$LIST_MODE" != true ] && [ "$AUDIT_MODE" != true ] && [ "$HYGIENE_MODE" != true ]; then
+    echo "❌ Error: indica --name <CLAVE>, --list, --audit o --hygiene." >&2
     echo "💡 Guia: bash scripts/agent/secret-locate.sh --list" >&2
     exit 64
 fi
@@ -91,7 +94,7 @@ export INFI_TOKEN="$(mint_token)"
 
 export GW_API="$INFISICAL_API_URL" GW_PID="$INFISICAL_PROJECT_ID" GW_TOKEN="$INFI_TOKEN"
 export GW_ENV="$ENV_NAME" GW_TIMEOUT="$TIMEOUT" GW_JSON="$JSON_OUTPUT"
-export GW_NAME="$NAME" GW_LIST="$LIST_MODE" GW_AUDIT="$AUDIT_MODE"
+export GW_NAME="$NAME" GW_LIST="$LIST_MODE" GW_AUDIT="$AUDIT_MODE" GW_HYGIENE="$HYGIENE_MODE"
 # El token tambien debe llegar por entorno al subproceso `infisical secrets`.
 export INFISICAL_TOKEN="$INFI_TOKEN"
 python3 - <<'PYEOF'
@@ -105,6 +108,7 @@ timeout = float(os.environ["GW_TIMEOUT"])
 name  = os.environ["GW_NAME"]
 do_list = os.environ["GW_LIST"] == "true"
 do_audit = os.environ["GW_AUDIT"] == "true"
+do_hygiene = os.environ["GW_HYGIENE"] == "true"
 as_json = os.environ["GW_JSON"] == "true"
 
 G, R, Y, NC = "\033[0;32m", "\033[0;31m", "\033[0;33m", "\033[0m"
@@ -116,34 +120,60 @@ def http_json(path, **params):
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.load(r)
 
-def folder_names():
+def _parse_iso(txt):
+    from datetime import datetime
+    try:
+        return datetime.fromisoformat(txt.replace("Z", "+00:00")).timestamp()
+    except Exception:
+        return 0.0
+
+def _fmt(ts):
+    from datetime import datetime, timezone
+    return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d") if ts else "nunca"
+
+def folder_meta():
+    """Nombre -> metadata de carpeta. lastSecretModified ordena por antiguedad real."""
     try:
         data = http_json("/v1/folders")
     except Exception as e:
         print(f"❌ No se pudieron listar las carpetas: {e}", file=sys.stderr)
         sys.exit(1)
-    return sorted(f.get("name", "") for f in data.get("folders", []))
+    return {f.get("name", ""): f for f in data.get("folders", [])}
 
-def keys_in(folder):
-    """Nombres de clave de una carpeta. Los VALORES se descartan sin llegar a imprimirse."""
+def modified(meta):
+    """Ultima modificacion de un secreto en la carpeta; 0 si nunca se toco."""
+    return _parse_iso(meta.get("lastSecretModified") or meta.get("updatedAt") or "")
+
+def keys_with_meta(folder):
+    """(claves, etiquetas, descripcion). Los VALORES se descartan sin imprimirse."""
+    tags, comments = {}, {}
     try:
         out = subprocess.run(
-            ["infisical", "secrets", "--path", f"/{folder}", "--projectId", pid,
-             "--env", envn, "--domain", api, "--output", "json", "--silent"],
-            capture_output=True, text=True, timeout=timeout + 15).stdout
-        data = json.loads(out)
-        items = data if isinstance(data, list) else data.get("secrets", [])
-        keys = sorted(k if isinstance(k, str) else k.get("secretKey", "") for k in items)
-        return [k for k in keys if k]
+            ["infisical", "export", "--path", f"/{folder}", "--env", envn,
+             "--projectId", pid, "--domain", api, "--format", "json", "--silent"],
+            capture_output=True, text=True, timeout=timeout + 25).stdout
+        for item in json.loads(out) if isinstance(json.loads(out), list) else []:
+            k = item.get("key") or item.get("secretKey")
+            if not k:
+                continue
+            tags[k] = item.get("tags") or []
+            comments[k] = (item.get("comment") or "").strip()
     except Exception:
-        return []
+        return [], tags, comments
+    return list(tags), tags, comments
 
-folders = folder_names()
+def keys_in(folder):
+    return keys_with_meta(folder)[0]
+
+meta = folder_meta()
+folders = sorted(meta)
 inventory = {f: keys_in(f) for f in folders}
 index = collections.defaultdict(list)
 for folder, keys in inventory.items():
     for k in keys:
         index[k].append(folder)
+
+by_recency = sorted(folders, key=lambda f: -modified(meta[f]))
 
 result = {"environment": envn, "folders_scanned": len(folders)}
 
@@ -151,12 +181,45 @@ if do_list:
     result["inventory"] = {f: len(k) for f, k in inventory.items()}
     result["unique_keys"] = len(index)
     result["total_entries"] = sum(len(k) for k in inventory.values())
+    result["folders_by_recency"] = [
+        {"folder": f, "last_modified": _fmt(modified(meta[f])),
+         "description": (meta[f].get("description") or "").strip()} for f in by_recency]
     if as_json:
         print(json.dumps(result, indent=2)); sys.exit(0)
-    print(f"=== SECRETOS EN INFISICAL (entorno {envn}) ===")
-    for f, ks in sorted(inventory.items(), key=lambda x: -len(x[1])):
-        print(f"  /{f:<26} {len(ks):>4} claves")
-    print(f"  {'TOTAL':<26} {result['unique_keys']:>4} claves unicas en {len(folders)} carpetas")
+    print(f"=== SECRETOS EN INFISICAL (entorno {envn}) - por ultima modificacion ===")
+    for f in by_recency:
+        d = (meta[f].get("description") or "").strip()
+        print(f"  /{f:<24} {len(inventory[f]):>4} claves   {_fmt(modified(meta[f]))}"
+              + (f"   | {d[:44]}" if d else "   | (sin descripcion)"))
+    print(f"  {'TOTAL':<24} {result['unique_keys']:>4} claves unicas en {len(folders)} carpetas")
+    sys.exit(0)
+
+if do_hygiene:
+    undocumented = []
+    for f in by_recency:
+        _, tg, cm = keys_with_meta(f)
+        for k in inventory[f]:
+            missing = ([("descripcion")] if not cm.get(k) else []) + ([("etiquetas")] if not tg.get(k) else [])
+            if missing:
+                undocumented.append({"key": k, "folder": f, "missing": missing,
+                                     "last_modified": _fmt(modified(meta[f]))})
+    result["undocumented"] = undocumented
+    result["undocumented_count"] = len(undocumented)
+    result["total_keys"] = sum(len(k) for k in inventory.values())
+    if as_json:
+        print(json.dumps(result, indent=2)); sys.exit(0)
+    print(f"=== HIGIENE DE METADATOS (entorno {envn}) ===")
+    print(f"Entradas: {result['total_keys']} | sin descripcion o etiquetas: {len(undocumented)}")
+    print("\nClaves completables por un agente. La CLI soporta etiquetas:")
+    print("  infisical secrets set <CLAVE>='<valor>' --path=/<carpeta> --tag scope=shared --tag env=dev")
+    by_folder = collections.defaultdict(list)
+    for u in undocumented:
+        by_folder[u["folder"]].append(u["key"])
+    print("\nPor carpeta (ordenadas por ultima modificacion):")
+    for f in by_recency:
+        if f in by_folder:
+            print(f"  /{f} ({len(by_folder[f])}): {', '.join(sorted(by_folder[f])[:5])}"
+                  + (" ..." if len(by_folder[f]) > 5 else ""))
     sys.exit(0)
 
 if do_audit:

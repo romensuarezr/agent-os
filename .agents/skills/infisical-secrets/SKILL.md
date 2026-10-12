@@ -289,3 +289,65 @@ python3 scripts/agent/lib/verify-secrets.py --source=infisical   # revocados y s
 ```
 
 Ambas son de **solo lectura** y comparten motor de vigencia, así que no pueden divergir.
+
+---
+
+## 🏷️ Descripciones y etiquetas: cómo leerlas y cómo proponerlas
+
+### Qué estado tiene la bóveda (medido, no supuesto)
+
+La auditoría de higiene revela el dato duro:
+
+```bash
+bash scripts/agent/secret-locate.sh --hygiene
+```
+
+En la última auditoría, **283 de 283 entradas** estaban sin descripción y sin etiquetas. El
+modelo de datos de Infisical soporta ambos campos (`comment` y `tags`), y la CLI permite
+escribir las etiquetas; simplemente nadie los ha usado.
+
+### Qué aporta cada metadato
+
+| Campo | Para qué sirve | Cómo se lee |
+| :--- | :--- | :--- |
+| `lastSecretModified` de la carpeta | **Ordena por antigüedad real.** La carpeta tocada más recientemente es la canónica probable ante un conflicto de shadowing | `secret-locate.sh --list` ya viene ordenado |
+| `description` de la carpeta | Qué guarda esa carpeta y quién la consume | `secret-locate.sh --list` la muestra |
+| `tags` del secreto | Etiquetado rápido: `scope`, `env`, `owner` | `secret-locate.sh --hygiene` |
+| `comment` del secreto | Descripción larga del propósito de la clave | ídem |
+
+### Etiquetado (la CLI lo soporta de forma nativa)
+
+```bash
+infisical secrets set NOMBRE_DE_LA_CLAVE="<valor>" \
+  --path=/<carpeta> \
+  --tag scope=shared --tag env=prod --tag owner=plataforma
+```
+
+> ⚠️ `--tag` **reemplaza** las etiquetas existentes, no las añade. Lee antes de escribir.
+
+### Descripciones: límite real
+
+La CLI expone `--tag` pero **no** tiene flag de descripción. El campo `comment` existe en el
+modelo y se exporta con `infisical export`, pero la vía de escritura no está expuesta por la
+CLI documentada. Mientras tanto, la taxonomía **debe vivir en las etiquetas**, que sí son
+escribibles:
+
+```
+scope=project|shared    env=dev|staging|prod
+owner=<equipo>          consumers=<proyectos>      rot=<periodicidad>
+```
+
+### El agente debe proponer, no mutar solo
+
+Si `--hygiene` reporta claves sin metadatos, o si `--audit` revela shadowing o carpetas
+clonadas, el agente debe **informar y proponer el cambio concreto** (qué clave, en qué
+carpeta, con qué etiquetas), nunca reescribir la bóveda por su cuenta. Escribir secretos es
+una acción con consecuencias que requiere aprobación humana.
+
+### Respuesta a la pregunta de qué carpeta es la buena
+
+- `shared` es la carpeta canónica de secretos transversales.
+- `/configuraciones` es su predecesora: contiene exactamente las mismas 5 claves y **no tiene
+  descripción**. Existe por costumbre, no por diseño.
+- Conviven hasta que se migren los consumidores. Retirarla exige verificar quién la usa, así
+  que es una pasada posterior, no una decisión automática.

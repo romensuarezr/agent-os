@@ -37,14 +37,16 @@ Ejecutado tras la puerta de aprobación, con verificación previa clave por clav
   `/configuraciones`, con integridad verificada por hash. `/configuraciones` se conserva
   intacta para no romper consumidores; su retirada es una pasada posterior.
 - **`/kanairos_backup` eliminada**: 0 claves exclusivas en toda la bóveda.
-- **`/codigo_descargado` eliminada**: 21 claves exclusivas, de las cuales 4 son
-  credenciales reales (`EVOLUTION_API_SECRET_KEY`, `NGROK_AUTHTOKEN`,
-  `N8N_BASIC_AUTH_PASSWORD`, `SENTRY_API_KEY`) que **no** se migraron: preservar
-  credenciales de código borrado perpetuaría superficie de ataque sin dueño. Su revocación
-  corresponde al operador en la consola de cada proveedor.
-- **Balance**: 13 → 12 carpetas, 236 → 207 claves únicas. Desaparecen 29 claves en total
-  (21 exclusivas + 8 que solo existían en esas dos carpetas simultáneamente), todas
-  presentes en los repositorios locales.
+- **`/codigo_descargado` eliminada**: 21 claves exclusivas. **Corrección posterior**: el
+  operador aclaró que esas credenciales seguían en uso, por lo que la decisión de no
+  migrarlas fue un error de juicio. Las 21 claves se restauraron íntegras desde la copia de
+  seguridad (verificado por hash): las 4 credenciales que el operador declaró transversales
+  (`EVOLUTION_API_SECRET_KEY`, `NGROK_AUTHTOKEN`, `N8N_BASIC_AUTH_PASSWORD`,
+  `SENTRY_API_KEY`) a `/shared`, y las 17 de configuración a `/kanairos`, que es su proyecto
+  real. Nada quedó sin restaurar.
+- **Balance**: 13 → 12 carpetas. Las 29 claves que dejaron de estar en la bóveda
+  (21 exclusivas + 8 que solo existían en esas dos carpetas simultáneamente) fueron
+  restauradas después de la corrección del punto anterior, con integridad verificada por hash.
 - **Copia de seguridad**: ambas carpetas exportadas antes de borrar en
   `~/.local/share/agent-os/secret-backups/2026-10-12-pre-sanitation/` (permisos 600).
 
