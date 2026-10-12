@@ -154,6 +154,72 @@ a satélites) y crecer solo cuando aparezca una fourth pregunta que no se pueda 
 - ¿Quién es el consumidor prioritario, la persona o el agente? Define el formato del digest y
   cuánto detalle entra.
 
+### Herramientas existentes: cuál usar y cuál descartar
+
+Investigado antes de construir nada, para no inventar un motor de diagramas propio:
+
+| Opción | A favor | En contra | Veredicto |
+| :--- | :--- | :--- | :--- |
+| **Mermaid** | GitHub lo renderiza **nativo** en Markdown: cero binario, cero paso de build, el diagrama viaja dentro del propio `.md` | Su CLI exige headless Chrome (peso muerto para renderizar server-side) | **Elegida para la vista humana** |
+| **D2** | Binario Go único, sin navegador, layouts buenos | Pre-1.0 (v0.9.0), MPL-2.0, GitHub **no** lo renderiza: hay que exportar y versionar el SVG. Sintaxis propietaria | Capa opcional futura |
+| **Graphviz** | El estándar abierto: un `.dot` lo lee casi cualquier herramienta (mejor salida estratégica de las tres) | Output feo, estilos a mano | Descartado ahora |
+| **PlantUML** | Muy asentada | Necesita Java. Rompe la portabilidad del core | Descartada |
+
+**Conclusión**: el modelo es texto plano; la capa humana es Markdown con Mermaid y la capa de
+agentes es un digest JSON. Si algún día hacen falta diagramas más pulidos, D2 entra **encima**
+sin tocar el modelo. Esta separación es lo que evita el peor resultado habitual: quedar atado a
+una sintaxis propietaria.
+
+### Solape con skills ya existentes
+
+El core tiene un firewall anti-duplicación, así que antes de proponer una habilidad nueva hay
+que mapear qué existe:
+
+| Skill | Responsabilidad | Solape |
+| :--- | :--- | :--- |
+| `architecture-audit` | Audita **código**: SRP, dependencias, duplicidad, límite de 300 líneas | Ninguno: no toca documentación |
+| `doc-maintainer` | Decide **dónde** vive un doc y obliga a actualizar fecha | **Parcial**: la habilidad nueva debe delegarle el guardado, no decidir ubicación |
+| `structure-guardian` | Reubicaciones de ficheros por estándar | Ninguno |
+
+### Propuesta concreta: tres piezas con SRP separado
+
+1. **`scripts/agent/generate-flow-map.sh`** — determinista, cero tokens, portable. Lee los
+   assets reales (skills, workflows, rules, profiles, manifests, ADRs, `critical-flows.md`,
+   cabeceras de los scripts) y emite `docs/architecture/flow-map.md` (humano, Mermaid) más
+   `flow-map.json` (agentes). Es una **fuente de verdad generada**, al estilo de
+   `fleet-doctor.sh`. No es una descripción: es el resultado de inspeccionar lo que existe.
+2. **`.agents/skills/flow-cartographer/SKILL.md`** — gobierna revisar, modificar y crear esa
+   documentación: cuándo regenerar, cómo añadir un flujo, cómo enlazarlo con
+   `critical-flows.md` y con el ADR que lo justifica. Delega el guardado en `doc-maintainer`.
+3. **Distribución a hijos** — ambos artefactos ya figuran en `scripts/agent/assets-manifest.txt`,
+   así que `install.sh` y `sync.sh` los propagan sin cambios. Al estar en el manifest, un
+   proyecto hijo recibe el generador y la habilidad en su despliegue inicial.
+
+### Preguntas que quedan abiertas
+
+- **¿Debe el generador ejecutarse en el despliegue inicial del hijo?** `install.sh` hoy no
+  genera nada. Pero un hijo tiene mucha menos superficie que el core: su "mapa" puede ser casi
+  vacío, o con un enfoque distinto (qué skills usa, qué scripts corre, qué flujo de datos mantiene con el
+  core). Es posible que lo útil en el hijo no sea el mismo mapa. **Decisión de diseño, no de
+  implementación.**
+- **¿En qué sprint entra?** La parte 1 (publicación) ya es candidata a sprint-15. La parte 2
+  puede ir como tarea propia (`T-101`) si se decide ahora, o agruparla en el mismo sprint-15 para
+  resolver ambas con el mismo análisis de flujo que la motiva.
+- **¿Documentación generada + escrita a mano conviven?** Hoy `docs/architecture/` tiene tres
+  documentos escritos a mano (`control-plane-topology.md`, `scout-business-hub.md`,
+  `tool-inventory.md`). Hay que decidir si el mapa generado los absorbe, los referencia o
+  convive. Riesgo de duplicidad semántica, no de ficheros.
+
+### Riesgos
+
+- Un mapa generado que nadie regenera se convierte en basura con la misma facilidad que uno
+  escrito a mano. Mitigación: la habilidad obliga a regenerar en cada cambio estructural y el
+  script imprime un digest para que el agente lo ejecute en vez de razonar sobre el mapa.
+- Una skill nueva es **asset global**: llega a todos los satélites por `sync.sh` y cambia el
+  comportamiento de los agentes que se activen por descripción. No es breaking, pero sí es
+  superficie global, y por eso debe quedar etiquetada como feature de universalización en
+  `changelog.md`.
+
 ---
 
 ## Origen
