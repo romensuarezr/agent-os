@@ -102,6 +102,17 @@ Uso: bash scripts/agent/promote-to-main.sh [flags]
                       Implica publicar la rama origen en origin si no lo está ya.
                       Requiere gh instalado y autenticado (se comprueba antes de actuar).
 
+                      ORDEN: el PR se crea DESPUÉS del merge local, porque para entonces
+                      la rama ya está integrada en el worktree de destino.
+
+                      NO COMBINAR CON --push. --push sube 'target' a origin tras la
+                      fusión, así que el PR se abriría contra un destino que ya contiene
+                      la rama origen: saldría vacío, gh lo rechaza, y el script termina
+                      con código 1 pese a haber fusionado bien.
+
+                      Revisión con PR:   --source <rama> --push-source --pr
+                      Fusión directa:    --source <rama> --push
+
   --skip-tests        Omite la suite de validación del control plane.
   --json              Emite el resultado como JSON por stdout (los avisos van a stderr).
 
@@ -238,8 +249,12 @@ create_pr() {
     err "${RED}❌ ERROR: 'gh pr create' falló:${NC}"
     err "$url"
     if printf '%s' "$url" | grep -qiE "no commits between|already exists"; then
-      err "  Causa probable: '${SOURCE}' no tiene commits propios frente a '${TARGET}',"
-      err "  o ya existe un PR abierto para esa pareja. Revisa: gh pr list"
+      err "  Causa probable: '${SOURCE}' no tiene commits propios frente a '${TARGET}'."
+      if [ "$PUSH" = true ]; then
+        err "  Causa más probable: --push ya subió '${TARGET}' con el trabajo integrado,"
+        err "  así que el PR saldría vacío. Revisa si --push es lo que querías."
+      fi
+      err "  También puede ser que ya exista un PR abierto: gh pr list"
     fi
     return 1
   fi
