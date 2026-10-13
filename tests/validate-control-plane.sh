@@ -585,6 +585,23 @@ try:
     assert 'CHANGEME' not in keys, 'no debe declarar marcadores de plantilla'
     assert 'u:p' not in cat and 'postgres' not in cat, 'FUGA: el valor llego al catalogo'
     assert data['complete'] is False, 'sin boveda debe degradar a local-only'
+    # Descubrimiento por referencias en codigo: una variable usada en el codigo y
+    # ausente de todo lo demas debe salir marcada, no pasar desapercibida.
+    open(os.path.join(tmp, 'app.js'), 'w').write(
+        'const a = process.env.GHOST_FROM_CODE;\n'
+        'const b = process.env.DATABASE_URL;\n'
+        'const c = process.env.NODE_ENV;\n')
+    r = subprocess.run(['bash', '$CATALOG_SCRIPT', '--path', tmp],
+                       capture_output=True, text=True, env=env)
+    assert r.returncode == 0, r.stderr[-300:]
+    cat2 = open(os.path.join(tmp, '.agents/config/secrets-catalog.yaml')).read()
+    data2 = yaml.safe_load(cat2)
+    assert 'GHOST_FROM_CODE' in data2['needs_declaration'], data2['needs_declaration']
+    bykey = {s2['key']: s2 for s2 in data2['secrets']}
+    assert bykey['GHOST_FROM_CODE']['discovered_from'] == ['code'], bykey['GHOST_FROM_CODE']
+    assert bykey['GHOST_FROM_CODE']['status'] == 'FALTA-DECLARAR'
+    assert 'NODE_ENV' not in bykey, 'el ruido de runtime no debe entrar en el catalogo'
+    assert bykey['DATABASE_URL']['kind'] == 'secreto', bykey['DATABASE_URL']['kind']
     # --check debe detectar el desfasado recien escrito como AL DIA
     r2 = subprocess.run(['bash', '$CATALOG_SCRIPT', '--path', tmp, '--check'],
                         capture_output=True, text=True, env=env)
