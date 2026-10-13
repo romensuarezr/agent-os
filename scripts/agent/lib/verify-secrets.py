@@ -430,6 +430,52 @@ def scan_infisical(api: str, pid: str, env_name: str, token: str,
     return result
 
 
+def write_mark(path: str, results: dict, skip_liveness: bool = False) -> None:
+    """Escribe la marca de salud. Sin valores, solo nombres y contadores."""
+    from datetime import datetime, timezone
+    checked = results["valid_secrets_count"] + results["revoked_secrets_count"]
+    total = results["total_entries"]
+    coverage = f"{checked}/{total}" if total else "0/0"
+    pct = round(100 * checked / total) if total else 0
+    lines = [
+        "# secrets-health.md — Salud de los secretos",
+        "",
+        "> Marca generada. NO editar a mano. NO contiene valores.",
+        "> NO se comprueba en cada sesión a propósito: solo se lee cuando un agente",
+        "> trabaja con secretos. Verifica antigüedad antes de fiarte de estos datos.",
+        "",
+        "## Estado",
+        "",
+        f"- **Auditado**: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        f"- **Entorno**: {results['environment']}",
+        f"- **Carpetas**: {results['folders_scanned']} | **Entradas**: {total}",
+        f"- **Revocadas**: {results['revoked_secrets_count']}",
+        f"- **Conflictos de shadowing**: {len(results['shadowing_conflicts'])}",
+        f"- **Duplicados con mismo valor**: {len(results['duplicated_same_value'])}",
+        f"- **Config por proyecto (no es conflicto)**: {len(results['legitimate_per_project'])}",
+        f"- **Cobertura de verificacion**: {coverage} ({pct}%)"
+        + (" — omitida por --skip-liveness" if skip_liveness else ""),
+        "",
+    ]
+    if results["revoked_secrets_count"]:
+        lines += ["## Claves revocadas (rotar)", ""]
+        lines += [f"- `{r['key']}` en `/{r['folder']}`" for r in results["revoked"]]
+        lines += [""]
+    if results["shadowing_conflicts"]:
+        lines += ["## Shadowing a revisar", ""]
+        lines += [f"- `{c['key']}` ({c['distinct_values']} valores en {len(c['folders'])} carpetas), "
+                  f"sin evidencia de uso: {', '.join('/' + f for f in c['without_usage_evidence'])}"
+                  for c in results["shadowing_conflicts"]]
+        lines += [""]
+    lines += ["## Regenerar", "",
+              "```bash",
+              "python3 scripts/agent/lib/verify-secrets.py --source=infisical --mark",
+              "```", ""]
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text("\n".join(lines))
+    os.chmod(path, 0o644)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Auditor y verificador de secretos para Agent OS")
     parser.add_argument("root", nargs="?", default=".", help="Directorio raíz para escanear")
@@ -439,6 +485,9 @@ def main():
                         help="Origen a auditar: archivos .env locales (defecto) o la bóveda de Infisical")
     parser.add_argument("--infisical-env", default=os.environ.get("INFISICAL_ENVIRONMENT", "dev"),
                         help="Entorno de Infisical a auditar")
+    parser.add_argument("--mark", metavar="RUTA", nargs="?",
+                        const=".agents/context/secrets-health.md",
+                        help="Escribe el digest de salud en esa marca (por defecto .agents/context/secrets-health.md)")
     args = parser.parse_args()
 
     if args.source == "infisical":
@@ -454,6 +503,10 @@ def main():
             sys.exit(1)
         results = scan_infisical(api, pid, args.infisical_env, token,
                                  skip_liveness=args.skip_liveness)
+        if args.mark:
+            write_mark(args.mark, results, skip_liveness=args.skip_liveness)
+            if not args.json:
+                print(f"   Marca escrita en {args.mark}")
         if args.json:
             print(json.dumps(results, indent=2))
             return

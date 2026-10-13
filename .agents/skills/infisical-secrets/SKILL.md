@@ -455,3 +455,53 @@ evidencia de uso que da `secret-locate.sh`.
    credencial de proveedor usada por varios → `shared` con `scope-shared`.
 3. **Etiqueta en el momento de crearla.** Es la única vez que tienes el contexto fresco.
 4. Regenera el catálogo.
+
+
+---
+
+## 📊 Marca de salud de los secretos
+
+### Qué es y por qué NO se comprueba en cada sesión
+
+`.agents/context/secrets-health.md` es una **marca generada** que `install.sh` escribe al
+desplegar y que se regenera a demanda. **No se comprueba en el pre-flight de sesión, a
+propósito**: un aviso que aparece cada vez y casi nunca exige acción es ruido que entrena a
+ignorar los avisos. Solo se lee cuando un agente trabaja con secretos.
+
+### Qué contiene
+
+```
+- **Auditado**: <fecha ISO>
+- **Revocadas**: <n>
+- **Conflictos de shadowing**: <n>
+- **Cobertura de verificacion**: <verificadas>/<total> (<pct>%)
+```
+
+La cobertura es el dato que más duele: si es baja, **hay credenciales que nadie ha
+verificado nunca**, y una revocada puede estar隐形 desde hace meses.
+
+### Antigüedad: 3 meses
+
+Estos datos son una foto. Si la marca tiene **más de 3 meses**, no te fíes: regenera.
+
+```bash
+python3 scripts/agent/lib/verify-secrets.py --source=infisical --mark
+```
+
+Tarda ~40s (llama a las APIs de cada proveedor). Para un inventario rápido sin red:
+
+```bash
+bash scripts/agent/secret-locate.sh --audit --json
+```
+
+### El ciclo de rotación
+
+1. **Detectar**: la auditoría marca qué valores están revocados y en qué carpetas.
+2. **Decidir**: para cada clave revocada, quién la consume y si es transversal o por
+   proyecto. **No copies el token que funciona de otro repo**: los tokens de Cloudflare
+   tienen permisos por zona y las claves de Gemini están atadas a un proyecto de Google.
+   Copiar da acceso a dominios ajenos o viola los términos del proveedor.
+3. **Rotar**: generar el token nuevo en la consola del proveedor, donde se controla el
+   alcance, y guardarlo en su carpeta canónica.
+4. **Propagar**: cuando el valor nuevo responde, `materialize-secrets.sh --force` refresca
+   los `.env` locales, y se elimina la copia vieja de las carpetas que la tenían.

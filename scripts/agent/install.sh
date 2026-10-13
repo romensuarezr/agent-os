@@ -652,6 +652,24 @@ if [ -d "$AGENT_OS_PATH/.agents/config" ]; then
     echo "✅ Configuraciones runtime instaladas en .agents/config/ (overlay privado fleet.yaml excluido)."
 fi
 
+# 7c. Auditar la salud de los secretos y escribir la marca (informativo, nunca bloquea)
+# Ni el despliegue falla si esto falla, ni el pre-flight lo consulta en cada sesión:
+# la marca se lee solo cuando un agente trabaja con secretos.
+if [ -f "$AGENT_OS_PATH/scripts/agent/secret-locate.sh" ]; then
+    if [ -n "${INFISICAL_API_URL:-}" ] && [ -n "${INFISICAL_PROJECT_ID:-}" ]; then
+        echo "🔐 Auditando la salud de los secretos (puede tardar ~40s)..."
+        if python3 "$AGENT_OS_PATH/scripts/agent/lib/verify-secrets.py" \
+                   --source=infisical \
+                   --mark "$TARGET_PROJECT/.agents/context/secrets-health.md" 2>/dev/null | tail -6; then
+            echo "   ✅ Marca escrita en .agents/context/secrets-health.md"
+        else
+            echo "   ⚠️  Auditoría omitida (sin credenciales o sin red). La instalación continúa."
+        fi
+    else
+        echo "   ℹ️  Sin credenciales de Infisical: se omite la auditoría de secretos."
+    fi
+fi
+
 # 8. Copiar templates de metas (sin sobreescribir)
 if [ -d "$AGENT_OS_GOALS" ]; then
     mkdir -p "$TARGET_GOALS"
