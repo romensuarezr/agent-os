@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Registra una ruta instalada, siempre RELATIVA al proyecto destino.
+track_installed() {
+    local abs_path="$1"
+    local rel
+    rel="${abs_path#"$TARGET_PROJECT"/}"
+    INSTALLED_PATHS+=("$rel")
+}
+
+
 # install.sh - Instala Agent OS en un proyecto destino
 # Uso: ./install.sh [opciones] /ruta/al/proyecto
 # Uso (bootstrapping del core): ./install.sh . --self
@@ -10,6 +19,11 @@ set -euo pipefail
 
 TARGET_PROJECT=""
 SELF_MODE=false
+
+# Rutas efectivamente instaladas, acumuladas EN TIEMPO DE COPIA. Nunca un inventario
+# hardcodeado: si el script copia algo nuevo, el bloque final lo refleja solo.
+INSTALLED_PATHS=()
+
 CHECK_MODE=false
 CREATE_REPO=false
 MINIMAL_MODE=false
@@ -78,6 +92,16 @@ fi
 
 if [[ "$SELF_MODE" == true && -z "$TARGET_PROJECT" ]]; then
     TARGET_PROJECT="."
+fi
+
+# Estado del working tree ANTES de tocar nada. Se captura aqui, ya con
+# TARGET_PROJECT resuelto, para distinguir "lo dejó el instalador" de "ya estaba sucio".
+# Solo informativo: la instalación es no destructiva.
+PRE_EXISTING_DIRTY=false
+PRE_EXISTING_COUNT=0
+if git -C "$TARGET_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    PRE_EXISTING_COUNT=$(git -C "$TARGET_PROJECT" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    [ "$PRE_EXISTING_COUNT" -gt 0 ] && PRE_EXISTING_DIRTY=true
 fi
 
 # ==============================================================================
@@ -533,6 +557,7 @@ if [ -d "$AGENT_OS_RULES" ]; then
     for rule in "$AGENT_OS_RULES"/*.md; do
         [ -f "$rule" ] || continue
         cp -n "$rule" "$TARGET_RULES/"
+track_installed "$TARGET_RULES/$(basename "$rule")"
     done
     echo "✅ Reglas globales instaladas (sin sobreescribir)."
 fi
@@ -542,6 +567,7 @@ if [ -d "$AGENT_OS_WORKFLOWS" ]; then
     for wf in "$AGENT_OS_WORKFLOWS"/*.md; do
         [ -f "$wf" ] || continue
         cp -n "$wf" "$TARGET_WORKFLOWS/"
+track_installed "$TARGET_WORKFLOWS/$(basename "$wf")"
     done
     echo "✅ Workflows instalados (sin sobreescribir)."
 fi
@@ -591,9 +617,11 @@ if [ -f "$MANIFEST_FILE" ]; then
         fi
         if [ -d "$skill_src" ]; then
             cp -rn "$skill_src" "$TARGET_SKILLS/"
+track_installed "$TARGET_SKILLS/$(basename "$skill_src")"
             SKILLS_COUNT=$((SKILLS_COUNT + 1))
         elif [ -f "$skill_src" ]; then
             cp -n "$skill_src" "$TARGET_SKILLS/"
+track_installed "$TARGET_SKILLS/$(basename "$skill_src")"
             SKILLS_COUNT=$((SKILLS_COUNT + 1))
         fi
     done < <(resolve_skills_from_manifest "$MANIFEST_FILE" "$SKILL_MODE" "$DETECTED_STACK" "$HAS_NEXTJS")
@@ -603,8 +631,10 @@ elif [ -d "$AGENT_OS_SKILLS" ]; then
     for skill in "$AGENT_OS_SKILLS"/*; do
         if [ -d "$skill" ]; then
             cp -rn "$skill" "$TARGET_SKILLS/"
+track_installed "$TARGET_SKILLS/$(basename "$skill")"
         elif [ -f "$skill" ]; then
             cp -n "$skill" "$TARGET_SKILLS/"
+track_installed "$TARGET_SKILLS/$(basename "$skill")"
         fi
     done
     echo "✅ Skills globales instaladas (sin sobreescribir)."
@@ -615,9 +645,11 @@ if [ -d "$AGENT_OS_PATH/scripts/agent" ]; then
     for sc in "$AGENT_OS_PATH/scripts/agent"/*.sh; do
         [ -f "$sc" ] || continue
         cp -n "$sc" "$TARGET_SCRIPTS/"
+track_installed "$TARGET_SCRIPTS/$(basename "$sc")"
     done
     if [ -d "$AGENT_OS_PATH/scripts/agent/lib" ]; then
         cp -rn "$AGENT_OS_PATH/scripts/agent/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
+track_installed "$TARGET_SCRIPTS/lib" || true
     fi
     chmod +x "$TARGET_SCRIPTS"/*.sh 2>/dev/null || true
     if [ -d "$TARGET_SCRIPTS/lib" ]; then
@@ -632,6 +664,7 @@ if [ -d "$AGENT_OS_PROFILES" ]; then
     for profile in "$AGENT_OS_PROFILES"/*; do
         if [ -f "$profile" ]; then
             cp -n "$profile" "$TARGET_PROFILES/"
+track_installed "$TARGET_PROFILES/$(basename "$profile")"
         fi
     done
     echo "✅ Perfiles de agente instalados (sin sobreescribir)."
@@ -648,6 +681,7 @@ if [ -d "$AGENT_OS_PATH/.agents/config" ]; then
             continue
         fi
         cp -n "$cfg" "$TARGET_PROJECT/.agents/config/"
+track_installed "$TARGET_PROJECT/.agents/config/$cfg_name"
     done
     echo "✅ Configuraciones runtime instaladas en .agents/config/ (overlay privado fleet.yaml excluido)."
 fi
@@ -676,6 +710,7 @@ if [ -d "$AGENT_OS_GOALS" ]; then
     for goal_tmpl in "$AGENT_OS_GOALS"/*; do
         if [ -f "$goal_tmpl" ]; then
             cp -n "$goal_tmpl" "$TARGET_GOALS/"
+track_installed "$TARGET_GOALS/$(basename "$goal_tmpl")"
         fi
     done
     echo "✅ Templates de metas instalados (sin sobreescribir)."
@@ -696,6 +731,7 @@ if [ -d "$AGENT_OS_TEMPLATES" ]; then
             
             if [ -z "$existing_fuzzy" ] && [ ! -f "$TARGET_PROJECT/docs/$filename" ]; then
                 cp "$template_path" "$TARGET_PROJECT/docs/$filename"
+track_installed "$TARGET_PROJECT/docs/$filename"
             fi
         fi
     done
@@ -716,6 +752,7 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
             
             if [ -z "$existing_fuzzy" ] && [ ! -f "$TARGET_PROJECT/$filename" ]; then
                 cp "$template_path" "$TARGET_PROJECT/$filename"
+track_installed "$TARGET_PROJECT/$filename"
             fi
         fi
     done
@@ -725,6 +762,7 @@ fi
 # 10b. Copiar plantilla de AGENT_ONBOARDING.md en .agents/ (sin sobreescribir)
 if [ -f "$PROJECT_ONBOARDING_SRC" ] && [ ! -f "$TARGET_ONBOARDING" ]; then
     cp "$PROJECT_ONBOARDING_SRC" "$TARGET_ONBOARDING"
+track_installed "$TARGET_ONBOARDING"
     echo "✅ Plantilla de AGENT_ONBOARDING.md instalada en .agents/ (sin sobreescribir)."
 fi
 
@@ -765,3 +803,48 @@ echo "✅ Ledger de versión registrado en .agents/context/last-sync.md."
 
 echo "✨ Instalación de Agent OS completada en $TARGET_PROJECT"
 echo "💡 Recuerda configurar el .agents/AGENT_ONBOARDING.md del proyecto."
+
+# ==========================================
+# ESTADO DEL WORKING TREE (informativo)
+# No altera el codigo de salida ni puede abortar la instalacion: es la ultima
+# linea del script y solo describe lo que ya ocurrio.
+# ==========================================
+if git -C "$TARGET_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    POST_COUNT=$(git -C "$TARGET_PROJECT" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    NEW_COUNT=$(( POST_COUNT - PRE_EXISTING_COUNT ))
+    [ "$NEW_COUNT" -lt 0 ] && NEW_COUNT=0
+
+    echo ""
+    echo "🌳 Estado del working tree"
+    if [ "$POST_COUNT" -eq 0 ]; then
+        echo "   ✅ Árbol limpio. No hay nada que revisar antes de empezar a trabajar."
+    else
+        echo "   Archivos con cambios ahora: $POST_COUNT"
+        if [ "$NEW_COUNT" -gt 0 ]; then
+            echo "   📌 $NEW_COUNT los añadió esta instalación; revísalos antes de commitear:"
+        else
+            echo "   📌 Cambios preexistentes: la instalación no sabe si son tuyos ni los toca."
+        fi
+        echo "      git -C <ruta-del-proyecto> status --porcelain"
+        echo "      git -C <ruta-del-proyecto> diff"
+    fi
+
+    if [ "$PRE_EXISTING_DIRTY" = true ]; then
+        echo "   ℹ️  El árbol ya estaba sucio ANTES de instalar ($PRE_EXISTING_COUNT cambios)."
+        echo "      La instalación es no destructiva: no revierte ni mezcla tus cambios."
+        echo "      Commitea o stashea antes de pedir cambios de arquitectura."
+    fi
+
+    if [ "${#INSTALLED_PATHS[@]}" -gt 0 ]; then
+        echo ""
+        echo "   Rutas instaladas (relativas al proyecto, ${#INSTALLED_PATHS[@]} entradas):"
+        printf '%s
+' "${INSTALLED_PATHS[@]}" | sort -u | head -12 | sed 's/^/     - /'
+        TOTAL_INSTALLED=$(printf '%s\n' "${INSTALLED_PATHS[@]}" | sort -u | wc -l | tr -d ' ')
+        [ "$TOTAL_INSTALLED" -gt 12 ] && echo "     … y $((TOTAL_INSTALLED - 12)) más"
+    fi
+else
+    echo ""
+    echo "🌳 Estado del working tree"
+    echo "   ℹ️  El proyecto no es un repositorio git: no hay estado de árbol que reportar."
+fi

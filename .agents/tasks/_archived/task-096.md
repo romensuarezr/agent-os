@@ -17,18 +17,26 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-096.md`
 
 ## Criterios de done
-- [ ] `install.sh` emite al final un bloque de estado del working tree (rutas exactas, sin rutas personales).
-- [ ] El mensaje distingue árbol limpio de árbol con cambios preexistentes y en ambos casos dice qué hacer a continuación.
-- [ ] Funciona idéntico en Linux y macOS (sin `ls -d`, `realpath` con flags GNU, ni `sed -i`).
-- [ ] La salida no incluye IPs, dominios ni secretos.
-- [ ] `bash tests/validate-control-plane.sh` sin regresiones.
+- [x] `install.sh` emite al final un bloque de estado del working tree (rutas exactas, sin rutas personales).
+- [x] El mensaje distingue árbol limpio de árbol con cambios preexistentes y en ambos casos dice qué hacer a continuación.
+- [x] Funciona idéntico en Linux y macOS (sin `ls -d`, `realpath` con flags GNU, ni `sed -i`).
+- [x] La salida no incluye IPs, dominios ni secretos.
+- [x] `bash tests/validate-control-plane.sh` sin regresiones (17/17).
+
+## Desviación del plan aprobado
+
+El plan preveía capturar el estado del árbol antes de instalar; hacerlo en el punto
+inicial del script resulted in leer el repositorio equivocado, porque `TARGET_PROJECT`
+aún no está resuelto en ese punto. La captura se movió a después del parseo de
+argumentos, antes de los pre-flight. Sin ese cambio, el bloque reportaba como
+"preexistentes" cambios que había causado la propia instalación.
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-13 (APROBADO CON CAMBIOS: array en tiempo de copia + rutas relativas)
+- [x] Rama creada: feat/T-096-working-tree-guidance
+- [x] Lock activo: `.agent-session.lock`
+- [x] Sesión cerrada correctamente

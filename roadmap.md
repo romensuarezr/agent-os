@@ -1,15 +1,18 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 14**: Automejora y Confianza (T-091 a T-096)
+- (Sin sprint activo. Ejecuta /sprint-planning para abrir el siguiente.)
+
+## Completado recientemente
+- **Sprint 14**: Automejora y Confianza (T-091 a T-098)
   - [T-091] Regla de destilación y automejora procedimental (Self-Improvement Distillation) (M).
   - [T-092] Fix consistencia de secciones en `roadmap.md` y `audit-repo.sh` (HIGH) (S).
   - [T-093] Port de patrones estáticos de SkillSpector adaptado a `.agents/skills/` (M).
   - [T-094] Unificación de firma CLI con soporte `--path` en `audit-repo.sh` (S).
-  - [T-095] Sección de secretos (Infisical) en plantilla de onboarding del satélite (S).
+  - [T-095] Ciclo de vida de secretos: localizador, auditoría de bóveda, taxonomía, catálogo y materialización (L).
   - [T-096] Guidance operativo del working tree post-instalación en `install.sh` (S).
-
-## Completado recientemente
+  - [T-097] Remediación inmediata y desbloqueo de Hermes en <nodo-inferencia> y <nodo-orquestacion> (M).
+  - [T-098] Pre-flight de pasarelas de inferencia y formalización de la remediación (S).
 - Sprint 13: Escalado, Distribución Universal del Core & Ciclo de Vida de Satélites (T-085 a T-090).
 - Sprint 12: Core Hardening, Gobernanza & Pilotaje Portable (T-080 a T-084).
 - Sprint 11: Core Hardening, Fleet Doctor & Descubrimiento 0-contexto (T-067 a T-079).
@@ -17,6 +20,10 @@
 - Sprint 09: Multi-Agent Parallel Orchestration & Deterministic Goals Engine (T-054 a T-059).
 
 ## Próximo
+- Automatizar la publicación de ramas de tarea (extender `promote-to-main.sh` con `--push-source`, `--merge-commit` y `--pr`); NO crear un script nuevo: ya cubre el 80% (idea de 2026-10-12).
+- Mapa global de flujos de Agent OS con niveles de zoom C4, generado y versionado, para lectura humana y de agentes (idea de 2026-10-12).
+- Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona.
+- `close-task.sh` archiva el task file pero no actualiza el enlace de su fila en el sprint file: rota en T-094, T-095 y T-098.
 - Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (S).
 - Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
 - Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
