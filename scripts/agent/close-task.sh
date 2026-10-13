@@ -164,7 +164,7 @@ git_verify_commit() {
     tmp_index="$(mktemp)"
     rm -f "$tmp_index"                       # git exige que el índice no exista
     if ! GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" read-tree HEAD 2>/dev/null; then
-        rm -f "$tmp_index"; log "  ⚠️ No se pudo preparar el índice temporal: se usa el commit directo."
+        rm -f "$tmp_index"; echo "  ⚠️ No se pudo preparar el índice temporal: se usa el commit directo."
         git -C "$ROOT" commit -m "$msg"; return 0
     fi
     # Volcar el stage actual al índice temporal y construir el árbol
@@ -182,7 +182,7 @@ git_verify_commit() {
     if printf '%s' "$diff_out" | grep -q -- "$expect"; then
         git -C "$ROOT" update-ref HEAD "$sha" "$(git -C "$ROOT" rev-parse HEAD)"
         rm -f "$tmp_index"
-        log "  ✅ $desc verificado en el commit antes de mover el ref"
+        echo "  ✅ $desc verificado en el commit antes de mover el ref"
         return 0
     fi
     rm -f "$tmp_index"
