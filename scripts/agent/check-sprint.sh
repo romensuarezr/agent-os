@@ -57,18 +57,34 @@ else
   exit 1
 fi
 
-# 2. Sprint más reciente (excluye research y _archived)
-LAST_SPRINT=$(find "$SPRINTS_DIR" -name "sprint-[0-9][0-9]*.md" \
-  | grep -v -E "research|_archived" | sort -V | tail -1 || true)
+# 2. Sprint más reciente: ACTIVO primero; si no hay ninguno, el último ARCHIVADO.
+# Sin mirar los archivados, con docs/sprints/ vacío la numeración se reiniciaba en
+# sprint-01 y proponía pisar 14 sprints ya cerrados.
+LAST_SPRINT=$(find "$SPRINTS_DIR" -maxdepth 1 -name "sprint-[0-9][0-9]*.md" \
+  | grep -v -E "research" | sort -V | tail -1 || true)
+LAST_ARCHIVED=$(find "$SPRINTS_DIR/_archived" -name "sprint-[0-9][0-9]*.md" 2>/dev/null \
+  | grep -v -E "research" | sort -V | tail -1 || true)
+
+# Mayor numero de sprint conocido, activo o archivado: define la continuacion.
+HIGHEST_NUM=0
+for f in "$LAST_SPRINT" "$LAST_ARCHIVED"; do
+  [ -n "$f" ] || continue
+  n=$(basename "$f" .md | grep -oE '[0-9]+' | head -1)
+  [ -n "$n" ] && [ $((10#$n)) -gt "$HIGHEST_NUM" ] && HIGHEST_NUM=$((10#$n))
+done
+NEXT_NUM=$(printf "%02d" $((HIGHEST_NUM + 1)))
 
 if [ -z "$LAST_SPRINT" ]; then
   echo "SPRINT_ACTUAL: ninguno"
-  echo "SPRINT_SIGUIENTE: sprint-01"
-  echo "SPRINT_MODE: INICIALIZACIÓN"
+  echo "SPRINT_SIGUIENTE: sprint-$NEXT_NUM"
+  if [ "$HIGHEST_NUM" -gt 0 ]; then
+    echo "SPRINT_MODE: CONTINUACIÓN (último cerrado: sprint-$(printf "%02d" "$HIGHEST_NUM"), ignorado sin mirar _archived/)"
+  else
+    echo "SPRINT_MODE: INICIALIZACIÓN"
+  fi
 else
   SPRINT_NAME=$(basename "$LAST_SPRINT" .md)
   SPRINT_NUM=$(echo "$SPRINT_NAME" | grep -oE '[0-9]+' | head -1)
-  NEXT_NUM=$(printf "%02d" $((10#$SPRINT_NUM + 1)))
 
   echo "SPRINT_ACTUAL: $LAST_SPRINT"
   echo "SPRINT_SIGUIENTE: sprint-$NEXT_NUM"
