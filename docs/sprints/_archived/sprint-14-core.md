@@ -9,7 +9,7 @@
 ---
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ---
 
@@ -53,9 +53,9 @@
 
 ## Criterios de Cierre del Sprint
 
-- [ ] Las tareas del sprint completadas con task files individuales en `.agents/tasks/`.
-- [ ] `tests/validate-control-plane.sh` 17/17 sin regresiones.
-- [ ] Regla de automejora y workflow de cierre de sesión probados y documentados.
-- [ ] Script determinista de inspección de skills operativo en modo estático (0 tokens).
-- [ ] Plantilla de onboarding de satélites con sección de secretos (Infisical).
-- [ ] `changelog.md` y `roadmap.md` actualizados atómicamente al cierre.
+- [x] Las tareas del sprint completadas con task files individuales en `.agents/tasks/`.
+- [x] `tests/validate-control-plane.sh` 17/17 sin regresiones.
+- [x] Regla de automejora y workflow de cierre de sesión probados y documentados.
+- [x] Script determinista de inspección de skills operativo en modo estático (0 tokens).
+- [x] Plantilla de onboarding de satélites con sección de secretos (Infisical).
+- [x] `changelog.md` y `roadmap.md` actualizados atómicamente al cierre.
