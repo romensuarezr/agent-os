@@ -422,8 +422,31 @@ bóveda (fuente de verdad)  ──generate──▶  catálogo (versionado)  ─
                                                                                    (gitignored)
 ```
 
-`.env` es una **materialización** para trabajar sin conexión, nunca la fuente. Si el valor
-cambia en la bóveda, hay que regenerar el `.env`: ese es el hueco pendiente de automatizar.
+``.env` es una **materialización** para trabajar sin conexión, nunca la fuente. Se genera con:
+
+```bash
+# Simulación (defecto): no escribe nada, solo informa
+bash scripts/agent/materialize-secrets.sh --path .
+
+# Escritura real: solo añade lo que falta, nunca pisa lo que ya está
+bash scripts/agent/materialize-secrets.sh --path . --apply
+# --force si de verdad quieres sobrescribir un valor local
+```
+
+**Garantías de la materialización**
+
+| Garantía | Cómo |
+| :--- | :--- |
+| Nada se escribe sin `--apply` | Modo detección por defecto |
+| Nunca imprime valores | Ni en texto ni en `--json` |
+| Nunca pisa un valor local | `--force` explícito, y avisa del divergente |
+| **Rechaza escribir en ficheros que git versionaría** | Frena con exit 1 y lista los ficheros |
+| Nunca escribe en `.env.example` | Las plantillas son contrato, no credenciales |
+| Permisos 600 | En cada fichero escrito |
+
+Si el dry-run marca **(valor local distinto)**, hay shadowing entre el `.env` y la bóveda.
+No lo resuelvas con `--force` sin entender cuál de los dos valores es el bueno: mira la
+evidencia de uso que da `secret-locate.sh`.
 
 ### Cuándo falta una clave en un proyecto
 

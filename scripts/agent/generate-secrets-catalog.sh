@@ -141,6 +141,8 @@ try:
             vault_error = "no se pudo autenticar"
         else:
             vault_token = m.group(0)
+            # El subproceso `infisical export` necesita el token por entorno.
+            os.environ["INFISICAL_TOKEN"] = vault_token
             http_json("/v1/folders")
             vault_ok = True
 except Exception as e:
