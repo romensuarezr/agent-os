@@ -123,21 +123,46 @@ if [ -f "$CHANGELOG" ]; then
   fi
 fi
 
+# --- Staging ACOTADO: solo los ficheros propios de este script ---
+# NO se usa `git add -A`: eso se traga cambios ajenos del working tree. Aquí se
+# stagean únicamente sprint + research + changelog (si cambió). Cualquier otra
+# modificación se avisa y se deja intacta para que el operador decida.
+OWN_FILES=""
+add_own() {
+  local f="$1"
+  [ -f "$f" ] || return 0
+  git -C "$ROOT" add "$f" && OWN_FILES="$OWN_FILES $f"
+}
+
+# Detectar modificaciones ajenas ANTES de stagear, para avisar sin mezclar
+# Sin ancla $ al final: con ella, "docs/sprints/" solo excluía el directorio exacto y
+# cualquier fichero dentro se anunciaba falsamente como cambio ajeno.
+FOREIGN_BEFORE=$(git -C "$ROOT" status --porcelain 2>/dev/null | grep -vE "^..[[:space:]]+(docs/sprints/|CHANGELOG\.md|changelog\.md)" || true)
+if [ -n "$FOREIGN_BEFORE" ]; then
+  YELLOW='\033[0;33m'; NC='\033[0m'
+  echo -e "${YELLOW}⚠️  Hay cambios AJENOS al cierre de sprint en el working tree:${NC}"
+  printf '%s\n' "$FOREIGN_BEFORE" | head -10 | sed 's/^/     /'
+  echo -e "${YELLOW}   NO se incluyen en el commit de archivado (staging acotado a los ficheros${NC}"
+  echo -e "${YELLOW}   propios del script). Revísalos y commitéalos por separado.${NC}"
+fi
+
 # --- Archivar ---
 mkdir -p "$ARCHIVE_DIR"
 git -C "$ROOT" mv "$SPRINT_FILE" "$ARCHIVE_DIR/"
+add_own "$ARCHIVE_DIR/${SPRINT_NAME}.md"
 echo "📦 Archivado: $SPRINT_NAME.md → docs/sprints/_archived/"
 
 # Archivar también el research file si existe
 RESEARCH_FILE="$SPRINTS_DIR/${SPRINT_NAME}-research.md"
 if [ -f "$RESEARCH_FILE" ]; then
   git -C "$ROOT" mv "$RESEARCH_FILE" "$ARCHIVE_DIR/"
+  add_own "$ARCHIVE_DIR/$(basename "$RESEARCH_FILE")"
   echo "📦 Archivado: ${SPRINT_NAME}-research.md → docs/sprints/_archived/"
 fi
 
 # --- Incluir CHANGELOG.md si fue modificado por update-changelog.sh ---
 if [ "$CHANGELOG_MODIFIED" = true ]; then
-  git -C "$ROOT" add "$CHANGELOG"
+  add_own "$CHANGELOG"
   echo "📋 CHANGELOG.md añadido al stage."
 fi
 
@@ -148,7 +173,16 @@ else
   COMMIT_MSG="chore: archive ${SPRINT_NAME}"
 fi
 
-git -C "$ROOT" commit -m "$COMMIT_MSG"
+# Verificación post-condición del commit, compartida con close-task.sh (regla 8: no duplicar).
+# shellcheck source=scripts/agent/lib/verify-commit.sh
+source "$SCRIPT_DIR/lib/verify-commit.sh" 2>/dev/null || {
+    echo "ERROR: no se encuentra lib/verify-commit.sh; el archivado no puede verificarse." >&2
+    exit 1
+}
+
+if ! agent_verify_commit "$ROOT" "$COMMIT_MSG" "_archived/" "archivado del sprint a _archived/"; then
+  exit 1
+fi
 
 echo ""
 echo "✅ $SPRINT_NAME archivado y commiteado ($DONE/$TOTAL tareas ✅)."

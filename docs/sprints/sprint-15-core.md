@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| T-100 | Fixes de `close-task.sh` y `close-sprint.sh`: que actualicen el enlace al archivar y no affirmen más de lo que hacen | Bug del sistema / DX | S | ⬜ Pendiente | — | — |
+| T-100 | Fixes de `close-task.sh` y `close-sprint.sh`: que actualicen el enlace al archivar y no affirmen más de lo que hacen | Bug del sistema / DX | S | ✅ Completada | — | [.agents/tasks/_archived/task-100.md](.agents/tasks/_archived/task-100.md) |
 | T-101 | Publicación remota de ramas de tarea: extender `promote-to-main.sh` con `--push-source`, `--merge-commit` y `--pr` | DX / Universalización | M | ⬜ Pendiente | T-100 | — |
 | T-102 | Mapa global de flujos de Agent OS con niveles C4, generado y versionado (humano + digest para agentes) | Documentación / DX | M | ⬜ Pendiente | T-100 | — |
 

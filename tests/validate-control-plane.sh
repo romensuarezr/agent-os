@@ -20,6 +20,8 @@
 #  15. Catálogo de secretos generado (generate-secrets-catalog.sh).
 #  16. Materialización de secretos al .env (materialize-secrets.sh).
 #  17. Gates de la auditoría de secretos (--strict / --min-coverage).
+#  18. Honestidad de close-task.sh (enlace del sprint al archivar).
+#  19. Honestidad de close-sprint.sh (staging acotado y validación previa).
 # ==============================================================================
 
 set -euo pipefail
@@ -61,7 +63,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/17] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/19] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -81,7 +83,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/17] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/19] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -118,7 +120,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/17] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/19] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -153,7 +155,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/17] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/19] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -188,7 +190,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/17] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/19] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -212,7 +214,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/17] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/19] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -231,7 +233,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/17] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/19] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -250,7 +252,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/17] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/19] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -273,7 +275,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/17] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/19] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -295,7 +297,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/17] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/19] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -361,7 +363,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/17] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/19] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -379,7 +381,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/17] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/19] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -413,7 +415,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/17] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/19] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -469,7 +471,7 @@ fi
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/17] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/19] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -534,7 +536,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/17] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/19] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -621,7 +623,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/17] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/19] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -672,7 +674,7 @@ fi
 # 17. Gates de la auditoría de secretos (verify-secrets.py)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [17/17] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+echo -e "🔍 [17/19] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
 VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
 
 if [ ! -f "$VERIFY_LIB" ]; then
@@ -737,6 +739,82 @@ assert not re.search(r'\bvalue\s*[:=]', body), 'la marca escribe un campo value'
     ERRORS=$((ERRORS + 1))
   fi
 fi
+
+# ------------------------------------------------------------------------------
+# 18-19. Honestidad de los scripts de cierre (T-100)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [18/19] Verificando honestidad de close-task.sh (enlace del sprint)..."
+TASK_FIXTURE="$(mktemp -d)"
+(
+    cd "$TASK_FIXTURE" || exit 1
+    git init -q . && git config user.email t@t.t && git config user.name t
+    mkdir -p docs/sprints .agents/tasks
+    {
+        echo "# Sprint 99 - regresion"
+        echo ""
+        echo "## Estado"
+        echo "🔴 Cerrado"
+        echo ""
+        echo "## Tareas"
+        echo "| ID | D | T | E | Task file |"
+        echo "| T-100 | x | S | ✅ Completada | [.agents/tasks/task-100.md](.agents/tasks/task-100.md) |"
+    } > docs/sprints/sprint-99-core.md
+    echo "# Task-100" > .agents/tasks/task-100.md
+    git add -A && git commit -qm init
+    printf '\n- [x] Sesion cerrada correctamente\n' >> .agents/tasks/task-100.md
+    bash "$ROOT/scripts/agent/close-task.sh" T-100 "test regresion" >/dev/null 2>&1 || true
+) 2>/dev/null
+if python3 -c "
+import pathlib, sys
+d = pathlib.Path('$TASK_FIXTURE')
+sprint = (d / 'docs/sprints/sprint-99-core.md').read_text()
+assert '(.agents/tasks/_archived/task-100.md)' in sprint, 'el enlace no se actualizo a _archived/'
+assert (d / '.agents/tasks/_archived/task-100.md').exists(), 'el task file no se archivo'
+" 2>/dev/null; then
+    echo -e "  ✅ close-task.sh actualiza el enlace de la fila al archivar y el enlace resuelve."
+else
+    echo -e "  ❌ ERROR: close-task.sh deja el enlace del sprint apuntando al directorio activo."
+    ERRORS=$((ERRORS + 1))
+fi
+rm -rf "$TASK_FIXTURE"
+
+echo ""
+echo -e "🔍 [19/19] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
+SPRINT_FIXTURE="$(mktemp -d)"
+(
+    cd "$SPRINT_FIXTURE" || exit 1
+    git init -q . && git config user.email t@t.t && git config user.name t
+    mkdir -p docs/sprints
+    {
+        echo "# Sprint 98 - regresion"
+        echo ""
+        echo "## Estado"
+        echo "✅ Completado"
+        echo ""
+        echo "## Tareas"
+        echo "| ID | D | T | E |"
+        echo "| T-098 | x | S | ✅ Completada |"
+    } > docs/sprints/sprint-98-core.md
+    git add -A && git commit -qm init
+    printf '\n## Notas\n- Marcado antes de cerrar.\n' >> docs/sprints/sprint-98-core.md
+    bash "$ROOT/scripts/agent/close-sprint.sh" sprint-98-core >/dev/null 2>&1 || true
+) 2>/dev/null
+if python3 -c "
+import pathlib, subprocess
+d = pathlib.Path('$SPRINT_FIXTURE')
+arch = d / 'docs/sprints/_archived/sprint-98-core.md'
+assert arch.exists(), 'el sprint no se archivo'
+assert 'Marcado antes de cerrar' in arch.read_text(), 'la modificacion sin stagear quedo fuera del commit'
+st = subprocess.check_output(['git','status','--porcelain'], cwd=str(d)).decode().strip()
+assert st == '', 'el working tree quedo sucio: ' + st
+" 2>/dev/null; then
+    echo -e "  ✅ close-sprint.sh incluye el working tree en el commit y no deja el árbol sucio."
+else
+    echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear o cuelga el árbol de trabajo."
+    ERRORS=$((ERRORS + 1))
+fi
+rm -rf "$SPRINT_FIXTURE"
 
 # ------------------------------------------------------------------------------
 # Resumen Final
