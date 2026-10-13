@@ -488,6 +488,10 @@ def main():
     parser.add_argument("--mark", metavar="RUTA", nargs="?",
                         const=".agents/context/secrets-health.md",
                         help="Escribe el digest de salud en esa marca (por defecto .agents/context/secrets-health.md)")
+    parser.add_argument("--strict", action="store_true",
+                        help="Devuelve código 1 si hay claves revocadas. Para gates de CI y pre-flight.")
+    parser.add_argument("--min-coverage", type=int, metavar="PCT", default=None,
+                        help="Devuelve código 1 si la cobertura de verificación queda por debajo de este porcentaje")
     args = parser.parse_args()
 
     if args.source == "infisical":
@@ -518,7 +522,11 @@ def main():
         print("-" * 65)
         print(f"✅ Válidas verificadas: {results['valid_secrets_count']}")
         print(f"❌ Revocadas / caducadas: {results['revoked_secrets_count']}")
-        print(f"➖ Sin comprobable: {results['untested_count']}")
+        print(f"➖ Sin comprobable: {results['untested_count']}"
+              + ("  ⚠️  la mayoría NO se ha verificado nunca" if results["untested_count"] > results["valid_secrets_count"] + results["revoked_secrets_count"] else ""))
+        checked = results["valid_secrets_count"] + results["revoked_secrets_count"]
+        cov = round(100 * checked / results["total_entries"]) if results["total_entries"] else 0
+        print(f"📊 Cobertura de verificación: {checked}/{results['total_entries']} ({cov}%)")
         print(f"🔁 Duplicadas con idéntico valor: {len(results['duplicated_same_value'])}")
         print(f"✅ No es conflicto (config por proyecto, incl. etiqueta scope=project): "
               f"{len(results['legitimate_per_project'])}")
@@ -536,6 +544,17 @@ def main():
             for e in results["errors"]:
                 print(f"    ⚠️  {e}")
         print("=" * 65)
+        if args.strict and results["revoked_secrets_count"] > 0:
+            print(f"❌ --strict: {results['revoked_secrets_count']} claves revocadas. Gate fallido.", file=sys.stderr)
+            sys.exit(1)
+        if args.min_coverage is not None and results["total_entries"]:
+            _checked = results["valid_secrets_count"] + results["revoked_secrets_count"]
+            _cov = round(100 * _checked / results["total_entries"])
+            if _cov < args.min_coverage:
+                print(f"❌ --min-coverage: cobertura {_cov}% < {args.min_coverage}%. Gate fallido.", file=sys.stderr)
+                sys.exit(1)
+        if args.strict or args.min_coverage is not None:
+            print("✅ Gates de secretos: OK")
         return
 
     results = scan_projects(args.root, skip_liveness=args.skip_liveness)

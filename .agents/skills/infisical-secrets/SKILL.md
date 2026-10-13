@@ -494,6 +494,23 @@ Tarda ~40s (llama a las APIs de cada proveedor). Para un inventario rápido sin 
 bash scripts/agent/secret-locate.sh --audit --json
 ```
 
+### Gates: cuando quieres que falle
+
+La auditoría **no falla nunca por defecto**. Si la quieres como puerta de CI o de un
+pre-flight que tú decidas, activa los gates explícitamente:
+
+```bash
+# Falla si hay alguna clave revocada
+python3 scripts/agent/lib/verify-secrets.py --source=infisical --strict
+
+# Falla si la cobertura de verificación baja del umbral
+python3 scripts/agent/lib/verify-secrets.py --source=infisical --min-coverage 80
+```
+
+Hoy la cobertura real está en torno al **10%**: casi nueve de cada diez credenciales nunca
+se han comprobado. Poner `--min-coverage` alto es la forma de hacer visible ese agujero en
+lugar de dejarlo implícito.
+
 ### El ciclo de rotación
 
 1. **Detectar**: la auditoría marca qué valores están revocados y en qué carpetas.

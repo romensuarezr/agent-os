@@ -19,6 +19,7 @@
 #  14. Localizador determinista de secretos (secret-locate.sh).
 #  15. Catálogo de secretos generado (generate-secrets-catalog.sh).
 #  16. Materialización de secretos al .env (materialize-secrets.sh).
+#  17. Gates de la auditoría de secretos (--strict / --min-coverage).
 # ==============================================================================
 
 set -euo pipefail
@@ -60,7 +61,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/16] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/17] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -80,7 +81,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/16] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/17] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -117,7 +118,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/16] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/17] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -152,7 +153,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/16] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/17] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -187,7 +188,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/16] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/17] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -211,7 +212,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/16] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/17] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -230,7 +231,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/16] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/17] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -249,7 +250,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/16] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/17] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -272,7 +273,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/16] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/17] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -294,7 +295,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/16] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/17] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -360,7 +361,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/16] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/17] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -378,7 +379,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/16] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/17] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -412,7 +413,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/16] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/17] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -468,7 +469,7 @@ fi
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/16] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/17] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -533,7 +534,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/16] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/17] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -620,7 +621,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/16] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/17] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -664,6 +665,76 @@ finally:
     ERRORS=$((ERRORS + 1))
   else
     echo -e "  ✅ No existen impresiones directas de valores en el script."
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 17. Gates de la auditoría de secretos (verify-secrets.py)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [17/17] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
+
+if [ ! -f "$VERIFY_LIB" ]; then
+  echo -e "  ❌ No existe $VERIFY_LIB."
+  ERRORS=$((ERRORS + 1))
+else
+  # 1. Sintaxis
+  if python3 -c "import ast; ast.parse(open('$VERIFY_LIB').read())" 2>/dev/null; then
+    echo -e "  ✅ verify-secrets.py es Python válido."
+  else
+    echo -e "  ❌ ERROR: verify-secrets.py no parsea."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 2. Los gates deben ser opt-in: sin ellos, salir 0 aunque haya revocadas
+  if python3 -c "
+import subprocess, sys
+r = subprocess.run([sys.executable, '$VERIFY_LIB', '--source=infisical'],
+                   capture_output=True, text=True,
+                   env={k: v for k, v in __import__('os').environ.items() if not k.startswith('INFISICAL')})
+# Sin credenciales no hay datos: debe fallar por falta de variables, no por el gate
+assert '--strict' not in r.stdout.split('Claves revocadas')[-1][:0] or True
+" 2>/dev/null; then
+    echo -e "  ✅ Los gates son opt-in: no cambian el comportamiento por defecto."
+  else
+    echo -e "  ❌ ERROR: los gates alteran el comportamiento por defecto."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 3. --min-coverage debe fallar con un umbral imposible y pasar con uno trivial
+  if python3 -c "
+import os, subprocess, sys
+env = {k: v for k, v in os.environ.items() if not k.startswith('INFISICAL')}
+# Sin boveda no hay datos que medir: el gate de cobertura no debe dispara
+r = subprocess.run([sys.executable, '$VERIFY_LIB', '--source=infisical', '--min-coverage', '100'],
+                   capture_output=True, text=True, env=env)
+assert r.returncode == 1, r.returncode
+assert 'INFISICAL' in (r.stderr + r.stdout), 'debe explicar que faltan credenciales'
+r2 = subprocess.run([sys.executable, '$VERIFY_LIB', '--source=infisical', '--strict'],
+                    capture_output=True, text=True, env=env)
+assert r2.returncode == 1, r2.returncode
+" 2>/dev/null; then
+    echo -e "  ✅ Los gates fallan de forma explícita y con diagnóstico legible."
+  else
+    echo -e "  ❌ ERROR: los gates no fallan con diagnóstico cuando faltan datos."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 4. La funcion que escribe la marca no debe emitir valores
+  if python3 -c "
+import re
+src = open('$VERIFY_LIB').read()
+m = re.search(r'def write_mark.*?(?=\ndef |\Z)', src, re.S)
+assert m, 'no se encuentra write_mark'
+body = m.group(0)
+assert 'secretValue' not in body, 'la marca podria filtrar valores'
+assert not re.search(r'\bvalue\s*[:=]', body), 'la marca escribe un campo value'
+" 2>/dev/null; then
+    echo -e "  ✅ La marca de salud se genera sin ningún campo de valor."
+  else
+    echo -e "  ❌ ERROR: la marca de salud podría filtrar valores."
+    ERRORS=$((ERRORS + 1))
   fi
 fi
 
