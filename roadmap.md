@@ -23,7 +23,9 @@
 - Automatizar la publicación de ramas de tarea (extender `promote-to-main.sh` con `--push-source`, `--merge-commit` y `--pr`); NO crear un script nuevo: ya cubre el 80% (idea de 2026-10-12).
 - Mapa global de flujos de Agent OS con niveles de zoom C4, generado y versionado, para lectura humana y de agentes (idea de 2026-10-12).
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona.
-- `close-task.sh` archiva el task file pero no actualiza el enlace de su fila en el sprint file: rota en T-094, T-095 y T-098.
+- **FIXES de `close-*.sh`** — comparten patrón: el script afirma haber hecho algo que no hizo del todo y el flujo sigue como si nada.
+  - `close-task.sh` archiva el task file pero **no actualiza el enlace de su fila** en el sprint file: roto en T-094, T-095, T-096 y T-098, parcheado a mano cuatro veces.
+  - `close-sprint.sh` **commitea solo el rename**: `git mv` mueve la versión del índice, no la del working tree, así que las modificaciones sin stagear se quedan fuera del commit. Ocurrió en el cierre de sprint-14: el commit salió `0 insertions / 0 deletions` y las ediciones quedaron colgando. No debe abortar en silencio: o incluye los cambios, o falla diciendo por qué.
 - Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (S).
 - Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
 - Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
