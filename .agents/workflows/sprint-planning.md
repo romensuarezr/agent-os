@@ -14,7 +14,7 @@ description: Ritual de inicio de semana. Lee el roadmap, vacía el idea-inbox, g
 
 ## Archivos y rutas a revisar
 
-- `ROADMAP.md`
+- `roadmap.md`
 - `docs/sprints/`
 - `docs/idea-inbox/`
 - `docs/external-inbox/`
@@ -22,7 +22,7 @@ description: Ritual de inicio de semana. Lee el roadmap, vacía el idea-inbox, g
 - `CHANGELOG.md`
 
 ## Prerrequisitos
-- `ROADMAP.md` en la raíz del proyecto (mayúsculas exactas).
+- `roadmap.md` en la raíz del proyecto. **La convención del core es minúsculas**: `audit-repo.sh` migra de forma proactiva los `ROADMAP.md` a `roadmap.md`, así que el requisito en mayúsculas estaba desalineado con el estándar que el propio core impone.
 - Antigravity en modelo **Flash** (es lectura y planificación, no código).
 
 ---
@@ -60,7 +60,7 @@ bash scripts/agent/check-sprint.sh
 - Entradas en `SPILLOVER` → ir al paso 2b.
 - Sistema limpio → ir directamente al paso 3.
 
-Leer `ROADMAP.md` completo tras ejecutar el script.
+Leer `roadmap.md` completo tras ejecutar el script.
 
 ### 2b. Decisión sobre tareas incompletas (solo si hay sin ✅)
 
@@ -153,7 +153,7 @@ Una subsección por cada tarea candidata evaluada en 2d, incluidas las marcadas 
 
 ### 3. Vaciado de inboxes priorizando MVP
 
-Todo lo gestionado en los inboxes debe clasificarse como MVP o post-MVP antes de introducirlo en `ROADMAP.md`.
+Todo lo gestionado en los inboxes debe clasificarse como MVP o post-MVP antes de introducirlo en `roadmap.md`.
 
 ```bash
 bash scripts/agent/check-inbox.sh
@@ -162,7 +162,7 @@ bash scripts/agent/check-inbox.sh
 #### 3a. docs/external-inbox (si hay entradas)
 Para cada manifiesto listado, leer Origen, ¿Qué hace?, Archivos que toca, Prioridad y Precauciones. Luego:
 1. Buscar en `src/` los archivos del campo "Archivos que toca" — ¿ya implementado?
-2. Cruzar contra `ROADMAP.md` — ¿existe tarea que lo cubra? ¿Invalida alguna?
+2. Cruzar contra `roadmap.md` — ¿existe tarea que lo cubra? ¿Invalida alguna?
 3. Clasificar:
 
 | Resultado | Acción en roadmap |
@@ -192,7 +192,7 @@ Para cada manifiesto listado, leer Origen, ¿Qué hace?, Archivos que toca, Prio
 Presentar tabla consolidada con todas las entradas y acciones propuestas. **Esperar confirmación antes de escribir o archivar nada.**
 
 Una vez confirmado:
-- Aplicar cambios en `ROADMAP.md`.
+- Aplicar cambios en `roadmap.md`.
 - Archivar procesados de `docs/idea-inbox/` en `docs/idea-inbox/_archived/`.
 - Archivar procesados de `docs/external-inbox/` en `docs/external-inbox/_archived/`.
 

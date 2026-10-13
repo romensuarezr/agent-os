@@ -39,7 +39,16 @@ echo "=== SPRINT CONTEXT ==="
 
 if [ -n "$ROADMAP_PATH" ]; then
   PENDING_GLOBAL=$(grep -c "^- \\[ \\]" "$ROADMAP_PATH" 2>/dev/null || true)
-  echo "ROADMAP: $ROADMAP_PATH (✅ Detectado — $PENDING_GLOBAL tareas pendientes)"
+  # El estandar del core es roadmap.md en minusculas (audit-repo.sh migra ROADMAP.md).
+  # Reportar solo "Detectado" por coincidencia de caso ocultaba que el requisito
+  # del workflow y el fichero real no coincidian.
+  if [ "$(basename "$ROADMAP_PATH")" = "roadmap.md" ]; then
+    echo "ROADMAP: $ROADMAP_PATH (cumple el estandar — $PENDING_GLOBAL tareas pendientes)"
+  else
+    echo "ROADMAP: $ROADMAP_PATH (AVISO: nombre no estandar — $PENDING_GLOBAL tareas pendientes)"
+    echo "      El estandar del core es roadmap.md en minusculas (audit-repo.sh migra ROADMAP.md)."
+    echo "      El prerrequisito de sprint-planning pide roadmap.md: con ROADMAP.md no se cumple."
+  fi
 else
   RED='\033[0;31m'
   NC='\033[0m'
