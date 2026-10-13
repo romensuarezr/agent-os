@@ -146,53 +146,12 @@ if [ -f "$LOCK" ]; then
 fi
 
 
-# ==========================================
-# VERIFICACIÓN POST-ACCIÓN (validar antes de mover el ref)
-# ==========================================
-# Construye el commit en un índice temporal, lo valida y SOLO entonces mueve el ref.
-# Nunca se crea un ref que no cumpla lo que el script afirma. No usa git reset --soft:
-# si la validación falla no existe commit nuevo y el repo queda intacto.
-# CONSECUENCIA DOCUMENTADA: git update-ref NO dispara los hooks de git
-# (pre-commit, commit-msg). Un repo cuyo hook bloquee commits, dejaria de estar
-# protegido en el commit de cierre de tarea. Es el precio de validar antes de commitear.
-#
-# Uso: git_verify_commit <mensaje> <descripción legible> <patrón esperado>
-#   Si el patrón esperado aparece en el diff del commit, devuelve 0.
-git_verify_commit() {
-    local msg="$1" desc="$2" expect="$3"
-    local tmp_index tree sha
-    tmp_index="$(mktemp)"
-    rm -f "$tmp_index"                       # git exige que el índice no exista
-    if ! GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" read-tree HEAD 2>/dev/null; then
-        rm -f "$tmp_index"; echo "  ⚠️ No se pudo preparar el índice temporal: se usa el commit directo."
-        git -C "$ROOT" commit -m "$msg"; return 0
-    fi
-    # Volcar el stage actual al índice temporal y construir el árbol
-    local staged_tree
-    staged_tree="$(git -C "$ROOT" write-tree)"
-    if ! GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" read-tree "$staged_tree" 2>/dev/null; then
-        rm -f "$tmp_index"; git -C "$ROOT" commit -m "$msg"; return 0
-    fi
-    tree="$(GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" write-tree)"
-    sha="$(printf '%s\n' "$MESSAGE" | git -C "$ROOT" commit-tree "$tree" -p HEAD)"
-    local diff_out
-    # -z core.quotePath: sin esto, rutas con espacios o no-ASCII se entrecomillan y
-    # el patrón no casaría justo en los casos límite.
-    diff_out="$(git -C "$ROOT" -c core.quotePath=false diff-tree -r --no-commit-id --name-status "$sha" 2>/dev/null || true)"
-    if printf '%s' "$diff_out" | grep -q -- "$expect"; then
-        git -C "$ROOT" update-ref HEAD "$sha" "$(git -C "$ROOT" rev-parse HEAD)"
-        rm -f "$tmp_index"
-        echo "  ✅ $desc verificado en el commit antes de mover el ref"
-        return 0
-    fi
-    rm -f "$tmp_index"
-    RED='\033[0;31m'; NC='\033[0m'
-    echo -e "${RED}❌ ABORTADO: el commit no contiene lo que el script afirma hacer.${NC}"
-    echo -e "${RED}   Esperado: $expect${NC}"
-    echo -e "${RED}   Obtenido:${NC}"
-    printf '%s\n' "$diff_out" | sed 's/^/     /' | head -10
-    echo -e "${RED}   No se ha creado ningún commit y el repo queda intacto.${NC}"
-    return 1
+# Verificación post-condición del commit, compartida con close-sprint.sh.
+# Cargar con source desde la librería del core: la lógica NO se duplica aquí.
+# shellcheck source=scripts/agent/lib/verify-commit.sh
+source "$SCRIPT_DIR/lib/verify-commit.sh" 2>/dev/null || {
+    echo "ERROR: no se encuentra lib/verify-commit.sh; el cierre no puede verificarse." >&2
+    exit 1
 }
 
 # 2. Stage de todo lo modificado (código + docs ya editados por el agente)
@@ -245,7 +204,7 @@ fi
 # ("| T-XXX |"). Una tarea listada como elemento de lista no actualiza su enlace.
 
 # 5. Commit atómico único, VALIDADO ANTES de mover el ref
-if git_verify_commit "$MESSAGE" "archivado del task file a _archived/" "_archived/$TASK_BASENAME"; then
+if agent_verify_commit "$ROOT" "$MESSAGE" "_archived/$TASK_BASENAME" "archivado del task file a _archived/"; then
     echo "✅ Commit realizado: $MESSAGE"
 else
     exit 1

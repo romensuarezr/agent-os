@@ -173,33 +173,14 @@ else
   COMMIT_MSG="chore: archive ${SPRINT_NAME}"
 fi
 
-# VALIDAR ANTES de mover el ref. Sin esto, `git mv` commitearia solo el rename y las
-# modificaciones sin stagear quedarian colgando (ocurrio en el cierre de sprint-14, con un
-# commit de 0 insertions / 0 deletions). git update-ref NO dispara hooks de git.
-_validate_before_commit() {
-  local msg="$1" expect="$2"
-  local tmp_index tree sha diff_out
-  tmp_index="$(mktemp)"; rm -f "$tmp_index"
-  if ! GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" read-tree HEAD 2>/dev/null; then
-    rm -f "$tmp_index"; git -C "$ROOT" commit -m "$msg"; return 0
-  fi
-  local staged_tree; staged_tree="$(git -C "$ROOT" write-tree)"
-  GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" read-tree "$staged_tree" 2>/dev/null || true
-  tree="$(GIT_INDEX_FILE="$tmp_index" git -C "$ROOT" write-tree)"
-  sha="$(printf '%s\n' "$msg" | git -C "$ROOT" commit-tree "$tree" -p HEAD)"
-  diff_out="$(git -C "$ROOT" -c core.quotePath=false diff-tree -r --no-commit-id --name-status "$sha" 2>/dev/null || true)"
-  if printf '%s' "$diff_out" | grep -q -- "$expect"; then
-    git -C "$ROOT" update-ref HEAD "$sha" "$(git -C "$ROOT" rev-parse HEAD)"
-    rm -f "$tmp_index"; return 0
-  fi
-  rm -f "$tmp_index"
-  RED='\033[0;31m'; NC='\033[0m'
-  echo -e "${RED}❌ ABORTADO: el commit de archivado no contiene $expect.${NC}"
-  echo -e "${RED}   No se ha creado ningún commit; el repo queda intacto.${NC}"
-  return 1
+# Verificación post-condición del commit, compartida con close-task.sh (regla 8: no duplicar).
+# shellcheck source=scripts/agent/lib/verify-commit.sh
+source "$SCRIPT_DIR/lib/verify-commit.sh" 2>/dev/null || {
+    echo "ERROR: no se encuentra lib/verify-commit.sh; el archivado no puede verificarse." >&2
+    exit 1
 }
 
-if ! _validate_before_commit "$COMMIT_MSG" "_archived/"; then
+if ! agent_verify_commit "$ROOT" "$COMMIT_MSG" "_archived/" "archivado del sprint a _archived/"; then
   exit 1
 fi
 

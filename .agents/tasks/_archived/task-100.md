@@ -40,6 +40,25 @@ estructura actual y solo se le añade idempotencia y post-verificación.
 research y changelog si cambió) y **avisar** de cualquier modificación ajena colgando.
 Prohibido un `git add -A` del working tree en ese script.
 
+## Iteración 2 — ajustes exigidos en la revisión del merge
+
+1. **Helper extraído a librería compartida** (`scripts/agent/lib/verify-commit.sh`), `source`-ado
+   desde `close-task.sh` y `close-sprint.sh`. Cero duplicación: tras la extracción, `diff-tree`
+   aparece 0 veces en cada script llamador y 2 veces (sólo definición + uso) en la librería.
+   Registrado en `scripts/agent/assets-manifest.txt` para que los proyectos hijos lo reciban al
+   instalar (`install.sh` copia el directorio `lib/` completo, pero el manifest lo enumera).
+   Todo por parámetros (`root`, mensaje, patrón, descripción); se elimina la inconsistencia
+   `$MESSAGE`/`$msg` que hacía que el objeto commit usara la global del llamador.
+2. **Ningún commit sin verificar pasa en silencio**: los 6 caminos de fallback emiten aviso
+   explícito a `stderr` con `agent_unverified_warning` (motivo, fallback y cómo revisarlo).
+   Verificado forzando el fallback real (repo sin `HEAD`, donde `read-tree HEAD` falla):
+   el aviso sale y el mensaje del commit es el del argumento, no el de ninguna global.
+
+**Sobre el fallo de verificación del punto 2**: la primera prueba-forzado (`.git/index` con
+permisos 000) **no llegó a exercitar el helper**, porque el `git add` del staging falla antes y
+el script aborta ahí. Se cambió por el caso real de fallback (repo sin `HEAD`) para probar la
+librería de verdad en lugar de dar por bueno un test que no ejercitaba el código.
+
 ## Evidencia de reproducción
 
 Ambos fallos se reprodujeron antes de tocar el código, en repos desechables:

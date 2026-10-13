@@ -30,6 +30,7 @@ scripts/agent/check-sprint.sh
 scripts/agent/sync.sh
 scripts/agent/lib/detect-stack.sh
 scripts/agent/lib/find-tracker.sh
+scripts/agent/lib/verify-commit.sh
 scripts/agent/inventory-check.sh
 scripts/agent/check-session.sh
 scripts/agent/close-task.sh
