@@ -35,23 +35,41 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-15-core.md` (estado de la fila T-101)
 
 ## Criterios de done
-- [ ] `--push-source` publica la rama de tarea en origin con tracking (`-u`), sin exigir rebase
-- [ ] `--merge-commit` permite integrar sin fast-forward; el `--ff-only` actual sigue siendo el
+- [x] `--push-source` publica la rama de tarea en origin con tracking (`-u`), sin exigir rebase
+- [x] `--merge-commit` permite integrar sin fast-forward; el `--ff-only` actual sigue siendo el
       valor por defecto
-- [ ] `--pr` crea el PR con `gh` y propaga su URL; si `gh` falta o no está autenticado, falla
+- [x] `--pr` crea el PR con `gh` y propaga su URL; si `gh` falta o no está autenticado, falla
       con mensaje accionable en vez de a medias
-- [ ] `--help` refleja todos los flags reales, incluidos los preexistentes que faltaban
-- [ ] Ninguna combinación de flags deja la rama publicada y el merge sin hacer, ni al revés
-- [ ] Verificación post-condición: el script comprueba que el push y el merge ocurrieron antes de
+- [x] `--help` refleja todos los flags reales, incluidos los preexistentes que faltaban
+- [x] Ninguna combinación de flags deja la rama publicada y el merge sin hacer, ni al revés
+- [x] Verificación post-condición: el script comprueba que el push y el merge ocurrieron antes de
       reportar éxito (mismo patrón que `lib/verify-commit.sh`)
-- [ ] Check 20 en `tests/validate-control-plane.sh` con fixture en repo temporal
-- [ ] Suite completa sin regresiones (20/20)
+- [x] Check 20 en `tests/validate-control-plane.sh` con fixture en repo temporal
+- [x] Suite completa sin regresiones (20/20)
 - [ ] `git diff --name-only` ⊆ Caja
 - [x] Plan presentado al usuario (Fase 3.5) — APROBADO CON CAMBIOS: rama/commit del contrato + `--help` documenta los 3 flags nuevos, la distinción `--push` (TARGET) vs `--push-source` (SOURCE) y `--skip-tests`
 - [x] APROBADO recibido — fecha/hora: 2026-10-13T21:52:14+01:00
 - [x] Rama creada: `feat/T-101-push-source-merge-commit-pr` (desde `main` @ `632454e`)
 - [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
+
+## Defectos encontrados durante la implementación
+
+Cuatro fallos reales, tres de ellos introducidos por mí en el camino. Se documentan porque el
+valor de un check está en detectar, no en afirmar que todo fue bien a la primera:
+
+1. **`--merge-commit` no hacía nada.** Parseaba el flag pero nunca propagaba el valor a
+   `MERGE_MODE`, que se quedaba en `--ff-only`. El caso de prueba lo detectó: `merge_mode`
+   seguía siendo `--ff-only` y no se creaba commit de merge.
+2. **El modo `--json` estaba roto.** La salida de `git merge` y `git checkout` iba a stdout y
+   contaminaba el JSON, impidiendo cualquier parseo. `log()` ya respetaba el modo JSON; los
+   comandos git no.
+3. **Mi arreglo del punto 2 rompió el script entero.** Puse `>&2` dentro de una variable
+   (`GIT_OUT=">&2"`); bash no reparsea el resultado de una expansión como redirección, así que
+   git recibía `>&2` como una ref a fusionar y abortaba. La redirección tiene que ir literal.
+4. **Los fixtures del check 20 no probaban lo que decían.** Escribían los ficheros de captura
+   dentro del repo del fixture, así que el working tree aparecía sucio y el script abortaba
+   antes de ejecutar nada. Un test que no ejercita el código es peor que no tener test.
 
 ## Decisiones del usuario (Fase 3.5, 2026-10-13T21:52:14+01:00)
 1. **Scout T-101 — la CLI `gh` queda ADOPTADA.** Confirmado explícitamente. No se introduce
