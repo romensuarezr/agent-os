@@ -162,10 +162,14 @@ Esto genera un archivo `.infisical.json` que contiene únicamente el `projectId`
 
 ```bash
 # Listar claves de secretos disponibles (sin mostrar valores)
-infisical secrets \
-  --domain="${INFISICAL_API_URL}" \
-  --projectId="${INFISICAL_PROJECT_ID}" \
-  --env=prod
+# ⚠️ NO uses `infisical secrets` para inventariar: imprime los VALORES en claro y los
+#    vierte en tu contexto y en el log de la sesión. Usa el localizador del core.
+bash scripts/agent/secret-locate.sh --list
+bash scripts/agent/secret-locate.sh --name NOMBRE_DE_LA_CLAVE
+
+# Auditar la bóveda: revocados, duplicados y conflictos de shadowing
+bash scripts/agent/secret-locate.sh --audit
+python3 scripts/agent/lib/verify-secrets.py --source=infisical
 
 # Crear o actualizar un secreto
 infisical secrets set CLAVE="valor" \
@@ -218,3 +222,303 @@ bash scripts/agent/import-secrets.sh /ruta/a/proyectos --apply --env=dev --clean
    - `prod`: Claves de producción de servicios desplegados en hosting/Coolify.
 3. **Rotación Rápida**:
    - En caso de sospecha de compromiso de un token (ej. GitHub PAT o API key de LLM), la rotación se ejecuta en la consola de Infisical; todos los agentes y servicios consumen el nuevo valor en la siguiente ejecución sin necesidad de re-desplegar ni tocar código fuente.
+
+---
+
+## 📐 Taxonomía y alcance de los secretos
+
+### Protocolo cuando un secreto no está en la carpeta del proyecto
+
+**No adivines, no iteres carpeta por carpeta y no preguntes al usuario.** Es la causa más
+frecuente de turnos quemados:
+
+```bash
+bash scripts/agent/secret-locate.sh --name NOMBRE_DE_LA_CLAVE
+```
+
+El script responde en una sola llamada dónde vive la clave. Si aparece en varias carpetas,
+avisa del conflicto: puede ser una clave transversal o una copia obsoleta.
+
+### Metadatos obligatorios
+
+Usa la **descripción** del secreto en Infisical para declarar el alcance. Convención:
+
+```
+scope=project|shared   shared solo si la consumen 2 o más proyectos
+env=dev|staging|prod
+owner=<equipo>
+consumers=<proyectos que la leen>
+rot=<periodicidad de rotación>
+```
+
+### Reglas de ubicación (no son opiniones: están medidas)
+
+1. **Transversal → carpeta compartida.** Una clave consumida por **≥2 proyectos** va en la
+   carpeta compartida, con `scope=shared` y `consumers=` listados. El umbral sale de la
+   auditoría de la bóveda, no de criterio subjetivo.
+2. **Específica → carpeta del proyecto.** Claves atadas a un entorno concreto
+   (`DATABASE_URL`, `TELEGRAM_CHAT_ID`, `PORT`) **no** se comparten ni se replican, aunque
+   dos proyectos usen el mismo nombre de variable.
+3. **No se replica un secreto "porque ya se usó aquí".** Duplicar credenciales multiplica la
+   superficie de revocación: si copias una clave a dos carpetas, rotarla exige recordar ambas.
+   Solo se replica cuando el aislamiento lo exige (producción vs desarrollo), y siempre
+   declarando `consumers`.
+4. **Nada de carpetas `_backup` dentro de la bóveda.** Un respaldo vive fuera del gestor de
+   secretos. Dentro de la bóveda se convierte en una copia obsoleta que nadie rota.
+5. **Nunca borres una clave revocada.** Márcala y repórtala: borrarla destruye el rastro del
+   incidente y deja al servicio sin credencial sin explicación.
+
+### Shadowing: el fallo más peligroso y silencioso
+
+Si el **mismo nombre** existe en varias carpetas con **valores distintos**, revocar una copia
+deja vivas las demás, y un agente que elija la carpeta equivocada usa otra credencial sin
+enterarse. Ninguna herramienta lo detecta por defecto:
+
+```bash
+python3 scripts/agent/lib/verify-secrets.py --source=infisical
+```
+
+Salida relevante: `CONFLICTO (mismo nombre, valores distintos)`. Cada conflicto debe
+resolverse eligiendo **una** carpeta canónica y borrando el resto.
+
+### Auditoría periódica
+
+```bash
+bash scripts/agent/secret-locate.sh --audit          # duplicados y carpetas clonadas
+python3 scripts/agent/lib/verify-secrets.py --source=infisical   # revocados y shadowing
+```
+
+Ambas son de **solo lectura** y comparten motor de vigencia, así que no pueden divergir.
+
+---
+
+## 🏷️ Descripciones y etiquetas: cómo leerlas y cómo proponerlas
+
+### Qué estado tiene la bóveda (medido, no supuesto)
+
+La auditoría de higiene revela el dato duro:
+
+```bash
+bash scripts/agent/secret-locate.sh --hygiene
+```
+
+En la última auditoría, **283 de 283 entradas** estaban sin descripción y sin etiquetas. El
+modelo de datos de Infisical soporta ambos campos (`comment` y `tags`), y la CLI permite
+escribir las etiquetas; simplemente nadie los ha usado.
+
+### Qué aporta cada metadato
+
+| Campo | Para qué sirve | Cómo se lee |
+| :--- | :--- | :--- |
+| `lastSecretModified` de la carpeta | **Ordena por antigüedad real.** La carpeta tocada más recientemente es la canónica probable ante un conflicto de shadowing | `secret-locate.sh --list` ya viene ordenado |
+| `description` de la carpeta | Qué guarda esa carpeta y quién la consume | `secret-locate.sh --list` la muestra |
+| `tags` del secreto | Etiquetado rápido: `scope`, `env`, `owner` | `secret-locate.sh --hygiene` |
+| `comment` del secreto | Descripción larga del propósito de la clave | ídem |
+
+### Etiquetado (la CLI lo soporta de forma nativa)
+
+```bash
+infisical secrets set NOMBRE_DE_LA_CLAVE="<valor>" \
+  --path=/<carpeta> \
+  --tag scope-project --tag env-prod --tag owner-plataforma
+```
+
+> ⚠️ **`--tag` REEMPLAZA** las etiquetas existentes, no las añade. Lee antes de escribir.
+> ⚠️ **Los slugs solo admiten minúsculas, números y guiones.** `scope=project` se rechaza
+> con un 422; la forma válida es `scope-project`. El `=` no existe como separador: el
+> prefijo hace de namespace.
+
+### Etiquetas ya aplicadas en la flota
+
+Tras la auditoría se etiquetaron con `scope-project` + `env-dev` las claves que comparten
+nombre entre carpetas pero son **configuración por proyecto**, para que la auditoría deje de
+reportarlas como shadowing:
+
+`APP_URL`, `DATABASE_URL`, `GOOGLE_API_KEY`, `GROQ_API_KEY`, `HF_TOKEN`, `N8N_API_KEY`,
+`N8N_API_URL`, `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NOTION_API_KEY`, `PORT`,
+`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+
+La auditoría respeta esa etiqueta: una clave con `scope-project` se clasifica como
+`INTENCIONAL_SCOPE_PROJECT` y nunca como conflicto.
+
+### Descripciones: límite real
+
+La CLI expone `--tag` pero **no** tiene flag de descripción. El campo `comment` existe en el
+modelo y se exporta con `infisical export`, pero la vía de escritura no está expuesta por la
+CLI documentada. Mientras tanto, la taxonomía **debe vivir en las etiquetas**, que sí son
+escribibles:
+
+```
+scope-project|scope-shared    env-dev|env-staging|env-prod
+owner-<equipo>                consumers-<proyectos>       rot-<periodicidad>
+```
+
+### El agente debe proponer, no mutar solo
+
+Si `--hygiene` reporta claves sin metadatos, o si `--audit` revela shadowing o carpetas
+clonadas, el agente debe **informar y proponer el cambio concreto** (qué clave, en qué
+carpeta, con qué etiquetas), nunca reescribir la bóveda por su cuenta. Escribir secretos es
+una acción con consecuencias que requiere aprobación humana.
+
+### Respuesta a la pregunta de qué carpeta es la buena
+
+- `shared` es la carpeta canónica de secretos transversales.
+- `/configuraciones` es su predecesora: contiene exactamente las mismas 5 claves y **no tiene
+  descripción**. Existe por costumbre, no por diseño.
+- Conviven hasta que se migren los consumidores. Retirarla exige verificar quién la usa, así
+  que es una pasada posterior, no una decisión automática.
+
+
+---
+
+## 📇 Catálogo de secretos por repositorio
+
+### Qué es
+
+`.agents/config/secrets-catalog.yaml` es el **contrato** de secretos de un repositorio: qué
+claves declara, de qué carpeta de la bóveda viene cada una, qué etiquetas tiene y si su valor
+sigue vivo. **No contiene valores.**
+
+```yaml
+generated_at: 2026-10-12T18:13:33Z
+source: infisical+local      # o 'local-only' si no hay bóveda
+complete: true
+secrets_declared: 56
+secrets:
+  - key: HF_TOKEN
+    scope: shared
+    status: unknown
+    locations: [kanairos, polymarket, shared]
+    tags: [env-dev, scope-shared, uses-polymarket]
+    required_by: [.env, packages/agents/agent-data-manager/.env]
+```
+
+### Por qué se versiona en git
+
+Un `.env` es una foto ciega: no dice de dónde vino una clave, qué más la usa ni si sigue
+viva. El catálogo sí. Versionarlo hace que un PR muestre los cambios de contexto:
+"esta clave pasó a `scope-shared`", "esta carpeta ya no la consume", "esto está revocado".
+Ese es el motivo de que sea un artefacto **generado y versionado**, y no un fichero de
+memoria.
+
+### Cómo se genera y quién lo escribe
+
+**Lo escribe el script. El agente no lo edita a mano.**
+
+```bash
+bash scripts/agent/generate-secrets-catalog.sh --path .            # regenerar
+bash scripts/agent/generate-secrets-catalog.sh --path . --check    # pre-flight: 1 si está desfasado
+```
+
+Degrada sin red: si la bóveda no responde, genera solo la parte derivable del repo y marca
+`source: local-only` y `complete: false`. Un proyecto hijo que **no** use Infisical también
+tiene catálogo: refleja sus referencias locales.
+
+### El ciclo completo
+
+```
+bóveda (fuente de verdad)  ──generate──▶  catálogo (versionado)  ──materialize──▶  .env
+  tags, descripciones                        contrato sin valores                  copia local
+                                                                                   (gitignored)
+```
+
+``.env` es una **materialización** para trabajar sin conexión, nunca la fuente. Se genera con:
+
+```bash
+# Simulación (defecto): no escribe nada, solo informa
+bash scripts/agent/materialize-secrets.sh --path .
+
+# Escritura real: solo añade lo que falta, nunca pisa lo que ya está
+bash scripts/agent/materialize-secrets.sh --path . --apply
+# --force si de verdad quieres sobrescribir un valor local
+```
+
+**Garantías de la materialización**
+
+| Garantía | Cómo |
+| :--- | :--- |
+| Nada se escribe sin `--apply` | Modo detección por defecto |
+| Nunca imprime valores | Ni en texto ni en `--json` |
+| Nunca pisa un valor local | `--force` explícito, y avisa del divergente |
+| **Rechaza escribir en ficheros que git versionaría** | Frena con exit 1 y lista los ficheros |
+| Nunca escribe en `.env.example` | Las plantillas son contrato, no credenciales |
+| Permisos 600 | En cada fichero escrito |
+
+Si el dry-run marca **(valor local distinto)**, hay shadowing entre el `.env` y la bóveda.
+No lo resuelvas con `--force` sin entender cuál de los dos valores es el bueno: mira la
+evidencia de uso que da `secret-locate.sh`.
+
+### Cuándo falta una clave en un proyecto
+
+1. `secret-locate.sh --name X` primero. Si ya existe en otra carpeta, **no la copies**: cámbiala.
+2. Si no existe en absoluto, decide el alcance: credencial del proyecto → su carpeta;
+   credencial de proveedor usada por varios → `shared` con `scope-shared`.
+3. **Etiqueta en el momento de crearla.** Es la única vez que tienes el contexto fresco.
+4. Regenera el catálogo.
+
+
+---
+
+## 📊 Marca de salud de los secretos
+
+### Qué es y por qué NO se comprueba en cada sesión
+
+`.agents/context/secrets-health.md` es una **marca generada** que `install.sh` escribe al
+desplegar y que se regenera a demanda. **No se comprueba en el pre-flight de sesión, a
+propósito**: un aviso que aparece cada vez y casi nunca exige acción es ruido que entrena a
+ignorar los avisos. Solo se lee cuando un agente trabaja con secretos.
+
+### Qué contiene
+
+```
+- **Auditado**: <fecha ISO>
+- **Revocadas**: <n>
+- **Conflictos de shadowing**: <n>
+- **Cobertura de verificacion**: <verificadas>/<total> (<pct>%)
+```
+
+La cobertura es el dato que más duele: si es baja, **hay credenciales que nadie ha
+verificado nunca**, y una revocada puede estar隐形 desde hace meses.
+
+### Antigüedad: 3 meses
+
+Estos datos son una foto. Si la marca tiene **más de 3 meses**, no te fíes: regenera.
+
+```bash
+python3 scripts/agent/lib/verify-secrets.py --source=infisical --mark
+```
+
+Tarda ~40s (llama a las APIs de cada proveedor). Para un inventario rápido sin red:
+
+```bash
+bash scripts/agent/secret-locate.sh --audit --json
+```
+
+### Gates: cuando quieres que falle
+
+La auditoría **no falla nunca por defecto**. Si la quieres como puerta de CI o de un
+pre-flight que tú decidas, activa los gates explícitamente:
+
+```bash
+# Falla si hay alguna clave revocada
+python3 scripts/agent/lib/verify-secrets.py --source=infisical --strict
+
+# Falla si la cobertura de verificación baja del umbral
+python3 scripts/agent/lib/verify-secrets.py --source=infisical --min-coverage 80
+```
+
+Hoy la cobertura real está en torno al **10%**: casi nueve de cada diez credenciales nunca
+se han comprobado. Poner `--min-coverage` alto es la forma de hacer visible ese agujero en
+lugar de dejarlo implícito.
+
+### El ciclo de rotación
+
+1. **Detectar**: la auditoría marca qué valores están revocados y en qué carpetas.
+2. **Decidir**: para cada clave revocada, quién la consume y si es transversal o por
+   proyecto. **No copies el token que funciona de otro repo**: los tokens de Cloudflare
+   tienen permisos por zona y las claves de Gemini están atadas a un proyecto de Google.
+   Copiar da acceso a dominios ajenos o viola los términos del proveedor.
+3. **Rotar**: generar el token nuevo en la consola del proveedor, donde se controla el
+   alcance, y guardarlo en su carpeta canónica.
+4. **Propagar**: cuando el valor nuevo responde, `materialize-secrets.sh --force` refresca
+   los `.env` locales, y se elimina la copia vieja de las carpetas que la tenían.

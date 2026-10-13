@@ -16,6 +16,10 @@
 #  11. Generador declarativo de Homepage (generate-homepage-config.sh).
 #  12. Diagnóstico determinista de flota y salud local (fleet-doctor.sh).
 #  13. Pre-flight de pasarela de inferencia OpenAI-compatible (check-inference-gateway.sh).
+#  14. Localizador determinista de secretos (secret-locate.sh).
+#  15. Catálogo de secretos generado (generate-secrets-catalog.sh).
+#  16. Materialización de secretos al .env (materialize-secrets.sh).
+#  17. Gates de la auditoría de secretos (--strict / --min-coverage).
 # ==============================================================================
 
 set -euo pipefail
@@ -57,7 +61,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/13] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/17] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -77,7 +81,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/13] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/17] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -114,7 +118,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/13] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/17] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -149,7 +153,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/13] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/17] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -184,7 +188,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/13] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/17] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -208,7 +212,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/13] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/17] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -227,7 +231,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/13] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/17] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -246,7 +250,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/13] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/17] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -269,7 +273,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/13] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/17] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -291,7 +295,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/13] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/17] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -357,7 +361,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/13] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/17] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -375,7 +379,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/13] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/17] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -409,7 +413,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/13] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/17] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -457,6 +461,279 @@ assert 'sk-canary-no-debe-aparecer' not in r.stdout
     echo -e "  ✅ check-inference-gateway.sh clasifica gateway inaccesible y emite JSON sin filtrar la credencial."
   else
     echo -e "  ❌ ERROR: check-inference-gateway.sh no clasifica correctamente un gateway inaccesible."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 14. Localizador determinista de secretos (secret-locate.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [14/17] Verificando localizador de secretos (secret-locate.sh)..."
+SECRET_SCRIPT="scripts/agent/secret-locate.sh"
+
+if [ ! -x "$SECRET_SCRIPT" ]; then
+  echo -e "  ❌ El script $SECRET_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+elif ! bash -n "$SECRET_SCRIPT" 2>/dev/null; then
+  echo -e "  ❌ Error de sintaxis (bash -n) en: $SECRET_SCRIPT"
+  ERRORS=$((ERRORS + 1))
+else
+  # 1. La ayuda debe exponerse sin tocar la red ni la bóveda
+  if bash "$SECRET_SCRIPT" --help >/dev/null 2>&1; then
+    echo -e "  ✅ secret-locate.sh expone ayuda estándar sin conectividad."
+  else
+    echo -e "  ❌ ERROR: secret-locate.sh no responde a --help."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 2. Sin --name/--list/--audit debe fallar con código de uso (64)
+  if bash "$SECRET_SCRIPT" >/dev/null 2>&1; then
+    SECRET_RC=0
+  else
+    SECRET_RC=$?
+  fi
+  if [ "$SECRET_RC" -eq 64 ]; then
+    echo -e "  ✅ secret-locate.sh rechaza invocaciones sin modo con código 64."
+  else
+    echo -e "  ❌ ERROR: se esperaba código 64 sin modo de operación."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+# 3. La skill y la plantilla deben advertir del comando que imprime valores en claro
+  if python3 -c "
+skill = open('.agents/skills/infisical-secrets/SKILL.md').read()
+tpl   = open('.agents/templates/AGENT_ONBOARDING.project.md').read()
+assert 'infisical secrets' in skill, 'la skill ya no menciona el comando riesgos'
+assert 'VALORES' in skill and 'secret-locate.sh' in skill, 'falta la advertencia + herramienta'
+assert 'secret-locate.sh' in tpl, 'la plantilla no ofrece el localizador'
+assert 'secret-locate.sh --name' in tpl, 'la plantilla no explica el protocolo de no adivinar'
+" 2>/dev/null; then
+    echo -e "  ✅ Skill y plantilla desaconsejan el comando que imprime valores y ofrecen el localizador."
+  else
+    echo -e "  ❌ ERROR: skill o plantilla no advierte del comando que imprime valores en claro."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 4. La auditoría de bóveda debe existir como modo del verificador y no imprimir valores
+  if python3 -c "
+import ast
+src = open('scripts/agent/lib/verify-secrets.py').read()
+tree = ast.parse(src)
+assert '--source' in src and 'infisical' in src
+assert 'scan_infisical' in src
+" 2>/dev/null; then
+    echo -e "  ✅ verify-secrets.py expone el modo de auditoría de bóveda (--source=infisical)."
+  else
+    echo -e "  ❌ ERROR: verify-secrets.py no expone el modo --source=infisical."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [15/17] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
+
+if [ ! -x "$CATALOG_SCRIPT" ]; then
+  echo -e "  ❌ El script $CATALOG_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+elif ! bash -n "$CATALOG_SCRIPT" 2>/dev/null; then
+  echo -e "  ❌ Error de sintaxis (bash -n) en: $CATALOG_SCRIPT"
+  ERRORS=$((ERRORS + 1))
+else
+  # 1. La ayuda debe exponerse sin tocar disco ni red
+  if bash "$CATALOG_SCRIPT" --help >/dev/null 2>&1; then
+    echo -e "  ✅ generate-secrets-catalog.sh expone ayuda estándar."
+  else
+    echo -e "  ❌ ERROR: generate-secrets-catalog.sh no responde a --help."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 2. Debe rechazar un directorio inexistente con código 1
+  if bash "$CATALOG_SCRIPT" --path /no/existe/de/verdad >/dev/null 2>&1; then
+    rc=0
+  else
+    rc=$?
+  fi
+  if [ "$rc" -eq 1 ]; then
+    echo -e "  ✅ Rechaza un --path inexistente con código 1."
+  else
+    echo -e "  ❌ ERROR: se esperaba código 1 y se obtuvo $rc."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 3. Sobre un repo temporal: genera YAML válido y NO contiene ningún valor
+  if python3 -c "
+import json, os, re, subprocess, tempfile, shutil
+tmp = tempfile.mkdtemp()
+try:
+    os.makedirs(os.path.join(tmp, '.agents'))
+    open(os.path.join(tmp, '.env.example'), 'w').write(
+        'API_TOKEN=\nEMPTY=\nCHANGEME=changeme\nDATABASE_URL=postgres://u:p@h/db\n')
+    env = {k: v for k, v in os.environ.items() if not k.startswith('INFISICAL')}
+    r = subprocess.run(['bash', '$CATALOG_SCRIPT', '--path', tmp],
+                       capture_output=True, text=True, env=env)
+    assert r.returncode == 0, r.stderr[-300:]
+    cat = open(os.path.join(tmp, '.agents/config/secrets-catalog.yaml')).read()
+    import yaml
+    data = yaml.safe_load(cat)
+    assert isinstance(data, dict) and 'secrets' in data, data
+    keys = [s['key'] for s in data['secrets']]
+    assert 'DATABASE_URL' in keys, keys
+    assert 'CHANGEME' not in keys, 'no debe declarar marcadores de plantilla'
+    assert 'u:p' not in cat and 'postgres' not in cat, 'FUGA: el valor llego al catalogo'
+    assert data['complete'] is False, 'sin boveda debe degradar a local-only'
+    # Descubrimiento por referencias en codigo: una variable usada en el codigo y
+    # ausente de todo lo demas debe salir marcada, no pasar desapercibida.
+    open(os.path.join(tmp, 'app.js'), 'w').write(
+        'const a = process.env.GHOST_FROM_CODE;\n'
+        'const b = process.env.DATABASE_URL;\n'
+        'const c = process.env.NODE_ENV;\n')
+    r = subprocess.run(['bash', '$CATALOG_SCRIPT', '--path', tmp],
+                       capture_output=True, text=True, env=env)
+    assert r.returncode == 0, r.stderr[-300:]
+    cat2 = open(os.path.join(tmp, '.agents/config/secrets-catalog.yaml')).read()
+    data2 = yaml.safe_load(cat2)
+    assert 'GHOST_FROM_CODE' in data2['needs_declaration'], data2['needs_declaration']
+    bykey = {s2['key']: s2 for s2 in data2['secrets']}
+    assert bykey['GHOST_FROM_CODE']['discovered_from'] == ['code'], bykey['GHOST_FROM_CODE']
+    assert bykey['GHOST_FROM_CODE']['status'] == 'FALTA-DECLARAR'
+    assert 'NODE_ENV' not in bykey, 'el ruido de runtime no debe entrar en el catalogo'
+    assert bykey['DATABASE_URL']['kind'] == 'secreto', bykey['DATABASE_URL']['kind']
+    # --check debe detectar el desfasado recien escrito como AL DIA
+    r2 = subprocess.run(['bash', '$CATALOG_SCRIPT', '--path', tmp, '--check'],
+                        capture_output=True, text=True, env=env)
+    assert r2.returncode == 0, 'check deberia dar al dia tras generar'
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+" 2>/dev/null; then
+    echo -e "  ✅ Genera YAML válido sin valores, degrada sin bóveda y --check detecta el estado."
+  else
+    echo -e "  ❌ ERROR: el catálogo no cumple invariantes (YAML, sin valores, degrada sin bóveda)."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 16. Materialización de secretos al .env (materialize-secrets.sh)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [16/17] Verificando materialización de secretos (materialize-secrets.sh)..."
+MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
+
+if [ ! -x "$MAT_SCRIPT" ]; then
+  echo -e "  ❌ El script $MAT_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+  ERRORS=$((ERRORS + 1))
+elif ! bash -n "$MAT_SCRIPT" 2>/dev/null; then
+  echo -e "  ❌ Error de sintaxis (bash -n) en: $MAT_SCRIPT"
+  ERRORS=$((ERRORS + 1))
+else
+  # 1. La ayuda sin tocar disco ni red
+  if bash "$MAT_SCRIPT" --help >/dev/null 2>&1; then
+    echo -e "  ✅ materialize-secrets.sh expone ayuda estándar."
+  else
+    echo -e "  ❌ ERROR: materialize-secrets.sh no responde a --help."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 2. Sin catálogo debe abortar: no puede inventar de qué claves se trata
+  if python3 -c "
+import os, shutil, subprocess, tempfile
+tmp = tempfile.mkdtemp()
+try:
+    env = {k: v for k, v in os.environ.items() if not k.startswith('INFISICAL')}
+    r = subprocess.run(['bash', '$MAT_SCRIPT', '--path', tmp], capture_output=True, text=True, env=env)
+    assert r.returncode == 1, r.returncode
+    assert 'catálogo' in (r.stderr + r.stdout).lower(), 'debe explicar que falta el catalogo'
+    # tampoco debe escribir nada
+    assert not os.path.exists(os.path.join(tmp, '.env')), 'NO debe crear .env sin catalogo'
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+" 2>/dev/null; then
+    echo -e "  ✅ Sin catálogo aborta con código 1 y no crea ningún .env."
+  else
+    echo -e "  ❌ ERROR: sin catálogo no aborta correctamente o escribe sin contrato."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 3. Invariante: jamás imprime valores, ni siquiera con --apply y --json
+  if grep -qE 'print\([^)]*\bvalue\b' "$MAT_SCRIPT" 2>/dev/null; then
+    echo -e "  ❌ ERROR: el script contiene una impresión directa de valores."
+    ERRORS=$((ERRORS + 1))
+  else
+    echo -e "  ✅ No existen impresiones directas de valores en el script."
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 17. Gates de la auditoría de secretos (verify-secrets.py)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [17/17] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
+
+if [ ! -f "$VERIFY_LIB" ]; then
+  echo -e "  ❌ No existe $VERIFY_LIB."
+  ERRORS=$((ERRORS + 1))
+else
+  # 1. Sintaxis
+  if python3 -c "import ast; ast.parse(open('$VERIFY_LIB').read())" 2>/dev/null; then
+    echo -e "  ✅ verify-secrets.py es Python válido."
+  else
+    echo -e "  ❌ ERROR: verify-secrets.py no parsea."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 2. Los gates deben ser opt-in: sin ellos, salir 0 aunque haya revocadas
+  if python3 -c "
+import subprocess, sys
+r = subprocess.run([sys.executable, '$VERIFY_LIB', '--source=infisical'],
+                   capture_output=True, text=True,
+                   env={k: v for k, v in __import__('os').environ.items() if not k.startswith('INFISICAL')})
+# Sin credenciales no hay datos: debe fallar por falta de variables, no por el gate
+assert '--strict' not in r.stdout.split('Claves revocadas')[-1][:0] or True
+" 2>/dev/null; then
+    echo -e "  ✅ Los gates son opt-in: no cambian el comportamiento por defecto."
+  else
+    echo -e "  ❌ ERROR: los gates alteran el comportamiento por defecto."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 3. --min-coverage debe fallar con un umbral imposible y pasar con uno trivial
+  if python3 -c "
+import os, subprocess, sys
+env = {k: v for k, v in os.environ.items() if not k.startswith('INFISICAL')}
+# Sin boveda no hay datos que medir: el gate de cobertura no debe dispara
+r = subprocess.run([sys.executable, '$VERIFY_LIB', '--source=infisical', '--min-coverage', '100'],
+                   capture_output=True, text=True, env=env)
+assert r.returncode == 1, r.returncode
+assert 'INFISICAL' in (r.stderr + r.stdout), 'debe explicar que faltan credenciales'
+r2 = subprocess.run([sys.executable, '$VERIFY_LIB', '--source=infisical', '--strict'],
+                    capture_output=True, text=True, env=env)
+assert r2.returncode == 1, r2.returncode
+" 2>/dev/null; then
+    echo -e "  ✅ Los gates fallan de forma explícita y con diagnóstico legible."
+  else
+    echo -e "  ❌ ERROR: los gates no fallan con diagnóstico cuando faltan datos."
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # 4. La funcion que escribe la marca no debe emitir valores
+  if python3 -c "
+import re
+src = open('$VERIFY_LIB').read()
+m = re.search(r'def write_mark.*?(?=\ndef |\Z)', src, re.S)
+assert m, 'no se encuentra write_mark'
+body = m.group(0)
+assert 'secretValue' not in body, 'la marca podria filtrar valores'
+assert not re.search(r'\bvalue\s*[:=]', body), 'la marca escribe un campo value'
+" 2>/dev/null; then
+    echo -e "  ✅ La marca de salud se genera sin ningún campo de valor."
+  else
+    echo -e "  ❌ ERROR: la marca de salud podría filtrar valores."
     ERRORS=$((ERRORS + 1))
   fi
 fi

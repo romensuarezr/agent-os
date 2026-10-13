@@ -24,6 +24,36 @@ bash scripts/agent/audit-child.sh
 - `lib/`: Servicios de datos y utilidades core.
 - `docs/`: Documentación del proyecto y sprints.
 
+## 🔐 Gestión de Secretos
+Los secretos **nunca** viven en el repositorio. Se resuelven en tiempo de ejecución desde el gestor de secretos.
+
+> [!CAUTION]
+> No ejecutes `infisical secrets` para inventariar: imprime los **valores** en claro y los
+> vuelca en el contexto de la sesión y en el log. Para listar o buscar, usa el localizador.
+
+```bash
+# ¿Dónde vive esta clave? (solo nombres, nunca valores)
+bash scripts/agent/secret-locate.sh --name NOMBRE_DE_LA_CLAVE
+
+# Inventario de carpetas y su número de claves
+bash scripts/agent/secret-locate.sh --list
+```
+
+**Protocolo si el secreto no está en la carpeta de este proyecto**:
+1. Usa `secret-locate.sh --name`. **No** adivines carpeta por carpeta ni lo pidas al usuario.
+2. Si la clave aparece en varias carpetas, es una clave compartida o duplicada: revisa
+   `--audit` antes de usarla.
+3. Consume siempre de forma efímera, sin escribir a disco:
+   ```bash
+   infisical run --path=/<carpeta> -- bash -c 'miapp'
+   ```
+
+- **Carpeta compartida**: un secreto consumido por **2 o más** proyectos vive en la carpeta
+  compartida con `scope=shared`. Uno específico de este proyecto, en su propia carpeta.
+- **Nunca repliques** un secreto a otra carpeta "porque ya se usó aquí": multiplica la
+  superficie de revocación.
+- **Detalle completo**: `.agents/skills/infisical-secrets/SKILL.md` (taxonomía, shadowing y rotación).
+
 ## 🛠️ Comandos Frecuentes
 - `npm run dev`: Arrancar entorno de desarrollo.
 - `npm run build`: Validar compilación.
