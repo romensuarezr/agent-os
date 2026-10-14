@@ -1,7 +1,7 @@
 # Sprint 16 — Frontera Portable y Saneado de Exposición
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
@@ -21,3 +21,12 @@
   bloqueada hasta confirmación de que la credencial filtrada está rotada. La rotación es del
   usuario, no del agente.
 - **Auditoría de los otros 4 repos públicos**: tarea aparte, fuera de este sprint.
+
+## Cierre
+
+- **T-103 completada y mergeada** en `main` (`aef5c09`). 22/22 en la suite.
+- **Fase 2 del saneamiento ejecutada**: reescritura completa de la historia con
+  `git-filter-repo` sobre los 3 refs publicados y los 2 tags, verificada sobre un clon nuevo
+  (`git log --all -S` de la credencial filtrada → 0).
+- **Pendiente para el siguiente sprint**: `romensuarez-web` sigue apareciendo en el árbol. Se
+  decidió tratarlo como tarea aparte, no parte de este sprint.
