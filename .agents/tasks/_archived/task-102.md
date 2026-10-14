@@ -60,20 +60,35 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-15-core.md`
 - `roadmap.md` (anotar la deuda observada de literales de infraestructura; decisión del usuario)
 
+## Defectos encontrados durante la implementación
+
+1. **`read_flows` se comía la tabla de relaciones.** El filtro `^\| [0-9]+ \|` también casaba con
+   las filas `| 3 | 4 | mecanismo |`, así que el digest anunciaba "6 flujos" y arrastraba dos
+   filas de relaciones como si fueran flujos. Se discrimina por el nivel: un flujo siempre tiene
+   `$4 ~ ^L[0-9]+$`, una relación nunca.
+2. **Los nodos Mermaid salían truncados** (`F2["2 · `): el label nunca cerraba el corchete y
+   imprimía el número en vez del nombre. Reescrito con `while read` en lugar de encadenar
+   `awk | sed` con sustituciones frágiles.
+3. **El check 21 fallaba por un test mal escrito, no por el generador.** La aserción que buscaba
+   "el generador no lee `control-plane-topology.md`" con un grep estático marcaba una línea de
+   *texto generado* (dentro de un heredoc) como si fuera una lectura de fichero. Sustituida por
+   una prueba de comportamiento: generar contra una raíz donde ese fichero no existe. De paso
+   ejercita `--root`, que es el uso previsto en los proyectos hijos.
+
 ## Criterios de done
-- [ ] Una única fuente de verdad: el mapa se genera desde `critical-flows.md`, no la duplica
-- [ ] `generate-flow-map.sh` es determinista: misma entrada → misma salida, byte a byte
-- [ ] El mapa nombra explícitamente qué es un "nivel C4" en este core, o renombra los niveles
-- [ ] Salida humana renderizable por GitHub sin build ni binario
-- [ ] Digest para agentes acotado en líneas y sin literales de infraestructura
-- [ ] Check 21: regenerar sin cambios no produce diff (detecta salida obsoleta)
-- [ ] Suite completa sin regresiones (21/21)
-- [ ] `git diff --name-only` ⊆ Caja
+- [x] Una única fuente de verdad: el mapa se genera desde `critical-flows.md`, no la duplica
+- [x] `generate-flow-map.sh` es determinista: misma entrada → misma salida, byte a byte
+- [x] El mapa nombra explícitamente qué es un "nivel C4" en este core, o renombra los niveles
+- [x] Salida humana renderizable por GitHub sin build ni binario
+- [x] Digest para agentes acotado en líneas y sin literales de infraestructura
+- [x] Check 21: regenerar sin cambios no produce diff (detecta salida obsoleta)
+- [x] Suite completa sin regresiones (21/21)
+- [x] `git diff --name-only` ⊆ Caja
 - [x] Plan presentado al usuario (Fase 3.5) — APROBADO CON CAMBIOS: recuento 3 con evidencia, decisión 4 reforzada, deuda al roadmap, task file como primer commit, suite 21/21
 - [x] APROBADO recibido — fecha/hora: 2026-10-13T22:31:07+01:00
 - [x] Rama creada: `feat/T-102-mapa-flujos-c4` (desde `main` @ `58fe67e`)
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
 
 ## Decisiones del usuario (Fase 3.5, 2026-10-13) — todas resueltas
 1. **Scout T-102 — generador propio + Mermaid**: RESUELTO — confirmado.
@@ -94,4 +109,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-10-13T22:31:07+01:00
 - [x] Rama creada: `feat/T-102-mapa-flujos-c4` (desde `main` @ `58fe67e`)
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente

@@ -35,3 +35,14 @@
 
 ## Descartado
 - (Sin líneas descartadas por el momento)
+
+## Deuda observada
+
+- **`docs/architecture/control-plane-topology.md` incumple la política de
+  `docs/critical-flows.md`.** El primero abre con un `[!IMPORTANT]` que prohíbe literales de
+  infraestructura; el segundo está versionado en git desde `8b335c1` y contiene cuatro hostnames
+  reales (`<host-local>`, `<nodo-inferencia>`, `<nodo-web>`, `<nodo-datos>`). Verificado en
+  `HEAD`, `origin/main`, `origin/multi-agent` y `feat/sprint-11-core-planning`.
+  **Detectado en T-102** (2026-10-13) al modelar el mapa de flujos. No se arregla aquí: el
+  mapa se genera desde `critical-flows.md` y deliberadamente **no lee** ese fichero, así que no
+  propaga los literales. Sanear el documento existente es trabajo aparte.
