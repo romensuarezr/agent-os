@@ -57,9 +57,9 @@ PATTERNS=(
     "ruta-personal|/(home|Users)/[a-z0-9_-]+"
     "ip-tailscale|100\.(6[4-9]|[7-9][0-9]|1[0-2][0-7])\.[0-9]{1,3}\.[0-9]{1,3}"
     "ip-publica|4\.158\.179\.213|158\.179\.213\.240|141\.253\.197\.108"
-    # "<nodo-orquestacion>" en minúscula es el nombre de un nodo de la flota; "Oracle" con mayúscula
+    # "oracle" en minúscula es el nombre de un nodo de la flota; "Oracle" con mayúscula
     # es la base de datos y NO se toca (el patrón distingue por caja a propósito).
-    "hostname-nodo|<nodo-inferencia>|<nodo-datos>|<nodo-web>|<host-local>|\boracle\b"
+    "hostname-nodo|datamanager|vnic-rsr|vnic-susana|inteligencia-colectiva|\boracle\b"
     "credencial|freellmapi-[a-f0-9]{32,}|sk-[A-Za-z0-9]{32,}|ghp_[A-Za-z0-9]{30,}|AIza[0-9A-Za-z_-]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----"
 )
 
