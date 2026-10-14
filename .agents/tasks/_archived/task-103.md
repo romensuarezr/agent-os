@@ -86,6 +86,15 @@ siempre**, que es el peor fallo posible en un control de seguridad.
    ficheros trackeados). Ninguna de las dos afirmaciones alarmantes era real; ambas se
    desmontaron al medir con la ruta exacta.
 
+## Fixup de revisión (antes del merge)
+
+1. **`--quiet` no era silencioso cuando había hallazgos.** Los `printf` de la caja y de la línea
+   de contexto no pasaban por `say()`, así que se colaban por stdout: 7 líneas en el primer caso
+   del check 22 de la suite. Añadido `sayf()` y enrutados todos los `printf` del script.
+   Verificado: `--quiet` con hallazgos → 0 bytes y rc=1; `--quiet` limpio → 0 bytes y rc=0; el
+   modo normal sigue mostrando el detalle línea a línea.
+2. **Typo en el hook**: "la capa temprana:ritna el error" → "frena el error".
+
 ## Criterios de done
 - [ ] Cero `$HOME` en ficheros trackeados
 - [x] Cero IPs Tailscale/públicas de infraestructura en ficheros trackeados

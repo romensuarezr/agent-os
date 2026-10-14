@@ -7,7 +7,7 @@
 # segundos de espera. Aquí mide ~70 ms.
 #
 # El barrido completo vive en el check de validate-control-plane.sh. Este hook es
-# la capa temprana:ritna el error en el momento de escribirlo, no en la suite.
+# la capa temprana: frena el error en el momento de escribirlo, no en la suite.
 #
 # Instalación (opt-in):
 #   ln -sf ../../lib/hook-pre-commit .git/hooks/pre-commit

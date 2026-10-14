@@ -46,6 +46,10 @@ done
 
 say() { [ "$QUIET" = true ] || echo "$@"; }
 
+# Igual que say(), pero para printf: los printf de formato NO pasan por say(), así que
+# en --quiet se colaban por stdout y el check de la suite emitía ruido en el primer caso.
+sayf() { [ "$QUIET" = true ] || printf "$@"; }
+
 # ── Patrones prohibidos ──────────────────────────────────────────────────────
 # Cada entrada: <etiqueta>|<regex extended>. Se stably desempareja así, y así se
 # documenta en el fichero de excepciones.
@@ -154,7 +158,7 @@ while IFS= read -r f; do
             ltext="${hit#*:}"
             is_excepted "$ltext" && continue
             say "  ❌ [$label] $f:$lnum"
-            printf '       %s\n' "$(printf '%s' "$ltext" | cut -c1-130)"
+            sayf '       %s\n' "$(printf '%s' "$ltext" | cut -c1-130)"
             FOUND=$((FOUND + 1))
             break
         done < <(grep -nE "$pat" "$ROOT/$f" 2>/dev/null | head -3)
@@ -169,9 +173,9 @@ if [ "$FOUND" -eq 0 ]; then
 fi
 
 say ""
-say "  ╔$(printf '═%.0s' $(seq 1 60))╗"
-printf "  ║ %-60s ║\n" "$FOUND hallazgo(s) que violan la frontera portable."
-printf "  ║ %-60s ║\n" "Política: docs/critical-flows.md (bloque [IMPORTANT])."
-printf "  ║ %-60s ║\n" "Excepción con motivo: .agents/config/infra-literals.exceptions"
-printf "  ╚$(printf '═%.0s' $(seq 1 60))╝"
+sayf "  ╔%s╗\n" "$(printf '═%.0s' $(seq 1 60))"
+sayf "  ║ %-60s ║\n" "$FOUND hallazgo(s) que violan la frontera portable."
+sayf "  ║ %-60s ║\n" "Política: docs/critical-flows.md (bloque [IMPORTANT])."
+sayf "  ║ %-60s ║\n" "Excepción con motivo: .agents/config/infra-literals.exceptions"
+sayf "  ╚%s╝\n" "$(printf '═%.0s' $(seq 1 60))"
 exit 1
