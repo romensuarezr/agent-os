@@ -93,7 +93,11 @@ la ruta Orca en lugar de tratarlo como excepción.
 |---|---|---|---|
 | Motor de orquestación | `@langchain/langgraph-supervisor` | MIT | **Descartada**: dependencia Node rompe la portabilidad; además el runtime ya existe |
 | Patrón supervisor-worker | `Modular-Earth-LLC/multi-agent-ai-development-framework` | 9⭐ MIT | Descartada: taller, no pieza adoptable |
-| Digest de estado multi-repo | *(sin viable)* | — | **A medida justificado**: no hay equivalente para el estado de sprints de un core bash |
+| Estado multi-repo | *(sin viable)* | — | **A medida justificado**: no hay equivalente para el estado de sprints de un core bash |
+
+> **Aclaración sobre "digest"**: no es una pieza aparte.
+> El **digest es la salida del dispatcher** de T-104: el dispatcher sabe qué despachó porque
+> él mismo lo hizo. **No hay componente de digest que construir**, ni tarea para él.
 
 ## Restricciones heredadas del veredicto
 

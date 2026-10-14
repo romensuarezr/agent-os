@@ -74,7 +74,7 @@ fuente de confusión más probable para quien intente usar esto hoy.
 - [ ] `coordinator-run.sh` recorre los 5 pasos y **se detiene en el gate** sin continuarlo solo
 - [ ] Con runtime: invoca los comandos de Orca con los flags verificados
 - [ ] Sin runtime: dice explícitamente que cae a T-104 y **no simula éxito**
-- [ ] El runbook deja de descrever el runbook y pasa a citar `orca orchestration` real
+- [ ] El runbook deja de describir el patrón en abstracto y pasa a citar `orca orchestration` real
 - [ ] El runbook documenta el **fallback Git-nativo** con el mismo peso
 - [ ] `orchestration-layers.md` documenta la jerarquía y **por qué no se fusionan** las skills
 - [ ] Los aparcados (control-mail, federación, consolidación) quedan listados con su estado real
