@@ -21,7 +21,7 @@
 | T-069 | Blindaje de `install.sh`: ruta dinámica, pre-flights, `--check`, `set -euo pipefail`, instala `AGENT_ONBOARDING.md`, `sync.sh` no destructivo | Universalización / Core | M | ✅ Completada | T-070, T-071 | `.agents/tasks/task-069.md` |
 | T-070 | Regla global `deterministic-execution.md` + resolución de contradicciones entre reglas existentes | Gobernanza / Core Standard | M | ✅ Completada | T-071 | `.agents/tasks/task-070.md` |
 | T-071 | Reparación del descubrimiento 0-contexto: inventario de skills, referencias fantasma, inbox canónico, `AGENT_ONBOARDING.md` como secuencia de boot | Universalización / DX | M | ✅ Completada | — | `.agents/tasks/task-071.md` |
-| T-072 | Purga de infraestructura personal en scripts y config (`***REMOVED-PATH***`, IPs Tailscale → overlay `fleet.yaml`) | Universalización / Core | M | ✅ Completada | — | `.agents/tasks/task-072.md` |
+| T-072 | Purga de infraestructura personal en scripts y config (`$HOME`, IPs Tailscale → overlay `fleet.yaml`) | Universalización / Core | M | ✅ Completada | — | `.agents/tasks/task-072.md` |
 | T-073 | Reglas y skills agnósticas de stack, flota y herramientas propietarias | Universalización / Core | M | ✅ Completada | — | `.agents/tasks/task-073.md` |
 | T-074 | `detect-stack.sh` universal (Go/Rust/Java/PHP/Ruby/.NET/Bun/estático) con fallback `unknown` explícito | Bug del sistema / Core | S | ✅ Completada | — | `.agents/tasks/task-074.md` |
 | T-075 | Barrido de portabilidad shell: Linux + macOS, dependencias declaradas y comprobadas | Bug del sistema / DX | M | ✅ Completada | — | `.agents/tasks/task-075.md` |
@@ -34,7 +34,7 @@
 
 ## Requisitos de Implementación y Restricciones Arquitectónicas
 
-1. **El core sigue siendo portable (T-067, T-068, T-072)**: `fleet-doctor.sh` lee la flota de un overlay **opcional** (`config/fleet.yaml` local, gitignored). Sin él, Check 12 hace SKIP, nunca FAIL. Ninguna IP privada, hostname de la flota del autor ni ruta `***REMOVED-PATH***` commiteada.
+1. **El core sigue siendo portable (T-067, T-068, T-072)**: `fleet-doctor.sh` lee la flota de un overlay **opcional** (`config/fleet.yaml` local, gitignored). Sin él, Check 12 hace SKIP, nunca FAIL. Ninguna IP privada, hostname de la flota del autor ni ruta `$HOME` commiteada.
 2. **Cero tokens de inferencia en diagnóstico (T-067)**: el doctor devuelve digest de 10–20 líneas; el LLM solo razona sobre el digest (principio #6 de AGENTS.md).
 3. **No destructivo por defecto (T-069)**: `--check` no toca disco; pre-flights distinguen bloqueantes (git) de advertencias (infisical); `sync.sh --dry-run`.
 4. **Detección honesta (T-074, T-077)**: lo que no se detecta se declara (`unknown`, `SKIPPED`, "config manual"), nunca se finge ni se degrada en silencio.
@@ -93,7 +93,7 @@ flowchart TD
 | Hallazgos | Tarea |
 | :--- | :--- |
 | Scripts A1 (`install.sh` path), A11 (pipefail), A12 (sync destructivo), M7 (sync no propaga templates) | T-069 |
-| Scripts A1–A4 resto (`***REMOVED-PATH***` en contribute/check-session/coolify/audit-orca/orca-orchestrate), IPs en `routing-policy.yaml`/`agent-registry.yaml`, `fleet.example.yaml` | T-072 |
+| Scripts A1–A4 resto (`$HOME` en contribute/check-session/coolify/audit-orca/orca-orchestrate), IPs en `routing-policy.yaml`/`agent-registry.yaml`, `fleet.example.yaml` | T-072 |
 | Scripts A5 + M12 (`detect-stack.sh` solo python/JS, layout asumido) | T-074 |
 | Scripts A6–A10 (flags GNU/macOS, `/Users`), M1–M4 (shebangs, deps sin comprobar) | T-075 |
 | Rules: agnosticidad (`agent-permissions`, `dry-architecture`, ejemplos Node/Firestore), `preferred_model_tier` inválido, registry incompleto, `known-web-tools.yaml` sin uso | T-073 |
@@ -112,6 +112,6 @@ flowchart TD
 
 - [ ] Las 13 tareas en Done con sus criterios verificados.
 - [ ] `tests/validate-control-plane.sh` 12/12 (o 11/12 + 1 SKIP documentado sin `fleet.yaml`).
-- [ ] `grep -rn "***REMOVED-PATH***" scripts/` → 0; `grep -rEn "100\.[0-9]+\.[0-9]+\.[0-9]+" config/` → 0 (salvo ejemplo documentado).
+- [ ] `grep -rn "$HOME" scripts/` → 0; `grep -rEn "100\.[0-9]+\.[0-9]+\.[0-9]+" config/` → 0 (salvo ejemplo documentado).
 - [ ] **T-079 en verde**: la prueba ciega pasa limpia — 0 alucinaciones, 0 improvisaciones, protocolo registrado en `docs/runbooks/prueba-ciega.md`.
 - [ ] `roadmap.md` y `changelog.md` actualizados; tasks archivadas al cerrar.

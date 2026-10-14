@@ -1,0 +1,34 @@
+# Excepciones al escáner de higiene de localizadores
+#
+# Formatos admitidos por línea:
+#     <etiqueta>|<regex>   # <motivo>      -> excepcion por linea
+#     archivo:<glob>       # <motivo>      -> excepcion de fichero completo
+#
+#     <etiqueta>|<regex>   # <motivo obligatorio>
+#
+# Una excepción SIN motivo se descarta y se avisa por stderr: una excepción sin
+# justificación es un silencio accidental, que es justo lo que este control existe
+# para evitar. El valor de este fichero es que cada silencio está escrito y
+# justificado, y por tanto es revisable.
+#
+# Contexto: docs/critical-flows.md abre con un [IMPORTANT] que prohíbe literales de
+# infraestructura en el core. Este fichero es donde se documentan las contadas
+# excepciones a esa política.
+
+# Usuario por defecto de las imágenes cloud (Ubuntu/Debian en AWS, GCP, Azure...).
+# Aparece en miles de repositorios públicos, no identifica a ninguna persona, y el
+# core lo documenta como convención de despliegue en VPS. Sin barra final a
+# propósito, para cubrir tanto `/home/ubuntu` como `/home/ubuntu/ruta/...`.
+ruta-personal|/home/ubuntu  # usuario por defecto de imagen cloud, no es un nombre personal
+
+# Placeholder documental: "cambia /home/usuario por tu ruta". No es una ruta real.
+ruta-personal|/home/usuario  # marcador de posición en CONTRIBUTING.md, no una ruta real
+
+# Ranges de documentación reservados por RFC 5737 y RFC 3849. No son IPs reales:
+# existen precisamente para poder escribir direcciones de ejemplo sin filtrar nada.
+ip-tailscale|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.  # rangos TEST-NET de documentacion (RFC 5737)
+# El propio escáner tiene que contener los literales que busca: es un detector, no puede
+# evitar nombrarlos. Sin esta exención el control se detecta a sí mismo y el repo no
+# podría quedar nunca en verde. Es la única exención de fichero, y está aquí, no en el
+# código, para que sea revisable.
+archivo:scripts/agent/lib/locator-hygiene.sh  # es el detector: contiene los patrones por diseño

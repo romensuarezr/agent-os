@@ -19,7 +19,7 @@ Archivos autorizados para modificación:
 - [x] Lee endpoints de `config/fleet.yaml` si existe; si no, usa `config/fleet.example.yaml` en modo documentación (marca cada check como `SKIPPED-NO-FLEET`, no como fallo).
 - [x] Check 12 en `validate-control-plane.sh`: pasa 12/12 con fleet.yaml, 11/12 + 1 SKIP sin él. Ningún secreto se imprime en el digest (tokens enmascarados).
 - [x] `docs/runbooks/fleet-doctor.md` con ejemplos de salida y tabla de códigos de salida.
-- [x] 0 rutas `***REMOVED-PATH***`, 0 IPs privadas commiteadas: lo personal solo en `fleet.yaml` (gitignored).
+- [x] 0 rutas `$HOME`, 0 IPs privadas commiteadas: lo personal solo en `fleet.yaml` (gitignored).
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.

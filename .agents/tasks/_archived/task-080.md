@@ -36,7 +36,7 @@ Archivos autorizados para modificación:
 - [x] `glances-compose.yml`: binding y comentarios parametrizados (`${GLANCES_BIND_IP:-127.0.0.1}`, `<worker-node>`).
 - [x] `bytebox/docker-compose.yml`: context parametrizado con fallback a variable de entorno / imagen oficial.
 - [x] `config/agent-registry.yaml`: convertido en plantilla agnóstica portable con placeholders.
-- [x] `grep -rn "***REMOVED-PATH***" .agents/ templates/ scripts/ config/` → 0 ocurrencias en los ficheros modificados.
+- [x] `grep -rn "$HOME" .agents/ templates/ scripts/ config/` → 0 ocurrencias en los ficheros modificados.
 - [x] `tests/validate-control-plane.sh` pasa 12/12 sin regresiones.
 
 ## Estado de aprobación

@@ -53,7 +53,7 @@ Archivos autorizados para modificación / creación:
   - `docs/runbooks/glances-setup.md`
   - `docs/runbooks/freellmapi-vps-runbook.md`
   - `docs/runbooks/opencode-freellmapi-setup.md`
-  - `docs/runbooks/<nodo-orquestacion>-disk-and-ports-audit.md`
+  - `docs/runbooks/disk-and-ports-audit.md`
   - `docs/runbooks/<nodo-orquestacion>-disk-recovery-plan.md`
   - `README.md`
 

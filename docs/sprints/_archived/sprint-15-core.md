@@ -29,7 +29,7 @@
   cambios ajenos del working tree. Es comportamiento preexistente y **no** se cambia en
   este sprint; queda documentado en el changelog cuando se toque `close-sprint.sh`.
 - **Deuda visible detectada durante el planning**: `docs/sprints/_archived/sprint-06..13`
-  contienen enlaces `file://***REMOVED-PATH***/...` con rutas personales. No entra en este sprint
+  contienen enlaces `file://$HOME/...` con rutas personales. No entra en este sprint
   (fuera del foco), queda anotada en el roadmap para triaje.
 
 ### Decisiones del usuario en la apertura

@@ -13,7 +13,7 @@ Archivos autorizados para modificación:
 - `README.md` (documentar `--check` y pre-flights)
 
 ## Criterios de done
-- [x] 0 ocurrencias de `***REMOVED-PATH***` en `scripts/` (grep de verificación). Ruta resuelta desde `BASH_SOURCE[0]`; funciona en cualquier workspace/clone.
+- [x] 0 ocurrencias de `$HOME` en `scripts/` (grep de verificación). Ruta resuelta desde `BASH_SOURCE[0]`; funciona en cualquier workspace/clone.
 - [x] Pre-flights obligatorios: `git` presente (bloqueante), `gh auth status` antes de operaciones remotas (bloqueante si se va a crear repo), login de Infisical (advertencia, no bloqueante).
 - [x] `--check`: describe exactamente qué se instalaría sin tocar el árbol de trabajo (exit 0 si todo OK).
 - [x] `set -euo pipefail` en `install.sh` y `sync.sh`; un fallo a mitad deja error visible, nunca "✅ completada" parcial.

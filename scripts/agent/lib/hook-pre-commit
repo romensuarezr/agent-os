@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# scripts/agent/lib/hook-pre-commit — Agent OS (hook opcional)
+#
+# Comprueba la frontera portable SOLO sobre los ficheros con cambios en el índice.
+# No barre el repo entero: en un commit normal eso serían cientos de ficheros y
+# segundos de espera. Aquí mide ~70 ms.
+#
+# El barrido completo vive en el check de validate-control-plane.sh. Este hook es
+# la capa temprana: frena el error en el momento de escribirlo, no en la suite.
+#
+# Instalación (opt-in):
+#   ln -sf ../../lib/hook-pre-commit .git/hooks/pre-commit
+#
+# La suite comprueba que este fichero EXISTE y es ejecutable; no lo instala.
+# Instalar hooks sin querer en repos ajenos sería una sorpresa inaceptable.
+# ==============================================================================
+set -uo pipefail
+
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$HOOK_DIR/../../..")"
+
+SCANNER="$REPO_ROOT/scripts/agent/lib/locator-hygiene.sh"
+if [ ! -f "$SCANNER" ]; then
+    exit 0   # repo sin el escáner (proyecto hijo antiguo): no bloquear el commit
+fi
+
+if bash "$SCANNER" --staged; then
+    exit 0
+fi
+
+echo "" >&2
+echo "  ⛔ Commit BLOQUEADO: hay literales de infraestructura en los ficheros staged." >&2
+echo "     La frontera portable está en docs/critical-flows.md." >&2
+echo "     Sustituye por marcadores genéricos (<nodo-x>, <ip-x>, \$HOME) o" >&2
+echo "     documenta la excepción con motivo en:" >&2
+echo "       .agents/config/infra-literals.exceptions" >&2
+echo "     Para saltarlo de forma puntual: git commit --no-verify" >&2
+exit 1
