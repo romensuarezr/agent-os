@@ -6,14 +6,14 @@
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
-| T-103 | Sanear la exposición de infraestructura del core y hacer cumplir la frontera portable con un check automático | Bug del sistema / DX | M | ⬜ Pendiente | T-100 | — |
+| T-103 | Sanear la exposición de infraestructura del core y hacer cumplir la frontera portable con un check automático | Bug del sistema / DX | M | ✅ Completada | T-100 | [.agents/tasks/_archived/task-103.md](.agents/tasks/_archived/task-103.md) |
 
 ## Notas de planning
 
 - **Origen**: auditoría de preparación para compartir el repo. El repo es **público en GitHub
   desde 2026-06-12** y arrastra exposición de infraestructura tanto en el árbol actual como en
   la historia.
-- **La frontera portable ya se decidió el 2026-09-28**: cero `***REMOVED-PATH***`, cero IPs Tailscale,
+- **La frontera portable ya se decidió el 2026-09-28**: cero `$HOME`, cero IPs Tailscale,
   cero hostnames en el core; lo personal vive en un overlay local ignorado por git. **Esta tarea
   no re-decide nada: la hace cumplir.** El repo la tenía escrita en `docs/critical-flows.md` y
   su propia historia la incumplía 451 veces.

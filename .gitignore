@@ -106,3 +106,7 @@ docs/external-inbox/*
 # Archivos de SO
 .DS_Store
 Thumbs.db
+
+# Catálogo de secretos: artefacto generado desde la bóveda local. Contiene los
+# nombres de los proyectos del operador, así que no se versiona.
+.agents/config/secrets-catalog.yaml

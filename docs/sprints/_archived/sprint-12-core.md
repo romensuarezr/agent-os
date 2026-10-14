@@ -24,7 +24,7 @@
 
 ## Requisitos de Implementación y Restricciones Arquitectónicas
 
-1. **Cero referencias personales en el Core**: Ni rutas locales (`***REMOVED-PATH***`, `/Users`), hostnames privados (`<nodo-orquestacion>`, `<nodo-inferencia>`, `<host-local>`) ni endpoints de producción en ficheros versionados del core.
+1. **Cero referencias personales en el Core**: Ni rutas locales (`$HOME`, `/Users`), hostnames privados (`<nodo-orquestacion>`, `<nodo-inferencia>`, `<host-local>`) ni endpoints de producción en ficheros versionados del core.
 2. **Decisiones de Arquitectura Confirmadas**:
    - `config/agent-registry.yaml` pasa a ser plantilla agnóstica con placeholders.
    - `discover-fleet.sh` mantiene peers Tailscale como paso manual documentado.
@@ -42,7 +42,7 @@
 
 - [x] Las 5 tareas completadas con sus criterios verificados.
 - [x] `tests/validate-control-plane.sh` 12/12 sin regresiones.
-- [x] `grep -rn "***REMOVED-PATH***" .agents/ templates/ scripts/` → 0 ocurrencias.
+- [x] `grep -rn "$HOME" .agents/ templates/ scripts/` → 0 ocurrencias.
 - [x] T-084 en verde: pilotaje en repositorio real completado con éxito.
 - [x] `docs/external-inbox/triaje-post-sprint-11.md` archivado al cierre del sprint.
 - [x] `changelog.md` y `roadmap.md` actualizados atómicamente.

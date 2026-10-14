@@ -14,7 +14,7 @@ Realizar una auditoría técnica en modo solo lectura de la capacidad de disco y
 Archivos autorizados para modificación / creación:
 - `.agents/skills/remote-admin/scripts/audit-host.sh` (nuevo script reusable de diagnóstico SSH de una sola llamada)
 - `.agents/skills/remote-admin/SKILL.md` (documentar nuevo script en la skill remote-admin)
-- `docs/runbooks/<nodo-orquestacion>-disk-and-ports-audit.md` (nuevo informe de auditoría específico de <nodo-orquestacion>)
+- `docs/runbooks/disk-and-ports-audit.md` (nuevo informe de auditoría específico de <nodo-orquestacion>)
 - `.agents/tasks/task-035.md` (task file activo)
 - `docs/sprints/sprint-06-core.md` (registro de estado y enlace a task file)
 
@@ -22,7 +22,7 @@ Archivos autorizados para modificación / creación:
 - [x] Creación del script reusable `.agents/skills/remote-admin/scripts/audit-host.sh` que recolecte métricas de host, almacenamiento, Docker (desglose/espacio recuperable), puertos en escucha (públicos vs Tailscale/local) y firewall en un único comando vía SSH.
 - [x] Actualización de `.agents/skills/remote-admin/SKILL.md` para documentar la invocación del script de auditoría optimizado en tokens.
 - [x] Ejecución remota de diagnóstico no destructivo en `<nodo-orquestacion>` usando el script reusable.
-- [x] Documentación detallada en `docs/runbooks/<nodo-orquestacion>-disk-and-ports-audit.md` con desglose de consumo de disco en `<nodo-orquestacion>` y recomendaciones priorizadas de poda segura / endurecimiento de puertos.
+- [x] Documentación detallada en `docs/runbooks/disk-and-ports-audit.md` con desglose de consumo de disco en `<nodo-orquestacion>` y recomendaciones priorizadas de poda segura / endurecimiento de puertos.
 - [x] Cero alteraciones en el filesystem, servicios o contenedores de `<nodo-orquestacion>` durante la auditoría.
 - [x] Suite de validación local `bash tests/validate-control-plane.sh` pasando sin errores.
 
