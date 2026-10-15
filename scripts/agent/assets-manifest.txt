@@ -43,6 +43,8 @@ scripts/agent/audit-child.sh
 scripts/agent/setup-profiles.sh
 scripts/agent/inspect-skills.sh
 scripts/agent/assets-manifest.txt
+scripts/agent/dispatch-satellite.sh
+.agents/config/satellites.yaml
 
 [deprecated]
 # fecha       archivo                              motivo

@@ -42,29 +42,33 @@ criterio de diseño, no un detalle: es lo que permite que el fallback sea de pri
 ## Caja de archivos
 - `scripts/agent/dispatch-satellite.sh` (nuevo — dispatcher dual)
 - `.agents/config/satellites.yaml` (nuevo — declaración de satélites)
+- `scripts/agent/worktree-dispatch.sh` (una línea: suprimir stdout de `branch -D`
+  en `--force`; sin ese redirect el JSON del contrato se rompe. Corrección sobre
+  el plan, que preveía cero cambios: la implementación demostró lo contrario)
 - `scripts/agent/assets-manifest.txt` (registrar los ficheros nuevos)
 - `tests/validate-control-plane.sh` (check N+1)
 - `.gitignore` (excluir `.agents/context/dispatched.jsonl`, estado local del operador)
 - `changelog.md`
 - `.agents/tasks/task-104.md` (este contrato)
-- `docs/sprints/sprint-17-core.md`
+- `docs/sprints/sprint-17-core.md` (se actualiza en `multi-agent` tras el merge;
+  el fichero vive en esa rama, no en esta)
 
 ## Criterios de done
-- [ ] `satellites.yaml` declara los satélites (alias → ruta), sin literales de infraestructura
-- [ ] El dispatcher **detecta** el runtime y elige ruta; ambas producen el mismo contrato de salida
-- [ ] Sin runtime: la ruta Git-nativa funciona y NO es un mensaje de error
-- [ ] Con runtime: invoca `worker-start` con los flags correctos (verificados contra `--help`)
-- [ ] El dispatcher **registra** lo que despachó (origen, destino, tarea, ruta usada, timestamp)
-- [ ] Idempotencia: re-despachar la misma tarea no crea un segundo worktree
-- [ ] Ninguna ruta aborta por ausencia de Orca
-- [ ] Check N+1 con fixture en repos temporales: una sola prueba con runtime simulado y otra sin él
-- [ ] `satellites.yaml` no introduce literales prohibidos (check 22 lo cubre)
-- [ ] Suite completa sin regresiones
-- [ ] `git diff --name-only` ⊆ Caja
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] `satellites.yaml` declara los satélites (alias → ruta), sin literales de infraestructura
+- [x] El dispatcher **detecta** el runtime y elige ruta; ambas producen el mismo contrato de salida
+- [x] Sin runtime: la ruta Git-nativa funciona y NO es un mensaje de error
+- [x] Con runtime: invoca `worker-start` con los flags correctos (verificados contra `--help`)
+- [x] El dispatcher **registra** lo que despachó (origen, destino, tarea, ruta usada, timestamp)
+- [x] Idempotencia: re-despachar la misma tarea no crea un segundo worktree
+- [x] Ninguna ruta aborta por ausencia de Orca
+- [x] Check N+1 con fixture en repos temporales: una sola prueba con runtime simulado y otra sin él
+- [x] `satellites.yaml` no introduce literales prohibidos (check 22 lo cubre)
+- [x] Suite completa sin regresiones
+- [x] `git diff --name-only` ⊆ Caja
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-15
+- [x] Rama creada: feat/T-104-dispatch-satellite (desde main @ 4c6e594)
+- [x] Lock activo: task-104
 - [ ] Sesión cerrada correctamente
 
 ## Estado de aprobación
