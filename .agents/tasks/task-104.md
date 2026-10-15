@@ -42,9 +42,9 @@ criterio de diseño, no un detalle: es lo que permite que el fallback sea de pri
 ## Caja de archivos
 - `scripts/agent/dispatch-satellite.sh` (nuevo — dispatcher dual)
 - `.agents/config/satellites.yaml` (nuevo — declaración de satélites)
-- `scripts/agent/worktree-dispatch.sh` (extender, no reescribir: aporta la ruta Git-nativa)
 - `scripts/agent/assets-manifest.txt` (registrar los ficheros nuevos)
 - `tests/validate-control-plane.sh` (check N+1)
+- `.gitignore` (excluir `.agents/context/dispatched.jsonl`, estado local del operador)
 - `changelog.md`
 - `.agents/tasks/task-104.md` (este contrato)
 - `docs/sprints/sprint-17-core.md`
@@ -71,8 +71,8 @@ criterio de diseño, no un detalle: es lo que permite que el fallback sea de pri
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5) — 2026-10-15
+- [x] APROBADO CON CAMBIOS recibido — 2026-10-15 (4 cambios + default worktree_base)
+- [x] Rama creada: feat/T-104-dispatch-satellite (desde main @ 4c6e594)
+- [x] Lock activo: task-104
 - [ ] Sesión cerrada correctamente
