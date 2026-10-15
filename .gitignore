@@ -110,3 +110,8 @@ Thumbs.db
 # Catálogo de secretos: artefacto generado desde la bóveda local. Contiene los
 # nombres de los proyectos del operador, así que no se versiona.
 .agents/config/secrets-catalog.yaml
+
+# Registro de despachos (T-104): estado local del operador (qué se despachó,
+# dónde y por qué ruta). Un `git add -A` lo barrería como al catálogo, así que
+# se excluye con la ruta exacta. No va al manifest: no es un asset distribuible.
+.agents/context/dispatched.jsonl
