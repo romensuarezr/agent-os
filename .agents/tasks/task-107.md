@@ -84,6 +84,7 @@ al mismo default en la misma tarea para no romper la pareja dispatch/merge.
 - `changelog.md`
 - `.agents/tasks/task-107.md` (este contrato)
 - `docs/sprints/sprint-17-core.md`
+- `docs/sprints/sprint-17-core-research.md` (sección T-107 con la evidencia)
 
 ## Criterios de done
 - [x] Ubicación canónica única documentada e implementada con el mismo default en los 3 scripts
