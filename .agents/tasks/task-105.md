@@ -43,12 +43,12 @@ orca-orchestrate.sh create-gate --task <task_id> --question "<qué se decide>"
 # resolve-gate SOLO lo invoca el humano, nunca el flujo.
 ```
 
-### Limitación documentada: sin edges de DAG
+### Las aristas del DAG son reales
 
-El runtime tiene `--deps`/`--parent`, pero este CLI no los parsea ni `create-task`
-los pasa: las "dependencias" de T-105 son **descomposición + orden de ejecución**
-(según el spec-file), no aristas del runtime. No se finge un DAG que no se cablea;
-exponer `--deps` queda como follow-up.
+El runtime expone `--deps`/`--parent` (verificado en `task-create --help`) y
+`create-task` los pasa: `run-flow` resuelve `títulos → ids` en orden de creación
+(solo hacia atrás; forward-ref es error accionable). El spec-file acepta
+`"deps": ["Título anterior"]` por tarea. Lo que el CLI no expone, no se promete.
 
 ### Lo que este sprint NO construye
 - **Nada de autonomía en la decisión.** El humano sigue en los gates. La manualidad es la garantía:
@@ -80,24 +80,24 @@ fuente de confusión más probable para quien intente usar esto hoy.
 - `docs/sprints/sprint-17-core.md`
 
 ## Criterios de done
-- [ ] `run-flow` recorre los 5 pasos y **se detiene en el gate** sin continuarlo solo
-- [ ] Con runtime: invoca los subcomandos existentes con los flags verificados
-- [ ] Sin runtime: delega en `dispatch-satellite.sh` (T-104) con `route:"git-fallback"`
+- [x] `run-flow` recorre los 5 pasos y **se detiene en el gate** sin continuarlo solo
+- [x] Con runtime: invoca los subcomandos existentes con los flags verificados
+- [x] Sin runtime: delega en `dispatch-satellite.sh` (T-104) con `route:"git-fallback"`
   explícito y **no simula éxito**; sin satélite declarado, error accionable
-- [ ] Los 10 subcomandos directos mantienen fail-hard (sonda clasifica, check_orca
+- [x] Los 10 subcomandos directos mantienen fail-hard (sonda clasifica, check_orca
   aborta con mensaje accionable); **solo** `run-flow` usa el clasificador para fail-soft
-- [ ] El runbook deja de describir el patrón en abstracto y pasa a citar `orca orchestration` real
-- [ ] El runbook documenta el **fallback Git-nativo** con el mismo peso
-- [ ] `orchestration-layers.md` documenta la jerarquía y **por qué no se fusionan** las skills
-- [ ] Los aparcados (control-mail, federación, consolidación) quedan listados con su estado real
-- [ ] Ningún gate se resuelve automáticamente (verificado por log de invocaciones en el check)
-- [ ] Check N+1: run-flow se detiene en el gate (no lo resuelve) + fallback sin runtime
-- [ ] Suite completa sin regresiones
-- [ ] `git diff --name-only` ⊆ Caja
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] El runbook deja de describir el patrón en abstracto y pasa a citar `orca orchestration` real
+- [x] El runbook documenta el **fallback Git-nativo** con el mismo peso
+- [x] `orchestration-layers.md` documenta la jerarquía y **por qué no se fusionan** las skills
+- [x] Los aparcados (control-mail, federación, consolidación) quedan listados con su estado real
+- [x] Ningún gate se resuelve automáticamente (verificado por log de invocaciones en el check)
+- [x] Check N+1: run-flow se detiene en el gate (no lo resuelve) + fallback sin runtime
+- [x] Suite completa sin regresiones
+- [x] `git diff --name-only` ⊆ Caja
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-16
+- [x] Rama creada: feat/T-105-coordinator-entry (desde multi-agent @ 52cf7aa)
+- [x] Lock activo: task-105
 - [ ] Sesión cerrada correctamente
 
 ## Estado de aprobación
