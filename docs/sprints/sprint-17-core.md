@@ -7,7 +7,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
 | T-104 | Despacho multi-repo del core portable: declaración de satélites + dispatcher determinista con ruta Orca y fallback Git-nativo | Universalización | M | ✅ Completada | — | — |
-| T-107 | Consolidar el flujo de worktrees: ubicación canónica fuera del árbol, GC, gate de disco, hooks de sesión y merge-vs-promote documentados | Universalización / DX | L | ⬜ Pendiente | T-104 | — |
+| T-107 | Consolidar el flujo de worktrees: ubicación canónica fuera del árbol, GC, gate de disco, hooks de sesión y merge-vs-promote documentados | Universalización / DX | L | ✅ Completada | T-104 | — |
 | T-105 | Punto de entrada del coordinador + runbook: run → DAG → workers → gates, cableando orchestrator → orchestration → runtime-o-fallback | DX / Documentación | M | ⬜ Pendiente | T-104, T-107 | — |
 
 ## Notas de planning
