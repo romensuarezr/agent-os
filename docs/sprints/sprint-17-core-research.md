@@ -104,3 +104,24 @@ la ruta Orca en lugar de tratarlo como excepción.
 - **Nada de dashboards.** El estado multi-repo **emerge del dispatcher** (sabe qué despachó).
   No existe tarea de "panel de estado".
 - **T-106** (`romensuarez-web`) va **aparte**: es S y no pertenece a este sprint.
+
+## Research T-107 — el flujo de worktrees nunca se ejecutó (2026-10-15)
+
+> Origen: implementar T-104 obligó a mirar dónde aterrizan los worktrees, y no había
+> dónde mirar. Inventario verificado contra código y disco, no por lectura.
+
+| Hallazgo | Evidencia |
+|---|---|
+| Flujo definido, nunca ejecutado | `parallel-orchestration.md` existe; `.worktrees/` no existe en ninguna copia; `dag-state.json` no existe; workflow con 0 entradas en el manifest |
+| Tres ubicaciones documentadas, ninguna real | `.worktrees/<task-id>` (core) / `~/.orca/workspaces/` (runbook, inexistente; lo real es `~/orca/workspaces/`) / `new-top-level` (runtime) |
+| Sin GC | `git-gardener` 0 menciones a worktree; `close-task.sh`/`close-sprint.sh` 0 menciones; único `prune` = pre-flight de `dispatch` |
+| Disco 84% sin gate | umbrales ADR-004/005 (>20 GB, 75%) sin comprobación en ningún script |
+| `worktree-merge.sh` sin tests | check 9 = existencia + `+x` + `bash -n`; check 23 cubre `dispatch` vía T-104 |
+| Regla ↔ script en contradicción | `agent-permissions.md:31` (L3 para `rm -rf`) vs `worktree-merge.sh:254,256` (sin gate) |
+| Nombres en contradicción | `strict-workflow.md` (`feat/nombre-descriptivo`) vs resto (`feat/<task-id>-<profile>`) |
+
+Práctica externa convergente (todas las fuentes coinciden): una rama por worktree,
+worktree hermano fuera del repo, base limpia conocida, prohibido `git add -A`,
+diff con tres puntos dos veces, limpiar al integrar, nunca borrar sucios sin permiso,
+`git -C` explícito. El core incumple hoy: ubicación dentro, base = HEAD actual,
+`add -A` barrió un transcript en esta misma sesión, y `merge.sh` borra sin gate.

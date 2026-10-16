@@ -1,4 +1,4 @@
-# Sprint 17 — Despacho Multi-Repo y Punto de Entrada del Coordinador
+# Sprint 17 — Despacho Multi-Repo, Flujo de Worktrees y Punto de Entrada del Coordinador
 
 ## Estado
 🟡 En curso
@@ -7,7 +7,8 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
 | T-104 | Despacho multi-repo del core portable: declaración de satélites + dispatcher determinista con ruta Orca y fallback Git-nativo | Universalización | M | ✅ Completada | — | — |
-| T-105 | Punto de entrada del coordinador + runbook: run → DAG → workers → gates, cableando orchestrator → orchestration → runtime-o-fallback | DX / Documentación | M | ⬜ Pendiente | T-104 | — |
+| T-107 | Consolidar el flujo de worktrees: ubicación canónica fuera del árbol, GC, gate de disco, hooks de sesión y merge-vs-promote documentados | Universalización / DX | L | ⬜ Pendiente | T-104 | — |
+| T-105 | Punto de entrada del coordinador + runbook: run → DAG → workers → gates, cableando orchestrator → orchestration → runtime-o-fallback | DX / Documentación | M | ⬜ Pendiente | T-104, T-107 | — |
 
 ## Notas de planning
 
@@ -24,6 +25,13 @@
   `control-mail`, federación ni consolidación asíncrona — están **aparcados** en el research con su
   evidencia (0 mensajes, 0 filas de federación, 0 environments).
 - **Fuera de alcance**: T-106 (saneado de `romensuarez-web`), que es S y va aparte.
+- **T-107 nace de una investigación, no de un plan**: al implementar T-104 se descubrió
+  que el flujo de worktrees está definido y nunca ejecutado (sin `.worktrees/`, sin
+  `dag-state.json`, fuera del manifest), con tres esquemas de ubicación y ninguno real,
+  sin GC y sin gate de disco (84% usado). T-105 depende de T-107 porque el coordinador
+  se apoya en ese flujo: construir encima de algo nunca ejecutado repetiría el error.
+- **T-104 revisa su default en T-107**: `worktree_base` default `.worktrees/` fue
+  provisional ("cero sorpresa"); la ubicación canónica fuera del árbol lo sustituye.
 
 ### Veredicto de la spike (resumen)
 
