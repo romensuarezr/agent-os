@@ -25,6 +25,7 @@
 #  20. promote-to-main.sh: modos de merge, publicación de origen y fallo sin estado a medias.
 #  21. Mapa de flujos: salidas generadas sincronizadas con la fuente (T-102).
 #  22. Higiene de localizadores: cero literales de infraestructura en el core (T-103).
+#  23. Despacho multi-repo: ruta Git sin runtime, ruta Orca simulada, idempotencia (T-104).
 # ==============================================================================
 
 set -euo pipefail
@@ -66,7 +67,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/22] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/23] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -86,7 +87,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/22] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/23] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -123,7 +124,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/22] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/23] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -158,7 +159,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/22] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/23] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -193,7 +194,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/22] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/23] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -217,7 +218,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/22] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/23] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -236,7 +237,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/22] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/23] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -255,7 +256,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/22] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/23] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -278,7 +279,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/22] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/23] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -300,7 +301,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/22] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/23] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -366,7 +367,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/22] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/23] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -384,7 +385,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/22] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/23] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -418,7 +419,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/22] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/23] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -474,7 +475,7 @@ fi
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/22] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/23] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -539,7 +540,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/22] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/23] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -626,7 +627,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/22] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/23] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -677,7 +678,7 @@ fi
 # 17. Gates de la auditoría de secretos (verify-secrets.py)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [17/22] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+echo -e "🔍 [17/23] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
 VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
 
 if [ ! -f "$VERIFY_LIB" ]; then
@@ -747,7 +748,7 @@ fi
 # 18-19. Honestidad de los scripts de cierre (T-100)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [18/22] Verificando honestidad de close-task.sh (enlace del sprint)..."
+echo -e "🔍 [18/23] Verificando honestidad de close-task.sh (enlace del sprint)..."
 TASK_FIXTURE="$(mktemp -d)"
 (
     cd "$TASK_FIXTURE" || exit 1
@@ -783,7 +784,7 @@ fi
 rm -rf "$TASK_FIXTURE"
 
 echo ""
-echo -e "🔍 [19/22] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
+echo -e "🔍 [19/23] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
 SPRINT_FIXTURE="$(mktemp -d)"
 (
     cd "$SPRINT_FIXTURE" || exit 1
@@ -823,7 +824,7 @@ rm -rf "$SPRINT_FIXTURE"
 # 20. promote-to-main.sh (T-101)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [20/22] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
+echo -e "🔍 [20/23] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
 PROMOTE="$ROOT/scripts/agent/promote-to-main.sh"
 P1="$(mktemp -d)"; P2="$(mktemp -d)"; P3="$(mktemp -d)"
 # NINGÚN fichero de salida puede vivir dentro del fixture: la redirección lo crea
@@ -893,7 +894,7 @@ rm -rf "$P1" "$P2" "$P3" "$OUT1" "$HELP1" "$OUT2" "$ERR3" "$P3_BEFORE" "$P3_AFTE
 # 21. Mapa de flujos generado (T-102)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [21/22] Verificando que el mapa de flujos está sincronizado con su fuente..."
+echo -e "🔍 [21/23] Verificando que el mapa de flujos está sincronizado con su fuente..."
 if python3 -c "
 import pathlib, subprocess, sys
 root = pathlib.Path('$ROOT')
@@ -944,7 +945,7 @@ fi
 # 22. Higiene de localizadores / frontera portable (T-103)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [22/22] Verificando la frontera portable (cero literales de infraestructura)..."
+echo -e "🔍 [22/23] Verificando la frontera portable (cero literales de infraestructura)..."
 if bash "$ROOT/scripts/agent/lib/locator-hygiene.sh" --quiet; then
     echo -e "  ✅ Sin rutas personales, IPs de infraestructura, hostnames de nodo ni credenciales en el core."
 else
@@ -954,6 +955,59 @@ else
     echo -e "     o documenta la excepción con motivo en .agents/config/infra-literals.exceptions"
     ERRORS=$((ERRORS + 1))
 fi
+
+# ------------------------------------------------------------------------------
+# 23. Despacho multi-repo portable (T-104)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [23/23] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
+DISPATCH="$ROOT/scripts/agent/dispatch-satellite.sh"
+DSAT="$(mktemp -d)"; DREG="$(mktemp)"; DSATS="$(mktemp)"
+DOUT1="$(mktemp)"; DOUT2="$(mktemp)"; DOUT3="$(mktemp)"; DOUT4="$(mktemp)"
+DTOOLS="$(mktemp -d)"; DSTUB="$(mktemp -d)"
+# PATH mínimo SIN orca: simula una VM limpia (sin runtime). Se enlazan solo las
+# dependencias que el dispatcher declara en su pre-flight, más `env` para el
+# shebang del stub. Nada del PATH real entra: ni el orca del ADE ni homónimos.
+for c in bash env git python3 mkdir cat chmod grep date cut dirname rm mktemp; do
+  ln -sf "$(command -v $c 2>/dev/null || echo "/nonexistent/$c")" "$DTOOLS/$c"
+done
+# Fixture 1 (sin runtime): despacho Git + re-despacho idempotente + --force
+(
+    export PATH="$DTOOLS"; hash -r
+    git init -q -b main "$DSAT" && git -C "$DSAT" config user.email t@t.t && git -C "$DSAT" config user.name t
+    echo a > "$DSAT/f.txt" && git -C "$DSAT" add -A && git -C "$DSAT" commit -qm base
+    printf 'version: "1.0"\n\nsatellites:\n  fx:\n    path: %s\n    route: auto\n' "$DSAT" > "$DSATS"
+    bash "$DISPATCH" --satellite fx --task-id T-FX --satellites "$DSATS" --registry "$DREG" --json > "$DOUT1" 2>/dev/null
+    bash "$DISPATCH" --satellite fx --task-id T-FX --satellites "$DSATS" --registry "$DREG" --json > "$DOUT2" 2>/dev/null
+    bash "$DISPATCH" --satellite fx --task-id T-FX --satellites "$DSATS" --registry "$DREG" --json --force > "$DOUT3" 2>/dev/null
+) 2>/dev/null || true
+# Fixture 2 (runtime simulado): un stub `orca` primero en PATH. Prueba la lógica
+# de la ruta Orca, NO el runtime real (limitación documentada en T-104, R1).
+(
+    printf '#!/usr/bin/env bash\nif [ "$1" = "status" ]; then exit 0; fi\necho "{\\"dispatch_id\\":\\"stub-1\\"}"\n' > "$DSTUB/orca" && chmod +x "$DSTUB/orca"
+    export PATH="$DSTUB:$DTOOLS"; hash -r
+    bash "$DISPATCH" --satellite fx --task-id T-FO --agent ag --satellites "$DSATS" --registry "$DREG" --json > "$DOUT4" 2>/dev/null
+) 2>/dev/null || true
+if python3 -c "
+import json, pathlib, subprocess
+r1 = json.loads(pathlib.Path('$DOUT1').read_text())
+assert r1['route'] == 'git' and r1['status'] == 'CREATED', 'sin runtime no usa la ruta Git'
+r2 = json.loads(pathlib.Path('$DOUT2').read_text())
+assert r2['status'] == 'IDEMPOTENT', 'el re-despacho no es idempotente'
+r3 = json.loads(pathlib.Path('$DOUT3').read_text())
+assert r3['route'] == 'git' and r3['status'] == 'CREATED', '--force no re-despacha'
+n = len(subprocess.check_output(['git','-C','$DSAT','worktree','list']).splitlines())
+assert n == 2, 'hay mas de un worktree: la idempotencia falla'
+r4 = json.loads(pathlib.Path('$DOUT4').read_text())
+assert r4['route'] == 'orca' and r4['status'] == 'CREATED', 'con runtime no usa la ruta Orca'
+assert r4['remote']['dispatch_id'] == 'stub-1', 'no propaga la respuesta del runtime'
+" 2>/dev/null; then
+    echo -e "  ✅ Sin runtime despacha por Git, con runtime por Orca, y re-despachar no duplica worktrees."
+else
+    echo -e "  ❌ ERROR: dispatch-satellite.sh no elige ruta, no es idempotente o rompe el contrato JSON."
+    ERRORS=$((ERRORS + 1))
+fi
+rm -rf "$DSAT" "$DTOOLS" "$DSTUB" "$DREG" "$DSATS" "$DOUT1" "$DOUT2" "$DOUT3" "$DOUT4"
 
 # ------------------------------------------------------------------------------
 # Resumen Final

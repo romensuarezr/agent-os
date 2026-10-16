@@ -166,7 +166,9 @@ fi
 if git rev-parse --verify "refs/heads/$BRANCH" >/dev/null 2>&1; then
   if [ "$FORCE" = true ]; then
     log "⚠️  La rama '$BRANCH' ya existe. Eliminándola debido a flag --force..."
-    git branch -D "$BRANCH" 2>/dev/null || true
+    # stdout también se suprime: `branch -D` confirma en stdout y rompería
+    # el contrato JSON en modo --json (T-104).
+    git branch -D "$BRANCH" >/dev/null 2>&1 || true
   else
     log "ℹ️  La rama '$BRANCH' ya existe. Reutilizando rama..."
   fi
