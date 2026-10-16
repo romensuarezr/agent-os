@@ -20,27 +20,35 @@ tiene que reconstruirlo a mano.
 
 ### La secuencia, con los flags verificados contra el runtime
 
+`run-flow` (subcomando de `orca-orchestrate.sh`) ejecuta, en este orden, los
+subcomandos ya existentes —no los duplica— con los flags verificados contra el
+runtime 1.4.216:
+
 ```bash
 # 1. Run y vinculación del coordinador a esta terminal
-orca orchestration run-create --objective "<objetivo del lote>"
+orca-orchestrate.sh create-run --objective "<objetivo del lote>"
 
-# 2. Tareas con dependencias (DAG)
-orca orchestration task-create --title "<tarea>" --spec "<qué hacer>"
+# 2. Tareas (descomposición; orden de ejecución, ver limitación DAG abajo)
+orca-orchestrate.sh create-task --run <id> --title "<tarea>" --spec "<qué hacer>"
 
 # 3. Despacho: un worker por tarea, en el repo destino
-orca orchestration worker-start --task <task_id> \
-      --repo <selector> --worktree new-child --agent <id>
+orca-orchestrate.sh dispatch-worker --run <id> --title "<t>" --spec "<s>" \
+      --agent <id> --role <rol> --repo path:<repo> --worktree new-top-level
 
 # 4. Seguimiento
-orca orchestration worker-list      # contabilidad y estado
-orca orchestration worker-read      # salida acotada del worker
+orca-orchestrate.sh check-events --run <id> [--wait]
 
 # 5. Gate: el humano aprueba. AQUÍ SE PARA.
-orca orchestration gate-create --task <task_id> --question "<qué se decide>"
-orca orchestration gate-resolve --gate <gate_id> --decision approve
+orca-orchestrate.sh create-gate --task <task_id> --question "<qué se decide>"
+# resolve-gate SOLO lo invoca el humano, nunca el flujo.
 ```
 
-Los pasos 1-5 están verificados contra `--help` del runtime 1.4.216 instalado en esta máquina.
+### Limitación documentada: sin edges de DAG
+
+El runtime tiene `--deps`/`--parent`, pero este CLI no los parsea ni `create-task`
+los pasa: las "dependencias" de T-105 son **descomposición + orden de ejecución**
+(según el spec-file), no aristas del runtime. No se finge un DAG que no se cablea;
+exponer `--deps` queda como follow-up.
 
 ### Lo que este sprint NO construye
 - **Nada de autonomía en la decisión.** El humano sigue en los gates. La manualidad es la garantía:
@@ -62,8 +70,9 @@ fuente de confusión más probable para quien intente usar esto hoy.
 
 ## Caja de archivos
 - `docs/runbooks/orca-multiagent-orchestration.md` (reescribir contra el runtime + fallback)
-- `scripts/agent/coordinator-run.sh` (nuevo — el punto de entrada, paso a paso)
-- `.agents/config/routing-policy.yaml` (extender solo si el DAG necesita reglas nuevas)
+- `scripts/agent/orca-orchestrate.sh` (sonda_runtime sin abortar + check_orca fail-hard
+  para los 10 subcomandos directos + subcomando run-flow con parada en gate y fail-soft;
+  NO se crea coordinator-run.sh: duplicaría los 10 subcomandos existentes)
 - `docs/architecture/orchestration-layers.md` (nuevo — la jerarquía de las tres capas)
 - `tests/validate-control-plane.sh` (check N+1)
 - `changelog.md`
@@ -71,15 +80,18 @@ fuente de confusión más probable para quien intente usar esto hoy.
 - `docs/sprints/sprint-17-core.md`
 
 ## Criterios de done
-- [ ] `coordinator-run.sh` recorre los 5 pasos y **se detiene en el gate** sin continuarlo solo
-- [ ] Con runtime: invoca los comandos de Orca con los flags verificados
-- [ ] Sin runtime: dice explícitamente que cae a T-104 y **no simula éxito**
+- [ ] `run-flow` recorre los 5 pasos y **se detiene en el gate** sin continuarlo solo
+- [ ] Con runtime: invoca los subcomandos existentes con los flags verificados
+- [ ] Sin runtime: delega en `dispatch-satellite.sh` (T-104) con `route:"git-fallback"`
+  explícito y **no simula éxito**; sin satélite declarado, error accionable
+- [ ] Los 10 subcomandos directos mantienen fail-hard (sonda clasifica, check_orca
+  aborta con mensaje accionable); **solo** `run-flow` usa el clasificador para fail-soft
 - [ ] El runbook deja de describir el patrón en abstracto y pasa a citar `orca orchestration` real
 - [ ] El runbook documenta el **fallback Git-nativo** con el mismo peso
 - [ ] `orchestration-layers.md` documenta la jerarquía y **por qué no se fusionan** las skills
 - [ ] Los aparcados (control-mail, federación, consolidación) quedan listados con su estado real
-- [ ] Ningún gate se resuelve automáticamente
-- [ ] Check N+1: el script se detiene en el gate (no lo resuelve)
+- [ ] Ningún gate se resuelve automáticamente (verificado por log de invocaciones en el check)
+- [ ] Check N+1: run-flow se detiene en el gate (no lo resuelve) + fallback sin runtime
 - [ ] Suite completa sin regresiones
 - [ ] `git diff --name-only` ⊆ Caja
 - [ ] Plan presentado al usuario (Fase 3.5)
@@ -92,8 +104,8 @@ fuente de confusión más probable para quien intente usar esto hoy.
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5) — 2026-10-16
+- [x] APROBADO CON CAMBIOS recibido — 2026-10-16 (opción A + contrato check_orca/sonda por subcomando + batch a deprecated)
+- [x] Rama creada: feat/T-105-coordinator-entry (desde multi-agent @ 52cf7aa)
+- [x] Lock activo: task-105
 - [ ] Sesión cerrada correctamente
