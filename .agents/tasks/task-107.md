@@ -67,7 +67,11 @@ al mismo default en la misma tarea para no romper la pareja dispatch/merge.
 - `.agents/rules/global/agent-permissions.md` (exención L2 acotada para efímeros)
 - `.agents/rules/global/strict-workflow.md` (alinear nombre de rama canónico)
 - `scripts/agent/worktree-dispatch.sh` (default canónico + gate de disco)
-- `scripts/agent/worktree-merge.sh` (mismo default; sin cambios de lógica salvo el default)
+- `scripts/agent/worktree-merge.sh` (mismo default; más 3 correcciones que la
+  implementación demostró necesarias: suprimir stdout de `branch -d` en `--force`
+  —rompía el JSON—, gate con `--strict` como `/judge` —sin él REJECT era código
+  muerto—, y `verify-goal.sh` hermano al script —la copia del destino no existe
+  en satélites sin agent-os y el gate se saltaba en silencio)
 - `scripts/agent/dispatch-satellite.sh` (revisar default de `worktree_base`)
 - `.agents/config/satellites.yaml` (cabecera: default revisado)
 - `scripts/agent/worktree-gc.sh` (nuevo — huérfanos con `--dry-run`/`--apply`)
@@ -82,24 +86,22 @@ al mismo default en la misma tarea para no romper la pareja dispatch/merge.
 - `docs/sprints/sprint-17-core.md`
 
 ## Criterios de done
-- [ ] Ubicación canónica única documentada e implementada con el mismo default en los 3 scripts
-- [ ] `worktree-gc.sh` lista huérfanos (rama mergeada, metadata prunable); `--dry-run` por defecto, `--apply` purga; JSON
-- [ ] Gate de disco: refuse accionable bajo el umbral (`WORKTREE_MIN_FREE_GB`, default 5 GB)
-- [ ] `session-start` FASE 4 registra worktree (ruta + rama) en el lock y lo muestra
-- [ ] `session-close` incluye tabla cerrar-vs-merge-vs-promote con implicaciones para el worktree
-- [ ] Exención L2 acotada documentada: solo efímeros creados por dispatch y registrados; resto sigue L3
-- [ ] `parallel-orchestration.md` reescrito y en el manifest (viaja a los hijos)
-- [ ] Check 24: `merge.sh` funcional (estrategias, REJECT conserva, dismantle limpia) + GC básico
-- [ ] `strict-workflow.md` alineado al nombre canónico `feat/<task-id>-<profile>`
-- [ ] Skills (`orchestrator`, `goal-evaluation`) y perfiles (`coder`, `coordinator`)
-  alineados a la ubicación canónica (son lo que los agentes leen; el ADR-005 no se
-  toca: es registro histórico, no doctrina viva)
-- [ ] Suite completa sin regresiones
-- [ ] `git diff --name-only` ⊆ Caja
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Ubicación canónica única documentada e implementada con el mismo default en los 3 scripts
+- [x] `worktree-gc.sh` lista huérfanos (rama mergeada, metadata prunable); `--dry-run` por defecto, `--apply` purga; JSON
+- [x] Gate de disco: refuse accionable bajo el umbral (`WORKTREE_MIN_FREE_GB`, default 5 GB)
+- [x] `session-start` FASE 4 registra worktree (ruta + rama) en el lock y lo muestra
+- [x] `session-close` incluye tabla cerrar-vs-merge-vs-promote con implicaciones para el worktree
+- [x] Exención L2 acotada documentada: solo efímeros creados por dispatch y registrados; resto sigue L3
+- [x] `parallel-orchestration.md` reescrito y en el manifest (viaja a los hijos)
+- [x] Check 24: `merge.sh` funcional (estrategias, REJECT conserva, dismantle limpia) + GC básico
+- [x] `strict-workflow.md` alineado al nombre canónico `feat/<task-id>-<profile>`
+- [x] Skills (`orchestrator`, `goal-evaluation`) y perfiles (`coder`, `coordinator`) alineados a la ubicación canónica
+- [x] Suite completa sin regresiones
+- [x] `git diff --name-only` ⊆ Caja
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-16
+- [x] Rama creada: feat/T-107-worktree-flow (desde multi-agent @ 5b7c61e)
+- [x] Lock activo: task-107
 - [ ] Sesión cerrada correctamente
 
 ## Estado de aprobación
