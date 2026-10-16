@@ -23,18 +23,18 @@ Archivos autorizados para modificación:
 - `tests/validate-control-plane.sh`
 
 ## Criterios de done
-- [ ] Caso de regresión: `## [Unreleased]` delante de una cabecera semver → el bump parte de la
-      semver, nunca de `0.0.0` (el `0.1.0` no puede volver a generarse)
-- [ ] Segunda fuente: si el changelog no tiene semver válida, se usa el último `git tag v*`
-- [ ] Check 26 añadido a la suite con el caso anterior (suite 26/26 en verde)
-- [ ] `close-sprint.sh` no necesita cambios; T-109 se ejecuta DESPUÉS (comparten ficheros)
+- [x] Caso de regresión: `## [Unreleased]` delante de una cabecera semver → el bump parte de la
+      semver, nunca de `0.0.0` (el `0.1.0` no puede volver a generarse) — check 26 caso 1 + prueba aislada
+- [x] Segunda fuente: si el changelog no tiene semver válida, se usa el último `git tag v*` — caso 2
+- [x] Check 26 añadido a la suite con el caso anterior (suite 26/26 en verde)
+- [x] `close-sprint.sh` no necesita cambios; T-109 se ejecuta DESPUÉS (comparten ficheros)
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-16 (APROBADO CON CAMBIOS, bug PREV_TAG → idea-inbox)
+- [x] Rama creada: feat/T-108-semver-changelog
+- [x] Lock activo: N/A (sesión en modo plan; sin Fase 4, sin lock)
+- [x] Sesión cerrada correctamente
