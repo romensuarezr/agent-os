@@ -69,7 +69,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/25] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/26] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -89,7 +89,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/25] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/26] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -126,7 +126,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/25] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/26] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -161,7 +161,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/25] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/26] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -196,7 +196,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/25] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/26] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -220,7 +220,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/25] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/26] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -239,7 +239,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/25] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/26] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -258,7 +258,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/25] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/26] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -281,7 +281,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/25] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/26] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -303,7 +303,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/25] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/26] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -369,7 +369,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/25] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/26] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -387,7 +387,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/25] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/26] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -421,7 +421,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/25] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/26] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -477,7 +477,7 @@ fi
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/25] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/26] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -542,7 +542,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/25] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/26] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -629,7 +629,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/25] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/26] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -680,7 +680,7 @@ fi
 # 17. Gates de la auditoría de secretos (verify-secrets.py)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [17/25] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+echo -e "🔍 [17/26] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
 VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
 
 if [ ! -f "$VERIFY_LIB" ]; then
@@ -750,7 +750,7 @@ fi
 # 18-19. Honestidad de los scripts de cierre (T-100)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [18/25] Verificando honestidad de close-task.sh (enlace del sprint)..."
+echo -e "🔍 [18/26] Verificando honestidad de close-task.sh (enlace del sprint)..."
 TASK_FIXTURE="$(mktemp -d)"
 (
     cd "$TASK_FIXTURE" || exit 1
@@ -786,7 +786,7 @@ fi
 rm -rf "$TASK_FIXTURE"
 
 echo ""
-echo -e "🔍 [19/25] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
+echo -e "🔍 [19/26] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
 SPRINT_FIXTURE="$(mktemp -d)"
 (
     cd "$SPRINT_FIXTURE" || exit 1
@@ -826,7 +826,7 @@ rm -rf "$SPRINT_FIXTURE"
 # 20. promote-to-main.sh (T-101)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [20/25] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
+echo -e "🔍 [20/26] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
 PROMOTE="$ROOT/scripts/agent/promote-to-main.sh"
 P1="$(mktemp -d)"; P2="$(mktemp -d)"; P3="$(mktemp -d)"
 # NINGÚN fichero de salida puede vivir dentro del fixture: la redirección lo crea
@@ -896,7 +896,7 @@ rm -rf "$P1" "$P2" "$P3" "$OUT1" "$HELP1" "$OUT2" "$ERR3" "$P3_BEFORE" "$P3_AFTE
 # 21. Mapa de flujos generado (T-102)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [21/25] Verificando que el mapa de flujos está sincronizado con su fuente..."
+echo -e "🔍 [21/26] Verificando que el mapa de flujos está sincronizado con su fuente..."
 if python3 -c "
 import pathlib, subprocess, sys
 root = pathlib.Path('$ROOT')
@@ -947,7 +947,7 @@ fi
 # 22. Higiene de localizadores / frontera portable (T-103)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [22/25] Verificando la frontera portable (cero literales de infraestructura)..."
+echo -e "🔍 [22/26] Verificando la frontera portable (cero literales de infraestructura)..."
 if bash "$ROOT/scripts/agent/lib/locator-hygiene.sh" --quiet; then
     echo -e "  ✅ Sin rutas personales, IPs de infraestructura, hostnames de nodo ni credenciales en el core."
 else
@@ -962,7 +962,7 @@ fi
 # 23. Despacho multi-repo portable (T-104)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [23/25] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
+echo -e "🔍 [23/26] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
 DISPATCH="$ROOT/scripts/agent/dispatch-satellite.sh"
 DSAT="$(mktemp -d)"; DREG="$(mktemp)"; DSATS="$(mktemp)"
 DOUT1="$(mktemp)"; DOUT2="$(mktemp)"; DOUT3="$(mktemp)"; DOUT4="$(mktemp)"
@@ -1017,7 +1017,7 @@ rm -rf "$DSIB"
 # 24. Integración y purga de worktrees (T-107)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [24/25] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
+echo -e "🔍 [24/26] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
 MWT="$(mktemp -d)"; MOUT1="$(mktemp)"; MOUT2="$(mktemp)"; MOUT3="$(mktemp)"; MOUT4="$(mktemp)"; MOUT5="$(mktemp)"
 MDISPATCH="$ROOT/scripts/agent/worktree-dispatch.sh"
 MMERGE="$ROOT/scripts/agent/worktree-merge.sh"
@@ -1076,7 +1076,7 @@ rm -rf "$MWT" "$MOUT1" "$MOUT2" "$MOUT3" "$MOUT4" "$MOUT5"
 # 25. Punto de entrada del coordinador (T-105)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [25/25] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
+echo -e "🔍 [25/26] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
 OFLOW="$ROOT/scripts/agent/orca-orchestrate.sh"
 FWT="$(mktemp -d)"; FSAT="$FWT/sat"; FSATS="$FWT/sats.yaml"; FREG="$FWT/reg.jsonl"; FSPEC="$FWT/spec.json"
 FTOOLS="$(mktemp -d)"; FSTUB="$(mktemp -d)"; FDEAF="$(mktemp -d)"
@@ -1138,6 +1138,62 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$FWT" "$FTOOLS" "$FSTUB" "$FDEAF" "$FOUT1" "$FOUT2"
+
+# ------------------------------------------------------------------------------
+# 26. Semver del changelog con ## [Unreleased] delante (T-108)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [26/26] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
+UCHG="$ROOT/scripts/agent/update-changelog.sh"
+FCH="$(mktemp -d)"
+mkdir -p "$FCH/scripts/agent/lib"
+cp "$UCHG" "$FCH/scripts/agent/update-changelog.sh"
+cp "$ROOT/scripts/agent/lib/cli-help.sh" "$FCH/scripts/agent/lib/cli-help.sh"
+git init -q -b main "$FCH" && git -C "$FCH" config user.email t@t.t && git -C "$FCH" config user.name t || true
+# Guardia anti-incidente (T-108): si el fixture no es un repo, el script resolvería
+# el changelog del core real vía 'git rev-parse --show-toplevel'. Abortar antes.
+if [ ! -d "$FCH/.git" ]; then
+  echo -e "  ❌ ERROR: el fixture no es un repo git; abortado para no tocar el changelog real."
+  ERRORS=$((ERRORS + 1))
+else
+  TODAY=$(date +%Y-%m-%d)
+  (
+    cd "$FCH" || exit 1
+    # Caso 1 (regresión sprint-17): Unreleased delante de semver + tag DISTINTO al header.
+    # El bug generaba 0.1.0; el fix lee 1.12.0 del changelog (precedencia sobre el tag).
+    printf '# Changelog\n\n## [Unreleased]\n\n- algo pendiente\n\n## [1.12.0] — sprint-13 — 2026-09-30\n\n- base\n' > changelog.md
+    git add -A && git commit -qm base && git tag v1.5.0
+    git commit -q --allow-empty -m "feat: algo nuevo" && git commit -q --allow-empty -m "fix: un arreglo"
+    bash scripts/agent/update-changelog.sh sprint-99 >/dev/null 2>&1
+    grep -m1 '^## \[' changelog.md || true
+    # Caso 2 (fallback a tag): changelog sin semver; manda el último tag v*.
+    printf '# Changelog\n\n## [Unreleased]\n\n- pendiente\n' > changelog.md
+    git add -A && git commit -qm reset && git tag v1.12.0 && git tag v1.11.0
+    git commit -q --allow-empty -m "feat: otra cosa"
+    bash scripts/agent/update-changelog.sh sprint-99 >/dev/null 2>&1
+    grep -m1 '^## \[' changelog.md || true
+    # Caso 3 (protección pipefail): sin cabeceras ni tags. Se borran los tags y se
+    # crean 55 commits para que exista el rango HEAD~50. Debe salir 0 y generar 0.0.1.
+    git tag -d v1.5.0 v1.11.0 v1.12.0 >/dev/null 2>&1 || true
+    printf '# Changelog\n' > changelog.md
+    for i in $(seq 1 55); do git commit -q --allow-empty -m "chore: relleno $i" || true; done
+    git commit -q --allow-empty -m "fix: unico cambio"
+    bash scripts/agent/update-changelog.sh sprint-99 >/dev/null 2>&1
+    echo "exit=$?"
+    grep -m1 '^## \[' changelog.md || true
+  ) > "$FCH/result.txt" 2>&1 || true
+  R1=$(sed -n '1p' "$FCH/result.txt" 2>/dev/null || true)
+  R2=$(sed -n '2p' "$FCH/result.txt" 2>/dev/null || true)
+  R3=$(sed -n '3p' "$FCH/result.txt" 2>/dev/null || true)
+  R4=$(sed -n '4p' "$FCH/result.txt" 2>/dev/null || true)
+  if [ "$R1" = "## [1.13.0] — sprint-99 — $TODAY" ] && [ "$R2" = "## [1.13.0] — sprint-99 — $TODAY" ] && [ "$R3" = "exit=0" ] && [ "$R4" = "## [0.0.1] — sprint-99 — $TODAY" ]; then
+    echo -e "  ✅ update-changelog.sh ignora Unreleased, prefiere la semver del changelog, cae al tag y no aborta sin cabeceras."
+  else
+    echo -e "  ❌ ERROR: semver incorrecta (caso1='$R1' caso2='$R2' caso3='$R3'/'$R4')."
+    ERRORS=$((ERRORS + 1))
+  fi
+fi
+rm -rf "$FCH"
 
 # ------------------------------------------------------------------------------
 # Resumen Final

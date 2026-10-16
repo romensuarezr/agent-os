@@ -36,7 +36,7 @@
 
 - **T-106**: `locator-hygiene.sh --path <repo>` ejecutado contra `~/orca/workspaces/romensuarez-web/limpet`
   (repo `romensuarezr/romensuarez-web`, HEAD `c20e9b2`): **21 violaciones** — 11 `[ruta-personal]`
-  (`file:///home/romen/Proyectos/romensuarez-web/…` en ADRs y docs), 10 `[ip-publica]` (`158.179.213.240`).
+  (`file://<ruta-personal>/…` en ADRs y docs), 10 `[ip-publica]` (`<ip-publica>`).
   `docs/adr/` y `docs/adrs/` duplican los mismos 2 ADR (consolidación = otra tarea, deuda registrada).
 - **T-108**: `update-changelog.sh:110` — `grep -m1 '^## \['` cae en `## [Unreleased]` (línea 119 del
   changelog) sin semver → fallback `0.0.0` → genera `0.1.0`. Reproducido y parcheado a mano en el

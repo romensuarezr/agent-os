@@ -107,7 +107,15 @@ while IFS= read -r line; do
 done <<< "$COMMITS"
 
 # ─── 4. Sugerir versión semver ────────────────────────────────────────────────
-CURRENT_VERSION=$(grep -m1 '^## \[' "$CHANGELOG" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0")
+# Lee la PRIMERA cabecera con semver válida, ignorando ## [Unreleased] y similares
+# (T-108: 'grep -m1' caía en Unreleased → fallback 0.0.0 → generaba 0.1.0).
+# Sin semver en el changelog: cae al último tag v* (orden semver). Sin tags: 0.0.0.
+# Los '|| true' preservan la protección contra grep sin match bajo 'set -euo pipefail'.
+CURRENT_VERSION=$(grep -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$CHANGELOG" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+if [ -z "$CURRENT_VERSION" ]; then
+  CURRENT_VERSION=$(git -C "$ROOT" tag --list 'v*' --sort=-v:refname 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+fi
+[ -n "$CURRENT_VERSION" ] || CURRENT_VERSION="0.0.0"
 IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
 if [ "$HAS_BREAKING" = true ]; then

@@ -2,8 +2,8 @@
 
 ## Objetivo
 Sanear las 21 violaciones de frontera portable en el repo real `~/orca/workspaces/romensuarez-web/limpet`
-(`romensuarezr/romensuarez-web`, HEAD `c20e9b2`): 11 rutas personales (`file:///home/romen/Proyectos/…`)
-y 10 IPs públicas (`158.179.213.240`) en ADRs y docs vigentes. Excluir `.agents/tasks/_archived/`
+(`romensuarezr/romensuarez-web`, HEAD `c20e9b2`): 11 rutas personales (`file://<ruta-personal>/…`)
+y 10 IPs públicas (`<ip-publica>`, VPS Oracle Cloud ARM) en ADRs y docs vigentes. Excluir `.agents/tasks/_archived/`
 con motivo escrito en el fichero de excepciones del satélite.
 
 ## Contexto técnico
