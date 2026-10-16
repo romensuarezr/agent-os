@@ -248,7 +248,7 @@ SAT_ABS="$(cd "$SAT_PATH" && pwd -P)"
 # árbol (<padre>/<repo>-<task-id>/). Con worktree_base explícito se mantiene la
 # semántica anterior (relativo→satélite, absoluta/`~`→tal cual).
 if [ -z "$WT_BASE_RAW" ]; then
-  WT_ABS="$(dirname "$SAT_ABS")/$(basename "$SAT_ABS")-${TASK_ID}"
+  WT_ABS="${SAT_ABS%/*}/${SAT_ABS##*/}-${TASK_ID}"
 else
   case "$WT_BASE_RAW" in
     "~"|"~/"*|"~"*) WT_BASE_EXPANDED="$(expand_tilde "$WT_BASE_RAW")" ;;

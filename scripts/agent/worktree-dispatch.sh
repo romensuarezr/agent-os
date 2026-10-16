@@ -14,7 +14,7 @@
 set -uo pipefail
 
 # Pre-flight: verificación determinista de dependencias
-for cmd in git python3 mkdir cat chmod grep; do
+for cmd in git python3 mkdir cat chmod grep df; do
   if ! command -v "$cmd" &>/dev/null; then
     echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
     echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
@@ -140,7 +140,7 @@ WT_PROBE="$WORKTREE_PATH"
 while [ ! -d "$WT_PROBE" ] && [ "$WT_PROBE" != "/" ] && [ -n "$WT_PROBE" ]; do
   WT_PROBE="${WT_PROBE%/*}"
 done
-FREE_KB="$(df -k "$WT_PROBE" 2>/dev/null | tail -1 | python3 -c "import sys; print(sys.stdin.read().split()[3])" 2>/dev/null || echo 0)"
+FREE_KB="$(df -k "$WT_PROBE" 2>/dev/null | python3 -c "import sys; print(sys.stdin.read().splitlines()[-1].split()[3])" 2>/dev/null || echo 0)"
 if [[ ! "$FREE_KB" =~ ^[0-9]+$ ]]; then FREE_KB=0; fi
 if [ "$FREE_KB" -lt $((MIN_FREE_GB * 1024 * 1024)) ]; then
   FREE_GB_MSG="$(python3 -c "print(round($FREE_KB/1024/1024,1))" 2>/dev/null || echo '?')"

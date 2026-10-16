@@ -153,14 +153,19 @@ log "   Rama de origen: $WORKTREE_BRANCH"
 # ------------------------------------------------------------------------------
 if [ "$SKIP_VERIFY" = false ]; then
   log "🛡️  [1/3] Ejecutando Quality Gate (verify-goal.sh) dentro del worktree..."
-  VERIFY_SCRIPT="$ROOT_DIR/scripts/agent/verify-goal.sh"
+  # La copia hermana a este script, no la del repo destino: en un satélite sin
+  # agent-os instalado, $ROOT_DIR/... no existe y el gate se saltaría en silencio.
+  MERGE_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+  VERIFY_SCRIPT="$MERGE_SCRIPT_DIR/verify-goal.sh"
 
   if [ ! -x "$VERIFY_SCRIPT" ]; then
     log "⚠️  No se encontró ejecutable $VERIFY_SCRIPT. Omitiendo validación..."
   else
-    # Ejecutar verify-goal en modo JSON dentro del worktree
-    VERIFY_JSON_OUTPUT=$( (cd "$WORKTREE_PATH" && bash "$VERIFY_SCRIPT" --task-id "$TASK_ID" --base "$TARGET_BRANCH" --json) 2>/dev/null || true )
-    VERIFY_EXIT_CODE=$( (cd "$WORKTREE_PATH" && bash "$VERIFY_SCRIPT" --task-id "$TASK_ID" --base "$TARGET_BRANCH" --json >/dev/null 2>&1); echo $? )
+    # Ejecutar verify-goal en modo JSON dentro del worktree. Con --strict, como
+    # el gate /judge (T-107): sin strict, REJECT sería código muerto y el gate
+    # del merge más débil que el del judge.
+    VERIFY_JSON_OUTPUT=$( (cd "$WORKTREE_PATH" && bash "$VERIFY_SCRIPT" --task-id "$TASK_ID" --base "$TARGET_BRANCH" --strict --json) 2>/dev/null || true )
+    VERIFY_EXIT_CODE=$( (cd "$WORKTREE_PATH" && bash "$VERIFY_SCRIPT" --task-id "$TASK_ID" --base "$TARGET_BRANCH" --strict --json >/dev/null 2>&1); echo $? )
 
     IS_PASS=$(python3 -c "import json, sys; d=json.loads(sys.argv[1] or '{}'); print(d.get('status') == 'PASS')" "$VERIFY_JSON_OUTPUT" 2>/dev/null || echo "False")
 
