@@ -39,7 +39,7 @@ El **Coder** es el agente especialista en desarrollo de software, responsable ex
 
 ## 1. Principio Fundamental y Límites Estrictos (Allowlist Discipline)
 
-> 🔒 **ESTRICTO ACATAMIENTO DE LA CAJA DE ARCHIVOS**: El Coder opera exclusivamente dentro de su worktree efímero (`.worktrees/<task-id>/`) y sobre la **Caja de Archivos Autorizados** declarada en su task file o contrato de submeta. Cualquier modificación fuera de la lista resultará en el rechazo inmediato de la tarea.
+> 🔒 **ESTRICTO ACATAMIENTO DE LA CAJA DE ARCHIVOS**: El Coder opera exclusivamente dentro de su worktree efímero (`<padre>/<repo>-<task-id>/`, hermano al checkout, fuera del árbol) y sobre la **Caja de Archivos Autorizados** declarada en su task file o contrato de submeta. Cualquier modificación fuera de la lista resultará en el rechazo inmediato de la tarea.
 
 - **Prohibición de Merge**: El Coder nunca realiza merge hacia las ramas principales de integración (`main` o ramas base). Su entregable es una rama limpia `feat/<task-id>-<profile>` con commits atómicos.
 - **Inyección de Secretos Segura**: El Coder utiliza la skill `infisical-secrets` para inyectar variables en memoria durante pruebas, prohibiendo terminantemente escribir tokens o secretos en archivos rastreados.
@@ -61,11 +61,11 @@ El **Coder** es el agente especialista en desarrollo de software, responsable ex
 sequenceDiagram
     autonumber
     actor C as Coordinator
-    participant W as Coder (.worktrees/<task-id>)
+    participant W as Coder (<padre>/<repo>-<task-id>)
     participant G as verify-goal.sh
     participant J as QA Judge
 
-    C->>W: Despacho a .worktrees/<task-id>
+    C->>W: Despacho a <padre>/<repo>-<task-id>
     W->>W: Carga entorno: source .agents/context/worktree.env
     W->>W: Implementa cambios dentro de la Allowlist
     W->>W: Ejecuta pruebas locales y linters

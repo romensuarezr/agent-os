@@ -2,8 +2,10 @@
 # ==============================================================================
 # scripts/agent/worktree-dispatch.sh — Aprovisionamiento de Git Worktrees efímeros
 # ==============================================================================
-# Aprovisiona un entorno aislado en .worktrees/<task-id>/ con rama
-# feat/<task-id>-<profile>, inyectando variables de entorno y contexto operativo.
+# Aprovisiona un entorno aislado HERMANO al repo (<padre>/<repo>-<task-id>/),
+# fuera del árbol (T-107: un worktree dentro del repo contamina el árbol y es
+# la clase de accidente que originó T-103), con rama feat/<task-id>-<profile>,
+# inyectando variables de entorno y contexto operativo.
 #
 # Salida JSON compatible con orquestadores:
 #   {"task_id": "...", "profile": "...", "branch": "...", "base_ref": "...", "worktree_path": "...", "agent_os_root": "...", "status": "CREATED", "exit_code": 0}
@@ -12,7 +14,7 @@
 set -uo pipefail
 
 # Pre-flight: verificación determinista de dependencias
-for cmd in git python3 mkdir cat chmod grep; do
+for cmd in git python3 mkdir cat chmod grep df; do
   if ! command -v "$cmd" &>/dev/null; then
     echo "❌ ERROR: Dependencia requerida no encontrada: $cmd" >&2
     echo "Guía: Instala $cmd en tu sistema antes de continuar." >&2
@@ -40,7 +42,8 @@ Opciones:
   --profile <PERFIL>      Perfil del agente asignado (coder, qa-judge, etc. Default: coder).
   --base <REF>            Rama o commit base (default: HEAD actual).
   --branch <RAMA>         Nombre de la rama aislada (default: feat/<task-id>-<profile>).
-  --path <DIR>            Ruta del worktree (default: .worktrees/<task-id>).
+  --path <DIR>            Ruta del worktree (default: <padre>/<repo>-<task-id>/,
+                            hermano al repo, fuera del árbol).
   --force                 Limpia y recrea el worktree si ya existe.
   --json                  Emite únicamente JSON plano a stdout.
   -h, --help              Muestra esta ayuda.
@@ -111,7 +114,9 @@ log() {
 
 # Configurar valores derivados por defecto
 [ -z "$BRANCH" ] && BRANCH="feat/${TASK_ID}-${PROFILE}"
-[ -z "$WORKTREE_PATH" ] && WORKTREE_PATH=".worktrees/${TASK_ID}"
+# Canónico T-107: hermano al checkout, fuera del árbol. Expansión pura de bash
+# (sin dirname/basename) para no añadir dependencias al pre-flight.
+[ -z "$WORKTREE_PATH" ] && WORKTREE_PATH="${ROOT_DIR%/*}/${ROOT_DIR##*/}-${TASK_ID}"
 [ -z "$BASE" ] && BASE="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'HEAD')"
 
 log "🚀 [worktree-dispatch] Preparando worktree para '$TASK_ID'..."
@@ -119,6 +124,34 @@ log "   Perfil:        $PROFILE"
 log "   Rama:          $BRANCH"
 log "   Base:          $BASE"
 log "   Ruta:          $WORKTREE_PATH"
+
+# ------------------------------------------------------------------------------
+# 0. Gate de disco (T-107, ADR 004): sin espacio no se despacha
+# ------------------------------------------------------------------------------
+# Se mide en el ancestro existente más cercano a la ruta destino (así cubre el
+# default hermano-fuera-del-árbol y cualquier --path). Fail-closed: si no se
+# puede medir, se rehúsa con mensaje accionable, nunca se adivina.
+MIN_FREE_GB="${WORKTREE_MIN_FREE_GB:-5}"
+if [[ ! "$MIN_FREE_GB" =~ ^[0-9]+$ ]]; then
+  log "❌ ERROR: WORKTREE_MIN_FREE_GB inválido: '$MIN_FREE_GB' (entero en GB)."
+  exit 1
+fi
+WT_PROBE="$WORKTREE_PATH"
+while [ ! -d "$WT_PROBE" ] && [ "$WT_PROBE" != "/" ] && [ -n "$WT_PROBE" ]; do
+  WT_PROBE="${WT_PROBE%/*}"
+done
+FREE_KB="$(df -k "$WT_PROBE" 2>/dev/null | python3 -c "import sys; print(sys.stdin.read().splitlines()[-1].split()[3])" 2>/dev/null || echo 0)"
+if [[ ! "$FREE_KB" =~ ^[0-9]+$ ]]; then FREE_KB=0; fi
+if [ "$FREE_KB" -lt $((MIN_FREE_GB * 1024 * 1024)) ]; then
+  FREE_GB_MSG="$(python3 -c "print(round($FREE_KB/1024/1024,1))" 2>/dev/null || echo '?')"
+  if [ "$JSON_MODE" = true ]; then
+    python3 -c "import json,sys; print(json.dumps({'task_id':sys.argv[1],'status':'ERROR','error':'Disco insuficiente','exit_code':1}))" "$TASK_ID"
+  else
+    log "❌ ERROR: disco insuficiente para despachar (libres: ${FREE_GB_MSG} GB, mínimo: ${MIN_FREE_GB} GB)."
+    log "   Política: ADR 004. Libera espacio o ajusta WORKTREE_MIN_FREE_GB."
+  fi
+  exit 1
+fi
 
 # ------------------------------------------------------------------------------
 # 1. Comprobación preventiva de inconsistencias (git worktree prune)

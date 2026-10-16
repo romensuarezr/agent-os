@@ -199,7 +199,7 @@ if 'path' not in d or not d['path']:
 route = d.get('route', 'auto')
 if route not in ('auto', 'orca', 'git'):
     sys.exit('route inválida en %s: %s (auto|orca|git)' % (alias, route))
-print('%s\t%s\t%s' % (d['path'], d.get('worktree_base', '.worktrees/'), route))
+print('%s\t%s\t%s' % (d['path'], d.get('worktree_base', ''), route))
 PYEOF
 )" || {
   if [ "$JSON_MODE" = true ]; then emit_json_error "satélites: $RESOLVED"; else
@@ -244,17 +244,24 @@ if [ ! -d "$SAT_PATH" ] || ! git -C "$SAT_PATH" rev-parse --git-dir >/dev/null 2
 fi
 SAT_ABS="$(cd "$SAT_PATH" && pwd -P)"
 
-case "$WT_BASE_RAW" in
-  "~"|"~/"*|"~"*) WT_BASE_EXPANDED="$(expand_tilde "$WT_BASE_RAW")" ;;
-  /*) WT_BASE_EXPANDED="$WT_BASE_RAW" ;;
-  *) WT_BASE_EXPANDED="$SAT_ABS/$WT_BASE_RAW" ;;
-esac
-case "$WT_BASE_EXPANDED" in REFUSED:*)
-  if [ "$JSON_MODE" = true ]; then emit_json_error "worktree_base con ~usuario no soportada"; else
-    echo "❌ ERROR: worktree_base con ~usuario no soportada" >&2; fi
-  exit 1 ;;
-esac
-WT_ABS="${WT_BASE_EXPANDED%/}/${TASK_ID}"
+# Canónico T-107: sin worktree_base declarado, hermano al satélite, fuera del
+# árbol (<padre>/<repo>-<task-id>/). Con worktree_base explícito se mantiene la
+# semántica anterior (relativo→satélite, absoluta/`~`→tal cual).
+if [ -z "$WT_BASE_RAW" ]; then
+  WT_ABS="${SAT_ABS%/*}/${SAT_ABS##*/}-${TASK_ID}"
+else
+  case "$WT_BASE_RAW" in
+    "~"|"~/"*|"~"*) WT_BASE_EXPANDED="$(expand_tilde "$WT_BASE_RAW")" ;;
+    /*) WT_BASE_EXPANDED="$WT_BASE_RAW" ;;
+    *) WT_BASE_EXPANDED="$SAT_ABS/$WT_BASE_RAW" ;;
+  esac
+  case "$WT_BASE_EXPANDED" in REFUSED:*)
+    if [ "$JSON_MODE" = true ]; then emit_json_error "worktree_base con ~usuario no soportada"; else
+      echo "❌ ERROR: worktree_base con ~usuario no soportada" >&2; fi
+    exit 1 ;;
+  esac
+  WT_ABS="${WT_BASE_EXPANDED%/}/${TASK_ID}"
+fi
 
 # ------------------------------------------------------------------------------
 # 3. Idempotencia: el registro manda (last-wins, append-only)
