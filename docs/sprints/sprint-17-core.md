@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
-| T-104 | Despacho multi-repo del core portable: declaración de satélites + dispatcher determinista con ruta Orca y fallback Git-nativo | Universalización | M | ⬜ Pendiente | — | — |
+| T-104 | Despacho multi-repo del core portable: declaración de satélites + dispatcher determinista con ruta Orca y fallback Git-nativo | Universalización | M | ✅ Completada | — | — |
 | T-105 | Punto de entrada del coordinador + runbook: run → DAG → workers → gates, cableando orchestrator → orchestration → runtime-o-fallback | DX / Documentación | M | ⬜ Pendiente | T-104 | — |
 
 ## Notas de planning
