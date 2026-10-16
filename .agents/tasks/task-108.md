@@ -11,6 +11,12 @@ Causa raíz: `update-changelog.sh:110` hace `grep -m1 '^## \['`, que cae en `## 
 a mano en el cierre de sprint-17. La suite no valida el changelog (0 matches): el fix debe añadir
 el check 26 con caso de regresión. Sin cambio de comportamiento por defecto.
 
+📚 Research integrado (sprint-18-core-research.md, `### T-108`): `scout.sh` detectó
+`semantic-release` (24.1k⭐ MIT), `release-it` (9.1k⭐ MIT) y `standard-version` (npm) →
+**desarrollo a medida justificado**: las tres son del ecosistema Node/npm y el core es bash
+agnóstico de stack (principio 1 de AGENTS.md). El fix son ~3 líneas sobre el script existente,
+sin integración externa.
+
 ## Caja de archivos
 Archivos autorizados para modificación:
 - `scripts/agent/update-changelog.sh`
