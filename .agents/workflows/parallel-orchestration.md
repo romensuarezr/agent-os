@@ -1,38 +1,57 @@
 ---
-description: Runbook operativo paso a paso para la orquestación concurrente de agentes en Git Worktrees efímeros, validación independiente Ralph Loop y consolidación en terminal única.
+description: Flujo canónico de trabajo con Git Worktrees efímeros para agentes: ubicación fuera del árbol, despacho, validación independiente Ralph Loop, integración y purga. El estado emerge de los registros, no de ficheros paralelos.
 ---
 
 # parallel-orchestration
 
-> Duración estimada por lote: 15–45 min. Ejecutar bajo el rol **Coordinator** en la terminal principal de {{PROJECT_NAME}}.
+> Ejecutar bajo el rol **Coordinator** en la terminal principal de {{PROJECT_NAME}}.
+> Requisito previo: leer `.agents/workflows/session-start.md` (la sesión registra
+> en el lock el worktree donde trabaja) y `.agents/workflows/session-close.md`
+> (cerrar no integra ni borra: ver §3b).
 
 ## Objetivo
 
-- Coordinar la ejecución paralela y desatendida de múltiples tareas técnicas mediante agentes especialistas (`coder`, `qa-judge`, `docs-researcher`).
-- Garantizar el aislamiento estricto de cada agente en su propio Git Worktree efímero (`.worktrees/<task-id>/`), evitando colisiones en disco o ramas sucias.
+- Coordinar la ejecución paralela de múltiples tareas técnicas mediante agentes especialistas (`coder`, `qa-judge`, `docs-researcher`).
+- Garantizar el aislamiento estricto de cada agente en su propio Git Worktree efímero **hermano al checkout** (`<padre>/<repo>-<task-id>/`), fuera del árbol.
 - Aplicar compuertas de calidad deterministas a 0 tokens (`verify-goal.sh`) y el bucle de validación independiente **Ralph Loop**.
-- Preservar la higiene del repositorio y del sistema de archivos purgando atómicamente los worktrees tras su integración (ADR 004).
+- Preservar la higiene del repositorio y del sistema purgando los worktrees tras su integración (ADR 004) y sin borrar nunca trabajo sucio.
 
----
+## Ubicación canónica (T-107)
+
+```
+<repo>/                  ← checkout principal: punto de integración, en la base
+<repo>-<task-id>/        ← worktree efímero del worker, fuera del árbol
+```
+
+- El checkout principal **no se edita**: es donde se revisa, se integra y se publica.
+- Cada worktree lleva su rama efímera `feat/<task-id>-<profile>`. Una rama, un worktree, un agente.
+- El default lo implementan `worktree-dispatch.sh`, `worktree-merge.sh` y `dispatch-satellite.sh` (vía `worktree_base`): no se escribe a mano, se lee del campo `worktree_path` del JSON que emite el dispatch.
+- Excepción: Orca decide sus propias ubicaciones (`new-top-level`/`new-child`); el core documenta el mapeo y no lucha contra el runtime.
 
 ## Perímetro y Restricciones de Cómputo (ADR 004)
 
 > ⚠️ **RESTRICCIÓN CRÍTICA DE ALMACENAMIENTO Y HOSTS**:
 >
-> 1. **Hosts Autorizados para Paralelismo**: La creación de Git Worktrees concurrentes está permitida **únicamente** en el entorno local de desarrollo (`<control-node>`) o en nodos worker de cómputo dedicados con espacio en disco suficiente (>20 GB disponibles declarados en `.agents/config/fleet.yaml`).
-> 2. **Prohibición Estricta en Servidores de Infraestructura/Producción**: Queda **terminantemente prohibido** aprovisionar lotes de worktrees en nodos de infraestructura con almacenamiento restringido (`<infra-node>`). Dichos nodos pueden presentar volúmenes raíz saturados y alojar bases de datos críticas. Toda tarea sobre `<infra-node>` se ejecuta en modo secuencial y directo según el runbook operativo correspondiente.
-
----
+> 1. **Gate programático de disco**: `worktree-dispatch.sh` rehúsa despachar si el
+>    destino tiene menos de `WORKTREE_MIN_FREE_GB` (default 5 GB) libres. Sin
+>    espacio no hay despacho; no es un aviso, es un error accionable.
+> 2. **Hosts autorizados para paralelismo**: worktrees concurrentes solo en el
+>    entorno local (`<control-node>`) o nodos worker con >20 GB declarados en
+>    `.agents/config/fleet.yaml`. **Prohibido** aprovisionar lotes en nodos de
+>    infraestructura (`<infra-node>`).
+> 3. **Limpieza**: todo worktree integrado se desmonta (`remove --force` + `prune`
+>    + borrado de la rama efímera). Los restos se purgan con `worktree-gc.sh --apply`,
+>    que nunca toca el principal, bloqueados ni sucios.
 
 ## Archivos y Rutas a Revisar
 
 - `templates/goals/goal.schema.md`
 - `.agents/tasks/`
-- `.agents/context/dag-state.json`
-- `.worktrees/`
+- `.agents/context/dispatched.jsonl` (registro append-only de lo despachado)
 - `scripts/agent/worktree-dispatch.sh`
 - `scripts/agent/verify-goal.sh`
 - `scripts/agent/worktree-merge.sh`
+- `scripts/agent/worktree-gc.sh`
 
 ---
 
@@ -42,13 +61,13 @@ description: Runbook operativo paso a paso para la orquestación concurrente de 
 flowchart TD
     subgraph F1["FASE 1: Planificación y DAG"]
         G["/goal Registrar meta"] --> D["Desglose en Subgoals & Allowlist"]
-        D --> P["Generar dag-state.json"]
-        P --> DecisionGate{"Decision Gate (Usuario)"}
+        D --> DecisionGate{"Decision Gate (Usuario)"}
     end
 
     subgraph F2["FASE 2: Despacho Paralelo"]
         DecisionGate -- APROBADO --> Dispatch["worktree-dispatch.sh por cada tarea"]
-        Dispatch --> SpawnWorkers["Ejecución concurrente de Workers"]
+        Dispatch --> Record["Registro en dispatched.jsonl + worktree_path"]
+        Record --> SpawnWorkers["Ejecución concurrente de Workers"]
     end
 
     subgraph F3["FASE 3: Ralph Loop (Judge)"]
@@ -56,96 +75,68 @@ flowchart TD
         GateJudge --> JudgeVerdict{"¿Status PASS?"}
         JudgeVerdict -- FAIL (< 3 reintentos) --> Retry["Feedback al Coder en worktree"]
         Retry --> SpawnWorkers
-        JudgeVerdict -- FAIL (3er intento) --> HumanEscalate["Estado: escalated_to_human"]
+        JudgeVerdict -- FAIL (3er intento) --> HumanEscalate["Escalado al humano"]
     end
 
-    subgraph F4["FASE 4: Integración Atómica"]
-        JudgeVerdict -- PASS --> Merge["worktree-merge.sh (ff-only + prune)"]
-        Merge --> Digest["Consolidación en terminal principal"]
+    subgraph F4["FASE 4: Integración y Purga"]
+        JudgeVerdict -- PASS --> Merge["worktree-merge.sh (verifica + integra + desmonta)"]
+        Merge --> GCD["worktree-gc.sh --apply (restos)"]
+        GCD --> Digest["Consolidación en terminal principal"]
     end
 ```
 
+> El estado del lote **emerge de los registros** (`dispatched.jsonl`, `git worktree
+> list`, el propio JSON de cada script). No existe `dag-state.json`: se documentó
+> y nunca se usó; no se resucita.
+
 ---
 
-### FASE 1 — Desglose y Construcción del DAG
+### FASE 1 — Desglose
 
-1. **Recepción de la Meta**:
-   El Coordinator recibe la intención y define el End State Contract completando `templates/goals/goal.schema.md`.
-2. **Definición de Submetas y Allowlist**:
-   Para cada subtarea, genera su task file correspondiente en `.agents/tasks/task-<ID>.md` especificando con rigor la **Caja de Archivos Autorizados**.
-3. **Registro Persistente del DAG (`.agents/context/dag-state.json`)**:
-   Para evitar condiciones de carrera y permitir pausas o reinicios de sesión sin perder la traza de los worktrees activos, el Coordinator inicializa el archivo de seguimiento:
-   ```json
-   {
-     "goal_id": "GOAL-T-057",
-     "target_branch": "multi-agent",
-     "active_worktrees": {
-       "T-057-01": {
-         "profile": "coder",
-         "branch": "feat/T-057-01-coder",
-         "path": ".worktrees/T-057-01",
-         "status": "pending_dispatch",
-         "retry_count": 0
-       }
-     }
-   }
-   ```
-4. **Decision Gate Obligatorio (Fase 3.5)**:
-   Presenta el plan consolidado en la terminal principal y espera el comando explícito `APROBADO` antes de tocar el sistema de archivos.
+1. **Recepción de la Meta**: el Coordinator define el End State Contract en `templates/goals/goal.schema.md`.
+2. **Submetas y Allowlist**: por cada subtarea, su task file en `.agents/tasks/task-<ID>.md` con la **Caja de Archivos Autorizados**.
+3. **Decision Gate Obligatorio (Fase 3.5)**: plan consolidado en la terminal principal; `APROBADO` explícito antes de tocar el sistema de archivos.
 
 ---
 
 ### FASE 2 — Despacho Concurrente en Worktrees Aislados
 
-Por cada nodo independiente en el DAG:
+Por cada nodo independiente del DAG:
 
 1. **Aprovisionamiento**:
    ```bash
    bash scripts/agent/worktree-dispatch.sh --task-id <TASK_ID> --profile <PROFILE> --base <TARGET_BRANCH> --json
    ```
-2. **Inyección de Entorno**:
-   El script genera `.worktrees/<TASK_ID>/.agents/context/worktree.env` exportando `AGENT_OS_ROOT` y las referencias de la tarea.
-3. **Puesta en Marcha**:
-   El worker asignado inicia su trabajo dentro del directorio `.worktrees/<TASK_ID>/`, aislado de cualquier otro agente concurrente.
-4. **Actualización del DAG**:
-   El Coordinator marca la tarea como `in_progress` en `dag-state.json`.
+   Sin `--path`: aterriza en `<padre>/<repo>-<TASK_ID>/`. El gate de disco puede rehusar aquí.
+2. **Registro**: el campo `worktree_path` del JSON es la dirección del worker. El dispatcher multi-repo además lo anexa a `.agents/context/dispatched.jsonl`.
+3. **Puesta en marcha**: el worker trabaja dentro de ese directorio, aislado. Carga el arnés con `source <worktree>/.agents/context/worktree.env`.
 
 ---
 
 ### FASE 3 — Evaluación Independiente (Ralph Loop / Circuit Breaker)
 
-Cuando un worker notifica la finalización de sus cambios:
-
 1. **Invocación del Judge**:
-   El Coordinator ejecuta la compuerta técnica determinista:
    ```bash
-   (cd .worktrees/<TASK_ID> && bash "$AGENT_OS_ROOT/scripts/agent/verify-goal.sh" --task-id <TASK_ID> --base <TARGET_BRANCH> --strict --json)
+   bash "$AGENT_OS_ROOT/scripts/agent/verify-goal.sh" --task-id <TASK_ID> --base <TARGET_BRANCH> --strict --json
    ```
-2. **Análisis de Veredicto**:
-   - Si `status: PASS`: El Judge autoriza la integración hacia la Fase 4.
-   - Si `status: FAIL`:
-     - Se incrementa el contador `retry_count` en `dag-state.json`.
-     - **Si `retry_count < 3`**: El Judge envía las violaciones estructuradas al worker para su auto-corrección inmediata en el worktree.
-     - **Si `retry_count == 3` (Circuit Breaker)**: Se suspende el trabajo automático en esa subtarea, se marca `status: escalated_to_human` y se emite una alerta bloqueante en la terminal principal.
+   (ejecutado con cwd en el worktree del worker).
+2. **Veredicto**:
+   - `PASS` → Fase 4.
+   - `FAIL` (< 3 reintentos) → violaciones al worker para autocorrección en su worktree.
+   - `FAIL` (3er intento, Circuit Breaker) → trabajo suspendido, escalado al humano.
 
 ---
 
-### FASE 4 — Integración Segura, Merge Atómico y Purga ADR 004
+### FASE 4 — Integración Segura, Desmontaje y Purga (ADR 004)
 
-Una vez obtenido el veredicto `PASS`:
-
-1. **Ejecución del Merge y Limpieza de Inodes**:
-   El Coordinator ejecuta desde el repositorio principal:
+1. **Merge y desmontaje** (requiere PASS salvo `--skip-verify` explícito):
    ```bash
    bash scripts/agent/worktree-merge.sh --task-id <TASK_ID> --target <TARGET_BRANCH> --json
    ```
-   El script:
-   - Valida nuevamente las compuertas técnicas.
-   - Realiza el merge seguro (`--ff-only`).
-   - Ejecuta `git worktree remove --force .worktrees/<TASK_ID>`.
-   - Ejecuta `git worktree prune` para purgar metadatos de `.git/worktrees/`.
-   - Elimina la rama efímera `feat/<TASK_ID>-<PROFILE>`.
-2. **Actualización de Estado**:
-   Marca la submeta como `completed` en `dag-state.json`.
-3. **Cierre del Lote y Reporte Consolidado**:
-   Cuando todas las tareas del DAG concluyen, el Coordinator emite el `consolidated-digest.json` y presenta el resumen final en la terminal principal (Single-Pane of Glass).
+   Revalida, integra (`--ff-only` por defecto), `git worktree remove --force`, `prune`, borra la rama efímera.
+2. **Purga de restos**:
+   ```bash
+   bash scripts/agent/worktree-gc.sh --apply
+   ```
+   Solo huérfanos. Lo sucio y lo bloqueado se queda.
+3. **Publicación (si procede)**: `promote-to-main.sh --source <RAMA>` integra en `main` con push opcional (gate humano). **No desmonta worktrees**: es publicación, no limpieza. Ver `session-close.md` §3b para cuándo usar cada uno.

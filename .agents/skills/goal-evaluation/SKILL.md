@@ -42,7 +42,7 @@ sequenceDiagram
     participant J as QA Judge
     participant G as verify-goal.sh
 
-    C->>W: Asigna Subgoal & Worktree (.worktrees/<task-id>/)
+    C->>W: Asigna Subgoal & Worktree (<padre>/<repo>-<task-id>/)
     W->>W: Codifica cambios en feat/<task-id>-<profile>
     W->>J: Notifica entrega lista (diff + commit)
     J->>G: Ejecuta verify-goal.sh --task-id <id> --json

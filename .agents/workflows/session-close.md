@@ -101,6 +101,21 @@ Si el script falla:
 - `❌ Nada en stage` → todos los cambios ya estaban commitados; revisa con `git log --oneline -3`.
 - `⚠️ GUARDIA SPRINT` → la tarea no está marcada como `✅ Completada` en el sprint activo; edita el sprint primero.
 
+### 3b. Qué le pasa a tu worktree (T-107)
+
+**Cerrar la sesión no toca tu worktree.** El commit y el archivado no integran nada
+ni borran nada: tu rama y tu checkout siguen exactamente donde estaban. Integrar
+y limpiar son pasos separados y explícitos:
+
+| Acción | Qué hace con tu trabajo | Cuándo usarla | Qué implica |
+|---|---|---|---|
+| Cerrar sesión (`close-task.sh`) | Commit + archiva el task. No integra, no borra | Siempre, al terminar | Tu rama sigue existiendo; el worktree sigue en disco |
+| `worktree-merge.sh --task-id <ID> --target <BASE>` | Verifica (`verify-goal.sh`), integra en la base y **desmonta** el worktree (remove + prune + borra la rama efímera) | El worker terminó y el judge dio PASS | La rama efímera desaparece; el trabajo vive en la base |
+| `promote-to-main.sh --source <RAMA>` | Integra una rama en `main` (`--ff-only` por defecto) con push opcional. **No desmonta worktrees** | La rama ya está en la base y debe publicarse en `main` | Requiere gate humano para `--push`; el worktree se purga después con `worktree-gc.sh --apply` |
+| `worktree-gc.sh --apply` | Purga huérfanos (rama ya mergeada, metadata colgada). Nunca toca el checkout principal, bloqueados ni sucios | Limpieza periódica o al ver `git worktree list` con restos | Solo efímeros (exención L2 acotada); lo sucio se queda |
+
+Regla mnemotécnica: **cerrar archiva, merge integra, promote publica, gc limpia.** Si al cerrar tu `git worktree list` muestra restos de tareas ya integradas, purgarlos con `worktree-gc.sh --apply` forma parte del cierre.
+
 ### 4. Archivar el sprint + actualizar CHANGELOG (si sprint completado al 100%)
 
 Después del commit de cierre de tarea, verifica si el sprint activo quedó completado al 100%.

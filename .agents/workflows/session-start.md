@@ -138,11 +138,11 @@ Si el agente detecta que ha ejecutado cualquier acción operativa sin haber reci
 
 **Solo tras aprobación explícita.** Crear rama aprobada. Si está en `main`/`master` sin poder crearla: detenerse y avisar.
 
-Crear `.agent-session.lock` con campos: `task`, `sprint`, `branch`, `opened` (ISO 8601), `status: open`, `approved_plan: true`, `authorized_files: [...]`.
+Crear `.agent-session.lock` con campos: `task`, `sprint`, `branch`, `worktree`, `opened` (ISO 8601), `status: open`, `approved_plan: true`, `authorized_files: [...]`.
 
-El `branch` del lock debe coincidir con la rama de trabajo. Si no: detenerse hasta corregirlo.
+El campo `worktree` registra dónde se trabaja (T-107): salida de `git rev-parse --show-toplevel` más la rama activa. El `branch` del lock debe coincidir con la rama de trabajo. Si no: detenerse hasta corregirlo.
 
-Mostrar: `"🔒 Sesión abierta. Ejecución autorizada para [T-XXX]."`
+Mostrar: `"🔒 Sesión abierta. Ejecución autorizada para [T-XXX] en [worktree] ([branch])."`
 
 ### FASE 5 — Ejecución controlada
 

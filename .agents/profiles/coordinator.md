@@ -75,7 +75,7 @@ flowchart TD
 2. **Desglose en Submetas**:
    - Genera subgoals atómicos asignando a cada uno un perfil especialista (`coder`, `qa-judge`, `docs-researcher`).
 3. **Despacho Efímero**:
-   - Invoca `scripts/agent/worktree-dispatch.sh --task-id <ID> --profile <PERFIL>` para aislar al worker en `.worktrees/<ID>/`.
+   - Invoca `scripts/agent/worktree-dispatch.sh --task-id <ID> --profile <PERFIL>` para aislar al worker en `<padre>/<repo>-<ID>/`.
 4. **Compuerta de Calidad y Cierre**:
    - Confirma que el evaluador `qa-judge` emita veredicto `PASS` mediante `scripts/agent/verify-goal.sh`.
    - Si se aprueba, invoca `scripts/agent/worktree-merge.sh --task-id <ID>` para integrar y destruir el worktree sin residuos en disco (ADR 004).
