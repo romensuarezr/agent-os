@@ -20,9 +20,12 @@
 #     <alias>:
 #       path: <ruta>          OBLIGATORIO. Repo git destino (`~`-relativa).
 #       worktree_base: <ruta> OPCIONAL. Dónde aterriza el worktree.
-#                             Default: `.worktrees/` dentro del satélite
-#                             (refleja el comportamiento de worktree-dispatch.sh).
-#                             Acepta ruta `~`-relativa para sacarlo del repo.
+#                             Default (T-107): HERMANO al satélite, fuera del árbol
+#                             (`<padre>/<repo>-<task-id>/`). El default anterior
+#                             (`.worktrees/` dentro del satélite) contaminaba el árbol
+#                             y fue la clase de accidente que originó T-103.
+#                             Con valor explícito: ruta `~`-relativa o absoluta tal
+#                             cual, o relativa al satélite.
 #       route: <modo>         OPCIONAL. `auto` (default), `orca` o `git`.
 #                             `auto` = Orca si hay runtime, Git-nativo si no.
 #                             `orca`/`git` fuerzan la ruta; `orca` sin runtime
@@ -35,5 +38,5 @@ satellites:
   # Ejemplo (descomenta y adapta):
   # mi-satelite:
   #   path: ~/Proyectos/mi-satelite
-  #   worktree_base: .worktrees/
   #   route: auto
+  #   # worktree_base: ~/worktrees-mi-satelite   # solo si no quieres el default hermano

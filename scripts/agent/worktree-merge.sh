@@ -39,7 +39,8 @@ Uso: scripts/agent/worktree-merge.sh [OPCIONES]
 Opciones:
   --task-id <ID>          ID de la tarea a integrar (obligatorio, ej: T-055).
   --target <RAMA>         Rama de integración destino (default: rama actual).
-  --path <DIR>            Ruta al worktree (default: .worktrees/<task-id>).
+  --path <DIR>            Ruta al worktree (default: <padre>/<repo>-<task-id>/,
+                            el mismo canónico de worktree-dispatch.sh).
   --strategy <STRATEGY>   Estrategia de merge: fast-forward (default), squash, no-ff.
   --skip-verify           Omite la ejecución de verify-goal.sh previa al merge.
   --keep-worktree         Conserva el worktree en disco tras el merge.
@@ -110,7 +111,8 @@ log() {
   fi
 }
 
-[ -z "$WORKTREE_PATH" ] && WORKTREE_PATH=".worktrees/${TASK_ID}"
+# Mismo default canónico que worktree-dispatch.sh (T-107): hermano al checkout.
+[ -z "$WORKTREE_PATH" ] && WORKTREE_PATH="${ROOT_DIR%/*}/${ROOT_DIR##*/}-${TASK_ID}"
 [ -z "$TARGET_BRANCH" ] && TARGET_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'main')"
 
 log "🔄 [worktree-merge] Iniciando proceso de integración para '$TASK_ID'..."
@@ -253,7 +255,8 @@ if [ "$KEEP_WORKTREE" = false ]; then
   # Secuencia obligatoria solicitada
   git worktree remove --force "$WORKTREE_PATH" 2>/dev/null || rm -rf "$WORKTREE_PATH"
   git worktree prune 2>/dev/null || true
-  git branch -d "$WORKTREE_BRANCH" 2>/dev/null || true
+  # stdout también suprimido: `branch -d` confirma en stdout y rompería el JSON (T-107).
+  git branch -d "$WORKTREE_BRANCH" >/dev/null 2>&1 || true
   WORKTREE_REMOVED=true
   log "✅ Worktree y rama efímera eliminados (0 fugas de disco)."
 else

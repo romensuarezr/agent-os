@@ -2,8 +2,10 @@
 # ==============================================================================
 # scripts/agent/worktree-dispatch.sh — Aprovisionamiento de Git Worktrees efímeros
 # ==============================================================================
-# Aprovisiona un entorno aislado en .worktrees/<task-id>/ con rama
-# feat/<task-id>-<profile>, inyectando variables de entorno y contexto operativo.
+# Aprovisiona un entorno aislado HERMANO al repo (<padre>/<repo>-<task-id>/),
+# fuera del árbol (T-107: un worktree dentro del repo contamina el árbol y es
+# la clase de accidente que originó T-103), con rama feat/<task-id>-<profile>,
+# inyectando variables de entorno y contexto operativo.
 #
 # Salida JSON compatible con orquestadores:
 #   {"task_id": "...", "profile": "...", "branch": "...", "base_ref": "...", "worktree_path": "...", "agent_os_root": "...", "status": "CREATED", "exit_code": 0}
@@ -40,7 +42,8 @@ Opciones:
   --profile <PERFIL>      Perfil del agente asignado (coder, qa-judge, etc. Default: coder).
   --base <REF>            Rama o commit base (default: HEAD actual).
   --branch <RAMA>         Nombre de la rama aislada (default: feat/<task-id>-<profile>).
-  --path <DIR>            Ruta del worktree (default: .worktrees/<task-id>).
+  --path <DIR>            Ruta del worktree (default: <padre>/<repo>-<task-id>/,
+                            hermano al repo, fuera del árbol).
   --force                 Limpia y recrea el worktree si ya existe.
   --json                  Emite únicamente JSON plano a stdout.
   -h, --help              Muestra esta ayuda.
@@ -111,7 +114,9 @@ log() {
 
 # Configurar valores derivados por defecto
 [ -z "$BRANCH" ] && BRANCH="feat/${TASK_ID}-${PROFILE}"
-[ -z "$WORKTREE_PATH" ] && WORKTREE_PATH=".worktrees/${TASK_ID}"
+# Canónico T-107: hermano al checkout, fuera del árbol. Expansión pura de bash
+# (sin dirname/basename) para no añadir dependencias al pre-flight.
+[ -z "$WORKTREE_PATH" ] && WORKTREE_PATH="${ROOT_DIR%/*}/${ROOT_DIR##*/}-${TASK_ID}"
 [ -z "$BASE" ] && BASE="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'HEAD')"
 
 log "🚀 [worktree-dispatch] Preparando worktree para '$TASK_ID'..."
