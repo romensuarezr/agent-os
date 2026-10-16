@@ -1,9 +1,12 @@
 # Roadmap — agent-os
 
 ## En curso
-- (Sin sprint activo. Ejecuta /sprint-planning para abrir el siguiente.)
+- Sprint 18 — Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Ver `docs/sprints/sprint-18-core.md`.
 
 ## Completado recientemente
+- **Sprint 17**: Despacho Multi-Repo, Flujo de Worktrees y Punto de Entrada del Coordinador (T-104, T-107, T-105). Publicado en `main` como `v1.13.0`.
+- **Sprint 16**: Frontera Portable y Saneado de Exposición (T-103).
+- **Sprint 15**: Publicación Remota y Honestidad de los Scripts de Cierre (T-100, T-101, T-102).
 - **Sprint 14**: Automejora y Confianza (T-091 a T-098)
   - [T-091] Regla de destilación y automejora procedimental (Self-Improvement Distillation) (M).
   - [T-092] Fix consistencia de secciones en `roadmap.md` y `audit-repo.sh` (HIGH) (S).
@@ -20,18 +23,22 @@
 - Sprint 09: Multi-Agent Parallel Orchestration & Deterministic Goals Engine (T-054 a T-059).
 
 ## Próximo
-- Automatizar la publicación de ramas de tarea (extender `promote-to-main.sh` con `--push-source`, `--merge-commit` y `--pr`); NO crear un script nuevo: ya cubre el 80% (idea de 2026-10-12).
-- Mapa global de flujos de Agent OS con niveles de zoom C4, generado y versionado, para lectura humana y de agentes (idea de 2026-10-12).
-- Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona.
-- **FIXES de `close-*.sh`** — comparten patrón: el script afirma haber hecho algo que no hizo del todo y el flujo sigue como si nada.
-  - `close-task.sh` archiva el task file pero **no actualiza el enlace de su fila** en el sprint file: roto en T-094, T-095, T-096 y T-098, parcheado a mano cuatro veces.
-  - `close-sprint.sh` **commitea solo el rename**: `git mv` mueve la versión del índice, no la del working tree, así que las modificaciones sin stagear se quedan fuera del commit. Ocurrió en el cierre de sprint-14: el commit salió `0 insertions / 0 deletions` y las ediciones quedaron colgando. No debe abortar en silencio: o incluye los cambios, o falla diciendo por qué.
+- ✅ Automatizar la publicación de ramas de tarea (T-101, Sprint 15): `promote-to-main.sh` ya tiene `--push-source`, `--merge-commit` y `--pr`.
+- ✅ Mapa global de flujos de Agent OS con niveles de zoom C4 (T-102, Sprint 15): `scripts/agent/generate-flow-map.sh` genera `docs/flow-map.md` + digest.
+- ✅ **FIXES de `close-*.sh`** (T-100, Sprint 15) — resueltos:
+  - `close-task.sh` actualiza el enlace de su fila al archivar (antes roto en T-094, T-095, T-096 y T-098).
+  - `close-sprint.sh` hace staging acotado a sus propios ficheros y avisa de lo ajeno (antes commit `0 insertions / 0 deletions` en sprint-14).
+- Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
 - Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (S).
 - Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
 - Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
 - [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S).
 - Auditorías automáticas del estado de salud de los scripts en proyectos hijos.
 - Refinamiento de workflows globales y estandarización de logs de ejecución.
+
+## Backlog
+- Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
+- Skill + CLI `bytebox-curator` para registrar snippets y comandos en ByteBox (idea de 2026-09-26, especificación en `docs/idea-inbox/`). Producto específico, no es core; puede conectar con trabajo futuro, no se archiva.
 
 ## Descartado
 - (Sin líneas descartadas por el momento)
