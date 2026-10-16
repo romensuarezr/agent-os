@@ -53,3 +53,4 @@ scripts/agent/worktree-gc.sh
 2026-06-17    docs/IMPLEMENTED.md                  redundante con changelog.md
 2026-06-17    .agents/workflows/core-planning.md   absorbido en AGENTS.md
 2026-09-29    .agents/workflows/changelog.md       renombrado a changelog-workflow.md
+2026-10-16    scripts/agent/orca-orchestrate.sh::batch  subcomando legado (no se borra): no para en gates ni cae al fallback; usar run-flow
