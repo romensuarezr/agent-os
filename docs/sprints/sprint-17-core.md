@@ -1,7 +1,7 @@
 # Sprint 17 — Despacho Multi-Repo, Flujo de Worktrees y Punto de Entrada del Coordinador
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
