@@ -39,7 +39,7 @@ La gramática de `/orchestrator` es agnóstica del runtime subyacente y se adapt
    - Mapeo nativo a slash-commands (`/goal`, `/subgoal`).
    - Envío de notificaciones a través de la pasarela de mensajería (WhatsApp/Telegram/Slack) solicitando `/gate approve`.
 2. **Orca ADE (onorca.com / Desktop IDE)**:
-   - Integración directa con los runners de tareas en worktrees efímeros (`.worktrees/<task-id>/`).
+   - Integración directa con los runners de tareas en worktrees efímeros (`<padre>/<repo>-<task-id>/`, hermano al checkout, fuera del árbol).
    - Sincronización con el bus de eventos de federación (`control-mail` y compuertas `pending_approval`).
 3. **Terminales CLI y ACP (Anthropic / Claude Code / OpenCode)**:
    - Ejecución sin interfaz gráfica vía scripts Bash estándar consumiendo salidas JSON estructuradas.
@@ -64,13 +64,13 @@ sequenceDiagram
     C->>C: Desglose en DAG de Subgoals
     Usuario->>C: Aprobación del Plan (Fase 3.5)
     C->>D: /dispatch coder T-001
-    D-->>W: Aprovisiona .worktrees/T-001/ (rama feat/T-001-coder)
+    D-->>W: Aprovisiona <padre>/<repo>-T-001/ (rama feat/T-001-coder)
     W->>W: Implementación en allowlist
     W->>C: Entrega lista
     C->>J: /judge T-001
     J-->>C: status: PASS (verify-goal.sh exit 0)
     C->>M: /merge T-001
-    M-->>C: Merge ff-only & purge .worktrees/T-001
+    M-->>C: Merge ff-only & purge <padre>/<repo>-T-001
     C->>Usuario: Informe consolidado (consolidated-digest.json)
 ```
 

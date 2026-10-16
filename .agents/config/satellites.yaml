@@ -1,0 +1,42 @@
+# ==============================================================================
+# Agent OS — Declaración de repositorios satélite (T-104)
+# ==============================================================================
+# Este fichero declara los repositorios a los que `dispatch-satellite.sh` puede
+# despachar tareas. Se distribuye a los hijos vía `assets-manifest.txt`.
+#
+# CONVENCIÓN DE RUTAS (obligatoria, porque se distribuye):
+#   - Solo rutas `~`-relativas (`~/Proyectos/mi-repo`) o relativas al propio
+#     satélite (para `worktree_base`). NUNCA rutas absolutas con el home del
+#     operador (`/home/<usuario>/...`): en la máquina de otro operador esa ruta
+#     no existe, y además es un literal de infraestructura que el check 22
+#     rechaza. El dispatcher solo expande el prefijo literal `~/` contra $HOME.
+#   - Este fichero NO contiene satélites reales: las entradas del operador son
+#     estado local (como `fleet.yaml`), así que aquí solo vive el esquema con
+#     ejemplos comentados. Descomenta y adapta para activar.
+#
+# ESQUEMA:
+#   version: "1.0"          versión del esquema
+#   satellites:             mapa alias → declaración
+#     <alias>:
+#       path: <ruta>          OBLIGATORIO. Repo git destino (`~`-relativa).
+#       worktree_base: <ruta> OPCIONAL. Dónde aterriza el worktree.
+#                             Default (T-107): HERMANO al satélite, fuera del árbol
+#                             (`<padre>/<repo>-<task-id>/`). El default anterior
+#                             (`.worktrees/` dentro del satélite) contaminaba el árbol
+#                             y fue la clase de accidente que originó T-103.
+#                             Con valor explícito: ruta `~`-relativa o absoluta tal
+#                             cual, o relativa al satélite.
+#       route: <modo>         OPCIONAL. `auto` (default), `orca` o `git`.
+#                             `auto` = Orca si hay runtime, Git-nativo si no.
+#                             `orca`/`git` fuerzan la ruta; `orca` sin runtime
+#                             es un error, `git` nunca toca el runtime.
+# ==============================================================================
+
+version: "1.0"
+
+satellites:
+  # Ejemplo (descomenta y adapta):
+  # mi-satelite:
+  #   path: ~/Proyectos/mi-satelite
+  #   route: auto
+  #   # worktree_base: ~/worktrees-mi-satelite   # solo si no quieres el default hermano

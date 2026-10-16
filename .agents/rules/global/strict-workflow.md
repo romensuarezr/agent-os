@@ -27,7 +27,7 @@ En estos casos:
 1. **Investigación**: Evidencia basada en datos (logs, trazas), no suposiciones.
 2. **Planificación (No-Code Plan)**: Crea un `implementation_plan.md` (o resumen) antes de tocar código.
 3. **Feature Branches**: Nunca trabajes directamente en `main` o `staging`.
-   - `git checkout -b feat/nombre-descriptivo`
+   - `git checkout -b feat/<task-id>-<perfil>` (canónico T-107; el worktree vive en `<padre>/<repo>-<task-id>/`)
 4. **Verificación Pre-Push**: Todo cambio debe superar el pipeline canónico de validación local definido en [`deployment-safety.md` §4](deployment-safety.md) (compilación/tipos, tests de unidad y smoke test local) antes de dar por cerrada la tarea o solicitar promoción.
 
 ## 🚀 Aprobación de Núcleo (Core Changes)

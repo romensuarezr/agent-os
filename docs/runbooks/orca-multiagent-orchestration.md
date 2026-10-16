@@ -1,10 +1,11 @@
 # Runbook: Orquestación Multi-Agente en Orca ADE
 
-> **Guía Operativa y Arquitectura de Ejecución Concurrente**  
-> **Área**: Orquestación / Multi-Agente / Workspaces / HITL  
-> **Fecha**: 2026-09-25  
-> **Estado**: Activo (Versión 1.0)  
+> **Guía Operativa y Arquitectura de Ejecución Concurrente**
+> **Área**: Orquestación / Multi-Agente / Workspaces / HITL
+> **Fecha**: 2026-10-16 (v2.0, reescrito contra el runtime: T-105)
+> **Estado**: Activo
 > **Herramienta CLI**: `scripts/agent/orca-orchestrate.sh`
+> **Capas**: ver `docs/architecture/orchestration-layers.md` (qué capa decide qué)
 
 ---
 
@@ -12,7 +13,7 @@
 
 Orca ADE (*Agent Development Environment*) es el entorno de desarrollo y orquestación diseñado para ejecutar, supervisar y sincronizar múltiples agentes de software de forma concurrente sobre repositorios locales y servidores remotos.
 
-Para operar eficazmente con Orca ADE, es esencial comprender la jerarquía de sus tres conceptos estructurales:
+Jerarquía estructural:
 
 ```
 PROYECTO (Durable Project)
@@ -28,7 +29,7 @@ PROYECTO (Durable Project)
 
 ### Diferencias Clave:
 1. **Proyecto (`Project`)**: Entidad permanente en Orca que asocia tu repositorio git con tus cuentas (GitHub, etc.), variables y entornos de computación (local y servidores SSH).
-2. **Espacio de Trabajo / Worktree (`Workspace / Worktree`)**: Un checkout independiente de git (`git worktree`) generado en un subdirectorio aislado (ej. `~/.orca/workspaces/<repo>/tarea-1`).
+2. **Espacio de Trabajo / Worktree (`Workspace / Worktree`)**: Un checkout independiente de git en su propio directorio, con su propia rama. Ubicación canónica del core (T-107): **hermano al checkout** (`<padre>/<repo>-<task-id>/`), fuera del árbol. Orca decide sus propias ubicaciones (`new-top-level`/`new-child`); el core documenta el mapeo y no lucha contra el runtime.
    - Cada agente trabaja en su propio directorio con su propia rama.
    - **Aislamiento total**: Múltiples agentes pueden editar archivos al mismo tiempo sin colisiones de git ni sobrescritura accidental.
    - Cada worktree posee sus propios terminales PTY y navegador embebido para pruebas visuales o webviews.
@@ -42,13 +43,64 @@ Para garantizar que el trabajo en paralelo no dispare costes ni agote las cuotas
 
 - **Coordinador**: Se ejecuta en **Antigravity CLI (`agy` / `agy2`)** utilizando modelos de alto razonamiento (Claude 3.5 Sonnet / Gemini Pro). Su labor es puramente estratégica: trocear la épica, redactar contratos de subtareas y auditar el diff final.
 - **Workers (Trabajadores de Ejecución)**: Tienen **prohibido consumir saldo o cuotas de pago**. Se despachan con **OpenCode CLI** conectándose a nuestras pasarelas de coste $0:
-  - `freellmapi` en `<worker-node>:3001` ($0.00 / token).
+  - `freellmapi` ($0.00 / token).
   - `omniroute` (pasarela con 150+ modelos gratuitos).
-  - `ollama` en `<worker-node>:11434` (offline / privado).
+  - `ollama` (offline / privado).
 
 ---
 
-## 3. Patrones de Trabajo Multi-Agente
+## 3. El flujo supervisado: `run-flow` (recomendado)
+
+Un solo comando recorre los 5 pasos y **se detiene en el gate**. Sin runtime usable cae al fallback Git-nativo (T-104) con ruta explícita; nunca finge éxito.
+
+```bash
+bash scripts/agent/orca-orchestrate.sh run-flow \
+  --objective "Refactorizar autenticación y su suite de tests" \
+  --spec-file plan.json \
+  --satellite mi-repo          # solo se usa si no hay runtime
+```
+
+`plan.json` (mismo formato que `batch`; `deps` opcional, solo hacia atrás):
+```json
+{"tasks": [
+  {"title": "Middleware Auth", "spec": "Target: src/middleware/auth.ts...",
+   "agent": "opencode", "role": "developer"},
+  {"title": "Tests Auth", "spec": "Target: tests/auth/...",
+   "agent": "opencode", "role": "reviewer", "deps": ["Middleware Auth"]}
+]}
+```
+
+Lo que `run-flow` ejecuta por debajo (verificado contra el runtime 1.4.216):
+
+```bash
+# 1. Run y vinculación del coordinador
+orca orchestration run-create --objective "<objetivo>" --json
+
+# 2. Tareas con dependencias reales (--deps existe en el runtime)
+orca orchestration task-create --run <id> --task-title "<t>" --spec "<s>" \
+  --deps '["<task_id>"]' --json
+
+# 3. Un worker por tarea, en el repo destino
+orca orchestration worker-start --task <task_id> --repo path:<repo> \
+  --worktree new-top-level --agent <id> --json
+
+# 4. Seguimiento (una consulta, o espera con --wait en run-flow)
+orca orchestration check --types worker_done,escalation,question --run <id> --json
+
+# 5. Gate por tarea. AQUÍ SE PARA.
+orca orchestration gate-create --task <task_id> --question "<qué se decide>" --json
+# resolve-gate SOLO lo invoca el humano, nunca el flujo:
+orca orchestration gate-resolve --id <gate_id> --resolution "<tu decisión>" --json
+```
+
+Sin runtime, los mismos 5 pasos se resuelven por la ruta Git-nativa
+(`dispatch-satellite.sh --satellite <alias>` por tarea, worktree hermano al
+satélite, registro en `dispatched.jsonl`). El JSON final lo dice explícitamente:
+`"route": "git-fallback"`.
+
+---
+
+## 4. Patrones de Trabajo Multi-Agente
 
 ### Patrón A: Paralelismo Autónomo por Handoff (Features Independientes)
 Útil cuando deseas delegar dos o tres tareas que no tienen dependencia mutua directa:
@@ -64,53 +116,43 @@ orca worktree create --repo name:<repo> --name feat-docs --no-parent --agent ope
 orca worktree ps
 ```
 
----
-
 ### Patrón B: Orquestación Supervisada con Coordinador (DAG y Decision Gates)
-El flujo completo donde un Coordinador divide una tarea en subtareas, despacha trabajadores en paralelo y espera su resolución.
+Es `run-flow` (§3). El diagrama del flujo:
 
 ```text
                ┌────────────────────────┐
                │   COORDINADOR (Orca)   │
                └───────────┬────────────┘
                            │
-       ┌───────────────────┴───────────────────┐
-       ▼                                       ▼
-┌──────────────┐                       ┌──────────────┐
-│   WORKER 1   │                       │   WORKER 2   │
-│  Developer   │                       │   Reviewer   │
-│  (Worktree)  │                       │  (Worktree)  │
-└──────┬───────┘                       └──────┬───────┘
-       │                                       │
-       ▼                                       ▼
-   ¿Duda? ──▶ orca ask (pregunta bloqueante al coordinador)
-   ¿Fin?  ──▶ worker_done con resumen de cambios
+         ┌─────────────────┴───────────────────┐
+         ▼                                       ▼
+  ┌──────────────┐                       ┌──────────────┐
+  │   WORKER 1   │                       │   WORKER 2   │
+  │  Developer   │                       │   Reviewer   │
+  │  (Worktree)  │                       │  (Worktree)  │
+  └──────┬───────┘                       └──────┬───────┘
+         │                                       │
+         ▼                                       ▼
+     ¿Duda? ──▶ orca ask (pregunta bloqueante al coordinador)
+     ¿Fin?  ──▶ worker_done con resumen de cambios
+         │                                       │
+         └───────────────────┬───────────────────┘
+                             ▼
+              🛑 GATE: el humano aprueba o rechaza.
+              El flujo NO continúa solo.
 ```
 
-#### Paso 1: Inicializar el Run de Orquestación
+Si prefieres los pasos manuales (mismos comandos que ejecuta `run-flow`):
+
 ```bash
 bash scripts/agent/orca-orchestrate.sh create-run --objective "Refactorizar arquitectura de autenticación y suite de tests"
-```
-*Salida:* Genera un identificador de Run, ej: `run_6f65ff2df394`.
+# → run_6f65ff2df394
 
-#### Paso 2: Crear Tareas Asociadas al Run
-```bash
-# Subtarea A (Developer)
 bash scripts/agent/orca-orchestrate.sh create-task \
   --run "run_6f65ff2df394" \
   --title "Implementar nuevo middleware de permisos" \
-  --spec "Target: src/middleware/auth.ts. Change: añadir comprobación L1/L2/L3. Invariants: no romper retrocompatibilidad."
+  --spec "Target: src/middleware/auth.ts. Change: añadir comprobación L1/L2/3."
 
-# Subtarea B (Reviewer / Tests)
-bash scripts/agent/orca-orchestrate.sh create-task \
-  --run "run_6f65ff2df394" \
-  --title "Escribir arnés de pruebas unitarias" \
-  --spec "Target: tests/auth/. Change: crear tests para permisos L1/L2/L3. Acceptance: todos los tests pasando."
-```
-
-#### Paso 3: Despachar Workers Concurrentes en Worktrees Aislados
-```bash
-# Despachar Developer ($0 inferencia)
 bash scripts/agent/orca-orchestrate.sh dispatch-worker \
   --run "run_6f65ff2df394" \
   --title "Middleware Auth" \
@@ -119,29 +161,18 @@ bash scripts/agent/orca-orchestrate.sh dispatch-worker \
   --role developer \
   --name wt-auth-middleware
 
-# Despachar Reviewer en paralelo ($0 inferencia)
-bash scripts/agent/orca-orchestrate.sh dispatch-worker \
-  --run "run_6f65ff2df394" \
-  --title "Tests Auth" \
-  --spec "Escribir tests unitarios en tests/auth/ para el nuevo middleware" \
-  --agent opencode \
-  --role reviewer \
-  --name wt-auth-tests
-```
-
-#### Paso 4: Monitoreo y Supervisión de Eventos
-El Coordinador no realiza esperas ciegas ni bucles activos que quemen recursos. Consulta el estado de los workers o espera eventos de finalización:
-```bash
-# Supervisión periódica de eventos
-bash scripts/agent/orca-orchestrate.sh check-events --run "run_6f65ff2df394"
-
-# O espera bloqueante con timeout
 bash scripts/agent/orca-orchestrate.sh check-events --run "run_6f65ff2df394" --wait --timeout-ms 300000
+
+bash scripts/agent/orca-orchestrate.sh create-gate \
+  --task "<task_id>" \
+  --question "¿Autorizas la integración del middleware?"
+# Y AQUÍ SE PARA. Resolver es humano:
+bash scripts/agent/orca-orchestrate.sh resolve-gate --id "<gate_id>" --resolution "Aprobado por el operador"
 ```
 
 ---
 
-## 4. Compuertas de Decisión (Decision Gates — Nivel L3)
+## 5. Compuertas de Decisión (Decision Gates — Nivel L3)
 
 Cuando un agente worker detecta que una acción mutaría infraestructura remota, eliminaría tablas en bases de datos o afectaría a secretos de producción, la política de permisos L3 exige la creación de una **Decision Gate**:
 
@@ -160,16 +191,29 @@ bash scripts/agent/orca-orchestrate.sh resolve-gate \
   --resolution "Aprobado por el operador"
 ```
 
-El worker en Orca permanece en pausa hasta que la compuerta cambia a `status: resolved`, garantizando seguridad absoluta frente a mutaciones autónomas imprevistas.
+El worker en Orca permanece en pausa hasta que la compuerta cambia a `status: resolved`, garantizando seguridad absoluta frente a mutaciones autónomas imprevistas. **Ningún script, subcomando ni flag resuelve un gate solo** (el check 25 lo verifica por log de invocaciones).
 
 ---
 
-## 5. Recetas y Comandos Rápidos CLI
+## 6. Qué comando cuándo
+
+| Necesidad | Comando | Notas |
+|---|---|---|
+| Flujo completo supervisado | `run-flow --objective … --spec-file …` | Para en el gate; cae al fallback sin runtime |
+| Diagnóstico del runtime | `… status` | Se degrada con gracia sin runtime |
+| Despachar una tarea suelta | `… dispatch-worker --run …` + `create-gate` manual | Componer a mano = asumir tú la parada en el gate |
+| Lote rápido sin gates | `… batch …` | **Legado**: no para en gates ni cae al fallback; usa `run-flow` |
+| Sin Orca en absoluto | `dispatch-satellite.sh --satellite …` (T-104) | Ruta Git-nativa directa |
+| Limpiar restos | `worktree-gc.sh --apply` | Nunca toca principal, bloqueados ni sucios |
+
+---
+
+## 7. Recetas y Comandos Rápidos CLI
 
 | Acción | Comando |
 | :--- | :--- |
+| **Secuencia supervisada** | `bash scripts/agent/orca-orchestrate.sh run-flow --objective "<obj>" --spec-file <plan.json>` |
 | **Diagnóstico del Runtime** | `bash scripts/agent/orca-orchestrate.sh status` |
 | **Listar Runs Activos** | `bash scripts/agent/orca-orchestrate.sh list-runs` |
-| **Despacho Rápido en Lote** | `bash scripts/agent/orca-orchestrate.sh batch --objective "<obj>" --spec-file <plan.json>` |
 | **Comprobar Eventos** | `bash scripts/agent/orca-orchestrate.sh check-events --run <id>` |
 | **Listar Decision Gates** | `bash scripts/agent/orca-orchestrate.sh list-gates --run <id>` |

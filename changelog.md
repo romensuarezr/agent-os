@@ -9,13 +9,123 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.13.0] — sprint-17 — 2026-10-16
+
+### ✨ Features
+
+- feat(orchestration): sonda_runtime sin abortar, run-flow con parada en gate y fail-soft
+- feat(worktree): gate de disco fail-closed en dispatch (ADR 004)
+- feat(worktree): worktree-gc.sh purga de huérfanos con dry-run y apply
+- feat(worktree): ubicación canónica hermano-fuera-del-árbol en los 3 scripts
+- feat(dispatch): dispatcher dual Orca/Git-nativo + contrato JSON intacto en --force
+- feat(dispatch): declaración de satélites + excluir registro local
+- feat(map): mapa de flujos generado desde critical-flows.md con niveles C4 y check de sincronizacion (T-102)
+- feat(promote): publicar la rama de tarea en origin, relajar el merge y abrir PR con gh (T-101)
+- feat(install): bloque de estado del working tree con rutas relativas (T-096)
+- feat(secrets): gates opt-in de revocadas y cobertura, con la cobertura visible en el digest (T-095)
+- feat(secrets): marca de salud en install y guia del ciclo de rotacion (T-095)
+- feat(secrets): descubrir variables referenciadas solo en codigo y marcarlas como falta-declarar (T-095)
+- feat(secrets): materializacion boveda -> .env con freno de git y dry-run por defecto (T-095)
+- feat(secrets): generador del catalogo de secretos versionado y sin valores (T-095)
+- feat(secrets): verificadores de vigencia para Cloudflare, Telegram y Sentry (T-095)
+- feat(secrets): etiquetar config por proyecto y documentar el limite de slugs (T-095)
+- feat(secrets): clasificar shadowing con evidencia de uso y describir las carpetas (T-095)
+- feat(secrets): orden por ultima modificacion, modo higiene y taxonomia de etiquetas (T-095)
+- feat(secrets): localizador y auditoria de boveda con deteccion de shadowing (T-095)
+- feat(audit): soporte --path y --apply en cualquier posicion en audit-repo.sh (T-094)
+- feat(sync): soporte de sincronización remota desde GitHub (--remote) y paridad en check-session (T-099)
+- feat: preflight inferencia local(T-098)
+- feat(inference): pre-flight check-inference-gateway y runbook de inferencia local
+- feat: remediacion hermes vps(T-097)
+- feat(sync): snippet post-sync y flag opt-in --commit con guardias
+- feat(workflows): persistir descubrimientos del scout en research del sprint (T-097)
+- feat(security): port estatico de patterns SkillSpector y gate de severidad (T-093)
+- feat(governance): regla global de automejora y destilacion procedimental (T-091)
+
+### 🐛 Bug Fixes
+
+- fix(worktree): sin basename/tail/df nuevos, gate merge con --strict y verify-goal hermano
+- fix(security): restaurar el escaner y sus excepciones tras la reescritura de historia
+- fix(scanner): respetar --quiet en todos los printf y corregir typo del hook (T-103)
+- fix(security): sanear la exposicion de infraestructura y anadir el control que la impide (T-103)
+- fix(close-task): usar echo en vez de una funcion log inexistente en el helper de validacion
+- fix(scripts): verificar el cierre antes de mover el ref y actualizar el enlace del sprint (T-100)
+- fix(planning): SPRINT_SIGUIENTE considera los sprints archivados y propone sprint-15
+- fix(planning): requisito ROADMAP.md alineado con el estandar real del core (roadmap.md)
+- fix(tasks): enlace de T-096 al task file archivado y corregir CJK residual del changelog
+- fix(tasks): apuntar el enlace de T-095 al task file archivado por close-task.sh
+- fix(tasks): apuntar el enlace de T-094 al task file archivado por close-task.sh
+- fix(scripts): resolución dinámica de sprint y soporte amplio de tokens en close-task.sh
+- fix(tasks): archivar 22 task files completados y crear los contratos pendientes de T-094/095/096
+- fix(scripts): permitir mensaje personalizado y formato convencional en close-task.sh
+- fix(tasks): apuntar el enlace de T-098 al task file archivado por close-task.sh
+- fix(skills): endurecer infisical-secrets con flujo 2-pasos, rutas --path y borrado compartido
+- fix(tasks): mover task-097.md a directorio activo para resolver enlace en tabla (T-097)
+- fix(sync): no re-agregar archivos ya borrados en index a COMMIT_FILES
+- fix(sync): registrar remoción git en migración de skills legacy
+- fix(sync): eliminar subshell en bucle de skills para acumular TOUCHED_FILES
+- fix(sync): excluir rutas ignoradas por .gitignore del staging de commit
+- fix(dx): armonizar secciones de roadmap en audit-repo y templates (T-092)
+
+### ♻️ Refactoring
+
+- refactor(lib): extraer la verificacion previa a lib/verify-commit.sh y avisar de todo commit sin verificar (T-100)
+
+### 📚 Documentación
+
+- docs(sprint-17): marcar completado (3/3)
+- docs(sprint-17): T-105 completada tras merge
+- docs(orchestration): capas, runbook contra el runtime y batch a deprecated
+- docs(tasks): contrato T-105 corregido (opción A, sin coordinator-run.sh)
+- docs(sprint-17): T-107 completada tras merge
+- docs(tasks): research en Caja T-107
+- docs(worktree): flujo canónico, hooks de sesión, exención L2 y manifest
+- docs(tasks): contrato T-107 (NUEVO, primer commit de la rama)
+- docs(sprint-17): T-104 completada tras merge
+- docs(tasks): contrato T-104 (NUEVO, primer commit de la rama)
+- docs(sprint-17): corregir nits de revision (typo y aclaracion del digest)
+- docs(sprint): sprint-17 reformulado desde la spike de Orca + research y contratos T-104/T-105
+- docs(tasks): contrato T-103 con el plan de saneamiento aprobado (Fase 1 + Fase 3)
+- docs(tasks): contrato de T-102 con el research integrado y las decisiones de la revision
+- docs(promote): documentar el orden de --pr y su conflicto con --push (T-101)
+- docs(tasks): contrato de T-101 con el research integrado y las decisiones de la revision
+- docs(tasks): contrato de T-100 con la investigacion de Perplexity integrada
+- docs(sprint): abrir sprint-15 con research de Perplexity y hallazgos de scouting
+- docs(roadmap): registrar los dos bugs de close-*.sh con su sintoma y evidencia
+- docs(sprint): marcar sprint-14 completado y actualizar roadmap al cierre
+- docs(secrets): registrar el saneamiento de la boveda ejecutado en T-095
+- docs(ideas): anadir seleccion de herramientas, solape de skills y propuesta de generador de mapa
+- docs(ideas): captura idea de publicacion remota de tareas y mapa global de flujos
+- docs(sprint): marcar T-093 como completada
+- docs(sprint): marcar T-092 como completada
+- docs(sprint): marcar T-091 como completada y relativizar enlaces a task files
+- docs(sprint): inicializar sprint-14-core y research, actualizar roadmap y archivar ideas procesadas
+
+### 🔧 Mantenimiento
+
+- chore(coordinator): changelog T-105 y cierre de contrato
+- chore(dispatch): manifest, changelog y cierre de contrato T-104
+- chore: archive sprint-16-core
+- chore: archive sprint-15-core
+- chore: archive sprint-14-core
+- chore: archive sprint-13-core
+
+### 📦 Otros
+
+- test(control-plane): check 25 run-flow para en gate, cablea deps y cae al fallback
+- test(control-plane): check 24 integración y purga de worktrees + cierre T-107
+- test(control-plane): check 23 despacho multi-repo (Git, Orca simulada, idempotencia)
+
 ## [Unreleased]
 
 ### ✨ Features & Universalización
 
 - **T-098**: `scripts/agent/check-inference-gateway.sh`, pre-flight determinista y agnóstico de stack para cualquier pasarela OpenAI-compatible (FreeLLMAPI, OmniRoute, LiteLLM, vLLM, Ollama). Clasifica el estado en `OK`/`AUTH_FAIL`/`UPSTREAM_DOWN`/`UNREACHABLE`, ejecuta un probe mínimo opcional que revela el modelo realmente servido, nunca imprime la credencial, enmascara el host y expone digest `--json` para orquestadores, con códigos de salida canónicos para scripting.
 - **T-098**: `docs/runbooks/local-agent-inference-runbook.md` documenta, sobre evidencia verificada con peticiones reales, el montaje de agentes locales (Hermes/OpenCode) contra pasarelas OpenAI-compatible en malla Tailscale con coste cero: taxonomía de fallos (502 por `tailscale serve` apuntando a `127.0.0.1` mientras el contenedor solo publica en la IP de Tailscale, 401 por credencial cruzada entre gateways, 503 por reintentos del combo `auto/*`, 402 por modelos que exigen clave de OpenCode), resolución de `<GATEWAY_HOST>` por MagicDNS sin literales de infraestructura versionados, y la trampa de `max_tokens` que produce falsos negativos de contenido vacío.
-- **T-099**: Sincronización remota desde GitHub mediante flag `--remote` en `scripts/agent/sync.sh` con aprovisionamiento efímero en `/tmp`, soporte para `--branch` y `--tag`, limpieza determinista mediante `trap` y paridad en `scripts/agent/check-session.sh` para actualizar satélites autónomos sin requerir un clon local del core en disco.
+  - **T-099**: Sincronización remota desde GitHub mediante flag `--remote` en `scripts/agent/sync.sh` con aprovisionamiento efímero en `/tmp`, soporte para `--branch` y `--tag`, limpieza determinista mediante `trap` y paridad en `scripts/agent/check-session.sh` para actualizar satélites autónomos sin requerir un clon local del core en disco.
+  - **T-104**: `scripts/agent/dispatch-satellite.sh`, despacho determinista de tareas a repositorios satélite declarados en `.agents/config/satellites.yaml` (alias → ruta, solo `~`-relativas porque se distribuye). Elige ruta Orca (`worker-start --repo/--worktree new-child`) cuando el runtime responde y ruta Git-nativa (`worktree-dispatch.sh` con cwd en el satélite, sin modificarlo salvo un redirect que preserva el JSON en `--force`) cuando no; la ausencia de Orca nunca es un error. La sonda de runtime está acotada a 15 s porque un homónimo (`/usr/bin/orca` v46.1) cuelga `status`. Ambas rutas emiten el mismo contrato JSON, el dispatcher registra cada despacho en `.agents/context/dispatched.jsonl` (append-only last-wins, excluido de git) y re-despachar es idempotente salvo `--force`. Check 23: ruta Git sin runtime (PATH mínimo), ruta Orca con stub y conteo de worktrees.
+  - **T-105**: punto de entrada del coordinador sin script nuevo (el firewall lo prohibía: `orca-orchestrate.sh` ya tenía los 10 subcomandos). Sonda `sonda_runtime()` que clasifica sin abortar (`RUNTIME_OK`/`CLI_AUSENTE`/`RUNTIME_SIN_RESPUESTA`, acotada a 15 s); `check_orca()` mantiene fail-hard para los subcomandos directos; solo `run-flow` usa el clasificador para el fail-soft (sin runtime → delega en `dispatch-satellite.sh` con `route:"git-fallback"` explícito). `run-flow` cablea `create-run` → `create-task` (con `--deps`/`--parent` reales del runtime) → `dispatch-worker` → `check-events` → `create-gate` y PARA: nunca invoca `resolve-gate`. `orchestration-layers.md` documenta las tres capas y los aparcados con su estado real; el runbook cita `orca orchestration` real con el fallback al mismo nivel; `batch` queda como legado (no se borra). Check 25: el stub registra invocaciones y afirma que `resolve-gate` jamás se llama.
+  - **T-107**: flujo de worktrees consolidado (estaba definido y nunca ejecutado: sin `.worktrees/`, sin `dag-state.json`, fuera del manifest). Ubicación canónica hermano-fuera-del-árbol (`<padre>/<repo>-<task-id>/`) con el mismo default en `worktree-dispatch.sh`, `worktree-merge.sh` y `dispatch-satellite.sh` (revisa el default provisional de T-104); `worktree-gc.sh` purga huérfanos (`--dry-run` por defecto, `--apply`, nunca toca principal/bloqueados/sucios); gate de disco fail-closed en `dispatch` (`WORKTREE_MIN_FREE_GB`, default 5 GB, ADR 004); `session-start` registra el worktree en el lock y `session-close` documenta cerrar-vs-merge-vs-promote; exención L2 acotada para efímeros; `parallel-orchestration.md` reescrito y en el manifest. Check 24: merge ff/squash, REJECT conserva, gc purga huérfanos sin tocar sucios.
 
 ### 🐛 Bug Fixes & Refactor
 
