@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# update-changelog.sh — Genera entrada de CHANGELOG.md al cerrar un sprint
+# update-changelog.sh — Genera entrada de changelog.md al cerrar un sprint
 # Uso: bash scripts/agent/update-changelog.sh sprint-08
 #
 # Comportamiento:
 # - Lee los commits desde el sprint anterior (o último tag) hasta HEAD
 # - Clasifica por tipo (Conventional Commits)
-# - Inserta una nueva sección en CHANGELOG.md (NO commitea — lo hace close-sprint.sh)
+# - Inserta una nueva sección en changelog.md (NO commitea — lo hace close-sprint.sh)
 # - Sugiere bump de versión semver
 
 set -euo pipefail
@@ -33,8 +33,8 @@ for cmd in git grep head sed awk mktemp date mv; do
 done
 
 ROOT="$(git rev-parse --show-toplevel)"
-CHANGELOG="$ROOT/CHANGELOG.md"
-[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/changelog.md"
+CHANGELOG="$ROOT/changelog.md"
+[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/CHANGELOG.md"
 DATE=$(date +%Y-%m-%d)
 
 # ─── 1. Argumento obligatorio ────────────────────────────────────────────────
@@ -154,11 +154,11 @@ if [ -n "$OTHERS" ]; then
   ENTRY="${ENTRY}\n### 📦 Otros\n${OTHERS}\n"
 fi
 
-# ─── 6. Insertar en CHANGELOG.md ─────────────────────────────────────────────
+# ─── 6. Insertar en changelog.md ─────────────────────────────────────────────
 if [ ! -f "$CHANGELOG" ]; then
-  # Crear CHANGELOG.md si no existe
+  # Crear changelog.md si no existe
   printf '# Changelog\n\nTodos los cambios notables se documentan aquí.\nFormato basado en [Keep a Changelog](https://keepachangelog.com/).\nVersionado según [Semantic Versioning](https://semver.org/).\n\n' > "$CHANGELOG"
-  echo "📄 CHANGELOG.md creado."
+  echo "📄 changelog.md creado."
 fi
 
 # Insertar después de la primera línea de cabecera (# Changelog ...)
@@ -178,11 +178,11 @@ mv "$TMP" "$CHANGELOG"
 
 # ─── 7. Resumen ──────────────────────────────────────────────────────────────
 echo ""
-echo "✅ CHANGELOG.md actualizado"
+echo "✅ changelog.md actualizado"
 echo "   Sprint  : $SPRINT_NAME"
 echo "   Versión : $CURRENT_VERSION → $NEW_VERSION ($BUMP_REASON)"
 echo "   Fecha   : $DATE"
 echo ""
 echo "ℹ️  El archivo está modificado pero NO commitado."
 echo "   Se incluirá en el commit de 'close-sprint.sh' automáticamente."
-echo "   Para ver los cambios: git diff CHANGELOG.md"
+echo "   Para ver los cambios: git diff changelog.md"

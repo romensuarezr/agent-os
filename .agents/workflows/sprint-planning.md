@@ -18,8 +18,8 @@ description: Ritual de inicio de semana. Lee el roadmap, vacía el idea-inbox, g
 - `docs/sprints/`
 - `docs/idea-inbox/`
 - `docs/external-inbox/`
-- `docs/MVP-TRACKER.md`
-- `CHANGELOG.md`
+- `docs/MVP-TRACKER.md` (solo si el proyecto lo tiene; el core no: su producto son los propios scripts)
+- `changelog.md`
 
 ## Prerrequisitos
 - `roadmap.md` en la raíz del proyecto. **La convención del core es minúsculas**: `audit-repo.sh` migra de forma proactiva los `ROADMAP.md` a `roadmap.md`, así que el requisito en mayúsculas estaba desalineado con el estándar que el propio core impone.
@@ -87,10 +87,10 @@ Al cerrar el sprint anterior:
 
 **Paso previo obligatorio — leer el registro de features:**
 
-Antes de ejecutar `inventory-check.sh`, leer `CHANGELOG.md`.
+Antes de ejecutar `inventory-check.sh`, leer `changelog.md`.
 Si la feature candidata ya aparece → **no entra al sprint, marcar `✅ Hecho` en roadmap directamente**.
 
-Para cada tarea candidata que NO aparezca en `CHANGELOG.md`:
+Para cada tarea candidata que NO aparezca en `changelog.md`:
 
 1. **Ejecutar inventory check:**
    ```bash
@@ -216,6 +216,10 @@ Crear `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` con esta estructura:
 
 ### 4b. Actualización del MVP Tracker
 
+> Condicional: solo si el proyecto tiene `docs/MVP-TRACKER.md`. Si no existe (el core),
+> omitir este paso — `update-mvp-tracker.sh` falla sin tracker (`exit 1`) y el core se
+> versiona con `changelog.md`.
+
 ```bash
 bash scripts/agent/update-mvp-tracker.sh
 ```
@@ -223,12 +227,16 @@ bash scripts/agent/update-mvp-tracker.sh
 El script recalcula el **% global** leyendo los valores de `% cap.` de `docs/MVP-TRACKER.md`.
 
 Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
-- Leer `CHANGELOG.md` y el sprint recién cerrado.
+- Leer `changelog.md` y el sprint recién cerrado.
 - Actualizar valores en la tabla si el trabajo completado mueve el %.
 - Ejecutar de nuevo `update-mvp-tracker.sh` para recalcular.
 - Añadir fila en `## Historial de actualizaciones` con fecha, sprint y % global.
 
 ### 5. Generación del prompt para Perplexity
+
+> Condicional: solo para proyectos con producto y stakeholders externos que requieran
+> investigación en Perplexity. En el core, la investigación se resuelve en el research del
+> sprint (pasos 2d/2e); omitir este paso.
 
 Antes de redactar, usar como fuente primaria el digest de `inventory-check.sh` si la señal de complejidad fue ≥2. Si fue baja, leer directamente los archivos más relevantes del código relacionado (máx. 3 archivos).
 
@@ -303,7 +311,7 @@ Justo antes del mensaje de pausa del paso 6:
 3. Resultado de la verificación de código del paso 2c (tabla con evidencias).
 4. **Resultado de la prospección determinista OSS del paso 2d** (tabla con alternativas detectadas por `scout.sh` y recomendación de adopción vs construcción).
 5. Las tareas del sprint seleccionadas con su tamaño.
-6. **Progreso MVP actualizado:**
+6. **Progreso MVP actualizado (omitir si el proyecto no tiene `docs/MVP-TRACKER.md`):**
    ```
    📊 Progreso MVP: XX%
       Capacidad 1                  ██████████ 100%

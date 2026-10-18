@@ -23,8 +23,8 @@ Archivos autorizados para modificación:
 - `.agents/workflows/sprint-planning.md` (literales + cláusulas 4b/5 para el core)
 
 ## Criterios de done
-- [ ] `audit-repo.sh` intacto (su línea 196 sigue detectando el nombre viejo)
-- [ ] 0 literales engañosos `CHANGELOG.md` fuera de `audit-repo.sh:196` (verificar con `grep -rn`)
+- [ ] `audit-repo.sh` intacto (sus líneas 195-198 siguen detectando y migrando el nombre viejo, byte-idénticas)
+- [ ] 0 literales engañosos `CHANGELOG.md` fuera de las líneas 195-198 de `audit-repo.sh` y de los 2 fallbacks legacy (verificar con `grep -rn`)
 - [ ] `sprint-planning.md` pasos 4b y 5 condicionales: se omiten si el proyecto no tiene
       `docs/MVP-TRACKER.md` / producto con stakeholders (el core)
 - [ ] Suite en verde (26/26 tras T-108); sin ADR (no toca estructura); entrada en changelog
