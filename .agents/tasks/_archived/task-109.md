@@ -23,19 +23,19 @@ Archivos autorizados para modificación:
 - `.agents/workflows/sprint-planning.md` (literales + cláusulas 4b/5 para el core)
 
 ## Criterios de done
-- [ ] `audit-repo.sh` intacto (sus líneas 195-198 siguen detectando y migrando el nombre viejo, byte-idénticas)
-- [ ] 0 literales engañosos `CHANGELOG.md` fuera de las líneas 195-198 de `audit-repo.sh` y de los 2 fallbacks legacy (verificar con `grep -rn`)
-- [ ] `sprint-planning.md` pasos 4b y 5 condicionales: se omiten si el proyecto no tiene
-      `docs/MVP-TRACKER.md` / producto con stakeholders (el core)
-- [ ] Suite en verde (26/26 tras T-108); sin ADR (no toca estructura); entrada en changelog
+- [x] `audit-repo.sh` intacto (sus líneas 195-198 siguen detectando y migrando el nombre viejo, byte-idénticas)
+- [x] 0 literales engañosos `CHANGELOG.md` fuera de las líneas 195-198 de `audit-repo.sh` y de los 2 fallbacks legacy (verificar con `grep -rn`)
+- [x] `sprint-planning.md` pasos 4b y 5 condicionales: se omiten si el proyecto no tiene
+      `docs/MVP-TRACKER.md` / producto con stakeholders (el core) — 4 cláusulas (lista, 4b, 5, paso 7)
+- [x] Suite en verde (26/26 tras T-108); sin ADR (no toca estructura); entrada en changelog
       como universalización
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-10-16 (APROBADO CON CAMBIOS: 664 a idea-inbox, 4 cláusulas, done enmendado a 195-198)
+- [x] Rama creada: feat/T-109-convencion-changelog
+- [x] Lock activo: N/A (sesión en modo plan; sin Fase 4, sin lock)
+- [x] Sesión cerrada correctamente
