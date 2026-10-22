@@ -34,10 +34,17 @@
 
 ## Evidencia de alcance por tarea
 
-- **T-106**: `locator-hygiene.sh --path <repo>` ejecutado contra `~/orca/workspaces/romensuarez-web/limpet`
-  (repo `romensuarezr/romensuarez-web`, HEAD `c20e9b2`): **21 violaciones** — 11 `[ruta-personal]`
-  (`file://<ruta-personal>/…` en ADRs y docs), 10 `[ip-publica]` (`<ip-publica>`).
-  `docs/adr/` y `docs/adrs/` duplican los mismos 2 ADR (consolidación = otra tarea, deuda registrada).
+- **T-106**: base correcta = `origin/main` de `romensuarezr/romensuarez-web` (`339b029`).
+  El worktree `~/orca/workspaces/romensuarez-web/limpet` estaba en `romensuarezr/limpet` (`c20e9b2`),
+  **74 commits por detrás**: su escaneo (21 violaciones, incl. 4 en `scripts/agent/*.sh` y `docs/adr/`
+  duplicado) **no es representativo** y queda descartado. Sobre `main`: 36 líneas en 8 docs
+  (`docs/adrs/ADR-001/002/003`, `README.md`, `architecture-evaluation`, 2 guías de despliegue, `roadmap.md`)
+  + 6 líneas en 4 `_archived/` (005/006/007/038). **Cero violaciones en código**; `docs/adr/` singular
+  **Bug del escáner detectado y corregido en T-106**: `EXCEPTIONS` se calculaba antes de parsear
+  argumentos, así que `--path` leía las excepciones del core y no las del repo destino (los 6
+  `_archived/` se reportaban igual). Se movió la asignación tras el parseo + check 27 (fixture git
+  aislado). Resultado con el escáner publicado sobre `limpet-T-106`: **0 violaciones**.
+  Sigue abierto (otro bug, no T-106): el escáner afirma "limpio" sobre un directorio que no es repo.
 - **T-108**: `update-changelog.sh:110` — `grep -m1 '^## \['` cae en `## [Unreleased]` (línea 119 del
   changelog) sin semver → fallback `0.0.0` → genera `0.1.0`. Reproducido y parcheado a mano en el
   cierre de sprint-17. La suite no valida el changelog (0 matches): el fix añade el check 26.
