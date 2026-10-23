@@ -19,18 +19,18 @@ Archivos autorizados para modificación:
 - `tests/validate-control-plane.sh` (check: el subcomando no contiene llamadas con mutación)
 
 ## Criterios de done
-- [ ] Subcomando read-only verificable: `grep` demuestra 0 llamadas a primitivas con mutación
+- [x] Subcomando read-only verificable: `grep` demuestra 0 llamadas a primitivas con mutación
       (`create-`, `dispatch-`, `resolve-`, `gh pr`, `git push/merge`) en su cuerpo
-- [ ] Vista humana (una pantalla) + digest `--json` para agentes (principio 6 de AGENTS.md)
-- [ ] Funciona sin runtime Orca degradando con gracia (como `run-flow`: informa, no aborta con traceback)
-- [ ] Suite en verde; runbook actualizado; idea 2026-09-25 archivada al cerrar
+- [x] Vista humana (una pantalla) + digest `--json` para agentes (principio 6 de AGENTS.md)
+- [x] Funciona sin runtime Orca degradando con gracia (como `run-flow`: informa, no aborta con traceback)
+- [x] Suite 29/29; runbook actualizado; idea 2026-09-25 se archiva al cerrar
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO — 2026-10-23 (cambio: check 29 incluye ciclo de vida del worker)
+- [x] Rama creada: `feat/T-112-report-lote-readonly` (desde `multi-agent`)
+- [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
