@@ -10,7 +10,7 @@
 | T-108 | Semver real en el cierre de sprint: `update-changelog.sh` ignora `## [Unreleased]` al leer la versión actual + check 26 de regresión en la suite | Bug del sistema | M | ✅ Completada | — | [.agents/tasks/task-108.md](.agents/tasks/_archived/task-108.md) |
 | T-109 | Unificar el literal `CHANGELOG.md` → `changelog.md`: invertir la preferencia en `update-changelog.sh`/`close-sprint.sh` y corregir los mensajes y workflows que apuntan a un fichero inexistente | Bug del sistema / DX | S | ✅ Completada | T-108 | [.agents/tasks/task-109.md](.agents/tasks/_archived/task-109.md) |
 | T-110 | Wrapper portable de copias no destructivas: `lib/portable-fs.sh` con `agent_cp_n` (sonda `--update=none` sin escrituras, reenvío de flags), aplicado en las 11 copias de `install.sh` (8 `-n` + 3 `-rn`); check 28 | Universalización | S | ✅ Completada | — | [.agents/tasks/task-110.md](.agents/tasks/_archived/task-110.md) |
-| T-112 | Informe consolidado de lote read-only: nuevo subcomando de `orca-orchestrate.sh` que agrega run → tareas → worktrees → gates → diffstat en una sola pantalla para el humano | DX | L | ⬜ Pendiente | — | [.agents/tasks/task-112.md](.agents/tasks/task-112.md) |
+| T-112 | Informe consolidado de lote read-only: subcomando `report <run-id> [--json]` de `orca-orchestrate.sh` (run → tareas → workers/worktrees → gates → diffstat → veredicto), bloque delimitado sin mutaciones y degradación `SIN_RUNTIME`; check 29 | DX | L | ✅ Completada | — | [.agents/tasks/task-112.md](.agents/tasks/_archived/task-112.md) |
 
 ## Notas de planning
 

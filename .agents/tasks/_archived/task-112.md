@@ -33,4 +33,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO — 2026-10-23 (cambio: check 29 incluye ciclo de vida del worker)
 - [x] Rama creada: `feat/T-112-report-lote-readonly` (desde `multi-agent`)
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
