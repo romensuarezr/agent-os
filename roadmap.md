@@ -1,9 +1,10 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 18 — Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Ver `docs/sprints/sprint-18-core.md`.
+- Sin sprint activo — próximo planning sobre `multi-agent` (`v1.14.0` cerrado, pendiente de publicación en `main`).
 
 ## Completado recientemente
+- **Sprint 18**: Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Cerrado en `multi-agent` como `v1.14.0`; pendiente de publicación en `main`.
 - **Sprint 17**: Despacho Multi-Repo, Flujo de Worktrees y Punto de Entrada del Coordinador (T-104, T-107, T-105). Publicado en `main` como `v1.13.0`.
 - **Sprint 16**: Frontera Portable y Saneado de Exposición (T-103).
 - **Sprint 15**: Publicación Remota y Honestidad de los Scripts de Cierre (T-100, T-101, T-102).
