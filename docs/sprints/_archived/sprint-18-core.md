@@ -1,7 +1,7 @@
 # Sprint 18 — Versiones, Convenciones y Consolidación de Lotes
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |

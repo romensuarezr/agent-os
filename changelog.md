@@ -9,6 +9,25 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.14.0] — sprint-18 — 2026-10-23
+
+### ✨ Features
+
+- feat(orchestrate): informe de lote read-only (report) — subcomando read-only con veredicto y degradación SIN_RUNTIME (T-112)
+- feat(install): wrapper portable agent_cp_n y migración de las 11 copias no destructivas (T-110)
+
+### 🐛 Bug Fixes
+
+- fix(locator): --path honra las excepciones del repo escaneado (T-106)
+- fix(docs): unificar el literal CHANGELOG.md → changelog.md y condicionar 4b/5 (T-109)
+- fix(changelog): semver ignora Unreleased, cae al tag + check 26 (T-108)
+
+### 📚 Documentación
+
+- docs(portability): sanea frontera portable de romensuarez-web y corrige locator --path (T-106)
+- docs(idea): captura REA / inspeccion clean-room de MCPs
+- docs(sprint-18): planning — roadmap saneado, ideas archivadas, sprint files y contratos T-106..112
+
 ## [1.13.0] — sprint-17 — 2026-10-16
 
 ### ✨ Features
