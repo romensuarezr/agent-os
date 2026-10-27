@@ -69,7 +69,7 @@ Para evitar duplicidades o dispersión, las 4 reglas globales de análisis y aud
 
 Agent OS impone **fricción explícita e intencional** en la gestión de credenciales y secretos (Decisión 5B):
 - **Cero creación mágica de `.env`**: Ningún script ni agente debe generar o autocompletar archivos `.env` sin intervención consciente. El manejo de claves privadas requiere deliberación humana.
-- **Fuente Canónica Centralizada**: La flota delega la gestión de secretos en **Infisical**. Para validar o inyectar variables de entorno de forma efímera y segura, utiliza `bash scripts/agent/import-secrets.sh` o el cliente oficial de Infisical.
+- **Fuente Canónica Centralizada**: La flota delega la gestión de secretos en **Infisical**. El acceso se hace **solo** mediante esta lista cerrada: `secret-locate.sh` (leer metadatos), `secrets.sh` (escribir/rotar sin valor por `argv`), `import-secrets.sh` (`.env` → bóveda), `materialize-secrets.sh` (bóveda → `.env` local), `redact.sh` (filtrar diagnósticos) y `verify-secrets.py` (auditar). **No hay vía alternativa**: si ninguno cubre la necesidad, el agente **se para y propone** el script o la ampliación; no improvisa con el CLI crudo.
 - **Invariante L3**: Queda estrictamente prohibido versionar o commitear archivos `.env`, tokens o claves privadas (ver [`agent-permissions.md`](.agents/rules/global/agent-permissions.md) nivel L3). Los repositorios deben versionar únicamente plantillas desensibilizadas (`.env.example`).
 
 ---

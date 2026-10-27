@@ -134,7 +134,10 @@ El flujo completo es:
   inserta una nueva sección `## [vX.Y.Z] — sprint-{{SPRINT_ACTIVE}} — YYYY-MM-DD` en `changelog.md`
   y sugiere el bump de versión semver (major si hay breaking, minor si hay feat, patch si solo fix).
 - `close-sprint.sh` verifica que todas las tareas están `✅ Completada`, mueve el sprint a
-  `docs/sprints/_archived/` con `git mv`, hace `git add changelog.md` y commitea todo junto:
+  `docs/sprints/_archived/` con `git mv`, sincroniza `VERSION` con la release del changelog
+  (T-113: la primera cabecera **con semver**, aunque haya `## [Unreleased]` delante; si el
+  changelog no cambió en este cierre, avisa y no toca `VERSION`), hace `git add changelog.md
+  VERSION` y commitea todo junto:
 
 ```bash
 git commit -m "chore: archive sprint-{{SPRINT_ACTIVE}} [vX.Y.Z]"

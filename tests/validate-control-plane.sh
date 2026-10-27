@@ -28,6 +28,11 @@
 #  23. Despacho multi-repo: ruta Git sin runtime, ruta Orca simulada, idempotencia (T-104).
 #  24. Integración y purga de worktrees: merge ff/squash, REJECT conserva, gc (T-107).
 #  25. Punto de entrada del coordinador: run-flow para en el gate, cablea deps, fallback (T-105).
+#  26. Semver del changelog con '## [Unreleased]' delante y fallback al tag (T-108).
+#  27. locator-hygiene.sh --path honra las excepciones del repo escaneado (T-106).
+#  28. Copias no destructivas portables: agent_cp_n sin warnings ni sobrescritura (T-110).
+#  29. Informe de lote read-only: report no muta estado y degrada sin runtime (T-112).
+#  30. VERSION alineado con la release del changelog (lectura semver, idempotencia) (T-113).
 # ==============================================================================
 
 set -euo pipefail
@@ -69,7 +74,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/29] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/33] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -89,7 +94,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/29] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/33] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -126,7 +131,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/29] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/33] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -161,7 +166,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/29] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/33] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -196,7 +201,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/29] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/33] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -220,7 +225,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/29] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/33] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -239,7 +244,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/29] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/33] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -258,7 +263,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/29] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/33] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -281,7 +286,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/29] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/33] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -303,7 +308,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/29] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/33] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -369,7 +374,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/29] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/33] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -387,7 +392,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/29] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/33] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -421,7 +426,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/29] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/33] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -477,7 +482,7 @@ fi
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/29] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/33] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -542,7 +547,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/29] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/33] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -629,7 +634,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/29] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/33] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -680,7 +685,7 @@ fi
 # 17. Gates de la auditoría de secretos (verify-secrets.py)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [17/29] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+echo -e "🔍 [17/33] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
 VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
 
 if [ ! -f "$VERIFY_LIB" ]; then
@@ -750,7 +755,7 @@ fi
 # 18-19. Honestidad de los scripts de cierre (T-100)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [18/29] Verificando honestidad de close-task.sh (enlace del sprint)..."
+echo -e "🔍 [18/33] Verificando honestidad de close-task.sh (enlace del sprint)..."
 TASK_FIXTURE="$(mktemp -d)"
 (
     cd "$TASK_FIXTURE" || exit 1
@@ -786,7 +791,7 @@ fi
 rm -rf "$TASK_FIXTURE"
 
 echo ""
-echo -e "🔍 [19/29] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
+echo -e "🔍 [19/33] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
 SPRINT_FIXTURE="$(mktemp -d)"
 (
     cd "$SPRINT_FIXTURE" || exit 1
@@ -826,7 +831,7 @@ rm -rf "$SPRINT_FIXTURE"
 # 20. promote-to-main.sh (T-101)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [20/29] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
+echo -e "🔍 [20/33] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
 PROMOTE="$ROOT/scripts/agent/promote-to-main.sh"
 P1="$(mktemp -d)"; P2="$(mktemp -d)"; P3="$(mktemp -d)"
 # NINGÚN fichero de salida puede vivir dentro del fixture: la redirección lo crea
@@ -896,7 +901,7 @@ rm -rf "$P1" "$P2" "$P3" "$OUT1" "$HELP1" "$OUT2" "$ERR3" "$P3_BEFORE" "$P3_AFTE
 # 21. Mapa de flujos generado (T-102)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [21/29] Verificando que el mapa de flujos está sincronizado con su fuente..."
+echo -e "🔍 [21/33] Verificando que el mapa de flujos está sincronizado con su fuente..."
 if python3 -c "
 import pathlib, subprocess, sys
 root = pathlib.Path('$ROOT')
@@ -947,7 +952,7 @@ fi
 # 22. Higiene de localizadores / frontera portable (T-103)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [22/29] Verificando la frontera portable (cero literales de infraestructura)..."
+echo -e "🔍 [22/33] Verificando la frontera portable (cero literales de infraestructura)..."
 if bash "$ROOT/scripts/agent/lib/locator-hygiene.sh" --quiet; then
     echo -e "  ✅ Sin rutas personales, IPs de infraestructura, hostnames de nodo ni credenciales en el core."
 else
@@ -958,11 +963,61 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 
+# Fixtures de T-116: el escáner no puede decir "limpio" sin mirar.
+LHF="$ROOT/scripts/agent/lib/locator-hygiene.sh"
+LHT="$(mktemp -d)"
+mkdir -p "$LHT/norepo" "$LHT/repo-a" "$LHT/repo-b/ignorado"
+printf '/%s/ana/proyectos/fuga.txt\n' home > "$LHT/norepo/fuga.txt"
+(
+    cd "$LHT/repo-a" && git init -q -b main . && git config user.email t@t.t && git config user.name t
+    printf 'fichero limpio\n' > limpio.txt
+    git add -A && git commit -qm base
+    printf '/%s/ana/proyectos/fuga.txt\n' home > sin-trackear.txt
+) >/dev/null 2>&1 || true
+(
+    cd "$LHT/repo-b" && git init -q -b main . && git config user.email t@t.t && git config user.name t
+    printf 'ignorado/\n' > .gitignore
+    printf 'fichero limpio\n' > limpio.txt
+    git add -A && git commit -qm base
+    printf '/%s/ana/proyectos/fuga.txt\n' home > ignorado/fuga.txt
+) >/dev/null 2>&1 || true
+LH_NOREPO_RC=0; LH_NOREPO_OUT="$(bash "$LHF" --path "$LHT/norepo" 2>&1)" || LH_NOREPO_RC=$?
+LH_UNT_RC=0;    LH_UNT_OUT="$(bash "$LHF" --path "$LHT/repo-a" 2>&1)" || LH_UNT_RC=$?
+LH_TRK_RC=0;    LH_TRK_OUT="$(bash "$LHF" --path "$LHT/repo-a" --tracked-only 2>&1)" || LH_TRK_RC=$?
+LH_IGN_RC=0;    LH_IGN_OUT="$(bash "$LHF" --path "$LHT/repo-b" 2>&1)" || LH_IGN_RC=$?
+rm -rf "$LHT"
+
+if [ "$LH_NOREPO_RC" -eq 2 ] && printf '%s' "$LH_NOREPO_OUT" | grep -q "No verificable" \
+   && ! printf '%s' "$LH_NOREPO_OUT" | grep -q "Sin literales"; then
+    echo -e "  ✅ Sin repo git avisa 'no verificable' y sale 2 (nunca 'limpio')."
+else
+    echo -e "  ❌ ERROR: sin repo git debe salir 2 y no afirmar 'limpio' (rc=$LH_NOREPO_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+if [ "$LH_UNT_RC" -eq 1 ] && printf '%s' "$LH_UNT_OUT" | grep -q "sin-trackear.txt"; then
+    echo -e "  ✅ Detecta literales en ficheros sin trackear (rc=1)."
+else
+    echo -e "  ❌ ERROR: no detecta el fichero sin trackear (rc=$LH_UNT_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+if [ "$LH_TRK_RC" -eq 0 ]; then
+    echo -e "  ✅ --tracked-only omite el untracked (opt-out explícito)."
+else
+    echo -e "  ❌ ERROR: --tracked-only debería salir 0 (rc=$LH_TRK_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+if [ "$LH_IGN_RC" -eq 0 ] && printf '%s' "$LH_IGN_OUT" | grep -q "Sin literales"; then
+    echo -e "  ✅ Los untracked ignorados por .gitignore no se escanean."
+else
+    echo -e "  ❌ ERROR: el escáner no respeta --exclude-standard (rc=$LH_IGN_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+
 # ------------------------------------------------------------------------------
 # 23. Despacho multi-repo portable (T-104)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [23/29] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
+echo -e "🔍 [23/33] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
 DISPATCH="$ROOT/scripts/agent/dispatch-satellite.sh"
 DSAT="$(mktemp -d)"; DREG="$(mktemp)"; DSATS="$(mktemp)"
 DOUT1="$(mktemp)"; DOUT2="$(mktemp)"; DOUT3="$(mktemp)"; DOUT4="$(mktemp)"
@@ -1017,7 +1072,7 @@ rm -rf "$DSIB"
 # 24. Integración y purga de worktrees (T-107)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [24/29] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
+echo -e "🔍 [24/33] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
 MWT="$(mktemp -d)"; MOUT1="$(mktemp)"; MOUT2="$(mktemp)"; MOUT3="$(mktemp)"; MOUT4="$(mktemp)"; MOUT5="$(mktemp)"
 MDISPATCH="$ROOT/scripts/agent/worktree-dispatch.sh"
 MMERGE="$ROOT/scripts/agent/worktree-merge.sh"
@@ -1076,7 +1131,7 @@ rm -rf "$MWT" "$MOUT1" "$MOUT2" "$MOUT3" "$MOUT4" "$MOUT5"
 # 25. Punto de entrada del coordinador (T-105)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [25/29] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
+echo -e "🔍 [25/33] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
 OFLOW="$ROOT/scripts/agent/orca-orchestrate.sh"
 FWT="$(mktemp -d)"; FSAT="$FWT/sat"; FSATS="$FWT/sats.yaml"; FREG="$FWT/reg.jsonl"; FSPEC="$FWT/spec.json"
 FTOOLS="$(mktemp -d)"; FSTUB="$(mktemp -d)"; FDEAF="$(mktemp -d)"
@@ -1143,7 +1198,7 @@ rm -rf "$FWT" "$FTOOLS" "$FSTUB" "$FDEAF" "$FOUT1" "$FOUT2"
 # 26. Semver del changelog con ## [Unreleased] delante (T-108)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [26/29] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
+echo -e "🔍 [26/33] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
 UCHG="$ROOT/scripts/agent/update-changelog.sh"
 FCH="$(mktemp -d)"
 mkdir -p "$FCH/scripts/agent/lib"
@@ -1195,11 +1250,68 @@ else
 fi
 rm -rf "$FCH"
 
+  # Caso 4 (T-114): tags anotados con fechas invertidas. La base debe salir del
+  # orden de VERSIÓN (-v:refname), no de la fecha de creación del tag: con
+  # -creatordate, un tag creado después sobre un commit viejo reabre el rango y
+  # duplica en el changelog commits ya publicados.
+  FCH2="$(mktemp -d)"
+  mkdir -p "$FCH2/scripts/agent/lib"
+  cp "$UCHG" "$FCH2/scripts/agent/update-changelog.sh"
+  cp "$ROOT/scripts/agent/lib/cli-help.sh" "$FCH2/scripts/agent/lib/cli-help.sh"
+  if ! git -C "$FCH2" init -q -b main >/dev/null 2>&1; then
+    echo -e "  ❌ ERROR: no se pudo inicializar el fixture de T-114."
+    ERRORS=$((ERRORS + 1))
+  else
+    (
+      cd "$FCH2" || exit 1
+      git config user.email t@t.t && git config user.name t
+      printf '# Changelog\n\n## [Unreleased]\n' > changelog.md
+      git add -A && git commit -qm base
+      ROOT_COMMIT=$(git rev-list --max-parents=0 HEAD)
+      git commit -q --allow-empty -m "feat: ya lanzado"
+      git commit -q --allow-empty -m "chore: release 1.13.0"
+      GIT_COMMITTER_DATE="2026-10-01T00:00:00" git tag -a v1.13.0 -m "v1.13.0"
+      git commit -q --allow-empty -m "feat: solo nuevo"
+      GIT_COMMITTER_DATE="2026-10-25T00:00:00" git tag -a v1.12.0 -m "v1.12.0" "$ROOT_COMMIT"
+      bash scripts/agent/update-changelog.sh sprint-99 > out.txt 2>&1 || true
+      grep -m1 "Rango:" out.txt || true
+      if grep -q "ya lanzado" changelog.md; then echo "DUPLICADO"; else echo "SIN-DUPLICADOS"; fi
+    ) > "$FCH2/result.txt" 2>&1 || true
+    R5="$(sed -n '1p' "$FCH2/result.txt" 2>/dev/null || true)"
+    R6="$(sed -n '2p' "$FCH2/result.txt" 2>/dev/null || true)"
+    case "$R5" in
+      *"'v1.13.0'"*) VOK=true ;;
+      *) VOK=false ;;
+    esac
+    if [ "$VOK" = true ] && [ "$R6" = "SIN-DUPLICADOS" ]; then
+      echo -e "  ✅ La base del rango sale del orden de versión, no de creatordate (T-114)."
+    else
+      echo -e "  ❌ ERROR: base del rango incorrecta (rango='$R5' duplicados='$R6')."
+      ERRORS=$((ERRORS + 1))
+    fi
+  fi
+  rm -rf "$FCH2"
+
+  # Caso real (T-114): con el tag de la versión publicada, la base que elegirá el
+  # script debe ser ese tag (idéntico en multi-agent y en main), no uno anterior.
+  VREAL=$(git -C "$ROOT" tag --list 'v*' --sort=-v:refname 2>/dev/null | head -1 || true)
+  VEXPECT="v$(tr -d '[:space:]' < "$ROOT/VERSION" 2>/dev/null || true)"
+  if [ -n "$VEXPECT" ] && git -C "$ROOT" rev-parse -q --verify "refs/tags/$VEXPECT" >/dev/null 2>&1; then
+    if [ "$VREAL" = "$VEXPECT" ]; then
+      echo -e "  ✅ Caso real: la base del rango es $VEXPECT."
+    else
+      echo -e "  ❌ ERROR: la base real es '$VREAL' y se esperaba '$VEXPECT'."
+      ERRORS=$((ERRORS + 1))
+    fi
+  else
+    echo -e "  ℹ️  Caso real omitido: el tag $VEXPECT aún no existe (ventana cierre→tag)."
+  fi
+
 # ------------------------------------------------------------------------------
 # 27. locator-hygiene.sh --path honra las excepciones del repo escaneado (T-106)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [27/29] Verificando que --path aplica las excepciones del repo destino..."
+echo -e "🔍 [27/33] Verificando que --path aplica las excepciones del repo destino..."
 FIX="$(mktemp -d)"
 git init -q -b main "$FIX" && git -C "$FIX" config user.email t@t.t && git -C "$FIX" config user.name t || true
 # Guardia anti-incidente: sin repo, ls-files falla y el escáner podría mirar el core.
@@ -1232,7 +1344,7 @@ rm -rf "$FIX"
 # 28. Copias no destructivas portables: agent_cp_n (T-110)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [28/29] Verificando agent_cp_n: no sobrescribe, sin warnings ni cp -n directos..."
+echo -e "🔍 [28/33] Verificando agent_cp_n: no sobrescribe, sin warnings ni cp -n directos..."
 FCP="$(mktemp -d)"
 mkdir -p "$FCP/src" "$FCP/dst" "$FCP/rsrc" "$FCP/rdst"
 printf 'nuevo\n' > "$FCP/src/a"
@@ -1263,7 +1375,7 @@ rm -rf "$FCP"
 # 29. Informe de lote read-only: report (T-112)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [29/29] Verificando 'report': bloque sin mutaciones, agregación y degradación..."
+echo -e "🔍 [29/33] Verificando 'report': bloque sin mutaciones, agregación y degradación..."
 FREP="$(mktemp -d)"
 STUB="$FREP/bin"
 mkdir -p "$STUB"
@@ -1328,6 +1440,372 @@ else
   echo -e "  ✅ 'report' es read-only (0 mutaciones), agrega tareas/gates/workers y degrada sin runtime."
 fi
 rm -rf "$FREP"
+
+# ------------------------------------------------------------------------------
+# 30. VERSION alineado con la release del changelog (T-113)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [30/33] Verificando VERSION (lectura semver, idempotencia y repo real)..."
+VLIB="$ROOT/scripts/agent/lib/release-version.sh"
+VTMP="$(mktemp -d)"
+mkdir -p "$VTMP/repo"
+printf '## [Unreleased]\n\n- pendiente\n\n## [9.9.9] — prueba\n' > "$VTMP/repo/changelog.md"
+printf '1.0.0\n' > "$VTMP/repo/VERSION"
+VREAD=""; VRC1=0
+if [ -f "$VLIB" ]; then
+  # shellcheck source=scripts/agent/lib/release-version.sh
+  source "$VLIB"
+  VREAD="$(agent_read_changelog_version "$VTMP/repo/changelog.md" 2>/dev/null || true)"
+  agent_sync_version "$VTMP/repo" "$VTMP/repo/changelog.md" >/dev/null 2>&1 || VRC1=$?
+fi
+VWRITTEN="$(tr -d '[:space:]' < "$VTMP/repo/VERSION" 2>/dev/null || true)"
+touch -t 200001010000 "$VTMP/repo/VERSION" 2>/dev/null || true
+VRUN1=$(stat -c %Y "$VTMP/repo/VERSION" 2>/dev/null || stat -f %m "$VTMP/repo/VERSION" 2>/dev/null || echo 0)
+agent_sync_version "$VTMP/repo" "$VTMP/repo/changelog.md" >/dev/null 2>&1 || true
+VRUN2=$(stat -c %Y "$VTMP/repo/VERSION" 2>/dev/null || stat -f %m "$VTMP/repo/VERSION" 2>/dev/null || echo 0)
+printf '## [Unreleased]\n\n- solo pendiente\n' > "$VTMP/repo/changelog.md"
+VRC2=0
+agent_sync_version "$VTMP/repo" "$VTMP/repo/changelog.md" >/dev/null 2>&1 || VRC2=$?
+VUNTOUCHED="$(tr -d '[:space:]' < "$VTMP/repo/VERSION" 2>/dev/null || true)"
+rm -rf "$VTMP"
+VEXPECTED=$(grep -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$ROOT/changelog.md" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+VACTUAL=$(tr -d '[:space:]' < "$ROOT/VERSION" 2>/dev/null || true)
+if [ ! -f "$VLIB" ]; then
+  echo -e "  ❌ ERROR: falta scripts/agent/lib/release-version.sh."
+  ERRORS=$((ERRORS + 1))
+elif [ "$VREAD" != "9.9.9" ] || [ "$VWRITTEN" != "9.9.9" ] || [ "$VRC1" -ne 0 ]; then
+  echo -e "  ❌ ERROR: la lectura semver no ignora Unreleased (leido='$VREAD' escrito='$VWRITTEN' rc=$VRC1)."
+  ERRORS=$((ERRORS + 1))
+elif [ "$VRUN1" != "$VRUN2" ]; then
+  echo -e "  ❌ ERROR: la segunda sincronizacion reescribio VERSION (no es idempotente)."
+  ERRORS=$((ERRORS + 1))
+elif [ "$VRC2" -eq 0 ] || [ "$VUNTOUCHED" != "9.9.9" ]; then
+  echo -e "  ❌ ERROR: sin version semver no debe escribir ni salir 0 (rc=$VRC2 valor='$VUNTOUCHED')."
+  ERRORS=$((ERRORS + 1))
+elif [ -z "$VEXPECTED" ] || [ "$VACTUAL" != "$VEXPECTED" ]; then
+  echo -e "  ❌ ERROR: VERSION del repo ('$VACTUAL') no coincide con la release del changelog ('$VEXPECTED')."
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ VERSION lee la primera cabecera semver, es idempotente y coincide con la release ($VACTUAL)."
+fi
+
+# ------------------------------------------------------------------------------
+# 31. Desfase de versión de la flota: fleet-version.sh (T-115)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [31/33] Verificando fleet-version.sh (5 estados, JSON estable y solo lectura)..."
+FVS="$ROOT/scripts/agent/fleet-version.sh"
+FV="$(mktemp -d)"
+mkdir -p "$FV/core/scripts/agent/lib" "$FV/ok/.agents/context" "$FV/drift/.agents/context" \
+         "$FV/legacy/.agents/context" "$FV/core/.agents/context"
+printf '1.14.0\n' > "$FV/core/VERSION"
+cp "$FVS" "$FV/core/scripts/agent/fleet-version.sh" 2>/dev/null || true
+cp "$ROOT/scripts/agent/lib/cli-help.sh" "$FV/core/scripts/agent/lib/cli-help.sh" 2>/dev/null || true
+printf '2026-10-27\nversion: 1.14.0\ntag: v1.14.0\ncommit: aaa\n' > "$FV/ok/.agents/context/last-sync.md"
+printf '2026-09-01\nversion: 1.13.1\ntag: v1.13.1\ncommit: bbb\n' > "$FV/drift/.agents/context/last-sync.md"
+printf '2026-06-01\nversion: legacy\n' > "$FV/legacy/.agents/context/last-sync.md"
+printf '# last-sync.md — Estado operativo del core\n\n- Sprint: prueba\n' > "$FV/core/.agents/context/last-sync.md"
+cat > "$FV/satellites.yaml" <<EOF
+version: "1.0"
+
+satellites:
+  alineado:
+    path: $FV/ok
+  desfasado:
+    path: $FV/drift
+  legado:
+    path: $FV/legacy
+  sin-ledger:
+    path: $FV/absent
+  core:
+    path: $FV/core
+EOF
+
+fv_snapshot() {
+  find "$1" -type f 2>/dev/null | sort | while IFS= read -r f; do cksum "$f" 2>/dev/null || true; done | cksum
+}
+
+FVHASH1="$(fv_snapshot "$FV")"
+FVRC=0
+FVH=""; FVJ=""
+if [ -f "$FVS" ]; then
+  FVH="$(bash "$FV/core/scripts/agent/fleet-version.sh" --satellites "$FV/satellites.yaml" 2>&1)" || FVRC=$?
+  FVJ="$(bash "$FV/core/scripts/agent/fleet-version.sh" --satellites "$FV/satellites.yaml" --json 2>&1)" || true
+fi
+FVEMPTYRC=0
+FVEMPTY="$(bash "$FV/core/scripts/agent/fleet-version.sh" 2>&1)" || FVEMPTYRC=$?
+FVHASH2="$(fv_snapshot "$FV")"
+FVGREP="$(grep -nE '(>>|[[:space:]](cp|mv|rm|tee)[[:space:]]|git[[:space:]]+add|curl|wget|ssh[[:space:]]|git[[:space:]]+(fetch|pull))' "$FVS" 2>/dev/null || true)"
+rm -rf "$FV"
+
+FVFAILS=""
+fv_expect() {
+  printf '%s' "$2" | grep -q -- "$3" || FVFAILS="$FVFAILS $1"
+}
+if [ -f "$FVS" ]; then
+  for st in ALINEADO DESFASE LEGACY AUSENTE SELF; do
+    fv_expect "estado-$st" "$FVH" "$st"
+  done
+  fv_expect "json-configured" "$FVJ" '"configured": true'
+  fv_expect "json-drift" "$FVJ" '"drift": 1'
+  fv_expect "json-self" "$FVJ" '"self": 1'
+  fv_expect "json-status" "$FVJ" '"status": "DESFASE"'
+  fv_expect "json-direction" "$FVJ" '"direction": "atras"'
+  fv_expect "sin-config" "$FVEMPTY" "No hay satélites configurados"
+fi
+if [ ! -f "$FVS" ]; then
+  echo -e "  ❌ ERROR: falta scripts/agent/fleet-version.sh."
+  ERRORS=$((ERRORS + 1))
+elif [ "$FVRC" -ne 0 ]; then
+  echo -e "  ❌ ERROR: fleet-version.sh debe salir 0 con DESFASE (rc=$FVRC)."
+  ERRORS=$((ERRORS + 1))
+elif [ "$FVEMPTYRC" -ne 0 ]; then
+  echo -e "  ❌ ERROR: sin satélites configurados debe salir 0 (rc=$FVEMPTYRC)."
+  ERRORS=$((ERRORS + 1))
+elif [ "$FVHASH1" != "$FVHASH2" ]; then
+  echo -e "  ❌ ERROR: fleet-version.sh escribió en el árbol (snapshot distinto)."
+  ERRORS=$((ERRORS + 1))
+elif [ -n "$FVGREP" ]; then
+  echo -e "  ❌ ERROR: fleet-version.sh contiene operaciones de escritura/red."
+  echo -e "     $FVGREP"
+  ERRORS=$((ERRORS + 1))
+elif [ -n "$FVFAILS" ]; then
+  echo -e "  ❌ ERROR: fleet-version.sh incumple:$FVFAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ 5 estados correctos, JSON estable, exit 0 con desfase y árbol intacto (read-only)."
+fi
+
+# ------------------------------------------------------------------------------
+# 32. secrets.sh sin valor por argv + --search + barrido único (T-117)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [32/33] Verificando secrets.sh (valor solo por stdin) y secret-locate (--search, 1 export/carpeta)..."
+SEC="$ROOT/scripts/agent/secrets.sh"
+SLOC="$ROOT/scripts/agent/secret-locate.sh"
+T117="$(mktemp -d)"
+mkdir -p "$T117/bin"
+cat > "$T117/bin/infisical" <<'STUB'
+#!/usr/bin/env bash
+echo "$*" >> "$ARGV_LOG"
+case "$1" in
+  export) echo "export" >> "$EXPORT_LOG"; cat "$EXPORT_PAYLOAD"; exit 0 ;;
+  secrets) cat > "$STDIN_LOG"; exit 0 ;;
+  login) echo "eyJstub"; exit 0 ;;
+esac
+exit 0
+STUB
+chmod +x "$T117/bin/infisical"
+cat > "$T117/payload.json" <<'JSON'
+[{"secretKey":"CLOUDFLARE_API_TOKEN","tags":[{"slug":"scope-shared"}],"comment":"token de cloudflare","updatedAt":"2026-10-20T10:00:00Z","value":"SEÑUELO_NO_DEBE_SALIR"},
+ {"secretKey":"OTRA_CLAVE","tags":[],"comment":"","updatedAt":"2026-10-21T10:00:00Z","value":"SEÑUELO2"}]
+JSON
+cat > "$T117/locate.sh" <<'STUB'
+#!/usr/bin/env bash
+n=$(( $(cat "$LOCATE_COUNTER" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$LOCATE_COUNTER"
+if [ -n "${LOCATE_MISSING:-}" ]; then echo '{"found_in": [], "hits_detail": []}'; exit 6; fi
+if [ -n "${LOCATE_STATIC:-}" ] || [ "$n" -le 2 ]; then ts="2026-10-27T10:00:00Z"; else ts="2026-10-27T10:07:00Z"; fi
+printf '{"found_in": ["proyectos-x"], "hits_detail": [{"folder": "proyectos-x", "updated_at": "%s"}]}\n' "$ts"
+STUB
+chmod +x "$T117/locate.sh"
+cat > "$T117/server.py" <<'SRV'
+import json, sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+class H(BaseHTTPRequestHandler):
+    def do_GET(self):
+        body = json.dumps({"folders": [
+            {"name": "proyectos-x", "description": "proyectos", "lastSecretModified": "2026-10-20T10:00:00Z"},
+            {"name": "infra", "description": "infra base", "lastSecretModified": "2026-10-21T10:00:00Z"}]}).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+    def log_message(self, *a):
+        pass
+srv = HTTPServer(("127.0.0.1", 0), H)
+open(sys.argv[1], "w").write(str(srv.server_port))
+srv.serve_forever()
+SRV
+
+S_ENV=(env "PATH=$T117/bin:$PATH" "ARGV_LOG=$T117/argv.log" "STDIN_LOG=$T117/stdin.log"
+       "EXPORT_LOG=$T117/exports.log" "EXPORT_PAYLOAD=$T117/payload.json"
+       "LOCATE_COUNTER=$T117/counter" "INFISICAL_API_URL=http://127.0.0.1:1"
+       "INFISICAL_PROJECT_ID=proj" "INFISICAL_TOKEN=stub"
+       "AGENT_OS_SECRET_LOCATE=$T117/locate.sh" "AGENT_OS_INFISICAL_BIN=$T117/bin/infisical")
+
+SEC_STATIC_OK=true
+[ -f "$SEC" ] || SEC_STATIC_OK=false
+if [ -f "$SEC" ]; then
+  grep -q -- '--file /dev/stdin' "$SEC" || SEC_STATIC_OK=false
+  if grep -qE '\beval\b' "$SEC"; then SEC_STATIC_OK=false; fi
+  if grep -qE 'set -[a-zA-Z]*x' "$SEC"; then SEC_STATIC_OK=false; fi
+fi
+
+RC_SET=0; OUT_SET=""
+OUT_SET="$(printf 'supersecreto123\n' | "${S_ENV[@]}" bash "$SEC" set MI_CLAVE --stdin 2>&1)" || RC_SET=$?
+ARGV_SET="$(cat "$T117/argv.log" 2>/dev/null || true)"
+STDIN_SET="$(cat "$T117/stdin.log" 2>/dev/null || true)"
+: > "$T117/argv.log"
+RC_ARG1=0; "${S_ENV[@]}" bash "$SEC" set MI_CLAVE supersecreto123 >/dev/null 2>&1 || RC_ARG1=$?
+RC_ARG2=0; "${S_ENV[@]}" bash "$SEC" set MI_CLAVE=supersecreto123 >/dev/null 2>&1 || RC_ARG2=$?
+RC_ARG3=0; "${S_ENV[@]}" bash "$SEC" set MI_CLAVE --value supersecreto123 >/dev/null 2>&1 || RC_ARG3=$?
+ARGV_REJ="$(cat "$T117/argv.log" 2>/dev/null || true)"
+: > "$T117/stdin.log"
+RC_GEN=0; "${S_ENV[@]}" bash "$SEC" set MI_CLAVE --generate=24 >/dev/null 2>&1 || RC_GEN=$?
+STDIN_GEN="$(cat "$T117/stdin.log" 2>/dev/null || true)"
+: > "$T117/counter"
+RC_ROT=0; "${S_ENV[@]}" bash "$SEC" rotate MI_CLAVE >/dev/null 2>&1 || RC_ROT=$?
+: > "$T117/counter"
+RC_ROTS=0; LOCATE_STATIC=1 "${S_ENV[@]}" bash "$SEC" rotate MI_CLAVE >/dev/null 2>&1 || RC_ROTS=$?
+RC_MISS=0; LOCATE_MISSING=1 "${S_ENV[@]}" bash "$SEC" set NUEVA --generate >/dev/null 2>&1 || RC_MISS=$?
+
+python3 "$T117/server.py" "$T117/port" & T117_SRV=$!
+for _ in $(seq 1 50); do [ -s "$T117/port" ] && break; sleep 0.1 2>/dev/null || sleep 1; done
+T117_PORT="$(cat "$T117/port" 2>/dev/null || echo 0)"
+L_ENV=(env "PATH=$T117/bin:$PATH" "EXPORT_LOG=$T117/exports.log" "EXPORT_PAYLOAD=$T117/payload.json"
+       "INFISICAL_API_URL=http://127.0.0.1:$T117_PORT" "INFISICAL_PROJECT_ID=proj" "INFISICAL_TOKEN=stub")
+RC_SRCH=0; OUT_SRCH=""
+OUT_SRCH="$("${L_ENV[@]}" bash "$SLOC" --search cloudflare 2>&1)" || RC_SRCH=$?
+RC_SRCH_N=0; "${L_ENV[@]}" bash "$SLOC" --search zzzz >/dev/null 2>&1 || RC_SRCH_N=$?
+RC_SRCH_E=0; "${L_ENV[@]}" bash "$SLOC" --search >/dev/null 2>&1 || RC_SRCH_E=$?
+: > "$T117/exports.log"
+RC_HYG=0; "${L_ENV[@]}" bash "$SLOC" --hygiene > "$T117/hygiene.out" 2>&1 || RC_HYG=$?
+EXPORTS_HYG="$(wc -l < "$T117/exports.log" 2>/dev/null | tr -d ' ' || echo 0)"
+HYG_OUT="$(cat "$T117/hygiene.out" 2>/dev/null || true)"
+RC_NAME=0; OUT_NAME=""
+OUT_NAME="$("${L_ENV[@]}" bash "$SLOC" --name CLOUDFLARE_API_TOKEN --json 2>&1)" || RC_NAME=$?
+kill "$T117_SRV" 2>/dev/null || true
+rm -rf "$T117"
+
+T117_FAILS=""
+[ "$SEC_STATIC_OK" = true ] || T117_FAILS="$T117_FAILS estatico"
+[ "$RC_SET" -eq 0 ] || T117_FAILS="$T117_FAILS set-rc=$RC_SET"
+if printf '%s' "$ARGV_SET" | grep -q 'supersecreto123'; then T117_FAILS="$T117_FAILS valor-en-argv"; fi
+printf '%s' "$STDIN_SET" | grep -q 'MI_CLAVE=supersecreto123' || T117_FAILS="$T117_FAILS valor-no-llega-por-stdin"
+if printf '%s' "$OUT_SET" | grep -q 'supersecreto123'; then T117_FAILS="$T117_FAILS valor-en-salida"; fi
+printf '%s' "$OUT_SET" | grep -qE 'sha256: [0-9a-f]{12}' || T117_FAILS="$T117_FAILS sin-huella"
+[ "$RC_ARG1" -eq 2 ] && [ "$RC_ARG2" -eq 2 ] && [ "$RC_ARG3" -eq 2 ] || T117_FAILS="$T117_FAILS argv-no-rechazado"
+[ -z "$ARGV_REJ" ] || T117_FAILS="$T117_FAILS infisical-invocado-con-valor"
+[ "$RC_GEN" -eq 0 ] || T117_FAILS="$T117_FAILS generate-rc=$RC_GEN"
+printf '%s' "$STDIN_GEN" | grep -qE '^MI_CLAVE=[A-Za-z0-9]{24}$' || T117_FAILS="$T117_FAILS generate-formato"
+[ "$RC_ROT" -eq 0 ] || T117_FAILS="$T117_FAILS rotate-rc=$RC_ROT"
+[ "$RC_ROTS" -eq 1 ] || T117_FAILS="$T117_FAILS rotate-sin-verificacion"
+[ "$RC_MISS" -eq 6 ] || T117_FAILS="$T117_FAILS crear-sin-path=$RC_MISS"
+[ "$RC_SRCH" -eq 0 ] || T117_FAILS="$T117_FAILS search-rc=$RC_SRCH"
+printf '%s' "$OUT_SRCH" | grep -q 'CLOUDFLARE_API_TOKEN' || T117_FAILS="$T117_FAILS search-sin-clave"
+printf '%s' "$OUT_SRCH" | grep -q 'Solo metadatos' || T117_FAILS="$T117_FAILS search-sin-aviso"
+if printf '%s' "$OUT_SRCH" | grep -q 'SEÑUELO'; then T117_FAILS="$T117_FAILS search-filtra-valor"; fi
+[ "$RC_SRCH_N" -eq 6 ] || T117_FAILS="$T117_FAILS search-sin-coincidencias=$RC_SRCH_N"
+[ "$RC_SRCH_E" -eq 64 ] || T117_FAILS="$T117_FAILS search-vacio=$RC_SRCH_E"
+[ "$RC_HYG" -eq 0 ] || T117_FAILS="$T117_FAILS hygiene-rc=$RC_HYG"
+[ "$EXPORTS_HYG" -eq 2 ] || T117_FAILS="$T117_FAILS exports=$EXPORTS_HYG"
+printf '%s' "$HYG_OUT" | grep -q -- '--file /dev/stdin' || T117_FAILS="$T117_FAILS higiene-receta-argv"
+[ "$RC_NAME" -eq 0 ] || T117_FAILS="$T117_FAILS name-rc=$RC_NAME"
+printf '%s' "$OUT_NAME" | grep -q '"hits_detail"' || T117_FAILS="$T117_FAILS sin-hits_detail"
+
+if [ -n "$T117_FAILS" ]; then
+  echo -e "  ❌ ERROR: T-117 incumple:$T117_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Valor solo por stdin (nunca argv, nunca en salida), rotate verificado,"
+  echo -e "     --search sin fuga de valores y 1 export por carpeta (2 exportaciones / 2 carpetas)."
+fi
+
+
+# ------------------------------------------------------------------------------
+# 33. redact.sh + coherencia de normas de secretos (T-118)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [33/33] Verificando redact.sh (determinista, sin red) y coherencia de las normas de secretos..."
+RED="$ROOT/scripts/agent/lib/redact.sh"
+SKILL="$ROOT/.agents/skills/infisical-secrets/SKILL.md"
+PERMS="$ROOT/.agents/rules/global/agent-permissions.md"
+ONB="$ROOT/.agents/AGENT_ONBOARDING.md"
+T118="$(mktemp -d)"
+T118_FAILS=""
+
+# --- estático: solo bloques de código de la skill ---
+awk '/^[[:space:]]*```/{inb=!inb; next} inb' "$SKILL" > "$T118/skill_code.txt" 2>/dev/null || true
+T118_FENCE_BAD="$(grep -nE 'eval[[:space:]]+\$\(infisical[[:space:]]+export|secrets[[:space:]]+set[[:space:]]+[A-Za-z_][A-Za-z0-9_]*=|echo[[:space:]]+\$[A-Za-z_]' "$T118/skill_code.txt" 2>/dev/null || true)"
+[ -z "$T118_FENCE_BAD" ] || T118_FAILS="$T118_FAILS skill-patron-prohibido"
+
+grep -q 'argv.*= transcript' "$PERMS" || T118_FAILS="$T118_FAILS perms-sin-argv"
+grep -q 'redact\.sh' "$PERMS" || T118_FAILS="$T118_FAILS perms-sin-redact"
+
+for _m in 'secret-locate\.sh' 'secrets\.sh' 'materialize-secrets\.sh' 'redact\.sh' 'verify-secrets\.py' 'se para y propone'; do
+  grep -q "$_m" "$ONB" || T118_FAILS="$T118_FAILS onboarding-sin-${_m%%.*}"
+done
+if grep -q 'cliente oficial' "$ONB"; then T118_FAILS="$T118_FAILS onboarding-lista-abierta"; fi
+
+grep -qE '\b(curl|wget|/dev/tcp)\b' "$RED" && T118_FAILS="$T118_FAILS redact-con-red"
+grep -qE '(^|[[:space:];])>>?[[:space:]]*[^&]' "$RED" && T118_FAILS="$T118_FAILS redact-con-escrituras"
+
+# --- funcional ---
+OUT_ENV="$(printf 'API_TOKEN=abc123\nX=1\n' | bash "$RED" --keys API_TOKEN 2>/dev/null || true)"
+printf '%s' "$OUT_ENV" | grep -q 'API_TOKEN=<redacted:API_TOKEN>' || T118_FAILS="$T118_FAILS env-sin-redactar"
+printf '%s' "$OUT_ENV" | grep -q 'X=1' || T118_FAILS="$T118_FAILS env-rompe-lineas"
+printf '%s' "$OUT_ENV" | grep -q 'abc123' && T118_FAILS="$T118_FAILS env-fuga"
+
+OUT_JSON="$(printf '{"API_TOKEN":"abc123","PORT": 3000, "n": 1}\n' | bash "$RED" --keys API_TOKEN,PORT 2>/dev/null || true)"
+printf '%s' "$OUT_JSON" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["API_TOKEN"].startswith("<redacted:") and d["PORT"].startswith("<redacted:"), d; assert d["n"]==1' 2>/dev/null \
+  || T118_FAILS="$T118_FAILS json-invalido-o-sin-redactar"
+
+OUT_Q="$(printf 'API_TOKEN="se creto 1"\n' | bash "$RED" --keys API_TOKEN 2>/dev/null || true)"
+[ "$OUT_Q" = 'API_TOKEN="<redacted:API_TOKEN>"' ] || T118_FAILS="$T118_FAILS quoted"
+
+OUT_Y="$(printf 'API_TOKEN: abc123\n' | bash "$RED" --keys API_TOKEN 2>/dev/null || true)"
+[ "$OUT_Y" = 'API_TOKEN: <redacted:API_TOKEN>' ] || T118_FAILS="$T118_FAILS yaml"
+
+H1="$(printf 'API_TOKEN=abc\n' | bash "$RED" --keys API_TOKEN 2>/dev/null | sha256sum)"
+H2="$(printf 'API_TOKEN=abc\n' | bash "$RED" --keys API_TOKEN 2>/dev/null | sha256sum)"
+[ "$H1" = "$H2" ] || T118_FAILS="$T118_FAILS no-determinista"
+
+cat > "$T118/catalog.yaml" <<'CAT'
+# Catálogo de secretos — ARTEFACTO GENERADO, no editar a mano.
+# Regenerar: bash scripts/agent/generate-secrets-catalog.sh --path .
+# Este fichero NO contiene valores. Solo metadatos.
+generated_at: 2026-10-27T00:00:00Z
+source: fixture
+complete: true
+secrets_declared: 1
+detected_stack: unknown
+needs_declaration: ['INFISICAL_TOKEN', 'INFISICAL_PROJECT_ID']
+secrets:
+  - key: FIXTURE_TOKEN
+    kind: secreto
+    status: NO-EN-BOVEDA
+    discovered_from: [env]
+    scope: unknown
+    locations: []
+    tags: []
+    code_refs: []
+    required_by: []
+CAT
+OUT_CAT="$(printf 'FIXTURE_TOKEN=zzz\nINFISICAL_TOKEN=yyy\nINFISICAL_PROJECT_ID=ppp\nOTRA=keep\n' | bash "$RED" --catalog "$T118/catalog.yaml" 2>/dev/null || true)"
+printf '%s' "$OUT_CAT" | grep -q 'FIXTURE_TOKEN=<redacted:FIXTURE_TOKEN>' || T118_FAILS="$T118_FAILS catalogo-keys"
+printf '%s' "$OUT_CAT" | grep -q 'INFISICAL_TOKEN=<redacted:INFISICAL_TOKEN>' || T118_FAILS="$T118_FAILS catalogo-needs"
+printf '%s' "$OUT_CAT" | grep -q 'OTRA=keep' || T118_FAILS="$T118_FAILS catalogo-rompe"
+printf '%s' "$OUT_CAT" | grep -qE 'zzz|yyy|ppp' && T118_FAILS="$T118_FAILS catalogo-fuga"
+
+: > "$T118/empty.yaml"
+OUT_EMPTY="$(printf 'keep=1\n' | AGENT_OS_SECRETS_CATALOG="$T118/empty.yaml" bash "$RED" 2>/dev/null || true)"
+[ "$OUT_EMPTY" = 'keep=1' ] || T118_FAILS="$T118_FAILS sin-claves-no-passthrough"
+
+RC_BADKEY=0
+bash "$RED" --keys 'BAD-KEY' </dev/null >/dev/null 2>&1 || RC_BADKEY=$?
+[ "$RC_BADKEY" -eq 64 ] || T118_FAILS="$T118_FAILS clave-invalida-rc=$RC_BADKEY"
+
+rm -rf "$T118" 2>/dev/null || true
+
+if [ -n "$T118_FAILS" ]; then
+  echo -e "  ❌ ERROR: T-118 incumple:$T118_FAILS"
+  [ -z "$T118_FENCE_BAD" ] || echo -e "     $T118_FENCE_BAD"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ redact.sh redacta env/JSON/YAML/catálogo sin romper estructura y es determinista;"
+  echo -e "     skill y normas sin recetas de valor en argv ni listas abiertas."
+fi
 
 # ------------------------------------------------------------------------------
 # Resumen Final

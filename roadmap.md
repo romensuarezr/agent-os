@@ -1,10 +1,10 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sin sprint activo — próximo planning sobre `multi-agent` (`v1.14.0` cerrado, pendiente de publicación en `main`).
+- Sprint 19 — Versiones, Honestidad del Escáner y Seguridad de Secretos (T-113 a T-118). Ver `docs/sprints/sprint-19-core.md`.
 
 ## Completado recientemente
-- **Sprint 18**: Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Cerrado en `multi-agent` como `v1.14.0`; pendiente de publicación en `main`.
+- **Sprint 18**: Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Publicado en `main` como `v1.14.0` (tag `v1.14.0` sobre `cdb1566`).
 - **Sprint 17**: Despacho Multi-Repo, Flujo de Worktrees y Punto de Entrada del Coordinador (T-104, T-107, T-105). Publicado en `main` como `v1.13.0`.
 - **Sprint 16**: Frontera Portable y Saneado de Exposición (T-103).
 - **Sprint 15**: Publicación Remota y Honestidad de los Scripts de Cierre (T-100, T-101, T-102).
@@ -30,7 +30,7 @@
   - `close-task.sh` actualiza el enlace de su fila al archivar (antes roto en T-094, T-095, T-096 y T-098).
   - `close-sprint.sh` hace staging acotado a sus propios ficheros y avisa de lo ajeno (antes commit `0 insertions / 0 deletions` en sprint-14).
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
-- Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (S).
+- ✅ Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (T-110, sprint-18).
 - Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
 - Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
 - [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S).
