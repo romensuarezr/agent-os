@@ -49,7 +49,7 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — 2026-10-27 (CON CAMBIOS: ruta/formato reales del catálogo y fixture)
 - [x] Rama creada: `feat/T-118-redaction-rules`
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
 
 ## Notas de implementación
 
