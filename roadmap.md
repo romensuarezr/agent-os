@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 19 — Versiones y Honestidad de la Flota (T-113 a T-116). Ver `docs/sprints/sprint-19-core.md`.
+- Sprint 19 — Versiones, Honestidad del Escáner y Seguridad de Secretos (T-113 a T-118). Ver `docs/sprints/sprint-19-core.md`.
 
 ## Completado recientemente
 - **Sprint 18**: Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Publicado en `main` como `v1.14.0` (tag `v1.14.0` sobre `cdb1566`).

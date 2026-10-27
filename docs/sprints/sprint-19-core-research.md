@@ -30,6 +30,18 @@
 - **Decisión del usuario:** desarrollo a medida justificado.
 - **Notas de integración:** N/A.
 
+### T-117 — `secrets.sh` (valores por stdin, huella, `--search`)
+- **Alternativa detectada:** `scout.sh` → 0 repos ≥500⭐; `get-stdin` (npm, Node), `secretlint` (escáner, no un punto de escritura), `@expo/fingerprint` (irrelevante).
+- **Recomendación del agente:** desarrollo a medida.
+- **Decisión del usuario:** desarrollo a medida — el contrato es de proceso (stdin, sin eco) y de integración con Infisical.
+- **Notas de integración:** N/A.
+
+### T-118 — `lib/redact.sh` y normas
+- **Alternativa detectada:** `scout.sh` → 0 repos ≥500⭐; `object-inspect`, `is-docker`, `@azure/logger` irrelevantes. `secretlint` detecta secretos en ficheros, no redacta un stream.
+- **Recomendación del agente:** desarrollo a medida (filtro de líneas, sin dependencias).
+- **Decisión del usuario:** desarrollo a medida.
+- **Notas de integración:** N/A.
+
 ## Hallazgos técnicos verificados
 
 ### T-113 — `VERSION` no se escribe al cerrar
@@ -58,6 +70,19 @@
 - El check 22 (`tests/validate-control-plane.sh:947`) solo ejecuta el escáner sobre el core (repo git, todo trackeado), así que **no puede detectar ninguno de los dos huecos**.
 - Clase de bug común con el resto del sprint: una herramienta que afirma un veredicto sobre datos que no miró.
 
+### T-117 — El doble barrido de `--hygiene` y la receta con valor
+- `secret-locate.sh:170-175` construye el inventario llamando `keys_in(f)` (→ `keys_with_meta` → `infisical export`) para **cada** carpeta.
+- `secret-locate.sh:197-201` (`--hygiene`) vuelve a llamar `keys_with_meta(f)` para cada carpeta: **segundo `infisical export` por carpeta**, sin reutilizar `tags`/`comments` del primero. Eso es la "doble exportación".
+- La receta de higiene (`:212`) imprime `infisical secrets set <CLAVE>='<valor>' ...`: valor en `argv`.
+- La receta final (`:252-253`) recomienda `infisical run -- bash -c 'echo $<CLAVE>'`.
+- `import-secrets.sh` (`.env` → bóveda, dry-run por defecto) y `materialize-secrets.sh` (bóveda → `.env` 600, rechaza ficheros versionados) ya no imprimen valores: el hueco es el punto de escritura puntual y las recetas, no la migración masiva.
+
+### T-118 — La norma dice lo que la skill desmiente
+- `agent-permissions.md` (tabla, "Acceso a Secretos"): L3, "prohibido leer, mostrar, imprimir o transferir".
+- `infisical-secrets/SKILL.md:120` y `:194`: `eval $(infisical export ...)`; `:175` y `:321`: `secrets set CLAVE="valor"`; `:59`/`:142`: `export INFISICAL_TOKEN=$(...)` (token en variable de shell).
+- `AGENT_ONBOARDING.md:72`: remite a `import-secrets.sh` "o el cliente oficial" — lista abierta, sin script cerrado.
+- No existe `lib/redact.sh` ni ningún filtro para `docker compose config`, `docker inspect`, `env`/`printenv`.
+
 ## Ideas archivadas en este planning
 
 | Idea | Tarea que la cerró |
@@ -71,4 +96,6 @@
 - **R1 (T-115):** el formato del ledger no tiene versión de esquema. Mitigación: parsear las claves `version:`/`tag:` con tolerancia y marcar `LEGACY`/`AUSENTE` en vez de fallar; un satélite sin `last-sync.md` es un hallazgo, no un error de la herramienta.
 - **R2 (T-113):** si el changelog no tiene entrada con versión, `close-sprint.sh` debe avisar y **no** tocar `VERSION` (nunca escribir `unknown`).
 - **R3 (T-116):** incluir untracked por defecto puede encarecer el escaneo en árboles grandes. Se decide en el plan de la tarea; la opción conservadora es `--include-untracked` explícito y que el check 22 lo use.
-- **Decisión:** T-115 reserva el check 31; T-113 el 30. Si el orden de ejecución cambia, se usa el siguiente número libre y se anota en el sprint.
+- **Decisión:** T-115 reserva el check 31; T-113 el 30, T-117 el 32 y T-118 el 33. Si el orden de ejecución cambia, se usa el siguiente número libre y se anota en el sprint.
+- **R4 (T-117):** `--search` recorre **metadatos** (claves, comentarios, etiquetas) o valores? Decisión propuesta: buscar en valores implica leerlos; se hace dentro del script, se devuelve solo carpeta+clave+hash del valor, nunca el valor ni un fragmento. Si el usuario prefiere metadatos-only, se acota en el plan.
+- **R5 (T-118):** `redact.sh` necesita saber qué claves redactar. Por defecto, el catálogo `.agents/config/secrets-catalog.yaml` (generado, sin valores); `--keys` para casos puntuales. Si el catálogo está vacío, el filtro no redacta nada: el check 33 debe cubrir ese caso con `--keys`.
