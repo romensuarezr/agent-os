@@ -18,13 +18,15 @@
 # complementan.
 #
 # Uso:
-#   bash scripts/agent/lib/locator-hygiene.sh [--staged] [--path <dir>] [--quiet]
+#   bash scripts/agent/lib/locator-hygiene.sh [--staged] [--path <dir>] [--quiet] [--tracked-only]
 #
-#   --staged   Revisa solo los ficheros con cambios en el índice (uso del hook).
-#   --path     Raíz a revisar. Por defecto, la del repo.
-#   --quiet    Solo emite código de salida, sin detalle.
+#   --staged        Revisa solo los ficheros con cambios en el índice (uso del hook).
+#   --path          Raíz a revisar. Por defecto, la del repo.
+#   --quiet         Solo emite código de salida, sin detalle.
+#   --tracked-only  Omite los ficheros sin trackear. Por defecto se escanean los
+#                   untracked no ignorados (git ls-files --others --exclude-standard).
 #
-# Código de salida: 0 limpio | 1 hallazgo
+# Código de salida: 0 limpio | 1 hallazgo | 2 no verificable (directorio sin repo git)
 # ==============================================================================
 set -uo pipefail
 
@@ -32,16 +34,26 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$LIB_DIR/../../.." && pwd)"
 STAGED=false
 QUIET=false
+TRACKED_ONLY=false
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --staged) STAGED=true; shift ;;
         --path)   ROOT="$2"; shift 2 ;;
         --quiet)  QUIET=true; shift ;;
-        -h|--help) sed -n '2,28p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        --tracked-only) TRACKED_ONLY=true; shift ;;
+        -h|--help) sed -n '2,30p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "Argumento no reconocido: $1" >&2; exit 2 ;;
     esac
 done
+
+# ── Guardia de verificabilidad ───────────────────────────────────────────────
+# Sin repo git no hay enumeración fiable: `ls-files` fallaría y el escáner
+# afirmaría "limpio" sin haber mirado nada (T-116). Aplica también a --staged.
+if ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+    echo "❌ No verificable: '$ROOT' no es un repositorio git (nada escaneado)." >&2
+    exit 2
+fi
 
 EXCEPTIONS="$ROOT/.agents/config/infra-literals.exceptions"
 
@@ -119,8 +131,10 @@ if [ "$STAGED" = true ]; then
         say "  (nada en staging)"
         exit 0
     fi
+elif [ "$TRACKED_ONLY" = true ]; then
+    FILES="$(git -C "$ROOT" ls-files --cached 2>/dev/null || true)"
 else
-    FILES="$(git -C "$ROOT" ls-files 2>/dev/null || true)"
+    FILES="$(git -C "$ROOT" ls-files --cached --others --exclude-standard 2>/dev/null || true)"
 fi
 
 FOUND=0

@@ -963,6 +963,56 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 
+# Fixtures de T-116: el escáner no puede decir "limpio" sin mirar.
+LHF="$ROOT/scripts/agent/lib/locator-hygiene.sh"
+LHT="$(mktemp -d)"
+mkdir -p "$LHT/norepo" "$LHT/repo-a" "$LHT/repo-b/ignorado"
+printf '/%s/ana/proyectos/fuga.txt\n' home > "$LHT/norepo/fuga.txt"
+(
+    cd "$LHT/repo-a" && git init -q -b main . && git config user.email t@t.t && git config user.name t
+    printf 'fichero limpio\n' > limpio.txt
+    git add -A && git commit -qm base
+    printf '/%s/ana/proyectos/fuga.txt\n' home > sin-trackear.txt
+) >/dev/null 2>&1 || true
+(
+    cd "$LHT/repo-b" && git init -q -b main . && git config user.email t@t.t && git config user.name t
+    printf 'ignorado/\n' > .gitignore
+    printf 'fichero limpio\n' > limpio.txt
+    git add -A && git commit -qm base
+    printf '/%s/ana/proyectos/fuga.txt\n' home > ignorado/fuga.txt
+) >/dev/null 2>&1 || true
+LH_NOREPO_RC=0; LH_NOREPO_OUT="$(bash "$LHF" --path "$LHT/norepo" 2>&1)" || LH_NOREPO_RC=$?
+LH_UNT_RC=0;    LH_UNT_OUT="$(bash "$LHF" --path "$LHT/repo-a" 2>&1)" || LH_UNT_RC=$?
+LH_TRK_RC=0;    LH_TRK_OUT="$(bash "$LHF" --path "$LHT/repo-a" --tracked-only 2>&1)" || LH_TRK_RC=$?
+LH_IGN_RC=0;    LH_IGN_OUT="$(bash "$LHF" --path "$LHT/repo-b" 2>&1)" || LH_IGN_RC=$?
+rm -rf "$LHT"
+
+if [ "$LH_NOREPO_RC" -eq 2 ] && printf '%s' "$LH_NOREPO_OUT" | grep -q "No verificable" \
+   && ! printf '%s' "$LH_NOREPO_OUT" | grep -q "Sin literales"; then
+    echo -e "  ✅ Sin repo git avisa 'no verificable' y sale 2 (nunca 'limpio')."
+else
+    echo -e "  ❌ ERROR: sin repo git debe salir 2 y no afirmar 'limpio' (rc=$LH_NOREPO_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+if [ "$LH_UNT_RC" -eq 1 ] && printf '%s' "$LH_UNT_OUT" | grep -q "sin-trackear.txt"; then
+    echo -e "  ✅ Detecta literales en ficheros sin trackear (rc=1)."
+else
+    echo -e "  ❌ ERROR: no detecta el fichero sin trackear (rc=$LH_UNT_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+if [ "$LH_TRK_RC" -eq 0 ]; then
+    echo -e "  ✅ --tracked-only omite el untracked (opt-out explícito)."
+else
+    echo -e "  ❌ ERROR: --tracked-only debería salir 0 (rc=$LH_TRK_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+if [ "$LH_IGN_RC" -eq 0 ] && printf '%s' "$LH_IGN_OUT" | grep -q "Sin literales"; then
+    echo -e "  ✅ Los untracked ignorados por .gitignore no se escanean."
+else
+    echo -e "  ❌ ERROR: el escáner no respeta --exclude-standard (rc=$LH_IGN_RC)."
+    ERRORS=$((ERRORS + 1))
+fi
+
 # ------------------------------------------------------------------------------
 # 23. Despacho multi-repo portable (T-104)
 # ------------------------------------------------------------------------------
