@@ -53,7 +53,7 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — 2026-10-27
 - [x] Rama creada: `feat/T-117-secrets-ops`
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
 
 ## Notas de implementación
 
