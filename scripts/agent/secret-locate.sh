@@ -27,6 +27,7 @@ for cmd in curl infisical; do
 done
 
 NAME=""
+SEARCH=""
 LIST_MODE=false
 AUDIT_MODE=false
 HYGIENE_MODE=false
@@ -43,17 +44,23 @@ for arg in "$@"; do
             "--list            Digest de todas las carpetas con su número de claves, ordenadas por última modificación." \
             "--audit           Auditoría de la bóveda: duplicados, shadowing y carpetas casi clonadas." \
             "--hygiene         Claves sin descripción ni etiquetas, que un agente puede proponer completar." \
+            "--search <texto>  Busca el texto en metadatos (clave, descripción, etiquetas, carpeta). Nunca en valores." \
             "--env <entorno>   Entorno a consultar (defecto: \$INFISICAL_ENVIRONMENT o dev)" \
             "--json            Emite el resultado estructurado para agentes y orquestadores" \
             "-h, --help        Muestra este mensaje de ayuda" \
             "ejemplo: bash scripts/agent/secret-locate.sh --name CLOUDFLARE_API_TOKEN" \
-            "ejemplo: bash scripts/agent/secret-locate.sh --hygiene --json"
+            "ejemplo: bash scripts/agent/secret-locate.sh --hygiene --json" \
+            "ejemplo: bash scripts/agent/secret-locate.sh --search cloudflare"
     fi
 done
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --name) NAME="$2"; shift 2 ;;
+        --search)
+            SEARCH="${2:-}"
+            if [ -z "$SEARCH" ]; then echo "❌ Error: --search requiere un texto no vacío." >&2; exit 64; fi
+            shift 2 ;;
         --list) LIST_MODE=true; shift ;;
         --audit) AUDIT_MODE=true; shift ;;
         --hygiene) HYGIENE_MODE=true; shift ;;
@@ -63,8 +70,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [ -z "$NAME" ] && [ "$LIST_MODE" != true ] && [ "$AUDIT_MODE" != true ] && [ "$HYGIENE_MODE" != true ]; then
-    echo "❌ Error: indica --name <CLAVE>, --list, --audit o --hygiene." >&2
+if [ -z "$NAME" ] && [ -z "$SEARCH" ] && [ "$LIST_MODE" != true ] && [ "$AUDIT_MODE" != true ] && [ "$HYGIENE_MODE" != true ]; then
+    echo "❌ Error: indica --name <CLAVE>, --search <texto>, --list, --audit o --hygiene." >&2
     echo "💡 Guia: bash scripts/agent/secret-locate.sh --list" >&2
     exit 64
 fi
@@ -94,7 +101,7 @@ export INFI_TOKEN="$(mint_token)"
 
 export GW_API="$INFISICAL_API_URL" GW_PID="$INFISICAL_PROJECT_ID" GW_TOKEN="$INFI_TOKEN"
 export GW_ENV="$ENV_NAME" GW_TIMEOUT="$TIMEOUT" GW_JSON="$JSON_OUTPUT"
-export GW_NAME="$NAME" GW_LIST="$LIST_MODE" GW_AUDIT="$AUDIT_MODE" GW_HYGIENE="$HYGIENE_MODE"
+export GW_NAME="$NAME" GW_SEARCH="$SEARCH" GW_LIST="$LIST_MODE" GW_AUDIT="$AUDIT_MODE" GW_HYGIENE="$HYGIENE_MODE"
 # El token tambien debe llegar por entorno al subproceso `infisical secrets`.
 export INFISICAL_TOKEN="$INFI_TOKEN"
 python3 - <<'PYEOF'
@@ -106,9 +113,11 @@ token = os.environ["GW_TOKEN"]
 envn  = os.environ["GW_ENV"]
 timeout = float(os.environ["GW_TIMEOUT"])
 name  = os.environ["GW_NAME"]
+query = os.environ.get("GW_SEARCH", "")
 do_list = os.environ["GW_LIST"] == "true"
 do_audit = os.environ["GW_AUDIT"] == "true"
 do_hygiene = os.environ["GW_HYGIENE"] == "true"
+do_search = bool(query)
 as_json = os.environ["GW_JSON"] == "true"
 
 G, R, Y, NC = "\033[0;32m", "\033[0;31m", "\033[0;33m", "\033[0m"
@@ -145,29 +154,31 @@ def modified(meta):
     return _parse_iso(meta.get("lastSecretModified") or meta.get("updatedAt") or "")
 
 def keys_with_meta(folder):
-    """(claves, etiquetas, descripcion). Los VALORES se descartan sin imprimirse."""
-    tags, comments = {}, {}
+    """(claves, etiquetas, descripcion, updatedAt). Los VALORES se descartan sin imprimirse."""
+    tags, comments, updated = {}, {}, {}
     try:
         out = subprocess.run(
             ["infisical", "export", "--path", f"/{folder}", "--env", envn,
              "--projectId", pid, "--domain", api, "--format", "json", "--silent"],
             capture_output=True, text=True, timeout=timeout + 25).stdout
-        for item in json.loads(out) if isinstance(json.loads(out), list) else []:
+        parsed = json.loads(out)
+        for item in parsed if isinstance(parsed, list) else []:
             k = item.get("key") or item.get("secretKey")
             if not k:
                 continue
             tags[k] = item.get("tags") or []
             comments[k] = (item.get("comment") or "").strip()
+            updated[k] = item.get("updatedAt") or item.get("updated_at") or ""
     except Exception:
-        return [], tags, comments
-    return list(tags), tags, comments
-
-def keys_in(folder):
-    return keys_with_meta(folder)[0]
+        return [], tags, comments, updated
+    return list(tags), tags, comments, updated
 
 meta = folder_meta()
 folders = sorted(meta)
-inventory = {f: keys_in(f) for f in folders}
+# Un unico barrido reutilizado por inventario, higiene y nombres (T-117): exactamente
+# un `infisical export` por carpeta, sin importar el modo.
+_sweep = {f: keys_with_meta(f) for f in folders}
+inventory = {f: _sweep[f][0] for f in folders}
 index = collections.defaultdict(list)
 for folder, keys in inventory.items():
     for k in keys:
@@ -197,7 +208,7 @@ if do_list:
 if do_hygiene:
     undocumented = []
     for f in by_recency:
-        _, tg, cm = keys_with_meta(f)
+        _, tg, cm, _up = _sweep[f]
         for k in inventory[f]:
             missing = ([("descripcion")] if not cm.get(k) else []) + ([("etiquetas")] if not tg.get(k) else [])
             if missing:
@@ -211,7 +222,7 @@ if do_hygiene:
     print(f"=== HIGIENE DE METADATOS (entorno {envn}) ===")
     print(f"Entradas: {result['total_keys']} | sin descripcion o etiquetas: {len(undocumented)}")
     print("\nClaves completables por un agente. La CLI soporta etiquetas:")
-    print("  infisical secrets set <CLAVE>='<valor>' --path=/<carpeta> --tag scope-shared --tag env-dev")
+    print("  printf 'CLAVE=valor\\n' | infisical secrets set --file /dev/stdin --path=/<carpeta> --tag scope-shared --tag env-dev")
     by_folder = collections.defaultdict(list)
     for u in undocumented:
         by_folder[u["folder"]].append(u["key"])
@@ -257,12 +268,49 @@ if do_audit:
             print(f"        exclusivas de /{c['a']}: {', '.join(c['only_in_a'])}")
     sys.exit(0)
 
+# Modo --search (T-117): SOLO metadatos. Los valores nunca se consultan aqui:
+# se busca en nombre de clave, descripcion, etiquetas y nombre de carpeta.
+if do_search:
+    q = query.lower()
+    matches = []
+    for f in by_recency:
+        fdesc = (meta[f].get("description") or "").lower()
+        for k in sorted(inventory[f]):
+            fields = []
+            if q in k.lower():
+                fields.append("clave")
+            if q in (_sweep[f][2].get(k) or "").lower():
+                fields.append("descripcion")
+            if any(q in str(t).lower() for t in (_sweep[f][1].get(k) or [])):
+                fields.append("etiqueta")
+            if q in f.lower() or q in fdesc:
+                fields.append("carpeta")
+            if fields:
+                matches.append({"folder": f, "key": k, "matched_in": fields})
+    result["query"] = query
+    result["matches"] = matches
+    result["match_count"] = len(matches)
+    if as_json:
+        print(json.dumps(result, indent=2))
+        sys.exit(0 if matches else 6)
+    print(f"=== BUSQUEDA DE METADATOS: '{query}' (entorno {envn}) ===")
+    if not matches:
+        print(f"{Y}Sin coincidencias en {len(folders)} carpetas. La busqueda no mira valores.{NC}")
+        sys.exit(6)
+    for m in matches:
+        print("  /%-22s %-28s (%s)" % (m["folder"], m["key"], ", ".join(m["matched_in"])))
+    print("\n%d coincidencia(s) en %d carpeta(s). Solo metadatos."
+          % (len(matches), len({m["folder"] for m in matches})))
+    sys.exit(0)
+
 # Modo --name
 hits = sorted(index.get(name, []))
 result["name"] = name
 result["found_in"] = hits
 result["found_count"] = len(hits)
 result["shadowing"] = len(hits) > 1
+# Aditivo (T-117): permite verificar updatedAt sin leer valores. `found_in` no cambia.
+result["hits_detail"] = [{"folder": f, "updated_at": _sweep[f][3].get(name, "")} for f in hits]
 if as_json:
     print(json.dumps(result, indent=2))
     sys.exit(0 if hits else 6)
@@ -280,6 +328,8 @@ if len(hits) > 1:
     print("    Puede ser una clave transversal duplicada o una copia obsoleta.")
     print("    Decide con 'secret-locate.sh --audit' antes de darla por buena.")
 print("")
-print("  Para consumirla sin llevarla a disco:")
-print(r"    infisical run --path=/<carpeta> -- bash -c 'echo $<CLAVE>'")
+print("  Para consumirla sin llevarla a disco ni imprimirla:")
+print("    infisical run --path=/<carpeta> -- <comando>")
+print("  Para diagnósticos, filtra la salida (redact.sh llega con T-118):")
+print("    infisical run --path=/<carpeta> -- <comando> 2>&1 | redact.sh")
 PYEOF
