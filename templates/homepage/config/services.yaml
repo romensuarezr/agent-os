@@ -1,18 +1,18 @@
 - AI Gateways & Inferencia ($0):
     - FreeLLMAPI ($0 AI Aggregator):
         icon: si-openai
-        href: http://100.x.y.z:3001
-        description: "Unified AI inference proxy aggregator ($0)"
-        ping: http://100.x.y.z:3001/health
+        href: http://100.77.82.13:3001
+        description: "Unified AI inference proxy aggregator ($0) — 286 models"
+        ping: http://100.77.82.13:3001/
     - OmniRoute AI Gateway:
         icon: si-probot
-        href: http://100.x.y.z:20128
-        description: "Multi-provider AI gateway with RTK compression"
-        ping: http://100.x.y.z:20128/health
+        href: http://100.77.82.13:20128
+        description: "Multi-provider AI gateway with RTK compression — 2157 models"
+        ping: http://100.77.82.13:20128/
     - Ollama (Local Models):
         icon: si-ollama
-        href: http://100.x.y.z:11434
-        description: "Local inference engine ($0 bajo demanda: qwen2.5, llama3.1, deepseek-r1)"
+        href: http://100.77.82.13:3001
+        description: "Local inference via FreeLLMAPI proxy (qwen2.5, llama3.1, mistral-nemo)"
 
 - Control Plane & Secretos:
     - Infisical Secrets Manager:
