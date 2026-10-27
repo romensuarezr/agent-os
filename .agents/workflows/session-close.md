@@ -15,7 +15,7 @@ No se usa para seguir implementando cambios nuevos.
 - Dejar registrado lo que cambió y lo que queda pendiente.
 - Archivar la tarea activa.
 - Actualizar el sprint activo y archivarlo si está completado.
-- Actualizar CHANGELOG.md al cerrar un sprint.
+- Actualizar changelog.md al cerrar un sprint.
 - Eliminar locks y temporales de sesión.
 - Dejar el repositorio listo para revisión, PR o integración según la política del proyecto.
 
@@ -30,7 +30,7 @@ Revisa solo las rutas genéricas o configurables que existan en el proyecto:
 - `.agents/tasks/_archived/`
 - `docs/adrs/`
 - `scripts/`
-- `CHANGELOG.md`
+- `changelog.md`
 
 Si existen otros artefactos temporales o de validación, deben quedar:
 - archivados en una ruta oficial,
@@ -122,19 +122,19 @@ Después del commit de cierre de tarea, verifica si el sprint activo quedó comp
 Si es así, ejecuta **en este orden**:
 
 ```bash
-# 1. Genera la entrada de changelog (NO commitea — solo modifica CHANGELOG.md)
+# 1. Genera la entrada de changelog (NO commitea — solo modifica changelog.md)
 bash scripts/agent/update-changelog.sh sprint-{{SPRINT_ACTIVE}}
 
-# 2. Archiva el sprint e incluye CHANGELOG.md en el mismo commit
+# 2. Archiva el sprint e incluye changelog.md en el mismo commit
 bash scripts/agent/close-sprint.sh sprint-{{SPRINT_ACTIVE}}
 ```
 
 El flujo completo es:
 - `update-changelog.sh` lee los commits del sprint, clasifica por tipo (Conventional Commits),
-  inserta una nueva sección `## [vX.Y.Z] — sprint-{{SPRINT_ACTIVE}} — YYYY-MM-DD` en `CHANGELOG.md`
+  inserta una nueva sección `## [vX.Y.Z] — sprint-{{SPRINT_ACTIVE}} — YYYY-MM-DD` en `changelog.md`
   y sugiere el bump de versión semver (major si hay breaking, minor si hay feat, patch si solo fix).
 - `close-sprint.sh` verifica que todas las tareas están `✅ Completada`, mueve el sprint a
-  `docs/sprints/_archived/` con `git mv`, hace `git add CHANGELOG.md` y commitea todo junto:
+  `docs/sprints/_archived/` con `git mv`, hace `git add changelog.md` y commitea todo junto:
 
 ```bash
 git commit -m "chore: archive sprint-{{SPRINT_ACTIVE}} [vX.Y.Z]"

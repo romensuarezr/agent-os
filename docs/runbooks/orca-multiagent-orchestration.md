@@ -201,6 +201,7 @@ El worker en Orca permanece en pausa hasta que la compuerta cambia a `status: re
 |---|---|---|
 | Flujo completo supervisado | `run-flow --objective … --spec-file …` | Para en el gate; cae al fallback sin runtime |
 | Diagnóstico del runtime | `… status` | Se degrada con gracia sin runtime |
+| Informe de un lote | `… report <run-id> [--json]` | Read-only: tareas, workers, gates y veredicto en una pantalla |
 | Despachar una tarea suelta | `… dispatch-worker --run …` + `create-gate` manual | Componer a mano = asumir tú la parada en el gate |
 | Lote rápido sin gates | `… batch …` | **Legado**: no para en gates ni cae al fallback; usa `run-flow` |
 | Sin Orca en absoluto | `dispatch-satellite.sh --satellite …` (T-104) | Ruta Git-nativa directa |
@@ -208,12 +209,48 @@ El worker en Orca permanece en pausa hasta que la compuerta cambia a `status: re
 
 ---
 
-## 7. Recetas y Comandos Rápidos CLI
+## 7. Informe consolidado read-only: `report`
+
+Agrega un run completo en una sola pantalla: ejecución, tareas, workers/worktrees,
+gates y veredicto. No muta estado: solo invoca primitivas de lectura
+(`run-list`, `task-list`, `gate-list`, `worker-list`, `worktree ps`).
+
+```bash
+# Vista humana (una pantalla)
+bash scripts/agent/orca-orchestrate.sh report run_6f65ff2df394
+
+# Digest para agentes (mismas claves, JSON estable)
+bash scripts/agent/orca-orchestrate.sh report run_6f65ff2df394 --json
+```
+
+Salida:
+- Cabecera del run (id, objetivo, fecha de creación).
+- Tabla de tareas con estado (`✅` hecho, `⏳` en curso/listo, `❌` fallo), gate asociado,
+  estado del worker, worktree y diffstat por worker.
+- Gates pendientes y resueltos.
+- Veredicto: `COMPLETADO`, `GATE_PENDIENTE`, `CON_FALLOS`, `EN_CURSO`, `SIN_TAREAS`,
+  `DATOS_INCOMPLETOS` o `SIN_RUNTIME`.
+
+Garantías:
+- **Read-only verificable**: el bloque está delimitado por los marcadores
+  `# >>> T-112 report` / `# <<< T-112 report`, y la suite (check 29) falla si contiene
+  primitivas de mutación (`create-*`, `dispatch-*`, `resolve-*`, `worker-start|stop|release|retain`,
+  `gh pr`, `git push|merge`).
+- **Degradación**: sin runtime informa `SIN_RUNTIME` y sale 0, sin traceback.
+- **Diffstat**: usa la ref base que registre el run; si no la registra, muestra `n/d`.
+  No inventa comparaciones.
+- **Sin ejecución desatendida**: el informe nunca continúa un flujo ni resuelve gates;
+  la decisión sigue siendo humana.
+
+---
+
+## 8. Recetas y Comandos Rápidos CLI
 
 | Acción | Comando |
 | :--- | :--- |
 | **Secuencia supervisada** | `bash scripts/agent/orca-orchestrate.sh run-flow --objective "<obj>" --spec-file <plan.json>` |
 | **Diagnóstico del Runtime** | `bash scripts/agent/orca-orchestrate.sh status` |
 | **Listar Runs Activos** | `bash scripts/agent/orca-orchestrate.sh list-runs` |
+| **Informe de Lote** | `bash scripts/agent/orca-orchestrate.sh report <run-id> [--json]` |
 | **Comprobar Eventos** | `bash scripts/agent/orca-orchestrate.sh check-events --run <id>` |
 | **Listar Decision Gates** | `bash scripts/agent/orca-orchestrate.sh list-gates --run <id>` |

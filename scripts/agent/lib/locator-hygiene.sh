@@ -30,7 +30,6 @@ set -uo pipefail
 
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$LIB_DIR/../../.." && pwd)"
-EXCEPTIONS="$ROOT/.agents/config/infra-literals.exceptions"
 STAGED=false
 QUIET=false
 
@@ -43,6 +42,8 @@ while [ $# -gt 0 ]; do
         *) echo "Argumento no reconocido: $1" >&2; exit 2 ;;
     esac
 done
+
+EXCEPTIONS="$ROOT/.agents/config/infra-literals.exceptions"
 
 say() { [ "$QUIET" = true ] || echo "$@"; }
 

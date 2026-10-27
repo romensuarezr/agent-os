@@ -7,6 +7,7 @@
 #
 # Commands:
 #   status                  Check Orca ADE readiness, active runs and worktrees
+#   report                   Read-only consolidated report of one Run (no mutations)
 #   create-run              Create a new orchestration Run with an objective
 #   list-runs               List all active and historical Runs
 #   create-task             Create a task bound to a Run
@@ -94,6 +95,7 @@ usage() {
     echo ""
     echo "Comandos disponibles:"
     echo "  status                            Diagnóstico del runtime, runs activos y worktrees"
+    echo "  report <run-id> [--json]          Informe consolidado read-only del lote (una pantalla)"
     echo "  create-run --objective <texto>    Crea un nuevo Run de orquestación"
     echo "  list-runs                         Lista todos los Runs registrados"
   echo "  create-task --run <id> --title <t> --spec <s> [--deps <json_array>] [--parent <id>]"
@@ -133,6 +135,7 @@ shift
 OUTPUT_JSON=false
 DRY_RUN=false
 RUN_ID=""
+POSITIONAL_RUN=""
 OBJECTIVE=""
 TASK_ID=""
 TASK_TITLE=""
@@ -254,8 +257,13 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         *)
-            echo "Opción desconocida: $1" >&2
-            exit 1
+            if [ "$COMMAND" = "report" ] && [ -z "$POSITIONAL_RUN" ]; then
+                POSITIONAL_RUN="$1"
+                shift
+            else
+                echo "Opción desconocida: $1" >&2
+                exit 1
+            fi
             ;;
     esac
 done
@@ -318,6 +326,244 @@ except Exception:
 PYEOF
         fi
         ;;
+
+    # >>> T-112 report
+    report)
+        # Read-only estricto: solo primitivas de lectura (run-list, task-list,
+        # gate-list, worker-list, worktree ps). No aborta si falta el runtime.
+        sonda_runtime
+        REPORT_RUN_ID="${RUN_ID:-$POSITIONAL_RUN}"
+        REPORT_RUNS='{"ok":false}'
+        REPORT_TASKS='{"ok":false}'
+        REPORT_GATES='{"ok":false}'
+        REPORT_WORKERS='{"ok":false}'
+        REPORT_WTS='{"ok":false}'
+        if [ "$RUNTIME_STATE" = "RUNTIME_OK" ]; then
+            REPORT_RUNS=$($ORCA_BIN orchestration run-list --json 2>/dev/null || echo '{"ok":false}')
+            if [ -n "$REPORT_RUN_ID" ]; then
+                REPORT_TASKS=$($ORCA_BIN orchestration task-list --run "$REPORT_RUN_ID" --json 2>/dev/null || echo '{"ok":false}')
+                REPORT_GATES=$($ORCA_BIN orchestration gate-list --run "$REPORT_RUN_ID" --json 2>/dev/null || echo '{"ok":false}')
+                REPORT_WORKERS=$($ORCA_BIN orchestration worker-list --run "$REPORT_RUN_ID" --json 2>/dev/null || echo '{"ok":false}')
+            fi
+            REPORT_WTS=$($ORCA_BIN worktree ps --json 2>/dev/null || echo '{"ok":false}')
+        fi
+        REPORT_RC=0
+        python3 - "$REPORT_RUN_ID" "$RUNTIME_STATE" "$OUTPUT_JSON" \
+            "$REPORT_RUNS" "$REPORT_TASKS" "$REPORT_GATES" "$REPORT_WORKERS" "$REPORT_WTS" << 'PYEOF' || REPORT_RC=$?
+import json, subprocess, sys
+
+run_id, runtime, as_json = sys.argv[1], sys.argv[2], sys.argv[3] == "true"
+
+def load(s):
+    try:
+        d = json.loads(s) if s and s.strip() else {}
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+def rows(d, key):
+    r = d.get("result") or {}
+    v = r.get(key) if isinstance(r, dict) else None
+    return v if isinstance(v, list) else []
+
+runs_d, tasks_d, gates_d, workers_d, wts_d = (load(x) for x in sys.argv[4:9])
+runs = rows(runs_d, "runs")
+tasks = rows(tasks_d, "tasks")
+gates = rows(gates_d, "gates")
+workers = rows(workers_d, "workers")
+wts = rows(wts_d, "worktrees")
+
+sources_ok = {
+    "runs": bool(runs_d.get("ok")),
+    "tasks": bool(tasks_d.get("ok")),
+    "gates": bool(gates_d.get("ok")),
+    "workers": bool(workers_d.get("ok")),
+    "worktrees": bool(wts_d.get("ok")),
+}
+
+def glyph(s):
+    s = (s or "").lower()
+    if s in ("done", "completed", "success", "succeeded", "ok"):
+        return "✅"
+    if s in ("failed", "error", "cancelled", "canceled"):
+        return "❌"
+    if s in ("running", "in_progress", "working", "dispatched", "pending", "ready", "queued", "blocked"):
+        return "⏳"
+    return "⚪"
+
+def available_runs():
+    return [{"id": r.get("id"), "objective": r.get("objective")} for r in runs[:20]]
+
+def human(o):
+    print("=== 📋 INFORME DE LOTE (read-only) ===")
+    if o.get("verdict") == "SIN_RUNTIME":
+        print("Runtime  : " + str(o.get("runtime_state")))
+        print("⚠️  " + str(o.get("hint")))
+        return
+    if o.get("run") is None:
+        print("⚠️  " + str(o.get("hint")))
+        for r in o.get("available_runs", [])[:10]:
+            obj = str(r.get("objective") or "")[:60]
+            print("  - " + str(r.get("id")) + "  " + obj)
+        return
+    r = o["run"]
+    print("Run      : " + str(r.get("id")))
+    print("Objetivo : " + str(r.get("objective") or "")[:80])
+    print("Creado   : " + str(r.get("created_at") or "n/d"))
+    print("Runtime  : " + str(o.get("runtime_state")))
+    print("Base diff: " + str(o.get("diff_base") or "n/d"))
+    c = o["counts"]
+    print("")
+    print("TAREAS (" + str(c["tasks"]) + "): ✅ " + str(c["done"]) +
+          " · ⏳ " + str(c["running"]) + " · ❌ " + str(c["failed"]))
+    for t in o["tasks"]:
+        g = (t.get("gate") or {}).get("status") or "-"
+        w = (t.get("worker") or {}).get("state") or "-"
+        print("  [" + t["status_glyph"] + "] " + str(t["id"]).ljust(18) +
+              str(t["title"])[:30].ljust(30) +
+              " gate:" + str(g)[:10].ljust(10) +
+              " worker:" + str(w)[:10].ljust(10) +
+              " diff:" + str(t.get("diffstat") or "n/d"))
+    print("")
+    print("GATES (" + str(c["gates_pending"] + c["gates_resolved"]) + "): " +
+          str(c["gates_pending"]) + " pendiente(s) · " +
+          str(c["gates_resolved"]) + " resuelta(s)")
+    for g in o["gates"][:8]:
+        print("  - " + str(g.get("status") or "?") + " " + str(g.get("id")) +
+              " task:" + str(g.get("task_id")) + " " +
+              str(g.get("question") or "")[:50])
+    if not o["sources_ok"].get("tasks", True):
+        print("")
+        print("⚠️  Datos incompletos: el runtime no devolvió las tareas.")
+    print("")
+    print("VEREDICTO: " + str(o.get("verdict")))
+
+def emit(obj, code):
+    if as_json:
+        print(json.dumps(obj, ensure_ascii=False, indent=2))
+    else:
+        human(obj)
+    sys.exit(code)
+
+empty_counts = {"tasks": 0, "done": 0, "failed": 0, "running": 0,
+                "gates_pending": 0, "gates_resolved": 0}
+
+if runtime != "RUNTIME_OK":
+    hint = {
+        "CLI_AUSENTE": "CLI de Orca no encontrado: instala la distribución o revisa PATH.",
+        "RUNTIME_SIN_RESPUESTA": "Orca no responde: ejecuta 'orca open' para iniciar el runtime.",
+    }.get(runtime, "Runtime de Orca no disponible.")
+    emit({"run": None, "runtime_state": runtime, "diff_base": None,
+          "tasks": [], "gates": [], "counts": empty_counts,
+          "sources_ok": sources_ok, "verdict": "SIN_RUNTIME",
+          "hint": hint, "exit_code": 0}, 0)
+
+if not run_id:
+    emit({"run": None, "runtime_state": runtime, "diff_base": None,
+          "tasks": [], "gates": [], "counts": empty_counts,
+          "sources_ok": sources_ok, "verdict": "RUN_NO_ESPECIFICADO",
+          "available_runs": available_runs(),
+          "hint": "Indica el run: report <run-id> [--json]",
+          "exit_code": 1}, 1)
+
+run = next((r for r in runs if r.get("id") == run_id), None)
+if run is None:
+    emit({"run": None, "runtime_state": runtime, "diff_base": None,
+          "tasks": [], "gates": [], "counts": empty_counts,
+          "sources_ok": sources_ok, "verdict": "RUN_NO_ENCONTRADO",
+          "available_runs": available_runs(),
+          "hint": "Run '" + run_id + "' no registrado. Lista de runs disponibles:",
+          "exit_code": 1}, 1)
+
+base = run.get("base_ref") or run.get("baseRef") or run.get("base") or None
+gate_by_task, worker_by_task, wt_by_path = {}, {}, {}
+for g in gates:
+    gate_by_task.setdefault(g.get("task_id"), g)
+for w in workers:
+    worker_by_task.setdefault(w.get("taskId"), w)
+for w in wts:
+    p = w.get("path")
+    if p:
+        wt_by_path[p] = w
+
+def worktree_path(worker):
+    r = (worker or {}).get("resource") or {}
+    wid = r.get("worktreeId") or ""
+    return wid.split("::", 1)[1] if "::" in wid else None
+
+def diffstat(path):
+    if not base or not path:
+        return "n/d"
+    try:
+        out = subprocess.run(["git", "-C", path, "diff", "--stat", base + "..HEAD"],
+                             capture_output=True, text=True, timeout=10)
+        hit = [l for l in out.stdout.strip().splitlines() if "changed" in l]
+        return hit[-1].strip() if hit else "n/d"
+    except Exception:
+        return "n/d"
+
+task_rows = []
+for t in tasks:
+    g = gate_by_task.get(t.get("id"))
+    w = worker_by_task.get(t.get("id"))
+    path = worktree_path(w)
+    wt = wt_by_path.get(path) if path else None
+    task_rows.append({
+        "id": t.get("id"),
+        "title": t.get("display_name") or t.get("task_title") or t.get("id"),
+        "status": t.get("status") or "unknown",
+        "status_glyph": glyph(t.get("status")),
+        "deps": t.get("deps") or [],
+        "gate": {"id": g.get("id"), "status": g.get("status")} if g else None,
+        "worker": {
+            "state": w.get("workerState") if w else None,
+            "dispatch_status": w.get("dispatchStatus") if w else None,
+            "worktree": (wt or {}).get("displayName") if wt else None,
+            "branch": ((wt or {}).get("branch") or "").replace("refs/heads/", "") if wt else None,
+            "path": path,
+        },
+        "diffstat": diffstat(path),
+    })
+
+pending = [g for g in gates if (g.get("status") or "").lower() in ("pending", "open", "waiting")]
+done = [t for t in task_rows if t["status"].lower() in ("done", "completed", "success", "succeeded", "ok")]
+failed = [t for t in task_rows if t["status"].lower() in ("failed", "error", "cancelled", "canceled")]
+running = [t for t in task_rows if t["status"].lower() in ("running", "in_progress", "working", "dispatched", "pending", "ready", "queued", "blocked")]
+
+if not task_rows:
+    verdict = "SIN_TAREAS"
+elif pending:
+    verdict = "GATE_PENDIENTE"
+elif failed:
+    verdict = "CON_FALLOS"
+elif len(done) == len(task_rows):
+    verdict = "COMPLETADO"
+else:
+    verdict = "EN_CURSO"
+if not sources_ok.get("tasks"):
+    verdict = "DATOS_INCOMPLETOS"
+
+counts = {
+    "tasks": len(task_rows),
+    "done": len(done),
+    "failed": len(failed),
+    "running": len(running),
+    "gates_pending": len(pending),
+    "gates_resolved": len(gates) - len(pending),
+}
+
+emit({"run": {"id": run.get("id"), "objective": run.get("objective"),
+              "created_at": run.get("created_at")},
+      "runtime_state": runtime, "diff_base": base,
+      "tasks": task_rows,
+      "gates": [{"id": g.get("id"), "task_id": g.get("task_id"),
+                 "status": g.get("status"), "question": g.get("question")} for g in gates],
+      "counts": counts, "sources_ok": sources_ok,
+      "verdict": verdict, "exit_code": 0}, 0)
+PYEOF
+        exit "$REPORT_RC"
+        ;;
+    # <<< T-112 report
 
     create-run)
         if [ -z "$OBJECTIVE" ]; then

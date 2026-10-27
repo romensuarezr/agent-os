@@ -283,6 +283,15 @@ TARGET_ONBOARDING="$TARGET_PROJECT/.agents/AGENT_ONBOARDING.md"
 # ==============================================================================
 # DETECCIÓN DE STACK Y RESOLUCIÓN SELECTIVA DE HABILIDADES (T-076)
 # ==============================================================================
+# Wrapper portable de copias no destructivas (T-110). Dependencia dura: sin la lib,
+# '-n' avisaría en coreutils >= 9.3 y en macOS se perdería la detección explícita.
+if [ ! -f "$AGENT_OS_PATH/scripts/agent/lib/portable-fs.sh" ]; then
+    echo "❌ ERROR: falta $AGENT_OS_PATH/scripts/agent/lib/portable-fs.sh" >&2
+    exit 1
+fi
+# shellcheck disable=SC1090
+source "$AGENT_OS_PATH/scripts/agent/lib/portable-fs.sh"
+
 DETECTED_STACK="unknown"
 HAS_NEXTJS=false
 if [ -f "$AGENT_OS_PATH/scripts/agent/lib/detect-stack.sh" ]; then
@@ -556,7 +565,7 @@ fi
 if [ -d "$AGENT_OS_RULES" ]; then
     for rule in "$AGENT_OS_RULES"/*.md; do
         [ -f "$rule" ] || continue
-        cp -n "$rule" "$TARGET_RULES/"
+        agent_cp_n "$rule" "$TARGET_RULES/"
 track_installed "$TARGET_RULES/$(basename "$rule")"
     done
     echo "✅ Reglas globales instaladas (sin sobreescribir)."
@@ -566,7 +575,7 @@ fi
 if [ -d "$AGENT_OS_WORKFLOWS" ]; then
     for wf in "$AGENT_OS_WORKFLOWS"/*.md; do
         [ -f "$wf" ] || continue
-        cp -n "$wf" "$TARGET_WORKFLOWS/"
+        agent_cp_n "$wf" "$TARGET_WORKFLOWS/"
 track_installed "$TARGET_WORKFLOWS/$(basename "$wf")"
     done
     echo "✅ Workflows instalados (sin sobreescribir)."
@@ -616,11 +625,11 @@ if [ -f "$MANIFEST_FILE" ]; then
             skill_src="${skill_src}.md"
         fi
         if [ -d "$skill_src" ]; then
-            cp -rn "$skill_src" "$TARGET_SKILLS/"
+            agent_cp_n -r "$skill_src" "$TARGET_SKILLS/"
 track_installed "$TARGET_SKILLS/$(basename "$skill_src")"
             SKILLS_COUNT=$((SKILLS_COUNT + 1))
         elif [ -f "$skill_src" ]; then
-            cp -n "$skill_src" "$TARGET_SKILLS/"
+            agent_cp_n "$skill_src" "$TARGET_SKILLS/"
 track_installed "$TARGET_SKILLS/$(basename "$skill_src")"
             SKILLS_COUNT=$((SKILLS_COUNT + 1))
         fi
@@ -630,10 +639,10 @@ track_installed "$TARGET_SKILLS/$(basename "$skill_src")"
 elif [ -d "$AGENT_OS_SKILLS" ]; then
     for skill in "$AGENT_OS_SKILLS"/*; do
         if [ -d "$skill" ]; then
-            cp -rn "$skill" "$TARGET_SKILLS/"
+            agent_cp_n -r "$skill" "$TARGET_SKILLS/"
 track_installed "$TARGET_SKILLS/$(basename "$skill")"
         elif [ -f "$skill" ]; then
-            cp -n "$skill" "$TARGET_SKILLS/"
+            agent_cp_n "$skill" "$TARGET_SKILLS/"
 track_installed "$TARGET_SKILLS/$(basename "$skill")"
         fi
     done
@@ -644,11 +653,11 @@ fi
 if [ -d "$AGENT_OS_PATH/scripts/agent" ]; then
     for sc in "$AGENT_OS_PATH/scripts/agent"/*.sh; do
         [ -f "$sc" ] || continue
-        cp -n "$sc" "$TARGET_SCRIPTS/"
+        agent_cp_n "$sc" "$TARGET_SCRIPTS/"
 track_installed "$TARGET_SCRIPTS/$(basename "$sc")"
     done
     if [ -d "$AGENT_OS_PATH/scripts/agent/lib" ]; then
-        cp -rn "$AGENT_OS_PATH/scripts/agent/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
+        agent_cp_n -r "$AGENT_OS_PATH/scripts/agent/lib" "$TARGET_SCRIPTS/" 2>/dev/null || true
 track_installed "$TARGET_SCRIPTS/lib" || true
     fi
     chmod +x "$TARGET_SCRIPTS"/*.sh 2>/dev/null || true
@@ -663,7 +672,7 @@ if [ -d "$AGENT_OS_PROFILES" ]; then
     mkdir -p "$TARGET_PROFILES"
     for profile in "$AGENT_OS_PROFILES"/*; do
         if [ -f "$profile" ]; then
-            cp -n "$profile" "$TARGET_PROFILES/"
+            agent_cp_n "$profile" "$TARGET_PROFILES/"
 track_installed "$TARGET_PROFILES/$(basename "$profile")"
         fi
     done
@@ -680,7 +689,7 @@ if [ -d "$AGENT_OS_PATH/.agents/config" ]; then
         if [ "$cfg_name" = "fleet.yaml" ] || [ "$cfg_name" = "fleet.local.yaml" ]; then
             continue
         fi
-        cp -n "$cfg" "$TARGET_PROJECT/.agents/config/"
+        agent_cp_n "$cfg" "$TARGET_PROJECT/.agents/config/"
 track_installed "$TARGET_PROJECT/.agents/config/$cfg_name"
     done
     echo "✅ Configuraciones runtime instaladas en .agents/config/ (overlay privado fleet.yaml excluido)."
@@ -709,7 +718,7 @@ if [ -d "$AGENT_OS_GOALS" ]; then
     mkdir -p "$TARGET_GOALS"
     for goal_tmpl in "$AGENT_OS_GOALS"/*; do
         if [ -f "$goal_tmpl" ]; then
-            cp -n "$goal_tmpl" "$TARGET_GOALS/"
+            agent_cp_n "$goal_tmpl" "$TARGET_GOALS/"
 track_installed "$TARGET_GOALS/$(basename "$goal_tmpl")"
         fi
     done

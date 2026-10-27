@@ -4,10 +4,10 @@
 #
 # Solo archiva si TODAS las tareas del sprint están marcadas como ✅ o 🟢 Completada.
 # Archiva también el archivo -research.md si existe.
-# Si CHANGELOG.md fue modificado por update-changelog.sh, lo incluye en el mismo commit.
+# Si changelog.md fue modificado por update-changelog.sh, lo incluye en el mismo commit.
 #
 # PREREQUISITO: El sprint-XX.md ya tiene estado "✅ Completado" en la sección ## Estado.
-# PREREQUISITO OPCIONAL: Haber ejecutado update-changelog.sh antes para que CHANGELOG.md
+# PREREQUISITO OPCIONAL: Haber ejecutado update-changelog.sh antes para que changelog.md
 #   esté modificado y listo para incluirse en este commit.
 
 set -euo pipefail
@@ -39,8 +39,8 @@ done
 ROOT="$(git rev-parse --show-toplevel)"
 SPRINTS_DIR="$ROOT/docs/sprints"
 ARCHIVE_DIR="$ROOT/docs/sprints/_archived"
-CHANGELOG="$ROOT/CHANGELOG.md"
-[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/changelog.md"
+CHANGELOG="$ROOT/changelog.md"
+[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/CHANGELOG.md"
 
 
 # --- Validar argumento ---
@@ -112,13 +112,13 @@ CHANGELOG_MODIFIED=false
 VERSION_TAG=""
 
 if [ -f "$CHANGELOG" ]; then
-  # Comprueba si CHANGELOG.md tiene cambios no commiteados (staged o unstaged)
+  # Comprueba si changelog.md tiene cambios no commiteados (staged o unstaged)
   if ! git -C "$ROOT" diff --quiet "$CHANGELOG" 2>/dev/null || \
      ! git -C "$ROOT" diff --cached --quiet "$CHANGELOG" 2>/dev/null; then
     CHANGELOG_MODIFIED=true
     # Extrae la versión de la primera entrada del changelog
     VERSION_TAG=$(grep -m1 '^## \[' "$CHANGELOG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
-    echo "📝 CHANGELOG.md modificado detectado — se incluirá en el commit."
+    echo "📝 changelog.md modificado detectado — se incluirá en el commit."
     [ -n "$VERSION_TAG" ] && echo "   Versión detectada: v${VERSION_TAG}"
   fi
 fi
@@ -160,10 +160,10 @@ if [ -f "$RESEARCH_FILE" ]; then
   echo "📦 Archivado: ${SPRINT_NAME}-research.md → docs/sprints/_archived/"
 fi
 
-# --- Incluir CHANGELOG.md si fue modificado por update-changelog.sh ---
+# --- Incluir changelog.md si fue modificado por update-changelog.sh ---
 if [ "$CHANGELOG_MODIFIED" = true ]; then
   add_own "$CHANGELOG"
-  echo "📋 CHANGELOG.md añadido al stage."
+  echo "📋 changelog.md añadido al stage."
 fi
 
 # --- Commit atómico ---
@@ -188,5 +188,5 @@ echo ""
 echo "✅ $SPRINT_NAME archivado y commiteado ($DONE/$TOTAL tareas ✅)."
 echo "   Commit: $COMMIT_MSG"
 if [ "$CHANGELOG_MODIFIED" = true ]; then
-  echo "   CHANGELOG.md incluido en el commit."
+  echo "   changelog.md incluido en el commit."
 fi
