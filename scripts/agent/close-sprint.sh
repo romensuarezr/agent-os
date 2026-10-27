@@ -108,6 +108,14 @@ if [ "$DONE" -lt "$TOTAL" ]; then
 fi
 
 # --- Detectar versión sugerida en CHANGELOG (para el mensaje de commit) ---
+# La lib centraliza la regla T-108 (primera cabecera CON semver, no la primera
+# '## ['): el mismo error que dejaba VERSION sin escribir dejaba el commit sin
+# '[vX.Y.Z]' cuando el changelog abria con '## [Unreleased]'.
+# shellcheck source=scripts/agent/lib/release-version.sh
+source "$SCRIPT_DIR/lib/release-version.sh" 2>/dev/null || {
+    echo "ERROR: no se encuentra lib/release-version.sh; no puede leerse la versión del changelog." >&2
+    exit 1
+}
 CHANGELOG_MODIFIED=false
 VERSION_TAG=""
 
@@ -117,7 +125,7 @@ if [ -f "$CHANGELOG" ]; then
      ! git -C "$ROOT" diff --cached --quiet "$CHANGELOG" 2>/dev/null; then
     CHANGELOG_MODIFIED=true
     # Extrae la versión de la primera entrada del changelog
-    VERSION_TAG=$(grep -m1 '^## \[' "$CHANGELOG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+    VERSION_TAG=$(agent_read_changelog_version "$CHANGELOG" || true)
     echo "📝 changelog.md modificado detectado — se incluirá en el commit."
     [ -n "$VERSION_TAG" ] && echo "   Versión detectada: v${VERSION_TAG}"
   fi
@@ -164,6 +172,21 @@ fi
 if [ "$CHANGELOG_MODIFIED" = true ]; then
   add_own "$CHANGELOG"
   echo "📋 changelog.md añadido al stage."
+fi
+
+# --- Sincronizar VERSION con la release (T-113) ---
+# Solo cuando el changelog cambió en este cierre: si no cambió, su primera versión
+# es la release ANTERIOR y escribirla sería un retroceso silencioso.
+if [ "$CHANGELOG_MODIFIED" = true ]; then
+  if agent_sync_version "$ROOT" "$CHANGELOG"; then
+    add_own "$ROOT/VERSION"
+  else
+    # El cierre continúa (no se pierde trabajo), pero el aviso ya se emitió y el
+    # check 30 de la suite lo cazará en la siguiente validación.
+    echo "   ⚠️  VERSION no se ha modificado." >&2
+  fi
+else
+  echo "ℹ️  changelog.md sin cambios: VERSION no se toca (ejecuta update-changelog.sh <sprint> antes de cerrar)."
 fi
 
 # --- Commit atómico ---

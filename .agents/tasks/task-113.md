@@ -19,20 +19,27 @@ Archivos autorizados para modificación:
 - `.agents/workflows/session-close.md` (si menciona el cierre y hay que dejar constancia)
 
 ## Criterios de done
-- [ ] `close-sprint.sh` escribe `VERSION` con `VERSION_TAG` cuando lo detecta; si no lo detecta,
+- [x] `close-sprint.sh` escribe `VERSION` con `VERSION_TAG` cuando lo detecta; si no lo detecta,
       avisa y **no** toca el fichero (nunca escribe `unknown`)
-- [ ] `VERSION` entra en el staging acotado y viaja en el commit de archivado, no en uno posterior
-- [ ] Idempotente: si `VERSION` ya tiene el valor, no produce cambios en el árbol
-- [ ] Check 30: falla si `VERSION` ≠ versión de la primera entrada del changelog; prueba negativa
+- [x] `VERSION` entra en el staging acotado y viaja en el commit de archivado, no en uno posterior
+- [x] Idempotente: si `VERSION` ya tiene el valor, no produce cambios en el árbol
+- [x] Check 30: falla si `VERSION` ≠ primera versión semver del changelog; prueba negativa
       con fixture temporal (no depende del estado real del repo)
-- [ ] Suite completa en verde, sin regresión de los checks 26/28/29
+- [x] Suite completa en verde (30/30), sin regresión de los checks 26/28/29
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO — 2026-10-27 (cambio: lectura por primera cabecera CON semver, regla T-108)
+- [x] Rama creada: `feat/T-113-version-auto` (desde `multi-agent`)
+- [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
+
+## Notas de implementación
+- La extracción del mensaje de commit (`close-sprint.sh:120`) tenía el mismo bug de T-108
+  (`grep -m1 '^## \['`, que casa con `Unreleased`). Se sustituyó por la lib: un solo guard y una
+  sola regla. Verificado en fixture: el commit pasa a `chore: archive sprint-99-core [v1.15.0]`.
+- `agent_sync_version` solo escribe cuando `CHANGELOG_MODIFIED` es cierto: si no, la primera versión
+  del changelog es la anterior y escribirla sería un retroceso. En ese caso avisa y no toca nada.
