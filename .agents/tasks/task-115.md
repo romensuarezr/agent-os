@@ -22,23 +22,41 @@ Archivos autorizados para modificación:
   runbook de instalación; decidir en el plan y no crear un fichero nuevo si hay uno adecuado)
 
 ## Criterios de done
-- [ ] `fleet-version.sh [--satellites <yaml>] [--json] [rutas...]`: lee cada `last-sync.md`, compara
+- [x] `fleet-version.sh [--satellites <yaml>] [--json] [rutas...]`: lee cada `last-sync.md`, compara
       con `VERSION` del core por componentes semver (no por string) y reporta `ALINEADO`,
-      `DESFASE`, `LEGACY` o `AUSENTE`
-- [ ] Sin satélites configurados: lo dice explícitamente y sale 0 (no inventa flota ni falla)
-- [ ] Read-only verificable: 0 escrituras (`grep` de `>`, `cp`, `mv`, `git add` en su cuerpo);
-      sin llamadas de red
-- [ ] Digest `--json` estable (mismas claves que la vista humana) y exit 0 salvo error de uso
-- [ ] Check 31 con fixture: un satélite alineado, uno desfasado, uno sin ledger y el core
-      (`last-sync.md` no-ledger) — sin tocar el sistema real
-- [ ] Suite completa en verde
+      `DESFASE`, `LEGACY`, `AUSENTE` o `SELF`
+- [x] Sin satélites configurados: lo dice explícitamente y sale 0 (no inventa flota ni falla)
+- [x] Read-only verificable: snapshot del árbol antes/después idéntico + grep estático de
+      escrituras (`>>`, `cp`, `mv`, `rm`, `tee`, `git add`) y de red (`curl`, `wget`, `ssh`,
+      `git fetch/pull`)
+- [x] Digest `--json` estable (mismas claves que la vista humana) y exit 0 salvo error de uso
+- [x] Check 31 con fixture: un satélite alineado, uno desfasado, uno legacy, uno sin ledger y el
+      core (`last-sync.md` no-ledger) — sin tocar el sistema real
+- [x] Suite completa en verde (31/31)
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — 2026-10-27
+- [x] Rama creada: `feat/T-115-fleet-version`
+- [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
+
+## Notas de implementación
+
+- **Descubrimiento**: `fleet.yaml` no declara rutas de repo (su esquema es `nodes/services`), así que
+  solo se usa si contiene un bloque `satellites:`; si no, `.agents/config/satellites.yaml`. Las
+  rutas posicionales (`rutas...`) se añaden a lo que venga de la declaración, nunca la sustituyen.
+- **SELF**: se detecta por ruta real igual al core, o por el encabezado
+  `# last-sync.md — Estado operativo del core`. Nunca se interpreta como ledger.
+- **Semver**: `^[0-9]+\.[0-9]+(\.[0-9]+)?$` (patch opcional = 0), comparación por componentes en
+  bash puro con normalización `10#` (evita el octal `08`). Sin `sort -V`.
+- **`delta`**: magnitud en el nivel más alto donde difieren (major/minor/patch), no un vector
+  acumulado; `direction` indica `atras`/`adelante`.
+- **Dedupe** por ruta real; se conserva el primer alias. `~/` se expande contra `$HOME`.
+- **Exit**: 0 siempre que la lectura se complete (también con `DESFASE`), 1 si el core no tiene
+  `VERSION` legible, 2 en error de uso.
+- `sync.sh:348` distribuye `scripts/agent/*.sh`, así que el script nuevo llega a los hijos sin tocar
+  el manifest.
