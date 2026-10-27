@@ -35,7 +35,7 @@ Archivos autorizados para modificación:
 - [x] APROBADO — 2026-10-27 (cambio: lectura por primera cabecera CON semver, regla T-108)
 - [x] Rama creada: `feat/T-113-version-auto` (desde `multi-agent`)
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
 
 ## Notas de implementación
 - La extracción del mensaje de commit (`close-sprint.sh:120`) tenía el mismo bug de T-108
