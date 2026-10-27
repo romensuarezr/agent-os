@@ -37,7 +37,7 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — 2026-10-27, con cambio de mecanismo: `-v:refname` en lugar de `describe`
 - [x] Rama creada: `feat/T-114-prev-tag-version`
 - [x] Lock activo: `.agent-session.lock`
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
 
 ## Notas de implementación
 
