@@ -24,29 +24,44 @@ Archivos autorizados para modificación:
 - `tests/validate-control-plane.sh` (check 33)
 
 ## Criterios de done
-- [ ] `lib/redact.sh` lee stdin y sustituye el valor de cada clave conocida por `<redacted:CLAVE>`:
-      claves declaradas por `--keys A,B` y, por defecto, las del catálogo
-      `.agents/config/secrets-catalog.yaml`; preserva estructura (una línea sigue siendo una línea,
-      JSON sigue siendo JSON válido cuando lo era)
-- [ ] `redact.sh` es determinista, sin red, sin escrituras y sin depender de `jq`
-- [ ] `SKILL.md`: **0** `eval $(infisical export`, **0** recetas con valor en `argv`, **0**
-      `echo $<CLAVE>`; las recetas usan `infisical run -- ...`, `secrets.sh` o el pipe de
-      `redact.sh`
-- [ ] `agent-permissions.md`: solo los scripts del core tocan secretos; se declara explícitamente
+- [x] `lib/redact.sh` lee stdin y sustituye el valor de cada clave conocida por `<redacted:CLAVE>`:
+      `--keys A,B`, `--catalog FICHERO` o el default `$REPO/.agents/config/secrets-catalog.yaml`
+      (ruta canónica del generador, sobre-escribible con `AGENT_OS_SECRETS_CATALOG`); estructura
+      preservada (mismo nº de líneas, JSON válido — los escalares pasan a string entrecomillado)
+- [x] `redact.sh` es determinista, sin red, sin escrituras y sin depender de `jq`
+- [x] `SKILL.md`: **0** `eval $(infisical export`, **0** recetas con valor en `argv`, **0**
+      `echo $<CLAVE>` dentro de bloques de código; las recetas usan `infisical run -- ...`,
+      `secrets.sh` o el pipe de `redact.sh`
+- [x] `agent-permissions.md`: solo los scripts del core tocan secretos; se declara explícitamente
       que **`argv` = transcript** (nunca un valor en línea de comandos)
-- [ ] `AGENT_ONBOARDING.md §7`: lista **cerrada** de scripts autorizados; si no hay script para lo
+- [x] `AGENT_ONBOARDING.md §7`: lista **cerrada** de scripts autorizados; si no hay script para lo
       que se necesita, el agente **se para y lo propone** (no improvisa)
-- [ ] Check 33: estático (patrones prohibidos sobre skill/reglas/onboarding) + funcional
-      (`printf 'API_TOKEN=abc123\n' | redact.sh --keys API_TOKEN` → `<redacted:API_TOKEN>`;
-      JSON preservado)
-- [ ] Suite completa en verde
+- [x] Check 33: estático fence-aware (patrones prohibidos solo en bloques de código de la skill,
+      marcadores de lista cerrada y argv/transcript) + funcional (`--keys`, JSON con `json.loads`,
+      YAML, comillas, fixture de catálogo en formato exacto, passthrough sin claves, determinismo)
+- [x] Suite completa en verde (33/33)
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — 2026-10-27 (CON CAMBIOS: ruta/formato reales del catálogo y fixture)
+- [x] Rama creada: `feat/T-118-redaction-rules`
+- [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
+
+## Notas de implementación
+
+- El catálogo **no está versionado**: `.agents/config/secrets-catalog.yaml` lo genera
+  `generate-secrets-catalog.sh` y está en `.gitignore`. `redact.sh` lo usa solo como default
+  opcional; si falta o está vacío, avisa por stderr y hace passthrough (un satélite recién
+  instalado no falla). `--keys` y `--catalog` son las vías deterministas.
+- Formas cubiertas: `KEY=valor`, `KEY="valor"`, `"KEY": "valor"`, `"KEY": 123` (→ string
+  entrecomillado, JSON válido) y `KEY: valor` (YAML/compose, consume hasta fin de línea).
+- Frontera de palabra: `MY_API_TOKEN` no se confunde con `API_TOKEN`.
+- Límites asumidos: sobre-redacta en prosa (`KEY: texto`) por fail-safe; los valores anidados en
+  objetos/arrays JSON no se redactan.
+- Check 33 escanea **solo bloques de código** de la skill, así las menciones de lo prohibido en
+  prosa no se auto-disparan; controles negativos ejercitados (fence con `eval $(infisical export)`
+  → `skill-patron-prohibido`; sin patrón de comillas → `quoted`).
