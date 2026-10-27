@@ -1200,6 +1200,63 @@ else
 fi
 rm -rf "$FCH"
 
+  # Caso 4 (T-114): tags anotados con fechas invertidas. La base debe salir del
+  # orden de VERSIÓN (-v:refname), no de la fecha de creación del tag: con
+  # -creatordate, un tag creado después sobre un commit viejo reabre el rango y
+  # duplica en el changelog commits ya publicados.
+  FCH2="$(mktemp -d)"
+  mkdir -p "$FCH2/scripts/agent/lib"
+  cp "$UCHG" "$FCH2/scripts/agent/update-changelog.sh"
+  cp "$ROOT/scripts/agent/lib/cli-help.sh" "$FCH2/scripts/agent/lib/cli-help.sh"
+  if ! git -C "$FCH2" init -q -b main >/dev/null 2>&1; then
+    echo -e "  ❌ ERROR: no se pudo inicializar el fixture de T-114."
+    ERRORS=$((ERRORS + 1))
+  else
+    (
+      cd "$FCH2" || exit 1
+      git config user.email t@t.t && git config user.name t
+      printf '# Changelog\n\n## [Unreleased]\n' > changelog.md
+      git add -A && git commit -qm base
+      ROOT_COMMIT=$(git rev-list --max-parents=0 HEAD)
+      git commit -q --allow-empty -m "feat: ya lanzado"
+      git commit -q --allow-empty -m "chore: release 1.13.0"
+      GIT_COMMITTER_DATE="2026-10-01T00:00:00" git tag -a v1.13.0 -m "v1.13.0"
+      git commit -q --allow-empty -m "feat: solo nuevo"
+      GIT_COMMITTER_DATE="2026-10-25T00:00:00" git tag -a v1.12.0 -m "v1.12.0" "$ROOT_COMMIT"
+      bash scripts/agent/update-changelog.sh sprint-99 > out.txt 2>&1 || true
+      grep -m1 "Rango:" out.txt || true
+      if grep -q "ya lanzado" changelog.md; then echo "DUPLICADO"; else echo "SIN-DUPLICADOS"; fi
+    ) > "$FCH2/result.txt" 2>&1 || true
+    R5="$(sed -n '1p' "$FCH2/result.txt" 2>/dev/null || true)"
+    R6="$(sed -n '2p' "$FCH2/result.txt" 2>/dev/null || true)"
+    case "$R5" in
+      *"'v1.13.0'"*) VOK=true ;;
+      *) VOK=false ;;
+    esac
+    if [ "$VOK" = true ] && [ "$R6" = "SIN-DUPLICADOS" ]; then
+      echo -e "  ✅ La base del rango sale del orden de versión, no de creatordate (T-114)."
+    else
+      echo -e "  ❌ ERROR: base del rango incorrecta (rango='$R5' duplicados='$R6')."
+      ERRORS=$((ERRORS + 1))
+    fi
+  fi
+  rm -rf "$FCH2"
+
+  # Caso real (T-114): con el tag de la versión publicada, la base que elegirá el
+  # script debe ser ese tag (idéntico en multi-agent y en main), no uno anterior.
+  VREAL=$(git -C "$ROOT" tag --list 'v*' --sort=-v:refname 2>/dev/null | head -1 || true)
+  VEXPECT="v$(tr -d '[:space:]' < "$ROOT/VERSION" 2>/dev/null || true)"
+  if [ -n "$VEXPECT" ] && git -C "$ROOT" rev-parse -q --verify "refs/tags/$VEXPECT" >/dev/null 2>&1; then
+    if [ "$VREAL" = "$VEXPECT" ]; then
+      echo -e "  ✅ Caso real: la base del rango es $VEXPECT."
+    else
+      echo -e "  ❌ ERROR: la base real es '$VREAL' y se esperaba '$VEXPECT'."
+      ERRORS=$((ERRORS + 1))
+    fi
+  else
+    echo -e "  ℹ️  Caso real omitido: el tag $VEXPECT aún no existe (ventana cierre→tag)."
+  fi
+
 # ------------------------------------------------------------------------------
 # 27. locator-hygiene.sh --path honra las excepciones del repo escaneado (T-106)
 # ------------------------------------------------------------------------------

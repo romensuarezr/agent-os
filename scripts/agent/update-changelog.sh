@@ -45,8 +45,15 @@ fi
 SPRINT_NAME="$1"  # e.g. sprint-08
 
 # ─── 2. Determinar rango de commits ──────────────────────────────────────────
-# Busca el tag del sprint anterior o cae a 'git log' completo
-PREV_TAG=$(git -C "$ROOT" tag --sort=-creatordate | head -1 2>/dev/null || true)
+# Busca el tag del sprint anterior o cae a 'git log' completo.
+# La base es la ÚLTIMA VERSIÓN publicada, no el tag creado más recientemente:
+# con -creatordate, un tag de parche creado después sobre un commit viejo mueve el
+# rango hacia atrás y duplica en el changelog commits ya publicados. -v:refname
+# ordena por versión (T-114). No se usa 'git describe': en una rama de trabajo que
+# no ha recibido el merge de la release devuelve la última etiqueta ALCANZABLE
+# (v1.12.0 en multi-agent mientras main ya estaba en v1.14.0), y eso reabre el
+# rango de dos sprints.
+PREV_TAG=$(git -C "$ROOT" tag --list 'v*' --sort=-v:refname 2>/dev/null | head -1 || true)
 if [ -n "$PREV_TAG" ]; then
   RANGE="${PREV_TAG}..HEAD"
   echo "📌 Rango: desde tag '$PREV_TAG' hasta HEAD"
