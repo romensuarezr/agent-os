@@ -50,7 +50,7 @@ Para la interacción automatizada de agentes de IA, CLI local y scripts desatend
 
 ### 2. Autenticación Universal Auth con el CLI (Machine Identity)
 
-Para ejecuciones desatendidas de agentes o runners, **NUNCA** se usa login interactivo de navegador. El flujo es estrictamente en 2 pasos: primero se canjea el token con `infisical login` y luego se consume con `infisical run` o `infisical export`:
+Para ejecuciones desatendidas de agentes o runners, **NUNCA** se usa login interactivo de navegador. El flujo es estrictamente en 2 pasos: primero se canjea el token con `infisical login` y luego se consume **solo** con `infisical run -- <comando>`. `infisical export` con `eval` está prohibido: deja el valor en el entorno de la sesión y en el transcript.
 
 > ⚠️ **TRAMPA COMÚN**: `infisical run` **NO** tiene el flag `--method=universal-auth` (ese flag es de `infisical login`). Si ejecutas `infisical run` sin definir `INFISICAL_TOKEN` o `--token`, la CLI intentará abrir un navegador solicitando login de usuario.
 
@@ -112,18 +112,26 @@ infisical run \
   -- npm run dev
 ```
 
-### 2. Exportación Directa a la Sesión Shell (`infisical export`)
+### 2. Consumo en un Proceso (`infisical run`)
 
-Si necesitas tener las variables disponibles en el entorno bash actual (por ejemplo para scripts de despliegue):
+El valor se inyecta en el proceso hijo, nunca en tu shell ni en el transcript. **Nunca** se usa
+`eval $(infisical export ...)`: el valor acaba en el entorno de la sesión y cualquier diagnóstico lo
+filtra a la salida.
 
 ```bash
-eval $(infisical export \
+infisical run \
   --token="$INFISICAL_TOKEN" \
   --domain="${INFISICAL_API_URL}" \
   --projectId="${INFISICAL_PROJECT_ID}" \
   --env=dev \
   --path="/romensuarez-web" \
-  --format=dotenv-export)
+  -- <comando>
+```
+
+Si el comando vuelca variables (`docker compose config`, `docker inspect`, `env`), filtra la salida:
+
+```bash
+infisical run --path="/romensuarez-web" -- docker compose config 2>&1 | bash scripts/agent/lib/redact.sh
 ```
 
 ### 3. Autenticación Alternativa vía API REST Directa (curl / Python)
@@ -171,11 +179,9 @@ bash scripts/agent/secret-locate.sh --name NOMBRE_DE_LA_CLAVE
 bash scripts/agent/secret-locate.sh --audit
 python3 scripts/agent/lib/verify-secrets.py --source=infisical
 
-# Crear o actualizar un secreto
-infisical secrets set CLAVE="valor" \
-  --domain="${INFISICAL_API_URL}" \
-  --projectId="${INFISICAL_PROJECT_ID}" \
-  --env=dev
+# Crear o actualizar un secreto (el valor NUNCA va por argumentos)
+printf 'valor' | bash scripts/agent/secrets.sh set CLAVE --stdin --path=/<carpeta>
+bash scripts/agent/secrets.sh set CLAVE --generate --path=/<carpeta>
 
 # Eliminar un secreto (IMPORTANTE: requiere --type=shared al usar Machine Identity)
 infisical secrets delete CLAVE \
@@ -187,11 +193,13 @@ infisical secrets delete CLAVE \
 
 ### 4. Volcado Efímero por Pipe (Nunca a archivo rastreado)
 
-Si un script legacy o docker-compose requiere variables en formato dotenv, se realiza por pipe o proceso temporal, **NUNCA** redireccionando a un archivo `.env` persistido en git:
+Si un script legacy o docker-compose requiere variables, se ejecuta bajo `infisical run` (el valor
+llega al proceso, no a tu shell) o se materializa el `.env` local con `materialize-secrets.sh`.
+**NUNCA** se redirecciona a un archivo `.env` versionado:
 
 ```bash
-# Lectura en memoria para un subshell
-eval $(infisical export --env=prod --format=dotenv-export --domain="${INFISICAL_API_URL}" --projectId="${INFISICAL_PROJECT_ID}")
+infisical run --env=prod --path="/<carpeta>" -- <script-o-compose>
+bash scripts/agent/materialize-secrets.sh --path . --apply   # .env local, no versionado
 ```
 
 ### 5. Auditoría y Migración Masiva de Secretos (`import-secrets.sh`)
@@ -318,9 +326,9 @@ escribir las etiquetas; simplemente nadie los ha usado.
 ### Etiquetado (la CLI lo soporta de forma nativa)
 
 ```bash
-infisical secrets set NOMBRE_DE_LA_CLAVE="<valor>" \
+bash scripts/agent/secrets.sh set NOMBRE_DE_LA_CLAVE --generate \
   --path=/<carpeta> \
-  --tag scope-project --tag env-prod --tag owner-plataforma
+  --tags scope-project,env-prod,owner-plataforma
 ```
 
 > ⚠️ **`--tag` REEMPLAZA** las etiquetas existentes, no las añade. Lee antes de escribir.
