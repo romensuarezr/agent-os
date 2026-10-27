@@ -28,31 +28,45 @@ Archivos autorizados para modificación:
   `secret-operations.md`; no duplicar el de `infisical-secrets`)
 
 ## Criterios de done
-- [ ] `secrets.sh set <CLAVE>` acepta el valor **solo** por stdin (`--stdin`) o generado
+- [x] `secrets.sh set <CLAVE>` acepta el valor **solo** por stdin (`--stdin`) o generado
       (`--generate[=N]`); un valor en `argv` se rechaza con exit 2 y mensaje explícito
-- [ ] Sin eco: sin `set -x`, lectura con `read -rs` cuando hay TTY, y el valor no aparece en
+- [x] Sin eco: sin `set -x`, lectura con `read -rs` cuando hay TTY, y el valor no aparece en
       `ps`, en el historial ni en la salida
-- [ ] Confirmación por metadatos + huella: imprime clave, carpeta, entorno y `sha256` truncado;
+- [x] Confirmación por metadatos + huella: imprime clave, carpeta, entorno y `sha256` truncado;
       **nunca** un fragmento del valor ni su longitud exacta
-- [ ] `rotate` = generar + set + verificar por el motor existente (que el secreto existe y cambió
-      `updatedAt`), sin imprimir el valor
-- [ ] `secret-locate.sh --search <texto>`: recorre todas las carpetas desde el script, informa
-      carpeta y clave coincidentes, **nunca** imprime valores; exit 0 con coincidencias, 6 sin
-      coincidencias, 64 uso incorrecto
-- [ ] `--hygiene` hace **un** barrido: el número de `infisical export` es igual al número de
-      carpetas (verificable con un stub que cuente invocaciones)
-- [ ] La receta final de `secret-locate.sh` deja de recomendar `echo $<CLAVE>`: pasa a
-      `infisical run -- <comando>` (consumo, sin imprimir) y a `| redact.sh` para diagnósticos
-- [ ] Check 32: estático (sin rutas de valor por `argv`, sin `eval`) + funcional con stub
-      (`--search` no filtra valores; `--hygiene` no duplica exportaciones)
-- [ ] Suite completa en verde
+- [x] `rotate` = generar + set + verificar por el motor existente (existe y cambió `updatedAt`),
+      sin imprimir el valor
+- [x] `secret-locate.sh --search <texto>`: solo metadatos, informa carpeta y clave, **nunca**
+      valores; exit 0/6/64
+- [x] `--hygiene` hace **un** barrido: 1 `infisical export` por carpeta (stub contador: 2/2)
+- [x] La receta final deja de recomendar `echo $<CLAVE>`: pasa a `infisical run -- <comando>` y a
+      `| redact.sh` (marcado "tras T-118"); la de higiene usa `--file /dev/stdin`
+- [x] Check 32: estático (sin `set -x`, sin `eval`, valor por stdin) + funcional con stubs
+      (`--search` sin fuga con valor señuelo; `--hygiene` sin duplicar exportaciones)
+- [x] Suite completa en verde (32/32)
 
 ## Estado de aprobación
 > Este bloque lo rellena el agente durante /session-start.
 > No modificar manualmente.
 
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — 2026-10-27
+- [x] Rama creada: `feat/T-117-secrets-ops`
+- [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
+
+## Notas de implementación
+
+- El valor viaja al CLI por `--file /dev/stdin` (verificado con el CLI real 0.43.137: lee stdin
+  antes de llamar a la API). Sin fichero temporal, sin `--value`, sin `eval`.
+- Rechazos con exit 2: segundo posicional, `CLAVE=valor`, `--value`/`--value=`, y `set` sin
+  `--stdin`/`--generate`. `--generate` default 32, rango 16-128.
+- Carpeta: `--path` o resolución única vía `secret-locate.sh --name --json`; **crear sin `--path`
+  es exit 6** (no hay carpeta que resolver).
+- `secret-locate.sh --name --json` añade `hits_detail:[{folder,updated_at}]` (aditivo; `found_in`
+  intacto) para que `rotate` verifique sin leer valores.
+- Un único `_sweep` reutilizado por inventario, higiene y nombres: 1 export por carpeta en todos
+  los modos.
+- `--search` solo metadatos (clave, descripción, etiquetas, carpeta); buscar en valores queda
+  rechazado por diseño (R4).
+- Debt: ~15 líneas de mint de token duplicadas de `secret-locate.sh` (caja sin lib común).
