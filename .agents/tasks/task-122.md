@@ -42,9 +42,9 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-122.md`
 
 ## Criterios de done
-- [ ] Ocurrencias del denominador en `tests/validate-control-plane.sh` actualizadas de `[X/33]` a `[X/34]` (33 ocurrencias existentes).
-- [ ] Check 34 implementado validando deterministamente `deliberate-plan.sh`, `design-digest.sh`, `close-task.sh` y `session-start.md`.
-- [ ] Validación de que la invocación offline o con pasarela caída degrada a `SIN_REVISOR` con exit code 0.
-- [ ] Validación de redacción obligatoria probada mediante inyección de credencial simulada procesada por `design-digest.sh`.
-- [ ] Suite completa `bash tests/validate-control-plane.sh` ejecutada pasando 34/34 checks exitosamente (0 errores).
-- [ ] Cero regresiones y frontera portable (Check 22) intacta.
+- [x] Ocurrencias del denominador en `tests/validate-control-plane.sh` actualizadas de `[X/33]` a `[X/34]` (33 ocurrencias existentes).
+- [x] Check 34 implementado validando deterministamente `deliberate-plan.sh`, `design-digest.sh`, `close-task.sh` y `session-start.md`.
+- [x] Validación de que la invocación offline o con pasarela caída degrada a `SIN_REVISOR` con exit code 0.
+- [x] Validación de redacción obligatoria probada mediante inyección de credencial simulada procesada por `design-digest.sh`.
+- [x] Suite completa `bash tests/validate-control-plane.sh` ejecutada pasando 34/34 checks exitosamente (0 errores).
+- [x] Cero regresiones y frontera portable (Check 22) intacta.
