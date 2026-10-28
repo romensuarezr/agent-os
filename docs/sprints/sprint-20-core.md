@@ -10,6 +10,7 @@
 | T-120 | Modificación del workflow `session-start.md`: sustitución del bloqueo crudo de Fase 3.5 por el Executive Design Digest sin tocar la semántica del APROBADO (Y) ni la cláusula de skills | Workflow | S | ✅ Completada | T-119 | [.agents/tasks/task-120.md](.agents/tasks/_archived/task-120.md) |
 | T-121 | `design-digest.sh`: generador de registro histórico de diseño integrado en `close-task.sh`, salida canalizada por `lib/redact.sh` hacia `docs/sprints/design-decisions/` | Nueva herramienta | S | ✅ Completada | T-119, T-120 | [.agents/tasks/task-121.md](.agents/tasks/_archived/task-121.md) |
 | T-122 | Extensión de la suite de validación: check 34 (denominador 33→34) para mock/offline, cero secretos en artefactos y frontera portable (check 22) | DX / Tests | S | ✅ Completada | T-119, T-120, T-121 | [.agents/tasks/task-122.md](.agents/tasks/_archived/task-122.md) |
+| T-123 | Hardening del subsistema de deliberación y digests: fuente de claves real en design-digest, higiene AGENTS.md, sonda fleet-doctor warn-only, gitignore y test de regresión | DX / Hardening | S | ⬜ Pendiente | T-119, T-120, T-121, T-122 | [.agents/tasks/task-123.md](.agents/tasks/task-123.md) |
 
 ## Notas de planning
 
