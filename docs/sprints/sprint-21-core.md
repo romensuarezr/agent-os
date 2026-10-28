@@ -7,7 +7,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
 | T-124 | Persistencia y Handover de Deliberación Multi-Sesión (`deliberation-${TASK_ID}.json`) para evitar fallbacks N/A en cierres | Nueva herramienta / DX | S | ✅ Completada | — | [.agents/tasks/task-124.md](.agents/tasks/_archived/task-124.md) |
-| T-125 | Protocolo de Handover y Contratos Inter-Agente en Perfiles Declarativos (Coordinator, Coder, Reviewer, QA-Judge) | Arquitectura / Contratos | S | ⬜ Pendiente | T-124 | [.agents/tasks/task-125.md](.agents/tasks/task-125.md) |
+| T-125 | Protocolo de Handover y Contratos Inter-Agente en Perfiles Declarativos (Coordinator, Coder, Reviewer, QA-Judge) | Arquitectura / Contratos | S | ✅ Completada | T-124 | [.agents/tasks/task-125.md](.agents/tasks/_archived/task-125.md) |
 | T-126 | Integración del Bucle de Deliberación en Workflows de Despacho y Orquestación Paralela con Worktrees | Workflow / Orquestación | M | ⬜ Pendiente | T-124, T-125 | [.agents/tasks/task-126.md](.agents/tasks/task-126.md) |
 | T-127 | Extensión de la Suite de Validación con Check 35 y Denominador 34→35 para Gobernanza Multi-Agente | DX / Tests | S | ⬜ Pendiente | T-124, T-125, T-126 | [.agents/tasks/task-127.md](.agents/tasks/task-127.md) |
 
