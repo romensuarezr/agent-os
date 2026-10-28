@@ -24,10 +24,10 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-119.md`
 
 ## Criterios de done
-- [ ] `scripts/agent/deliberate-plan.sh` ejecutable con `--help`, control de dependencias (`curl`, `python3`, `git`, `sed`), y soporte `--plan <path>`, `--task-id <id>`, `--output <path>`, `--json`.
-- [ ] Límite estricto de rondas implementado: máx 1 ronda de ajuste automático (tope 2); si no hay acuerdo emite `ESCALADO_A_HUMANO`.
-- [ ] Timeout de 5s configurado en la llamada HTTP; ante fallo o timeout emite `SIN_REVISOR` y replica el plan crudo sin romper la sesión.
-- [ ] Empaquetado de inventario acotado estrictamente a <4KB con indicador de truncado si excede.
-- [ ] Cero literales de infraestructura: resuelve endpoint vía `fleet.yaml` o `INFERENCE_BASE_URL` (Check 22 compliant).
-- [ ] Cláusula de skills validada: objeta si una skill declarada no justifica su regla en el plan.
-- [ ] Pruebas unitarias/funcionales manuales ejecutadas verificando los 4 estados: `CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO` y `SIN_REVISOR`.
+- [x] `scripts/agent/deliberate-plan.sh` ejecutable con `--help`, control de dependencias (`curl`, `python3`, `git`, `sed`), y soporte `--plan <path>`, `--task-id <id>`, `--output <path>`, `--json`.
+- [x] Límite estricto de rondas implementado: máx 1 ronda de ajuste automático (tope 2); si no hay acuerdo emite `ESCALADO_A_HUMANO`.
+- [x] Timeout de 5s configurado en la llamada HTTP; ante fallo o timeout emite `SIN_REVISOR` y replica el plan crudo sin romper la sesión.
+- [x] Empaquetado de inventario acotado estrictamente a <4KB con indicador de truncado si excede.
+- [x] Cero literales de infraestructura: resuelve endpoint vía `fleet.yaml` o `INFERENCE_BASE_URL` (Check 22 compliant).
+- [x] Cláusula de skills validada: objeta si una skill declarada no justifica su regla en el plan.
+- [x] Pruebas unitarias/funcionales manuales ejecutadas verificando los 4 estados: `CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO` y `SIN_REVISOR`.
