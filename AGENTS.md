@@ -34,6 +34,8 @@ agent-os/
 │   ├── install.sh               ← instalación en proyectos hijos (--self para bootstrapping)
 │   ├── sync.sh                  ← sincroniza assets globales → proyectos hijos
 │   ├── contribute.sh            ← promueve mejoras de hijos → core
+│   ├── deliberate-plan.sh       ← motor determinista de arbitraje Coder-Reviewer ($0)
+│   ├── design-digest.sh         ← generador de registro histórico de diseño con redacción
 │   ├── check-sprint.sh          ← verifica estado del sprint activo
 │   ├── check-session.sh         ← contexto de sesión para el agente
 │   ├── check-inbox.sh           ← auditoría y lectura de inboxes
@@ -125,6 +127,27 @@ bash scripts/agent/install.sh . --self
 ```
 
 El flag `--self` omite la copia de scripts (ya están) y solo crea las carpetas operativas que faltan.
+
+---
+
+## Herramientas CLI del Core
+
+Tabla canónica de utilidades operativas y diagnóstico determinista:
+
+| Script CLI | Responsabilidad principal | Coste de Tokens |
+|---|---|:--:|
+| `scripts/agent/deliberate-plan.sh` | Motor determinista de arbitraje Coder-Reviewer con timeout 5s y degradación offline a `SIN_REVISOR` | $0 |
+| `scripts/agent/design-digest.sh` | Generador de registro histórico de diseño con redacción obligatoria (`lib/redact.sh`) y fail-closed | $0 |
+| `scripts/agent/check-session.sh` | Diagnóstico de contexto y pre-flight determinista de sesión de desarrollo | $0 |
+| `scripts/agent/check-sprint.sh` | Verificación de estado de tareas del sprint activo | $0 |
+| `scripts/agent/close-task.sh` | Cierre atómico de tarea, archivado de task file y digest de diseño | $0 |
+| `scripts/agent/close-sprint.sh` | Cierre y empaquetado del sprint con actualización de histórico | $0 |
+| `scripts/agent/fleet-doctor.sh` | Diagnóstico de herramientas locales, sondas de pasarela y conectividad de flota | $0 |
+| `scripts/agent/check-inference-gateway.sh` | Pre-flight y validación de conectividad con pasarelas de inferencia | $0 |
+| `scripts/agent/secret-locate.sh` | Localizador y auditoría de referencias a secretos sin filtrar valores | $0 |
+| `scripts/agent/inventory-check.sh` | Firewall anti-duplicación de código antes de nuevas implementaciones | $0 |
+| `scripts/agent/verify-goal.sh` | Validador desacoplado de metas de orquestación | $0 |
+| `scripts/agent/promote-to-main.sh` | Promoción controlada de ramas de trabajo hacia `main` | $0 |
 
 ---
 

@@ -107,6 +107,7 @@ if [[ "$FLEET_FILE" == *"fleet.example.yaml"* ]]; then
 fi
 
 export FLEET_FILE
+export REPO_ROOT
 export JSON_OUTPUT
 export TIMEOUT
 export STRICT
@@ -132,6 +133,7 @@ except ImportError:
     HAS_YAML = False
 
 fleet_file = os.environ.get("FLEET_FILE", "")
+repo_root = os.environ.get("REPO_ROOT", "")
 json_mode = os.environ.get("JSON_OUTPUT") == "true"
 timeout = float(os.environ.get("TIMEOUT", "2.0"))
 strict = os.environ.get("STRICT") == "true"
@@ -353,6 +355,54 @@ for node_alias, node_info in nodes_data.items():
 
     nodes_result[node_alias] = node_res
 
+# Sonda config-driven warn-only del revisor de inferencia (Sprint 20)
+reviewer_endpoint = os.environ.get("INFERENCE_BASE_URL", os.environ.get("OPENAI_BASE_URL", ""))
+if not reviewer_endpoint and HAS_YAML and os.path.isfile(os.path.join(repo_root, ".agents/config/routing-policy.yaml")):
+    try:
+        with open(os.path.join(repo_root, ".agents/config/routing-policy.yaml"), "r", encoding="utf-8") as f:
+            rp_data = yaml.safe_load(f)
+        reviewer_endpoint = rp_data.get("reviewer", {}).get("endpoint", "")
+    except Exception:
+        pass
+
+if not reviewer_endpoint and isinstance(nodes_data, dict):
+    for nname, ninfo in nodes_data.items():
+        svcs = ninfo.get("services", {})
+        if isinstance(svcs, dict):
+            for sname in ["freellmapi", "omniroute", "openai-gateway"]:
+                if sname in svcs:
+                    sconf = svcs[sname]
+                    if isinstance(sconf, dict):
+                        reviewer_endpoint = sconf.get("endpoint", sconf.get("url", ""))
+                    elif isinstance(sconf, str):
+                        reviewer_endpoint = sconf
+                    break
+        if reviewer_endpoint:
+            break
+
+reviewer_status = "WARN"
+reviewer_note = "Revisor no configurado (fallback SIN_REVISOR disponible)"
+if reviewer_endpoint and not doc_mode and "100.x.y.z" not in reviewer_endpoint and "example.com" not in reviewer_endpoint:
+    probe_url = reviewer_endpoint
+    if probe_url.startswith("http"):
+        test_url = probe_url.rstrip("/") + "/models" if not probe_url.endswith("/models") else probe_url
+        try:
+            req = urllib.request.Request(test_url, headers={"User-Agent": "agent-os-fleet-doctor/1.0"})
+            with urllib.request.urlopen(req, timeout=min(timeout, 2)) as resp:
+                if resp.getcode() < 500:
+                    reviewer_status = "OK"
+                    reviewer_note = "Revisor accesible"
+        except urllib.error.HTTPError as he:
+            if he.code in [401, 403, 404]:
+                reviewer_status = "OK"
+                reviewer_note = f"Revisor vivo (HTTP {he.code})"
+            else:
+                reviewer_status = "WARN"
+                reviewer_note = f"Revisor HTTP {he.code} (fallback SIN_REVISOR disponible)"
+        except Exception:
+            reviewer_status = "WARN"
+            reviewer_note = "Revisor offline o no alcanzable (fallback SIN_REVISOR disponible)"
+
 # Estructurar resultado global
 cli_ok_count = sum(1 for c, data in auth_status.items() if data.get("ok"))
 total_clis = len(clis_to_check)
@@ -369,7 +419,12 @@ summary_data = {
     "clis_ok": cli_ok_count,
     "services_checked": total_services,
     "services_up": services_up,
-    "services_down": services_down
+    "services_down": services_down,
+    "reviewer_probe": {
+        "status": reviewer_status,
+        "message": reviewer_note,
+        "endpoint_masked": mask_endpoint(reviewer_endpoint) if reviewer_endpoint else None
+    }
 }
 
 if json_mode:
@@ -419,6 +474,7 @@ else:
         line_entry = f"• [{node_name}] ({role}): " + ", ".join(svc_parts)
         lines.append(line_entry)
 
+lines.append(f"Reviewer: {reviewer_status} ({reviewer_note})")
 lines.append(f"Summary: CLIs {cli_ok_count}/{total_clis} OK | Services: {services_up} UP, {services_down} DOWN, {total_services - services_up - services_down} SKIPPED")
 lines.append("=== FIN FLEET DOCTOR (0 tokens inferidos, infraestructura enmascarada) ===")
 

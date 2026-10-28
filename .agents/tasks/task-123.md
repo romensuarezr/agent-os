@@ -50,10 +50,10 @@ Archivos autorizados para modificación:
 > **Fuera de caja**: `close-task.sh` y cualquier otro archivo no listado arriba. Cualquier defecto detectado fuera de esta caja debe ser registrado y reportado como tarea nueva en el backlog.
 
 ## Criterios de done
-- [ ] `design-digest.sh` extrae nombres de claves de forma determinista (parseo seguro sin `eval`/`source`) y redacta con éxito sin catálogo ambiental.
-- [ ] `AGENTS.md` incluye `deliberate-plan.sh` y `design-digest.sh` en la estructura de archivos y en las tablas/descripciones de scripts del core.
-- [ ] `fleet-doctor.sh` incluye sonda config-driven para el revisor de inferencia en modo warn-only (nunca rompe exit code).
-- [ ] `.gitignore` excluye `.agents/context/plan-draft.md` y `.agents/context/plan-deliberation.json`.
-- [ ] `design-digest.sh` archiva opcionalmente el JSON crudo redactado si existe deliberación activa.
-- [ ] Check 34 ampliado verifica la redacción autocontenida derivada de contenido sin catálogo ambiental ni fixtures forzados.
-- [ ] Suite completa `tests/validate-control-plane.sh` pasando 34/34 checks exitosamente sin regresiones.
+- [x] `design-digest.sh` extrae nombres de claves de forma determinista (parseo seguro sin `eval`/`source`) y redacta con éxito sin catálogo ambiental.
+- [x] `AGENTS.md` incluye `deliberate-plan.sh` y `design-digest.sh` en la estructura de archivos y en las tablas/descripciones de scripts del core.
+- [x] `fleet-doctor.sh` incluye sonda config-driven para el revisor de inferencia en modo warn-only (nunca rompe exit code).
+- [x] `.gitignore` excluye `.agents/context/plan-draft.md` y `.agents/context/plan-deliberation.json`.
+- [x] `design-digest.sh` archiva opcionalmente el JSON crudo redactado si existe deliberación activa.
+- [x] Check 34 ampliado verifica la redacción autocontenida derivada de contenido sin catálogo ambiental ni fixtures forzados.
+- [x] Suite completa `tests/validate-control-plane.sh` pasando 34/34 checks exitosamente sin regresiones.
