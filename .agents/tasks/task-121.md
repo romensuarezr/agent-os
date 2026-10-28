@@ -28,9 +28,9 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-121.md`
 
 ## Criterios de done
-- [ ] `scripts/agent/design-digest.sh` ejecutable con `--help`, `--task-id <id>`, `--output <path>` y soporte `--json`.
-- [ ] El script lee `.agents/context/plan-deliberation.json` si existe, o degrada elegantemente extrayendo la información del task file archivado y `git log`/`git diff`.
-- [ ] Todo el contenido pasa obligatoriamente por `scripts/agent/lib/redact.sh` antes de guardarse en `docs/sprints/design-decisions/`.
-- [ ] `scripts/agent/close-task.sh` invoca `design-digest.sh` antes del commit de cierre e incluye el digest en el commit atómico.
-- [ ] Verificación de 0 secretos o credenciales en los archivos de digest generados.
-- [ ] Suite `validate-control-plane.sh` ejecutada pasando 33/33 checks sin regresiones.
+- [x] `scripts/agent/design-digest.sh` ejecutable con `--help`, `--task-id <id>`, `--output <path>` y soporte `--json`.
+- [x] El script lee `.agents/context/plan-deliberation.json` si existe, o degrada elegantemente extrayendo la información del task file archivado y `git log`/`git diff`.
+- [x] Todo el contenido pasa obligatoriamente por `scripts/agent/lib/redact.sh` antes de guardarse en `docs/sprints/design-decisions/`.
+- [x] `scripts/agent/close-task.sh` invoca `design-digest.sh` antes del commit de cierre e incluye el digest en el commit atómico.
+- [x] Verificación de 0 secretos o credenciales en los archivos de digest generados.
+- [x] Suite `validate-control-plane.sh` ejecutada pasando 33/33 checks sin regresiones.

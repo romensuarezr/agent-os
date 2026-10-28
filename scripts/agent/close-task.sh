@@ -203,6 +203,25 @@ fi
 # Limitación conocida y asumida: la búsqueda solo encuentra celdas de tabla
 # ("| T-XXX |"). Una tarea listada como elemento de lista no actualiza su enlace.
 
+# 4c. Generar el registro histórico de diseño (design-digest.sh)
+# Se canaliza obligatoriamente por lib/redact.sh y se añade al commit atómico.
+# Semántica fail-closed: si la generación falla, aborta el cierre sin commit.
+DIGEST_SCRIPT="$SCRIPT_DIR/design-digest.sh"
+if [ -f "$DIGEST_SCRIPT" ]; then
+    echo "📋 Generando digest de diseño para $TASK_ID..."
+    if ! bash "$DIGEST_SCRIPT" --task-id "$TASK_ID"; then
+        RED='\033[0;31m'; NC='\033[0m'
+        echo -e "${RED}❌ ERROR: Falló la generación del digest de diseño para $TASK_ID.${NC}" >&2
+        echo -e "${RED}   Semántica fail-closed: sin digest de diseño no hay cierre de tarea. Abortando sin commit.${NC}" >&2
+        exit 1
+    fi
+    DIGEST_FILE="$ROOT/docs/sprints/design-decisions/${TASK_ID}-digest.md"
+    if [ -f "$DIGEST_FILE" ]; then
+        git -C "$ROOT" add "$DIGEST_FILE"
+        echo "📄 Digest de diseño agregado al staging de cierre: docs/sprints/design-decisions/${TASK_ID}-digest.md"
+    fi
+fi
+
 # 5. Commit atómico único, VALIDADO ANTES de mover el ref
 if agent_verify_commit "$ROOT" "$MESSAGE" "_archived/$TASK_BASENAME" "archivado del task file a _archived/"; then
     echo "✅ Commit realizado: $MESSAGE"
