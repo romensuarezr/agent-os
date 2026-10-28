@@ -29,9 +29,9 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-120.md`
 
 ## Criterios de done
-- [ ] `.agents/workflows/session-start.md` documenta la invocación de `deliberate-plan.sh` tras Fase 3.
-- [ ] Fase 3.5 especifica el bloque **Executive Design Digest** con los 8 campos obligatorios (objetivo, correcciones, ficheros, acciones irreversibles, skills aplicadas, referencias completas, estado, token bloqueante).
-- [ ] La semántica de autorización se mantiene 100% inalterada: la única autorización para abrir `.agent-session.lock` y crear ramas es la respuesta explícita `APROBADO` / `Y` del operador.
-- [ ] Se documenta el comportamiento de fallback `SIN_REVISOR` hacia el plan crudo clásico sin romper la sesión.
-- [ ] Cláusula de skills integrada en el contrato: las skills declaradas deben citar su regla aplicada en el plan borrador.
-- [ ] Suite de validación `validate-control-plane.sh` ejecutada pasando 33/33 checks sin regresiones.
+- [x] `.agents/workflows/session-start.md` documenta la invocación de `deliberate-plan.sh` tras Fase 3.
+- [x] Fase 3.5 especifica el bloque **Executive Design Digest** con los 8 campos obligatorios (objetivo, correcciones, ficheros, acciones irreversibles, skills aplicadas, referencias completas, estado, token bloqueante).
+- [x] La semántica de autorización se mantiene 100% inalterada: la única autorización para abrir `.agent-session.lock` y crear ramas es la respuesta explícita `APROBADO` / `Y` del operador.
+- [x] Se documenta el comportamiento de fallback `SIN_REVISOR` hacia el plan crudo clásico sin romper la sesión.
+- [x] Cláusula de skills integrada en el contrato: las skills declaradas deben citar su regla aplicada en el plan borrador.
+- [x] Suite de validación `validate-control-plane.sh` ejecutada pasando 33/33 checks sin regresiones.
