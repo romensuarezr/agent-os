@@ -71,20 +71,67 @@ bash scripts/agent/check-session.sh
 
 > ⚠️ Completar el task file **no autoriza la ejecución**. La única autorización es el APROBADO en Fase 3.5.
 
-### FASE 3 — Declaración de la Caja
+### FASE 3 — Declaración de la Caja y Cláusula de Skills
 
 1. Leer `## Caja de archivos` del task file y mostrar archivos autorizados.
-2. Identificar skill relevante. No activarla aún.
+2. Identificar skills relevantes declaradas en el task file por nombre. No activarlas aún.
+3. **Cláusula de Skills (obligatoria)**: El agente debe verificar que cada skill declarada en el task file tenga su regla aplicada explícitamente citada en el borrador del plan, o bien declarar `"no aplica"` con motivo fundado.
 
-### FASE 3.5 — Plan para aprobación (OBLIGATORIA Y BLOQUEANTE)
+### FASE 3.4 — Generación del Borrador y Deliberación Autónoma
 
-El agente DEBE generar y mostrar el siguiente bloque completo **antes de realizar cualquier acción operativa**. Este bloque es obligatorio. No hay excepción posible.
+1. El Coder redacta el borrador del plan en `.agents/context/plan-draft.md` conteniendo objetivo, rama propuesta, archivos a modificar/crear, pasos secuenciales, riesgos y justificación de skills.
+2. Ejecuta el motor determinista de arbitraje Coder-Reviewer:
+   ```bash
+   bash scripts/agent/deliberate-plan.sh --plan .agents/context/plan-draft.md --task-id T-XXX
+   ```
+3. El motor emite el veredicto en `.agents/context/plan-deliberation.json` con uno de los 4 estados canónicos: `CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO` o `SIN_REVISOR`.
 
-El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERANDO` al final:
+### FASE 3.5 — Decision Gate: Executive Design Digest (OBLIGATORIA Y BLOQUEANTE)
+
+El agente DEBE presentar el bloque de decisión **antes de realizar cualquier acción operativa**. Este bloque es obligatorio. No hay excepción posible.
+
+#### Caso A: Revisor activo (`CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO`)
+Se presenta el **Executive Design Digest** estructurado para que el operador decida sobre la visión estratégica y buenas prácticas sin necesidad de ser un intermediario de mensajes manuales:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔐 PLAN PENDIENTE DE APROBACIÓN — T-XXX
+🏛️ EXECUTIVE DESIGN DIGEST — T-XXX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 1. OBJETIVO ESTRATÉGICO:
+   [Resumen de alto nivel del propósito de la tarea y qué problema resuelve]
+
+🛠️ 2. CORRECCIONES ACORDADAS ENTRE IA:
+   - [Objeción/Ajuste detectado por el Revisor y cómo fue subsanado, o "Consenso inicial sin objeciones de inventario"]
+
+📁 3. ARCHIVOS A MODIFICAR / NUEVOS:
+   - src/ruta/archivo1.ts → [qué se cambia]
+   - scripts/nuevo.sh → [nuevo: verificado test -f]
+
+⚡ 4. ACCIONES IRREVERSIBLES O DE IMPACTO:
+   - [Migraciones, reinicio de servicios o comandos críticos, o "Ninguna irreversible"]
+
+🧠 5. SKILLS APLICADAS:
+   - [skill-1]: Regla [nombre/número] aplicada para [propósito]
+   - [skill-2]: no aplica ([motivo])
+
+📚 6. REFERENCIA A ARTEFACTOS COMPLETOS:
+   - Borrador del plan: .agents/context/plan-draft.md
+   - Deliberación estructurada: .agents/context/plan-deliberation.json
+
+🚦 7. ESTADO DEL VEREDICTO:
+   [CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO (en caso de desacuerdo)]
+
+⏳ ESPERANDO: responde APROBADO (o Y), APROBADO CON CAMBIOS: [...] o CANCELAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+#### Caso B: Revisor no disponible (`SIN_REVISOR`)
+Si el Revisor no responde tras 5s de timeout o no hay conectividad a la pasarela, se emite un aviso visible y se activa el fallback al formato de plan crudo clásico de Fase 3.5 para aprobación manual directa sin bloquear la sesión:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ REVISOR OFFLINE — FALLBACK A PLAN CLÁSICO — T-XXX
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📋 TAREA: [nombre de la tarea]
@@ -109,7 +156,7 @@ El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERAND
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-#### Prohibiciones absolutas hasta recibir APROBADO
+#### Prohibiciones absolutas hasta recibir APROBADO (o Y)
 
 - ❌ Crear `.agent-session.lock`
 - ❌ Crear o cambiar de rama (`git checkout`, `git branch`)
@@ -121,16 +168,16 @@ El bloque debe aparecer exactamente con esta estructura y el token `⏳ ESPERAND
 - ❌ Leer `task-YYY.md` donde `YYY ≠ XXX` (tarea activa)
 - ❌ Leer `SKILL.md`, `_template.md` u otros documentos de referencia estáticos
 
-✅ Permitido: leer **exclusivamente** el task file activo (`task-XXX.md`), el sprint file y el research file.
+✅ Permitido: leer **exclusivamente** el task file activo (`task-XXX.md`), el sprint file y el research file, y ejecutar `deliberate-plan.sh`.
 
-Si el agente detecta que ha ejecutado cualquier acción operativa sin haber recibido `APROBADO`:
+Si el agente detecta que ha ejecutado cualquier acción operativa sin haber recibido `APROBADO` (o `Y`):
 1. Detenerse inmediatamente.
 2. Informar al usuario de qué ejecutó.
 3. Proponer el rollback correspondiente.
 4. Presentar el plan de nuevo y esperar aprobación.
 
 #### Respuestas válidas del usuario
-- `APROBADO` → ejecutar el plan tal cual
+- `APROBADO` o `Y` → autoriza abrir la sesión y ejecutar el plan consensuado
 - `APROBADO CON CAMBIOS: [descripción]` → ajustar el plan y confirmar los cambios antes de ejecutar
 - `CANCELAR` → cerrar la sesión sin ninguna acción
 
