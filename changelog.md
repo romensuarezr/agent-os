@@ -9,6 +9,24 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.16.0] — sprint-20 — 2026-10-28
+
+### ✨ Features
+
+- feat(hardening): derivación determinista de claves sin catálogo, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(tests): extensión de suite con check 34 y denominador 34/34 autocontenido (T-122)
+- feat(digest): generador histórico design-digest.sh integrado fail-closed en close-task (T-121)
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(deliberation): motor determinista de arbitraje Coder-Reviewer a coste $0 con timeout 5s y degradación SIN_REVISOR (T-119)
+
+### 🐛 Bug Fixes
+
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+
+### 📚 Documentación
+
+- docs(sprint-20): arquitectura de deliberación cruzada, contratos T-119..T-123 y Executive Design Digests
+
 ## [1.15.0] — sprint-19 — 2026-10-28
 
 ### ✨ Features

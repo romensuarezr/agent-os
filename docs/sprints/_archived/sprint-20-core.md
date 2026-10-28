@@ -1,7 +1,7 @@
 # Sprint 20 — Deliberación Cruzada Autónoma y Executive Design Digest
 
 ## Estado
-⚪ Planificado (PRÓXIMO — no activo hasta cierre formal de versión de sprint 19)
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
