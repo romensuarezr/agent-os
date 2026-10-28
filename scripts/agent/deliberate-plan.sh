@@ -78,6 +78,9 @@ if [ ! -f "$PLAN_FILE" ]; then
 fi
 
 [ -n "$TASK_ID" ] || TASK_ID="T-UNKNOWN"
+if [ "$TASK_ID" != "T-UNKNOWN" ] && [[ ! "$TASK_ID" =~ ^T- ]]; then
+  TASK_ID="T-${TASK_ID}"
+fi
 [ -n "$OUTPUT_FILE" ] || OUTPUT_FILE="$ROOT_DIR/.agents/context/plan-deliberation.json"
 
 # ==============================================================================
@@ -345,6 +348,13 @@ print(json.dumps(data, indent=2))
 ')
 
 echo "$DELIBERATION_JSON" > "$OUTPUT_FILE"
+
+# Persistencia de deliberación nombrada para handover multi-sesión (T-124)
+if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "T-UNKNOWN" ]; then
+  NAMED_DELIB_FILE="$ROOT_DIR/.agents/context/deliberation-${TASK_ID}.json"
+  mkdir -p "$(dirname "$NAMED_DELIB_FILE")"
+  echo "$DELIBERATION_JSON" > "$NAMED_DELIB_FILE"
+fi
 
 if [ "$JSON_OUTPUT" = true ]; then
   echo "$DELIBERATION_JSON"

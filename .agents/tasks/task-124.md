@@ -24,7 +24,7 @@ En el flujo actual de Sprint 20:
 - `.agents/tasks/task-124.md`
 
 ## Criterios de done
-- [ ] `deliberate-plan.sh` persiste `.agents/context/deliberation-${TASK_ID}.json` cuando `--task-id` está presente.
-- [ ] `design-digest.sh` prioriza la lectura de `deliberation-${TASK_ID}.json` antes de caer a fallback.
-- [ ] `.gitignore` excluye `.agents/context/deliberation-*.json`.
-- [ ] Verificación de que un cierre de tarea tras deliberación conserva el veredicto real y objeciones en el digest generado sin caer en N/A.
+- [x] `deliberate-plan.sh` persiste `.agents/context/deliberation-${TASK_ID}.json` cuando `--task-id` está presente.
+- [x] `design-digest.sh` prioriza la lectura de `deliberation-${TASK_ID}.json` antes de caer a fallback.
+- [x] `.gitignore` excluye `.agents/context/deliberation-*.json`.
+- [x] Verificación de que un cierre de tarea tras deliberación conserva el veredicto real y objeciones en el digest generado sin caer en N/A.
