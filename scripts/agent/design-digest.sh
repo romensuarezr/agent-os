@@ -31,14 +31,16 @@ ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 TASK_ID=""
 OUTPUT_FILE=""
 JSON_OUTPUT=false
+EXPLICIT_KEYS=""
 
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     show_help "design-digest.sh" \
-      "bash scripts/agent/design-digest.sh --task-id <ID> [--output <PATH>] [--json]" \
+      "bash scripts/agent/design-digest.sh --task-id <ID> [--output <PATH>] [--keys <K1,K2>] [--json]" \
       "Genera el registro histórico de diseño y deliberación de una tarea, redactando secretos con lib/redact.sh." \
       "--task-id <ID>       ID de la tarea que se cierra (ej: T-121)." \
       "--output <PATH>      Ruta de destino del digest (defecto: docs/sprints/design-decisions/T-XXX-digest.md)." \
+      "--keys <K1,K2>       Nombres de claves explícitas a redactar (separadas por comas)." \
       "--json               Emite la información generada como JSON a stdout." \
       "-h, --help           Muestra este mensaje de ayuda." \
       "ejemplo: bash scripts/agent/design-digest.sh --task-id T-121"
@@ -49,6 +51,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --task-id) TASK_ID="$2"; shift 2 ;;
     --output) OUTPUT_FILE="$2"; shift 2 ;;
+    --keys) EXPLICIT_KEYS="$2"; shift 2 ;;
     --json) JSON_OUTPUT=true; shift ;;
     T-[0-9]*|[0-9]*)
       if [ -z "$TASK_ID" ]; then
@@ -226,12 +229,68 @@ print("\n".join(md))
 ')
 
 # ==============================================================================
+# DERIVACIÓN DETERMINISTA DE NOMBRES DE CLAVES (NUNCA VALORES)
+# ==============================================================================
+# Prohibido source o eval de archivos .env (solo parseo estático de nombres)
+VALID_KEY_RE='^[A-Za-z_][A-Za-z0-9_]*$'
+COLLECTED_KEYS=()
+
+# 1. Claves explícitas recibidas por argumento --keys
+if [ -n "$EXPLICIT_KEYS" ]; then
+  IFS=',' read -r -a _exp_raw <<< "$EXPLICIT_KEYS"
+  for k in "${_exp_raw[@]}"; do
+    k="$(echo "$k" | tr -d '[:space:]')"
+    [[ "$k" =~ $VALID_KEY_RE ]] && COLLECTED_KEYS+=("$k")
+  done
+fi
+
+# 2. Claves de archivos .env* en el root (parseo estático con grep/sed)
+while IFS= read -r k; do
+  [[ "$k" =~ $VALID_KEY_RE ]] && COLLECTED_KEYS+=("$k")
+done < <(find "$ROOT_DIR" -maxdepth 1 -name ".env*" -type f 2>/dev/null -exec grep -hE '^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=' {} + 2>/dev/null | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=.*/\1/' || true)
+
+# 3. Claves declaradas en el contenido de la tarea o plan (asignaciones KEY=valor en texto)
+while IFS= read -r k; do
+  [[ "$k" =~ $VALID_KEY_RE ]] && COLLECTED_KEYS+=("$k")
+done < <(echo "$UNREDACTED_CONTENT" | grep -oE '\b[A-Za-z_][A-Za-z0-9_]*=' 2>/dev/null | tr -d '=' || true)
+
+if [ -f "$TASK_FILE" ]; then
+  while IFS= read -r k; do
+    [[ "$k" =~ $VALID_KEY_RE ]] && COLLECTED_KEYS+=("$k")
+  done < <(grep -oE '\b[A-Za-z_][A-Za-z0-9_]*=' "$TASK_FILE" 2>/dev/null | tr -d '=' || true)
+fi
+
+# 4. Claves del catálogo si existe (local o variable AGENT_OS_SECRETS_CATALOG)
+CATALOG_PATH="${AGENT_OS_SECRETS_CATALOG:-$ROOT_DIR/.agents/config/secrets-catalog.yaml}"
+if [ -f "$CATALOG_PATH" ]; then
+  while IFS= read -r k; do
+    [[ "$k" =~ $VALID_KEY_RE ]] && COLLECTED_KEYS+=("$k")
+  done < <(
+    sed -n 's/^[[:space:]]*- key:[[:space:]]*\([A-Za-z_][A-Za-z0-9_]*\).*/\1/p' "$CATALOG_PATH" 2>/dev/null
+    sed -n 's/^needs_declaration:[[:space:]]*\[\(.*\)\][[:space:]]*$/\1/p' "$CATALOG_PATH" 2>/dev/null \
+      | tr ',' '\n' | tr -d "[]\"' " | grep -E "$VALID_KEY_RE" || true
+  )
+fi
+
+# Unificar y filtrar sin duplicados
+UNIQUE_KEYS=()
+if [ "${#COLLECTED_KEYS[@]}" -gt 0 ]; then
+  mapfile -t UNIQUE_KEYS < <(printf '%s\n' "${COLLECTED_KEYS[@]}" | awk '!seen[$0]++' | grep -v '^$')
+fi
+
+REDACT_CMD=(bash "$REDACT_SCRIPT")
+if [ "${#UNIQUE_KEYS[@]}" -gt 0 ]; then
+  KEYS_CSV="$(IFS=','; echo "${UNIQUE_KEYS[*]}")"
+  REDACT_CMD+=(--keys "$KEYS_CSV")
+fi
+
+# ==============================================================================
 # CANALIZACIÓN OBLIGATORIA POR LIB/REDACT.SH (FAIL-CLOSED)
 # ==============================================================================
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
 TMP_OUTPUT="${OUTPUT_FILE}.tmp.$$"
-if ! echo "$UNREDACTED_CONTENT" | bash "$REDACT_SCRIPT" > "$TMP_OUTPUT"; then
+if ! echo "$UNREDACTED_CONTENT" | "${REDACT_CMD[@]}" > "$TMP_OUTPUT"; then
   echo "❌ Error: Fallo crítico al canalizar el digest por $REDACT_SCRIPT. Abortando sin persistir." >&2
   rm -f "$TMP_OUTPUT"
   exit 1
@@ -245,6 +304,18 @@ fi
 
 mv "$TMP_OUTPUT" "$OUTPUT_FILE"
 chmod 644 "$OUTPUT_FILE"
+
+# Archivado opcional de JSON crudo redactado si existe deliberación de la tarea
+if [ -f "$DELIBERATION_JSON" ]; then
+  RAW_OUTPUT="$ROOT_DIR/docs/sprints/design-decisions/${TASK_ID}-raw.json"
+  TMP_RAW="${RAW_OUTPUT}.tmp.$$"
+  if cat "$DELIBERATION_JSON" | "${REDACT_CMD[@]}" > "$TMP_RAW"; then
+    mv "$TMP_RAW" "$RAW_OUTPUT"
+    chmod 644 "$RAW_OUTPUT"
+  else
+    rm -f "$TMP_RAW"
+  fi
+fi
 
 if [ "$JSON_OUTPUT" = true ]; then
   python3 -c '

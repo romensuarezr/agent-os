@@ -1872,36 +1872,32 @@ else
   bash "$DD" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-help-falla"
 fi
 
-# 5. design-digest.sh: estructura de 5 bloques canónicos y redacción obligatoria con catálogo fixture (autocontenido)
-cat << 'FIXTURE_CATALOG_T34' > "$T34_DIR/secrets-catalog.yaml"
-secrets:
-  - key: INFISICAL_TOKEN
-FIXTURE_CATALOG_T34
-
-cat << 'FIXTURE_TASK_SEC_T34' > "$ROOT/.agents/tasks/task-998.md"
-# Task-998: Tarea con secreto
+# 5. design-digest.sh: estructura de 5 bloques canónicos y redacción derivada SIN catálogo ambiental y SIN fixture
+cat << 'FIXTURE_TASK_DERIVED_T34' > "$ROOT/.agents/tasks/task-997.md"
+# Task-997: Tarea con secreto derivado
 ## Objetivo
-Probar redaccion obligatoria con INFISICAL_TOKEN=token_secreto_prueba_998.
+Probar redaccion determinista de contenido con CUSTOM_DERIVED_KEY=valor_secreto_derivado_777.
 ## Skills relevantes
 - infisical-secrets
-FIXTURE_TASK_SEC_T34
+FIXTURE_TASK_DERIVED_T34
 
-AGENT_OS_SECRETS_CATALOG="$T34_DIR/secrets-catalog.yaml" bash "$DD" --task-id T-998 --output "$T34_DIR/digest.md" >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-falla"
-rm -f "$ROOT/.agents/tasks/task-998.md" 2>/dev/null || true
+# Invocamos forzando ausencia total de catalogo ambiental para probar derivacion pura del contenido
+AGENT_OS_SECRETS_CATALOG="/dev/null" bash "$DD" --task-id T-997 --output "$T34_DIR/digest_derived.md" >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-derived-falla"
+rm -f "$ROOT/.agents/tasks/task-997.md" 2>/dev/null || true
 
-if [ -f "$T34_DIR/digest.md" ]; then
-  grep -q "## 🎯 Objetivo" "$T34_DIR/digest.md" || T34_FAILS="$T34_FAILS digest-sin-objetivo"
-  grep -q "## 🏛️ Decisiones de Arquitectura" "$T34_DIR/digest.md" || T34_FAILS="$T34_FAILS digest-sin-decisiones"
-  grep -q "## 🛠️ Ajustes y Arbitraje" "$T34_DIR/digest.md" || T34_FAILS="$T34_FAILS digest-sin-ajustes"
-  grep -q "## 📁 Ficheros Modificados" "$T34_DIR/digest.md" || T34_FAILS="$T34_FAILS digest-sin-ficheros"
-  grep -q "## 🧠 Skills Declaradas" "$T34_DIR/digest.md" || T34_FAILS="$T34_FAILS digest-sin-skills"
-  
-  if grep -q "token_secreto_prueba_998" "$T34_DIR/digest.md"; then
-    T34_FAILS="$T34_FAILS digest-fuga-secreto"
+if [ -f "$T34_DIR/digest_derived.md" ]; then
+  grep -q "## 🎯 Objetivo" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-objetivo"
+  grep -q "## 🏛️ Decisiones de Arquitectura" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-decisiones"
+  grep -q "## 🛠️ Ajustes y Arbitraje" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-ajustes"
+  grep -q "## 📁 Ficheros Modificados" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-ficheros"
+  grep -q "## 🧠 Skills Declaradas" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-skills"
+
+  if grep -q "valor_secreto_derivado_777" "$T34_DIR/digest_derived.md"; then
+    T34_FAILS="$T34_FAILS digest-derived-fuga-secreto"
   fi
-  grep -q "<redacted:INFISICAL_TOKEN>" "$T34_DIR/digest.md" || T34_FAILS="$T34_FAILS digest-no-redacta"
+  grep -q "<redacted:CUSTOM_DERIVED_KEY>" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-derived-no-redacta"
 else
-  T34_FAILS="$T34_FAILS digest-no-generado"
+  T34_FAILS="$T34_FAILS digest-derived-no-generado"
 fi
 
 # Fallback fail-closed en design-digest.sh (código 64 ante argumento desconocido)
@@ -1909,11 +1905,32 @@ RC_DD_BAD=0
 bash "$DD" --bad-flag >/dev/null 2>&1 || RC_DD_BAD=$?
 [ "$RC_DD_BAD" -eq 64 ] || T34_FAILS="$T34_FAILS design-digest-bad-arg-rc=$RC_DD_BAD"
 
-# 6. close-task.sh contiene invocación a design-digest.sh y staging del digest
+# 6. fleet-doctor.sh: sonda config-driven del revisor en modo warn-only (exit code 0 sin romper)
+DOCTOR="$ROOT/scripts/agent/fleet-doctor.sh"
+if [ -f "$DOCTOR" ]; then
+  OUT_DOC="$(INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DOCTOR" --json 2>/dev/null || true)"
+  printf '%s' "$OUT_DOC" | grep -q '"reviewer_probe"' || T34_FAILS="$T34_FAILS doctor-sin-reviewer-probe"
+  printf '%s' "$OUT_DOC" | grep -qE '"status": "(OK|WARN)"' || T34_FAILS="$T34_FAILS doctor-reviewer-status-invalido"
+else
+  T34_FAILS="$T34_FAILS fleet-doctor-no-encontrado"
+fi
+
+# 7. Higiene en .gitignore: contexto efímero de sesión ignorado
+GITIGNORE="$ROOT/.gitignore"
+grep -q '\.agents/context/plan-draft\.md' "$GITIGNORE" || T34_FAILS="$T34_FAILS gitignore-sin-plan-draft"
+grep -q '\.agents/context/plan-deliberation\.json' "$GITIGNORE" || T34_FAILS="$T34_FAILS gitignore-sin-plan-deliberation"
+
+# 8. Higiene en AGENTS.md: estructura y tabla de herramientas CLI
+AGENTS_MD="$ROOT/AGENTS.md"
+grep -q 'deliberate-plan.sh' "$AGENTS_MD" || T34_FAILS="$T34_FAILS agents-md-sin-deliberate-plan"
+grep -q 'design-digest.sh' "$AGENTS_MD" || T34_FAILS="$T34_FAILS agents-md-sin-design-digest"
+grep -q 'Herramientas CLI del Core' "$AGENTS_MD" || T34_FAILS="$T34_FAILS agents-md-sin-tabla-cli"
+
+# 9. close-task.sh contiene invocación a design-digest.sh y staging del digest
 grep -q 'design-digest.sh' "$CT" || T34_FAILS="$T34_FAILS close-task-sin-design-digest"
 grep -q 'docs/sprints/design-decisions' "$CT" || T34_FAILS="$T34_FAILS close-task-sin-staging-digest"
 
-# 7. session-start.md contiene deliberación y preserva autorización humana obligatoria
+# 10. session-start.md contiene deliberación y preserva autorización humana obligatoria
 grep -q 'deliberate-plan.sh' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-deliberate-plan"
 grep -q 'Executive Design Digest' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-executive-digest"
 grep -q 'APROBADO' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-aprobado"
@@ -1926,7 +1943,9 @@ if [ -n "$T34_FAILS" ]; then
 else
   echo -e "  ✅ deliberate-plan.sh degrada limpiamente a SIN_REVISOR sin pasarela (<1s);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
-  echo -e "     design-digest.sh genera 5 bloques canónicos y redacta secretos obligatoriamente;"
+  echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
+  echo -e "     fleet-doctor.sh incluye sonda config-driven warn-only del revisor;"
+  echo -e "     .gitignore y AGENTS.md mantienen higiene de deliberación y herramientas CLI;"
   echo -e "     close-task.sh y session-start.md integran deliberación y preservan autorización humana."
 fi
 

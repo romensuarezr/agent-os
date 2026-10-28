@@ -94,6 +94,8 @@ terminal-scrollback/
 
 # --- Contextos Generados y Bloqueos de Sesión (Agent OS) ---
 .agent-session.lock
+.agents/context/plan-draft.md
+.agents/context/plan-deliberation.json
 docs/llm-context/*
 !docs/llm-context/.gitkeep
 !docs/llm-context/README.md
