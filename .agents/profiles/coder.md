@@ -17,6 +17,8 @@ tooling:
   allowed:
     - scripts/agent/verify-goal.sh
     - scripts/agent/import-secrets.sh
+    - scripts/agent/deliberate-plan.sh
+    - scripts/agent/design-digest.sh
     - git
     - compiler
     - test_runner
@@ -62,11 +64,16 @@ sequenceDiagram
     autonumber
     actor C as Coordinator
     participant W as Coder (<padre>/<repo>-<task-id>)
+    participant R as Reviewer (deliberate-plan.sh)
     participant G as verify-goal.sh
     participant J as QA Judge
 
     C->>W: Despacho a <padre>/<repo>-<task-id>
     W->>W: Carga entorno: source .agents/context/worktree.env
+    W->>W: Redacta borrador: .agents/context/plan-draft.md
+    W->>R: Arbitraje determinista ($0): deliberate-plan.sh --task-id <ID>
+    R-->>W: Deliberación persistida: .agents/context/deliberation-<ID>.json
+    W->>C: Presenta Executive Design Digest en Decision Gate (Aprobación)
     W->>W: Implementa cambios dentro de la Allowlist
     W->>W: Ejecuta pruebas locales y linters
     W->>G: Auto-verificación preliminar: verify-goal.sh --allow-dirty --json
@@ -76,12 +83,37 @@ sequenceDiagram
 
 1. **Entorno Aislado**:
    - Al iniciar, carga las variables inyectadas mediante `source .agents/context/worktree.env`.
-2. **Ciclo de Desarrollo**:
+2. **Fase Previa: Planificación y Deliberación ($0 tokens)**:
+   - Redacta el plan de acción en `.agents/context/plan-draft.md` con inventario previo y caja estricta.
+   - Ejecuta `scripts/agent/deliberate-plan.sh --task-id <TASK_ID>` para contrastar con el Reviewer y emitir `.agents/context/deliberation-${TASK_ID}.json`.
+   - Espera la resolución del Decision Gate humano antes de modificar código en el worktree.
+3. **Ciclo de Desarrollo**:
    - Implementa los archivos autorizados asegurando cobertura de tests.
    - Ejecuta de forma preventiva:
      ```bash
      bash scripts/agent/verify-goal.sh --task-id <TASK_ID> --allow-dirty --json
      ```
-3. **Commit y Notificación**:
+4. **Commit y Notificación**:
    - Realiza commit descriptivo (`feat(scope): ...`).
    - Notifica al agente `qa-judge` o al Coordinator para dar paso a la compuerta de validación independiente.
+
+---
+
+## 4. Protocolo de Handover Inter-Agente y Artefactos Entregados
+
+El Coder participa en compuertas estrictas antes y después de la fase de implementación:
+
+### A. Handover de Planificación (Coder ↔ Reviewer): Estado `DELIBERATING`
+- **Artefacto emitido**: `.agents/context/plan-draft.md` conteniendo:
+  - Inventario determinista de código preexistente y análisis DRY (<4KB).
+  - Propuesta técnica circunscrita a la Caja de Archivos Autorizados.
+  - Cláusula de skills declaradas y plan de verificación observable.
+- **Mecanismo de Arbitraje**: Ejecuta o somete el plan a `scripts/agent/deliberate-plan.sh --task-id <TASK_ID>`.
+- **Condición de Salida**: Obtener el artefacto `.agents/context/deliberation-${TASK_ID}.json` con veredicto de consenso o revisión con cambios y la aprobación formal en el Decision Gate humano antes de editar código.
+
+### B. Handover de Entrega Técnica (Coder → QA-Judge): Estado `EVALUATED`
+- **Artefactos emitidos**:
+  - Rama de trabajo limpia: `feat/<task-id>-coder` con commits atómicos y sin merge a ramas principales.
+  - Registro de deliberación persistido: `.agents/context/deliberation-${TASK_ID}.json`.
+  - Auto-verificación preliminar local: ejecución satisfactoria de `scripts/agent/verify-goal.sh --task-id <TASK_ID> --allow-dirty --json`.
+- **Condición de Aceptación**: Cero modificaciones fuera de la allowlist y ausencia total de secretos o credenciales rastreadas. Traspaso inmediato de control al `qa-judge` para el arbitraje independiente en el Ralph Loop.

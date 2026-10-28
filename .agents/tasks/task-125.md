@@ -28,6 +28,6 @@ Actualmente, los contratos de traspaso entre estos roles no contemplan explícit
 - `.agents/tasks/task-125.md`
 
 ## Criterios de done
-- [ ] Perfiles declarativos actualizados con la sección de Protocolo de Handover y artefactos esperados.
-- [ ] Especificación formal del contrato inter-agente y estados de traspaso (DISPATCHED, DELIBERATING, REVIEWED, EVALUATED, MERGED).
-- [ ] Validación de consistencia sintáctica y semántica con `validate-control-plane.sh` (Checks 1, 2, 10).
+- [x] Perfiles declarativos actualizados con la sección de Protocolo de Handover y artefactos esperados.
+- [x] Especificación formal del contrato inter-agente y estados de traspaso (DISPATCHED, DELIBERATING, REVIEWED, EVALUATED, MERGED).
+- [x] Validación de consistencia sintáctica y semántica con `validate-control-plane.sh` (Checks 1, 2, 10).

@@ -16,6 +16,8 @@ tooling:
   allowed:
     - scripts/agent/check-sprint.sh
     - scripts/agent/check-session.sh
+    - scripts/agent/deliberate-plan.sh
+    - scripts/agent/design-digest.sh
     - scripts/agent/worktree-dispatch.sh
     - scripts/agent/worktree-merge.sh
     - scripts/agent/close-task.sh
@@ -62,7 +64,8 @@ El **Coordinator** actúa como la interfaz única (*Single-Pane of Glass*) entre
 ```mermaid
 flowchart TD
     UserIntention["Intención del Usuario / Goal"] --> Plan["Desglose en DAG y Task Files"]
-    Plan --> Gate["Decision Gate (Aprobación del Usuario)"]
+    Plan --> DelibGate["Arbitraje Coder-Reviewer (deliberate-plan.sh)"]
+    DelibGate --> Gate["Decision Gate (Aprobación del Usuario)"]
     Gate --> Dispatch["scripts/agent/worktree-dispatch.sh"]
     Dispatch --> Monitor["Supervisión desatendida del Worker"]
     Monitor --> JudgeGate["Evaluación con qa-judge & verify-goal.sh"]
@@ -74,9 +77,25 @@ flowchart TD
    - Registra la meta de alto nivel `/goal` con su End State Contract (`templates/goals/goal.schema.md`).
 2. **Desglose en Submetas**:
    - Genera subgoals atómicos asignando a cada uno un perfil especialista (`coder`, `qa-judge`, `docs-researcher`).
-3. **Despacho Efímero**:
+3. **Deliberación de Plan ($0)**:
+   - Coordina el arbitraje entre Coder y Reviewer mediante `scripts/agent/deliberate-plan.sh`, generando el Executive Design Digest previo a la autorización humana.
+4. **Despacho Efímero**:
    - Invoca `scripts/agent/worktree-dispatch.sh --task-id <ID> --profile <PERFIL>` para aislar al worker en `<padre>/<repo>-<ID>/`.
-4. **Compuerta de Calidad y Cierre**:
+5. **Compuerta de Calidad y Cierre**:
    - Confirma que el evaluador `qa-judge` emita veredicto `PASS` mediante `scripts/agent/verify-goal.sh`.
    - Si se aprueba, invoca `scripts/agent/worktree-merge.sh --task-id <ID>` para integrar y destruir el worktree sin residuos en disco (ADR 004).
-   - Entrega un informe consolidado en la terminal principal.
+   - Ejecuta `scripts/agent/close-task.sh <ID>` registrando el digest histórico en `docs/sprints/design-decisions/` y entrega un informe consolidado en la terminal principal.
+
+---
+
+## 4. Protocolo de Handover Inter-Agente y Matriz de Estados
+
+La colaboración multi-agente se rige por transiciones deterministas basadas en artefactos en disco:
+
+| Estado | Rol Emisor | Rol Receptor | Artefacto / Comando de Traspaso | Criterio de Aceptación |
+|---|---|---|---|---|
+| **DISPATCHED** | `coordinator` | `coder` | `worktree-dispatch.sh --task-id <ID>` | Worktree efímero aprovisionado, task file y allowlist vinculados. |
+| **DELIBERATING** | `coder` | `reviewer` | `.agents/context/plan-draft.md` → `deliberate-plan.sh` | Inventario <4KB, timeout 5s, análisis DRY y cláusula de skills. |
+| **REVIEWED** | `reviewer` | `coordinator` / Humano | `.agents/context/deliberation-${TASK_ID}.json` | Veredicto `CONSENSO` o `REVISADO_CON_CAMBIOS` en Executive Design Digest. |
+| **EVALUATED** | `coder` | `qa-judge` | Rama `feat/<ID>-<profile>` + `verify-goal.sh` | Tests en verde, diff ⊆ allowlist, 0 secretos detectados. Veredicto `PASS`. |
+| **MERGED** | `qa-judge` | `coordinator` | `worktree-merge.sh` + `close-task.sh` | Integración limpia (ff/squash), worktree desmontado y digest archivado. |
