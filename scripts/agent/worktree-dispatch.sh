@@ -30,6 +30,7 @@ PROFILE="coder"
 BASE=""
 BRANCH=""
 WORKTREE_PATH=""
+REGISTRY="${WORKTREE_REGISTRY:-$ROOT_DIR/.agents/context/dispatched.jsonl}"
 FORCE=false
 JSON_MODE=false
 
@@ -44,6 +45,7 @@ Opciones:
   --branch <RAMA>         Nombre de la rama aislada (default: feat/<task-id>-<profile>).
   --path <DIR>            Ruta del worktree (default: <padre>/<repo>-<task-id>/,
                             hermano al repo, fuera del árbol).
+  --registry <PATH>       Ruta del registro de despachos (default: .agents/context/dispatched.jsonl).
   --force                 Limpia y recrea el worktree si ya existe.
   --json                  Emite únicamente JSON plano a stdout.
   -h, --help              Muestra esta ayuda.
@@ -70,6 +72,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --path)
       WORKTREE_PATH="$2"
+      shift 2
+      ;;
+    --registry)
+      REGISTRY="$2"
       shift 2
       ;;
     --force)
@@ -245,10 +251,34 @@ export AGENT_OS_PROFILE="$PROFILE"
 export AGENT_OS_WORKTREE_PATH="$REAL_WORKTREE_PATH"
 export AGENT_OS_BASE_REF="$BASE"
 export AGENT_OS_BRANCH="$BRANCH"
+export AGENT_OS_DELIBERATION_FILE="$REAL_WORKTREE_PATH/.agents/context/deliberation-${TASK_ID}.json"
 EOF
 
 # Crear enlace o asegurar disponibilidad de perfiles y scripts si fuera necesario
 chmod +x "$WORKTREE_PATH/.agents/context/worktree.env"
+
+# ------------------------------------------------------------------------------
+# 3b. Registro en dispatched.jsonl (Trazabilidad determinista)
+# ------------------------------------------------------------------------------
+mkdir -p "$(dirname "$REGISTRY")"
+DISPATCH_TIMESTAMP="$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%SZ")"
+
+python3 -c "
+import json, sys
+entry = {
+    'task_id': sys.argv[1],
+    'profile': sys.argv[2],
+    'branch': sys.argv[3],
+    'base_ref': sys.argv[4],
+    'worktree_path': sys.argv[5],
+    'agent_os_root': sys.argv[6],
+    'status': 'CREATED',
+    'deliberation': 'PENDING',
+    'dispatched_at': sys.argv[7]
+}
+with open(sys.argv[8], 'a') as f:
+    f.write(json.dumps(entry) + '\n')
+" "$TASK_ID" "$PROFILE" "$BRANCH" "$BASE" "$REAL_WORKTREE_PATH" "$AGENT_OS_ROOT" "$DISPATCH_TIMESTAMP" "$REGISTRY" 2>/dev/null || true
 
 # ------------------------------------------------------------------------------
 # 4. Reporte de Éxito
@@ -265,6 +295,7 @@ data = {
     'base_ref': sys.argv[4],
     'worktree_path': sys.argv[5],
     'agent_os_root': sys.argv[6],
+    'deliberation': 'PENDING',
     'status': 'CREATED',
     'exit_code': 0
 }
@@ -281,9 +312,11 @@ else
   echo "  Base ref:        $BASE"
   echo "  Ruta Worktree:   $REAL_WORKTREE_PATH"
   echo "  AGENT_OS_ROOT:   $AGENT_OS_ROOT"
+  echo "  Deliberación:    PENDING ($REAL_WORKTREE_PATH/.agents/context/deliberation-${TASK_ID}.json)"
   echo "======================================================"
-  echo "  Para entrar al worktree:"
+  echo "  Para entrar al worktree y deliberar:"
   echo "    cd $WORKTREE_PATH && source .agents/context/worktree.env"
+  echo "    bash \$AGENT_OS_ROOT/scripts/agent/deliberate-plan.sh --task-id $TASK_ID --plan .agents/context/plan-draft.md"
   echo "======================================================"
 fi
 

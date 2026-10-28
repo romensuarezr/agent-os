@@ -24,7 +24,7 @@ En esta tarea:
 - `.agents/tasks/task-126.md`
 
 ## Criterios de done
-- [ ] `parallel-orchestration.md` actualizado con el diagrama y fases que integran deliberación y compuertas de calidad.
-- [ ] `worktree-dispatch.sh` prepara el entorno de deliberación del worker sin alterar el checkout principal.
-- [ ] Trazabilidad de estados en `dispatched.jsonl` conforme a los estándares de orquestación.
-- [ ] Verificación de despacho y aislamiento sin fugas de infraestructura (Check 23 y 24 de la suite).
+- [x] `parallel-orchestration.md` actualizado con el diagrama y fases que integran deliberación y compuertas de calidad.
+- [x] `worktree-dispatch.sh` prepara el entorno de deliberación del worker sin alterar el checkout principal.
+- [x] Trazabilidad de estados en `dispatched.jsonl` conforme a los estándares de orquestación.
+- [x] Verificación de despacho y aislamiento sin fugas de infraestructura (Check 23 y 24 de la suite).
