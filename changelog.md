@@ -9,6 +9,24 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.15.0] — sprint-19 — 2026-10-28
+
+### ✨ Features
+
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión de la flota (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(sprint-19): formalización y cierre del sprint de versiones y seguridad de secretos (T-113 a T-118)
+
 ## [1.14.0] — sprint-18 — 2026-10-23
 
 ### ✨ Features
