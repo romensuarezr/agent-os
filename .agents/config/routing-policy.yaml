@@ -73,6 +73,15 @@ task_routing_matrix:
     fallback: "primary-reliable"
     preferred_local_model: "llama3.1:8b"
 
+  deliberation_and_review:
+    description: "Auditoría cruzada de planes, verificación de pre-existencias en git y red-teaming (rol reviewer)"
+    primary: "freellmapi"
+    secondary: "omniroute"
+    fallback: "ollama-local"
+    timeout_seconds: 5
+    max_automatic_rounds: 1
+    preferred_model: "auto"
+
   marketing_and_seo:
     description: "Generación de copys, changelogs públicos, documentación y metadatos SEO"
     primary: "freellmapi"
