@@ -91,7 +91,14 @@ if [ ! -f "$REDACT_SCRIPT" ]; then
   exit 1
 fi
 
-DELIBERATION_JSON="$ROOT_DIR/.agents/context/plan-deliberation.json"
+# Jerarquía determinista de deliberación (T-124):
+# 1. Deliberación nombrada anclada a la tarea: .agents/context/deliberation-${TASK_ID}.json
+# 2. Deliberación genérica de sesión activa: .agents/context/plan-deliberation.json
+# 3. Fallback en frío si ninguna existe (N/A)
+DELIBERATION_JSON="$ROOT_DIR/.agents/context/deliberation-${TASK_ID}.json"
+if [ ! -f "$DELIBERATION_JSON" ]; then
+  DELIBERATION_JSON="$ROOT_DIR/.agents/context/plan-deliberation.json"
+fi
 PLAN_DRAFT="$ROOT_DIR/.agents/context/plan-draft.md"
 TASK_FILE="$ROOT_DIR/.agents/tasks/task-${TASK_NUM}.md"
 if [ ! -f "$TASK_FILE" ]; then
@@ -305,13 +312,16 @@ fi
 mv "$TMP_OUTPUT" "$OUTPUT_FILE"
 chmod 644 "$OUTPUT_FILE"
 
-# Archivado opcional de JSON crudo redactado si existe deliberación de la tarea
+# Archivado de JSON crudo redactado si existe deliberación de la tarea (T-123 / T-124)
 if [ -f "$DELIBERATION_JSON" ]; then
   RAW_OUTPUT="$ROOT_DIR/docs/sprints/design-decisions/${TASK_ID}-raw.json"
   TMP_RAW="${RAW_OUTPUT}.tmp.$$"
   if cat "$DELIBERATION_JSON" | "${REDACT_CMD[@]}" > "$TMP_RAW"; then
     mv "$TMP_RAW" "$RAW_OUTPUT"
     chmod 644 "$RAW_OUTPUT"
+    if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      git -C "$ROOT_DIR" add "$RAW_OUTPUT" 2>/dev/null || true
+    fi
   else
     rm -f "$TMP_RAW"
   fi
