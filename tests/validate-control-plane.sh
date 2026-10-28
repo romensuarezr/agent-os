@@ -1872,7 +1872,12 @@ else
   bash "$DD" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-help-falla"
 fi
 
-# 5. design-digest.sh: estructura de 5 bloques canónicos y redacción obligatoria con secretos del catálogo
+# 5. design-digest.sh: estructura de 5 bloques canónicos y redacción obligatoria con catálogo fixture (autocontenido)
+cat << 'FIXTURE_CATALOG_T34' > "$T34_DIR/secrets-catalog.yaml"
+secrets:
+  - key: INFISICAL_TOKEN
+FIXTURE_CATALOG_T34
+
 cat << 'FIXTURE_TASK_SEC_T34' > "$ROOT/.agents/tasks/task-998.md"
 # Task-998: Tarea con secreto
 ## Objetivo
@@ -1881,7 +1886,7 @@ Probar redaccion obligatoria con INFISICAL_TOKEN=token_secreto_prueba_998.
 - infisical-secrets
 FIXTURE_TASK_SEC_T34
 
-bash "$DD" --task-id T-998 --output "$T34_DIR/digest.md" >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-falla"
+AGENT_OS_SECRETS_CATALOG="$T34_DIR/secrets-catalog.yaml" bash "$DD" --task-id T-998 --output "$T34_DIR/digest.md" >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-falla"
 rm -f "$ROOT/.agents/tasks/task-998.md" 2>/dev/null || true
 
 if [ -f "$T34_DIR/digest.md" ]; then
