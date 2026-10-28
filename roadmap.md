@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 21 — Multi-Agente (planificación formal de arquitectura multi-agente, orquestación y workflows).
+- Sprint 21 — Arquitectura Multi-Agente, Orquestación y Workflows (T-124 a T-127, planificación en curso). Ver `docs/sprints/sprint-21-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
