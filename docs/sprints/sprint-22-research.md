@@ -29,6 +29,8 @@ Se ejecutaron consultas deterministas sobre el ecosistema open source (GitHub, N
 - **Decisión vigente**: Construcción interna (acordada en planning). Permite que el checkout principal mantenga la deliberación real del worker sin degradar a `N/A` en `close-task.sh`, respetando el aislamiento gitignored.
 - **Notas de integración**: Se implementa como paso determinista en `worktree-merge.sh` (paso 3b de merge), verificando existencia del fichero de deliberación antes de la purga del directorio hermano.
 - **Alternativas rechazadas y motivos**:
+  - `git-worktree --lock`: Rechazado. Bloquea la poda administrativa del worktree pero no previene su desmontaje ni resuelve el rescate de ficheros de contexto no rastreados (`.agents/context/deliberation-${TASK_ID}.json`) tras `git worktree remove --force`.
+  - `tracking forzado`: Rechazado. Forzar el tracking en Git de borradores o deliberaciones intermedias antes del merge viola la política de zero-commit de borradores y dejaría artefactos transitorios en el historial de commits.
   - `@deepseek-ai/dsh-experimental-worktree`: Rechazado. Muta el directorio del proceso llamante y carece de soporte para rescate de artefactos de contexto no versionados; incompatible con el aislamiento de subprocesos y la convención de worktrees fuera del árbol (T-107 / ADR 004).
   - `@linxin666/dsh-client-ui-git-graph`: Rechazado. Interfaz gráfica web innecesaria para un flujo headless y desatendido de integración CLI.
   - `supports-preserve-symlinks-flag`: Rechazado. Paquete micro-utilidad de Node.js ajeno a la gestión del ciclo de vida de Git worktrees.
@@ -45,6 +47,7 @@ Se ejecutaron consultas deterministas sobre el ecosistema open source (GitHub, N
 - **Decisión vigente**: Construcción interna (acordada en planning tras la lección operativa del Sprint 21). Garantiza que ningún sprint se publique sin su correspondiente `sprint-XX-research.md` estructurado y sin deliberación.
 - **Notas de integración**: Añade al pre-flight de planning y a `design-digest.sh` la aserción de que exista la sección `## Descubrimientos Scout (por tarea)` con subsecciones completas para cada tarea planificada.
 - **Alternativas rechazadas y motivos**:
+  - `markdownlint`: Rechazado. Linters markdown genéricos validan estilo sintáctico pero carecen de semántica para comprobar la completitud de campos obligatorios en el research scout y la estructura por tarea exigida por el flujo de agent-os.
   - `@pipedream/yutori`: Rechazado. Plataforma SaaS de integración que introduce dependencia de un servicio de suscripción externo; viola el principio de soberanía y ejecución local a coste $0.
   - `deepthink-js`: Rechazado. Framework en Node.js enfocado en loops de razonamiento conversacional, no en validación de políticas de archivo ni gobernanza de repositorios de software.
   - `bn.js`: Rechazado. Librería de aritmética matemática totalmente ajena al propósito.
@@ -62,6 +65,7 @@ Se ejecutaron consultas deterministas sobre el ecosistema open source (GitHub, N
 - **Decisión vigente**: Construcción interna (derivada de las ideas de vídeo de routing-policy evaluadas en planning). Ofrece tolerancia a fallos escalonada sin bloquear al agente.
 - **Notas de integración**: Si el endpoint primario excede el timeout de 5s, el motor intenta de forma determinista el siguiente tier configurado antes de degradar limpiamente a `SIN_REVISOR`.
 - **Alternativas rechazadas y motivos**:
+  - `LiteLLM/OpenRouter`: Rechazado. Soluciones de proxy/middleware externo añaden latencia de red, dependencias pesadas de runtime y riesgo de telemetría o costes imprevistos frente a la política de cascada interna en Bash a coste $0.
   - `crzyc0d3r/llm-router-ranking-engine`: Rechazado. Repositorio sin licencia de código abierto (No lic), no verificable y dependiente de rankings de precios comerciales dinámicos que consumen ancho de banda de red.
   - `@kortix/llm-catalog` y `@oh-my-pi/pi-catalog`: Rechazados. Paquetes NPM de catálogos masivos de modelos con dependencias de actualización continua; sobredimensionados para la política declarativa YAML ligera de agent-os.
   - `@mlc-ai/web-llm`: Rechazado. Solución orientada a navegadores web con WebGPU, no aplicable al plano de control en servidor y CLI.
@@ -79,6 +83,7 @@ Se ejecutaron consultas deterministas sobre el ecosistema open source (GitHub, N
 - **Decisión vigente**: Construcción interna (acordada en planning para certificar que el puente T-128, el enforcement T-129 y la cascada T-130 funcionan integrados de forma armónica).
 - **Notas de integración**: El ensayo simula: despacho a worktree con `worktree-dispatch.sh` → generación de plan y deliberación determinista → auto-verificación preliminar → integración con `worktree-merge.sh` y rescate de deliberación → generación de digest histórico en `close-task.sh` con veredicto persistido → verificación de purga con `worktree-gc.sh`.
 - **Alternativas rechazadas y motivos**:
+  - `Bats/Behave`: Rechazado. Frameworks externos de testing BDD/CLI que añadirían dependencias de runtime adicionales al control plane, violando el principio de suites deterministas y autónomas en Bash nativo sin dependencias externas.
   - `agentic-flow`: Rechazado. Framework de ejecución que impone su propio runtime demonizado y formato de mensajes; incompatible con las suites deterministas en Bash/POSIX de agent-os.
   - `@deepseek-ai/dsh-compaction`: Rechazado. Módulo experimental específico de compactación de memoria para DeepSeek; no aborda la validación end-to-end del ciclo de vida git.
   - `statsig-node`: Rechazado. Plataforma de analítica y feature flags SaaS, fuera del ámbito de testing de un sistema operativo para agentes.

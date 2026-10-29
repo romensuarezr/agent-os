@@ -20,7 +20,7 @@
     - `idea-validator` y `sprint-planning v2` condicionadas a Bane: quedan en el inbox hasta que Bane sea validado y desplegado formalmente en la infraestructura VPS.
     - `clean-room-contracts`: derivada a la línea arquitectónica independiente de REA (análisis de binarios y servidores MCP).
     - `plantilla Nango opcional`: concierne a integraciones de satélites externos, no al core universal.
-    - `frontend-critic`, `web-privacy-noindex`, `natural-communication`, `fact-check`: específicas de frontends satélite o cubiertas por las reglas de comunicación vigentes.
+    - `frontend-critic`, `web-privacy-noindex`, `natural-communication`, `fact-check`, `self-healing pre-flight`: específicas de frontends satélite, operadas por rules/workflows vigentes o diferidas al backlog.
 - **Evaluación de Candidatos de Plataforma**:
   - **T-128 (Puente Worktree → Principal)**: Soluciona la brecha descubierta en Sprint 21 donde la deliberación del worker, al vivir gitignored en `<repo>-<task-id>/`, se pierde al desmontar el worktree con `worktree-merge.sh`, provocando que `close-task.sh` no pueda redactar el digest histórico sin degradar.
   - **T-129 (Enforcement Scout)**: Institucionaliza la lección operativa de Sprint 21 ("sin research no hay plan"), convirtiendo la prospección scout determinista a $0 tokens y la presencia de `docs/sprints/sprint-XX-research.md` en una compuerta obligatoria del workflow y del digest de planning.
