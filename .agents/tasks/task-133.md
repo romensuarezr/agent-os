@@ -9,9 +9,10 @@ Actualmente coexisten fragmentos de resolución e invocación de Orca en `script
 Esta tarea:
 1. Audita los puntos de invocación en `orca-orchestrate.sh` y `dispatch-satellite.sh` para extraer los patrones comunes sin duplicación (DRY).
 2. Crea `scripts/agent/lib/orca-client.sh` con funciones POSIX:
-   - `orca_resolve_bin()`: detecta prioritariamente `orca-ide` en PATH o mediante el shim estándar del ADE.
-   - `orca_status()`: consulta el estado del runtime con timeout estricto (<1s) y salida JSON.
-   - `orca_worker_start()`: inicia workers supervisados con aislamiento de entorno (`env -i`).
+   - `orca_resolve_bin()`: detecta prioritariamente `orca-ide` en PATH o mediante el shim estándar del ADE ($HOME), descartando el lector GNOME.
+   - `orca_is_ready()`: sonda fail-fast determinista con timeout estricto (<1s) que valida si el runtime ADE está escuchando.
+   - `orca_status()`: consulta el estado del runtime con salida JSON.
+   - `orca_worker_start()`: inicia workers supervisados bajo whitelist única de aislamiento de entorno (`env -i`).
    - `orca_worker_read()`: lee la transcripción o terminal del worker.
    - `orca_worker_release()`: libera de forma limpia e idempotente el terminal asignado.
 3. Refactoriza los scripts consumidores para reutilizar la biblioteca compartida manteniendo retrocompatibilidad.
@@ -27,7 +28,8 @@ Esta tarea:
 - `.agents/tasks/task-133.md`
 
 ## Criterios de done
-- [ ] `lib/orca-client.sh` implementado y resolviendo deterministamente `orca-ide` vía PATH sin contener rutas personales `<home-usuario>`.
-- [ ] `orca_status()` devolviendo estado legible con timeout y sin cuelgues ante binarios conflictivos.
-- [ ] `orca-orchestrate.sh` y `dispatch-satellite.sh` refactorizados para consumir `lib/orca-client.sh` sin regresiones en sus pruebas.
-- [ ] Validación observable: `bash scripts/agent/orca-orchestrate.sh status` y `dispatch-satellite.sh` respondiendo correctamente.
+- [ ] `lib/orca-client.sh` implementado y resolviendo deterministamente `orca-ide` vía PATH/shims ($HOME) sin contener rutas personales `<home-usuario>`.
+- [ ] `orca_is_ready()` implementado con timeout <1s y sin cuelgues ante colisiones con el lector GNOME (`/usr/bin/orca`).
+- [ ] Whitelist `env -i` única y documentada en `lib/orca-client.sh` aplicada en `orca_worker_start()`.
+- [ ] Prueba viva con evidencia real del ciclo de vida del worker bajo whitelist (`orca_worker_start` → `orca_worker_read` → `orca_worker_release`).
+- [ ] `orca-orchestrate.sh` y `dispatch-satellite.sh` refactorizados para consumir `lib/orca-client.sh` sin cambiar su comportamiento CLI ni salidas.
