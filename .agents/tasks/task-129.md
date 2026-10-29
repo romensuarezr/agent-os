@@ -21,6 +21,6 @@ Para evitar recurrencias y garantizar la gobernanza del core:
 - `.agents/tasks/task-129.md`
 
 ## Criterios de done
-- [ ] `sprint-planning.md` actualizado con la compuerta obligatoria de prospección scout-first y persistencia de research.
-- [ ] `design-digest.sh` verifica o reporta la presencia y completitud del documento de research en contextos de planning.
-- [ ] Verificación de ejecución determinista y fail-closed sin dependencias de red externas.
+- [x] `sprint-planning.md` actualizado con la compuerta obligatoria de prospección scout-first y persistencia de research.
+- [x] `design-digest.sh` verifica o reporta la presencia y completitud del documento de research en contextos de planning.
+- [x] Verificación de ejecución determinista y fail-closed sin dependencias de red externas.
