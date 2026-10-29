@@ -33,6 +33,11 @@
 #  28. Copias no destructivas portables: agent_cp_n sin warnings ni sobrescritura (T-110).
 #  29. Informe de lote read-only: report no muta estado y degrada sin runtime (T-112).
 #  30. VERSION alineado con la release del changelog (lectura semver, idempotencia) (T-113).
+#  31. fleet-version.sh: estados y sincronización de versiones (T-114).
+#  32. secrets.sh: inyección segura y rotación determinista (T-115, T-116).
+#  33. redact.sh: redacción determinista sin red y normas de secretos (T-118).
+#  34. Deliberación de planes, workflows de sesión y digests de diseño (T-119, T-120, T-121).
+#  35. Gobernanza multi-agente, contratos de handover y despacho con deliberación (T-124, T-125, T-126).
 # ==============================================================================
 
 set -euo pipefail
@@ -74,7 +79,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/34] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/35] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -94,7 +99,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/34] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/35] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -131,7 +136,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/34] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/35] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -166,7 +171,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/34] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/35] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -201,7 +206,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/34] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/35] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -225,7 +230,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/34] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/35] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -244,7 +249,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/34] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/35] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -263,7 +268,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/34] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/35] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -286,7 +291,7 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/34] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
+echo -e "🔍 [9/35] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
 ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
@@ -308,7 +313,7 @@ done
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/34] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/35] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -374,7 +379,7 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/34] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/35] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -392,7 +397,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/34] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/35] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -426,7 +431,7 @@ fi
 # 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/34] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/35] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -482,7 +487,7 @@ fi
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/34] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/35] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -547,7 +552,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/34] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/35] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -634,7 +639,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/34] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/35] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -685,7 +690,7 @@ fi
 # 17. Gates de la auditoría de secretos (verify-secrets.py)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [17/34] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+echo -e "🔍 [17/35] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
 VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
 
 if [ ! -f "$VERIFY_LIB" ]; then
@@ -755,7 +760,7 @@ fi
 # 18-19. Honestidad de los scripts de cierre (T-100)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [18/34] Verificando honestidad de close-task.sh (enlace del sprint)..."
+echo -e "🔍 [18/35] Verificando honestidad de close-task.sh (enlace del sprint)..."
 TASK_FIXTURE="$(mktemp -d)"
 (
     cd "$TASK_FIXTURE" || exit 1
@@ -791,7 +796,7 @@ fi
 rm -rf "$TASK_FIXTURE"
 
 echo ""
-echo -e "🔍 [19/34] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
+echo -e "🔍 [19/35] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
 SPRINT_FIXTURE="$(mktemp -d)"
 (
     cd "$SPRINT_FIXTURE" || exit 1
@@ -831,7 +836,7 @@ rm -rf "$SPRINT_FIXTURE"
 # 20. promote-to-main.sh (T-101)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [20/34] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
+echo -e "🔍 [20/35] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
 PROMOTE="$ROOT/scripts/agent/promote-to-main.sh"
 P1="$(mktemp -d)"; P2="$(mktemp -d)"; P3="$(mktemp -d)"
 # NINGÚN fichero de salida puede vivir dentro del fixture: la redirección lo crea
@@ -901,7 +906,7 @@ rm -rf "$P1" "$P2" "$P3" "$OUT1" "$HELP1" "$OUT2" "$ERR3" "$P3_BEFORE" "$P3_AFTE
 # 21. Mapa de flujos generado (T-102)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [21/34] Verificando que el mapa de flujos está sincronizado con su fuente..."
+echo -e "🔍 [21/35] Verificando que el mapa de flujos está sincronizado con su fuente..."
 if python3 -c "
 import pathlib, subprocess, sys
 root = pathlib.Path('$ROOT')
@@ -952,7 +957,7 @@ fi
 # 22. Higiene de localizadores / frontera portable (T-103)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [22/34] Verificando la frontera portable (cero literales de infraestructura)..."
+echo -e "🔍 [22/35] Verificando la frontera portable (cero literales de infraestructura)..."
 if bash "$ROOT/scripts/agent/lib/locator-hygiene.sh" --quiet; then
     echo -e "  ✅ Sin rutas personales, IPs de infraestructura, hostnames de nodo ni credenciales en el core."
 else
@@ -1017,7 +1022,7 @@ fi
 # 23. Despacho multi-repo portable (T-104)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [23/34] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
+echo -e "🔍 [23/35] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
 DISPATCH="$ROOT/scripts/agent/dispatch-satellite.sh"
 DSAT="$(mktemp -d)"; DREG="$(mktemp)"; DSATS="$(mktemp)"
 DOUT1="$(mktemp)"; DOUT2="$(mktemp)"; DOUT3="$(mktemp)"; DOUT4="$(mktemp)"
@@ -1072,7 +1077,7 @@ rm -rf "$DSIB"
 # 24. Integración y purga de worktrees (T-107)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [24/34] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
+echo -e "🔍 [24/35] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
 MWT="$(mktemp -d)"; MOUT1="$(mktemp)"; MOUT2="$(mktemp)"; MOUT3="$(mktemp)"; MOUT4="$(mktemp)"; MOUT5="$(mktemp)"
 MDISPATCH="$ROOT/scripts/agent/worktree-dispatch.sh"
 MMERGE="$ROOT/scripts/agent/worktree-merge.sh"
@@ -1131,7 +1136,7 @@ rm -rf "$MWT" "$MOUT1" "$MOUT2" "$MOUT3" "$MOUT4" "$MOUT5"
 # 25. Punto de entrada del coordinador (T-105)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [25/34] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
+echo -e "🔍 [25/35] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
 OFLOW="$ROOT/scripts/agent/orca-orchestrate.sh"
 FWT="$(mktemp -d)"; FSAT="$FWT/sat"; FSATS="$FWT/sats.yaml"; FREG="$FWT/reg.jsonl"; FSPEC="$FWT/spec.json"
 FTOOLS="$(mktemp -d)"; FSTUB="$(mktemp -d)"; FDEAF="$(mktemp -d)"
@@ -1198,7 +1203,7 @@ rm -rf "$FWT" "$FTOOLS" "$FSTUB" "$FDEAF" "$FOUT1" "$FOUT2"
 # 26. Semver del changelog con ## [Unreleased] delante (T-108)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [26/34] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
+echo -e "🔍 [26/35] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
 UCHG="$ROOT/scripts/agent/update-changelog.sh"
 FCH="$(mktemp -d)"
 mkdir -p "$FCH/scripts/agent/lib"
@@ -1311,7 +1316,7 @@ rm -rf "$FCH"
 # 27. locator-hygiene.sh --path honra las excepciones del repo escaneado (T-106)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [27/34] Verificando que --path aplica las excepciones del repo destino..."
+echo -e "🔍 [27/35] Verificando que --path aplica las excepciones del repo destino..."
 FIX="$(mktemp -d)"
 git init -q -b main "$FIX" && git -C "$FIX" config user.email t@t.t && git -C "$FIX" config user.name t || true
 # Guardia anti-incidente: sin repo, ls-files falla y el escáner podría mirar el core.
@@ -1344,7 +1349,7 @@ rm -rf "$FIX"
 # 28. Copias no destructivas portables: agent_cp_n (T-110)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [28/34] Verificando agent_cp_n: no sobrescribe, sin warnings ni cp -n directos..."
+echo -e "🔍 [28/35] Verificando agent_cp_n: no sobrescribe, sin warnings ni cp -n directos..."
 FCP="$(mktemp -d)"
 mkdir -p "$FCP/src" "$FCP/dst" "$FCP/rsrc" "$FCP/rdst"
 printf 'nuevo\n' > "$FCP/src/a"
@@ -1375,7 +1380,7 @@ rm -rf "$FCP"
 # 29. Informe de lote read-only: report (T-112)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [29/34] Verificando 'report': bloque sin mutaciones, agregación y degradación..."
+echo -e "🔍 [29/35] Verificando 'report': bloque sin mutaciones, agregación y degradación..."
 FREP="$(mktemp -d)"
 STUB="$FREP/bin"
 mkdir -p "$STUB"
@@ -1445,7 +1450,7 @@ rm -rf "$FREP"
 # 30. VERSION alineado con la release del changelog (T-113)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [30/34] Verificando VERSION (lectura semver, idempotencia y repo real)..."
+echo -e "🔍 [30/35] Verificando VERSION (lectura semver, idempotencia y repo real)..."
 VLIB="$ROOT/scripts/agent/lib/release-version.sh"
 VTMP="$(mktemp -d)"
 mkdir -p "$VTMP/repo"
@@ -1493,7 +1498,7 @@ fi
 # 31. Desfase de versión de la flota: fleet-version.sh (T-115)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [31/34] Verificando fleet-version.sh (5 estados, JSON estable y solo lectura)..."
+echo -e "🔍 [31/35] Verificando fleet-version.sh (5 estados, JSON estable y solo lectura)..."
 FVS="$ROOT/scripts/agent/fleet-version.sh"
 FV="$(mktemp -d)"
 mkdir -p "$FV/core/scripts/agent/lib" "$FV/ok/.agents/context" "$FV/drift/.agents/context" \
@@ -1580,7 +1585,7 @@ fi
 # 32. secrets.sh sin valor por argv + --search + barrido único (T-117)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [32/34] Verificando secrets.sh (valor solo por stdin) y secret-locate (--search, 1 export/carpeta)..."
+echo -e "🔍 [32/35] Verificando secrets.sh (valor solo por stdin) y secret-locate (--search, 1 export/carpeta)..."
 SEC="$ROOT/scripts/agent/secrets.sh"
 SLOC="$ROOT/scripts/agent/secret-locate.sh"
 T117="$(mktemp -d)"
@@ -1717,7 +1722,7 @@ fi
 # 33. redact.sh + coherencia de normas de secretos (T-118)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [33/34] Verificando redact.sh (determinista, sin red) y coherencia de las normas de secretos..."
+echo -e "🔍 [33/35] Verificando redact.sh (determinista, sin red) y coherencia de las normas de secretos..."
 RED="$ROOT/scripts/agent/lib/redact.sh"
 SKILL="$ROOT/.agents/skills/infisical-secrets/SKILL.md"
 PERMS="$ROOT/.agents/rules/global/agent-permissions.md"
@@ -1810,7 +1815,7 @@ fi
 # ------------------------------------------------------------------------------
 # 34. Verificación de deliberación (T-119), workflow de sesión (T-120) y design digest (T-121)
 # ------------------------------------------------------------------------------
-echo -e "🔍 [34/34] Verificando deliberación de planes (T-119), workflow de sesión (T-120) y design digest (T-121)..."
+echo -e "🔍 [34/35] Verificando deliberación de planes (T-119), workflow de sesión (T-120) y design digest (T-121)..."
 
 T34_FAILS=""
 DP="$ROOT/scripts/agent/deliberate-plan.sh"
@@ -1935,7 +1940,7 @@ grep -q 'deliberate-plan.sh' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-de
 grep -q 'Executive Design Digest' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-executive-digest"
 grep -q 'APROBADO' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-aprobado"
 
-rm -rf "$T34_DIR" 2>/dev/null || true
+rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
 if [ -n "$T34_FAILS" ]; then
   echo -e "  ❌ ERROR: Sprint 20 incumple:$T34_FAILS"
@@ -1947,6 +1952,146 @@ else
   echo -e "     fleet-doctor.sh incluye sonda config-driven warn-only del revisor;"
   echo -e "     .gitignore y AGENTS.md mantienen higiene de deliberación y herramientas CLI;"
   echo -e "     close-task.sh y session-start.md integran deliberación y preservan autorización humana."
+fi
+
+# ------------------------------------------------------------------------------
+# 35. Verificación de gobernanza multi-agente, contratos de handover y deliberación (T-124, T-125, T-126)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [35/35] Verificando gobernanza multi-agente, contratos de handover (T-125) y despacho con deliberación (T-124, T-126)..."
+
+T35_FAILS=""
+T35_DIR="$(mktemp -d /tmp/test-t35-XXXXXX)"
+
+# Subcheck A: Persistencia y Handover de Deliberación Multi-Sesión (T-124)
+# 1. deliberate-plan.sh persiste .agents/context/deliberation-${TASK_ID}.json
+cat << 'FIXTURE_PLAN_T35' > "$T35_DIR/plan-draft.md"
+# Plan T-35
+Plan de prueba para verificar persistencia de deliberacion nombrada.
+FIXTURE_PLAN_T35
+
+(
+  cd "$ROOT"
+  INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash scripts/agent/deliberate-plan.sh \
+    --plan "$T35_DIR/plan-draft.md" --task-id T-996 --output "$T35_DIR/delib-output.json" >/dev/null 2>&1 || true
+)
+
+NAMED_DELIB="$ROOT/.agents/context/deliberation-T-996.json"
+if [ ! -f "$NAMED_DELIB" ]; then
+  T35_FAILS="$T35_FAILS deliberacion-nombrada-no-generada"
+else
+  V_NAMED="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('verdict',''))" "$NAMED_DELIB" 2>/dev/null || true)"
+  [ "$V_NAMED" = "SIN_REVISOR" ] || T35_FAILS="$T35_FAILS verdict-nombrado-incorrecto($V_NAMED)"
+fi
+
+# 2. design-digest.sh prioriza el archivo nombrado sobre el generico
+cat << 'FIXTURE_TASK_T35' > "$ROOT/.agents/tasks/task-996.md"
+# Task-996: Tarea para digest nombrado
+## Objetivo
+Probar prioridad del fichero de deliberacion nombrado.
+## Skills relevantes
+- agent-os-scripts
+FIXTURE_TASK_T35
+
+bash scripts/agent/design-digest.sh --task-id T-996 --output "$T35_DIR/digest_named.md" >/dev/null 2>&1 || T35_FAILS="$T35_FAILS design-digest-named-falla"
+rm -f "$ROOT/.agents/tasks/task-996.md" "$NAMED_DELIB" 2>/dev/null || true
+
+RAW_JSON="$ROOT/docs/sprints/design-decisions/T-996-raw.json"
+if [ -f "$RAW_JSON" ]; then
+  RAW_TASK="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('task_id',''))" "$RAW_JSON" 2>/dev/null || true)"
+  [ "$RAW_TASK" = "T-996" ] || T35_FAILS="$T35_FAILS raw-json-task-id-invalido($RAW_TASK)"
+  rm -f "$RAW_JSON" 2>/dev/null || true
+else
+  T35_FAILS="$T35_FAILS raw-json-no-archivado"
+fi
+
+# 3. .gitignore contiene deliberation-*.json
+grep -q '\.agents/context/deliberation-\*\.json' "$ROOT/.gitignore" || T35_FAILS="$T35_FAILS gitignore-sin-deliberation-wildcard"
+
+# Subcheck B: Contratos de Handover y Perfiles Declarativos (T-125)
+COORDINATOR_MD="$ROOT/.agents/profiles/coordinator.md"
+CODER_MD="$ROOT/.agents/profiles/coder.md"
+QA_JUDGE_MD="$ROOT/.agents/profiles/qa-judge.md"
+REVIEWER_YAML="$ROOT/.agents/profiles/reviewer.yaml"
+
+for state in DISPATCHED DELIBERATING REVIEWED EVALUATED MERGED; do
+  grep -q "$state" "$COORDINATOR_MD" || T35_FAILS="$T35_FAILS coordinator-sin-estado-$state"
+done
+
+for state in DELIBERATING EVALUATED; do
+  grep -q "$state" "$CODER_MD" || T35_FAILS="$T35_FAILS coder-sin-estado-$state"
+done
+
+for state in EVALUATED MERGED; do
+  grep -q "$state" "$QA_JUDGE_MD" || T35_FAILS="$T35_FAILS qa-judge-sin-estado-$state"
+done
+
+grep -q 'scripts/agent/deliberate-plan.sh' "$COORDINATOR_MD" || T35_FAILS="$T35_FAILS coordinator-sin-deliberate-tool"
+grep -q 'scripts/agent/deliberate-plan.sh' "$CODER_MD" || T35_FAILS="$T35_FAILS coder-sin-deliberate-tool"
+grep -q 'scripts/agent/deliberate-plan.sh' "$REVIEWER_YAML" || T35_FAILS="$T35_FAILS reviewer-sin-deliberate-tool"
+grep -q 'scripts/agent/design-digest.sh' "$QA_JUDGE_MD" || T35_FAILS="$T35_FAILS qa-judge-sin-design-digest-tool"
+
+# Subcheck C: Despacho y Deliberación en Worktrees (T-126)
+# Cambio obligatorio: fijar WORKTREE_MIN_FREE_GB=0 para no depender del tamaño de /tmp
+WT_REPO="$T35_DIR/repo"
+WT_REGISTRY="$T35_DIR/dispatched.jsonl"
+(
+  git init -q -b main "$WT_REPO"
+  git -C "$WT_REPO" config user.email t@t.t
+  git -C "$WT_REPO" config user.name "Tester"
+  echo "test" > "$WT_REPO/file.txt"
+  git -C "$WT_REPO" add -A && git -C "$WT_REPO" commit -qm "init"
+  cd "$WT_REPO" || exit 1
+  WORKTREE_MIN_FREE_GB=0 bash "$ROOT/scripts/agent/worktree-dispatch.sh" \
+    --task-id T-35W --registry "$WT_REGISTRY" --json > "$T35_DIR/dispatch.json" 2>"$T35_DIR/dispatch.err" || true
+)
+
+if [ ! -f "$T35_DIR/dispatch.json" ]; then
+  T35_FAILS="$T35_FAILS dispatch-sin-salida-json"
+else
+  python3 -c "
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d.get('status') == 'CREATED', 'status no es CREATED'
+assert d.get('deliberation') == 'PENDING', 'deliberation no es PENDING'
+assert d.get('task_id') == 'T-35W', 'task_id incorrecto'
+assert 'worktree_path' in d, 'falta worktree_path'
+" "$T35_DIR/dispatch.json" 2>/dev/null || T35_FAILS="$T35_FAILS dispatch-json-contrato-invalido"
+
+  WT_PATH="$T35_DIR/repo-T-35W"
+  if [ -f "$WT_PATH/.agents/context/worktree.env" ]; then
+    grep -q 'AGENT_OS_DELIBERATION_FILE=' "$WT_PATH/.agents/context/worktree.env" || T35_FAILS="$T35_FAILS worktree-env-sin-deliberation-file"
+  else
+    T35_FAILS="$T35_FAILS worktree-env-no-creado"
+  fi
+
+  if [ -f "$WT_REGISTRY" ]; then
+    python3 -c "
+import json, sys
+lines = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+assert any(l.get('task_id') == 'T-35W' and l.get('status') == 'CREATED' and l.get('deliberation') == 'PENDING' for l in lines)
+" "$WT_REGISTRY" 2>/dev/null || T35_FAILS="$T35_FAILS dispatched-jsonl-sin-registro-valido"
+  else
+    T35_FAILS="$T35_FAILS dispatched-jsonl-no-creado"
+  fi
+
+  git -C "$WT_REPO" worktree remove --force "$WT_PATH" 2>/dev/null || true
+fi
+
+ORCH_MD="$ROOT/.agents/workflows/parallel-orchestration.md"
+grep -q 'deliberate-plan.sh' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-deliberate-plan"
+grep -q 'dispatched.jsonl' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-dispatched-jsonl"
+grep -i -q 'FASE 2.*deliberaci[oó]n' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-fase-2-deliberacion"
+
+rm -rf "$T35_DIR" 2>/dev/null || true
+
+if [ -n "$T35_FAILS" ]; then
+  echo -e "  ❌ ERROR: Sprint 21 incumple:$T35_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Persistencia de deliberación multi-sesión validada (T-124);"
+  echo -e "     contratos de handover y perfiles declarativos consistentes (T-125);"
+  echo -e "     despacho con aislamiento, deliberación y trazabilidad en dispatched.jsonl (T-126)."
 fi
 
 # ------------------------------------------------------------------------------

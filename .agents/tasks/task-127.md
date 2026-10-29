@@ -25,7 +25,7 @@ Sprint 21 consolida la arquitectura multi-agente de Agent OS. El Check 35 debe v
 - `.agents/tasks/task-127.md`
 
 ## Criterios de done
-- [ ] Ocurrencias del denominador actualizadas de `[X/34]` a `[X/35]` (34 ocurrencias existentes).
-- [ ] Check 35 implementado verificando persistencia de deliberación, perfiles de handover y aislamiento de worktrees.
-- [ ] Suite completa `tests/validate-control-plane.sh` pasando 35/35 checks exitosamente (0 errores).
-- [ ] Frontera portable (Check 22) y cero regresiones certificadas.
+- [x] Ocurrencias del denominador actualizadas de `[X/34]` a `[X/35]` (34 ocurrencias existentes).
+- [x] Check 35 implementado verificando persistencia de deliberación, perfiles de handover y aislamiento de worktrees.
+- [x] Suite completa `tests/validate-control-plane.sh` pasando 35/35 checks exitosamente (0 errores).
+- [x] Frontera portable (Check 22) y cero regresiones certificadas.
