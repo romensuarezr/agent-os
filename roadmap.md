@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno (Sprint 22 completado, pendiente planning de Sprint 23).
+- Sprint 23 — Revisor Ejecutor con Orca ADE, Arbitraje Multi-Nivel y Verificación Autónoma (T-133 a T-136, en curso). Ver `docs/sprints/sprint-23-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
