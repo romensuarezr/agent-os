@@ -25,7 +25,7 @@ Esta tarea resuelve esta desconexión:
 - `.agents/tasks/task-128.md`
 
 ## Criterios de done
-- [ ] `worktree-merge.sh` detecta y copia `.agents/context/deliberation-${TASK_ID}.json` desde el worktree al checkout principal previo a `git worktree remove`.
-- [ ] Preservación del contrato JSON emitido por `worktree-merge.sh` con campo informativo del rescate de deliberación.
-- [ ] Idempotencia y tolerancia a fallos: no falla si el worktree no contenía deliberación (modo tolerante).
-- [ ] Verificación determinista en test aislado sin alterar el checkout principal ni violar la allowlist.
+- [x] `worktree-merge.sh` detecta y copia `.agents/context/deliberation-${TASK_ID}.json` desde el worktree al checkout principal previo a `git worktree remove`.
+- [x] Preservación del contrato JSON emitido por `worktree-merge.sh` con campo informativo del rescate de deliberación.
+- [x] Idempotencia y tolerancia a fallos: no falla si el worktree no contenía deliberación (modo tolerante).
+- [x] Verificación determinista en test aislado sin alterar el checkout principal ni violar la allowlist.
