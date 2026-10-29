@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- (Ninguno en curso — Sprint 21 completado; próximo sprint por planificar)
+- Sprint 22 — Resiliencia de Orquestación Multi-Agente, Puentes de Estado y Flujos Autónomos (T-128 a T-131, planificación en curso). Ver `docs/sprints/sprint-22-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
