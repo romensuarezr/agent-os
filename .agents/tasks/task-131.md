@@ -28,7 +28,7 @@ Esta tarea implementa el **Check 36** como ensayo end-to-end automatizado:
 - `.agents/tasks/task-131.md`
 
 ## Criterios de done
-- [ ] Ocurrencias del denominador actualizadas de `[X/35]` a `[X/36]` en todo el script.
-- [ ] Check 36 implementado verificando el ciclo completo (despacho, deliberación, rescate en merge, digest no degradado en cierre).
-- [ ] Suite completa ejecutando 36/36 comprobaciones exitosamente sin regresiones (0 errores).
-- [ ] Limpieza total del árbol e índice tras la ejecución del test.
+- [x] Ocurrencias del denominador actualizadas de `[X/35]` a `[X/36]` en todo el script.
+- [x] Check 36 implementado verificando el ciclo completo (despacho, deliberación, rescate en merge, digest no degradado en cierre).
+- [x] Suite completa ejecutando 36/36 comprobaciones exitosamente sin regresiones (0 errores).
+- [x] Limpieza total del árbol e índice tras la ejecución del test.
