@@ -90,6 +90,9 @@ if [ "$CHECK_SCOUT" = true ]; then
 
   RESEARCH_FILE="$ROOT_DIR/docs/sprints/sprint-${SPRINT_NUM}-research.md"
   if [ ! -f "$RESEARCH_FILE" ]; then
+    RESEARCH_FILE="$ROOT_DIR/docs/sprints/_archived/sprint-${SPRINT_NUM}-research.md"
+  fi
+  if [ ! -f "$RESEARCH_FILE" ]; then
     echo "❌ Error: Archivo de research no encontrado: $RESEARCH_FILE" >&2
     echo "💡 Regla: 'Sin research scout estructurado no hay plan de sprint admisible'." >&2
     exit 1
@@ -232,32 +235,36 @@ except Exception:
 scout_status = "OMITIDO (sin research registrado / tarea heredada)"
 scout_details = []
 sprints_dir = os.path.join(root, "docs", "sprints")
-if os.path.isdir(sprints_dir):
-    for fname in sorted(os.listdir(sprints_dir)):
-        if fname.startswith("sprint-") and fname.endswith("-research.md"):
-            rpath = os.path.join(sprints_dir, fname)
-            try:
-                with open(rpath, "r", encoding="utf-8") as rf:
-                    rtext = rf.read()
-                import re
-                pattern = rf"^###\s+{re.escape(task_id)}\b.*$"
-                m = re.search(pattern, rtext, re.MULTILINE)
-                if m:
-                    scout_status = f"CONFORME ({fname})"
-                    start_pos = m.end()
-                    rest = rtext[start_pos:]
-                    sub_lines = []
-                    for line in rest.splitlines():
-                        line_s = line.strip()
-                        if line_s.startswith("### ") or line_s.startswith("## ") or line_s.startswith("---"):
-                            break
-                        if line_s:
-                            sub_lines.append(line_s.lstrip("- *"))
-                    if sub_lines:
-                        scout_details = sub_lines[:4]
-                    break
-            except Exception:
-                pass
+search_dirs = [sprints_dir, os.path.join(sprints_dir, "_archived")]
+for sdir in search_dirs:
+    if os.path.isdir(sdir):
+        for fname in sorted(os.listdir(sdir)):
+            if fname.startswith("sprint-") and fname.endswith("-research.md"):
+                rpath = os.path.join(sdir, fname)
+                try:
+                    with open(rpath, "r", encoding="utf-8") as rf:
+                        rtext = rf.read()
+                    import re
+                    pattern = rf"^###\s+{re.escape(task_id)}\b.*$"
+                    m = re.search(pattern, rtext, re.MULTILINE)
+                    if m:
+                        scout_status = f"CONFORME ({fname})"
+                        start_pos = m.end()
+                        rest = rtext[start_pos:]
+                        sub_lines = []
+                        for line in rest.splitlines():
+                            line_s = line.strip()
+                            if line_s.startswith("### ") or line_s.startswith("## ") or line_s.startswith("---"):
+                                break
+                            if line_s:
+                                sub_lines.append(line_s.lstrip("- *"))
+                        if sub_lines:
+                            scout_details = sub_lines[:4]
+                        break
+                except Exception:
+                    pass
+        if "CONFORME" in scout_status:
+            break
 
 # Construir Markdown
 md = []
