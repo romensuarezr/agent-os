@@ -448,7 +448,7 @@ if [ -z "$RAW_REVIEW" ] && [ "$ORCA_ENABLED" = "true" ]; then
         fi
 
         # Inyectar instrucción de evaluación estática directa para ceñirse al presupuesto
-        SPEC_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA: Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto delimitado entre <!-- VERDICT_JSON_START --> y <!-- VERDICT_JSON_END --> en stdout."
+        SPEC_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO 15s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto delimitado entre <!-- VERDICT_JSON_START --> y <!-- VERDICT_JSON_END --> en stdout."
 
         START_ARGS=()
         [ -n "$RUN_ID" ] && START_ARGS+=(--run "$RUN_ID")
@@ -632,6 +632,7 @@ print(json.dumps(d.get("skills_evaluation", {"status": "ok"})))
 ' <<< "$RAW_REVIEW" 2>/dev/null || echo '{"status": "ok"}')
 else
   # REVISADO_CON_CAMBIOS, RECHAZADO o ESCALADO_A_HUMANO
+  ROUND=2
   FINAL_VERDICT="$STATUS"
   DESIGN_SUMMARY=$(python3 -c '
 import json, sys
