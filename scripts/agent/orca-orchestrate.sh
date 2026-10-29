@@ -37,22 +37,21 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Resolver ejecutable de Orca
-ORCA_BIN=""
-if command -v orca >/dev/null 2>&1; then
-    ORCA_BIN="orca"
-elif [ -x "$HOME/.config/orca/linux-orca-cli-shim/orca" ]; then
-    ORCA_BIN="$HOME/.config/orca/linux-orca-cli-shim/orca"
-elif [ -x "/opt/Orca/resources/bin/orca-ide" ]; then
-    ORCA_BIN="/opt/Orca/resources/bin/orca-ide"
-fi
+# Cargar cliente unificado de Orca ADE (T-133)
+# shellcheck source=scripts/agent/lib/orca-client.sh
+source "$SCRIPT_DIR/lib/orca-client.sh" 2>/dev/null || {
+    echo "❌ ERROR: No se pudo cargar lib/orca-client.sh" >&2
+    exit 1
+}
+
+# Resolver ejecutable de Orca a través de la biblioteca unificada
+ORCA_BIN="$(orca_resolve_bin 2>/dev/null || true)"
 
 # Contrato T-105 para los 10 subcomandos existentes + run-flow:
 #
 #   sonda_runtime()  clasifica SIN abortar (siempre return 0) en RUNTIME_STATE:
 #                      RUNTIME_OK | CLI_AUSENTE | RUNTIME_SIN_RESPUESTA.
-#                    La sonda va acotada a 15 s: un homónimo (`/usr/bin/orca`
-#                    v46.1, ajeno al ADE) cuelga `status` para siempre (T-104).
+#                    La sonda va acotada (<1s) mediante orca_is_ready.
 #   check_orca()     mantiene fail-hard para los subcomandos directos, con
 #                    mensaje accionable. SOLO run-flow usa el clasificador
 #                    para el fail-soft; el resto aborta como siempre.
@@ -62,7 +61,7 @@ sonda_runtime() {
         RUNTIME_STATE="CLI_AUSENTE"
         return 0
     fi
-    if python3 -c "import subprocess,sys; sys.exit(subprocess.run(['$ORCA_BIN','status','--json'],capture_output=True,timeout=15).returncode)" >/dev/null 2>&1; then
+    if orca_is_ready; then
         RUNTIME_STATE="RUNTIME_OK"
     else
         RUNTIME_STATE="RUNTIME_SIN_RESPUESTA"
@@ -654,7 +653,7 @@ PYEOF
             exit 0
         fi
 
-        $ORCA_BIN orchestration worker-start "${DISPATCH_ARGS[@]}" --json
+        orca_worker_start "${DISPATCH_ARGS[@]}" --json
         ;;
 
     create-gate)

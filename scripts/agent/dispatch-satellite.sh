@@ -300,16 +300,14 @@ fi
 # ------------------------------------------------------------------------------
 # 4. Detección de runtime (la ausencia de Orca es una ruta, no un error)
 #
-# La sonda está acotada a 15 s a propósito: en esta misma máquina existe un
-# binario ajeno con el mismo nombre (`/usr/bin/orca`, v46.1, no es el ADE)
-# cuyo `status` no termina nunca. Sin cota, un homónimo cuelga el despacho.
-# La cota se implementa con stdlib de python3 (ya es dependencia del core)
-# para no exigir `timeout(1)`, que macOS no trae.
+# La sonda usa orca_is_ready (<1s de timeout) de lib/orca-client.sh (T-133),
+# evitando cuelgues ante homónimos conflictivos como /usr/bin/orca de GNOME.
 # ------------------------------------------------------------------------------
+# shellcheck source=scripts/agent/lib/orca-client.sh
+source "$SCRIPT_DIR/lib/orca-client.sh" 2>/dev/null || true
+
 HAS_RUNTIME=false
-if command -v orca >/dev/null 2>&1 && python3 -c \
-  "import subprocess,sys; sys.exit(subprocess.run(['orca','status'],capture_output=True,timeout=15).returncode)" \
-  >/dev/null 2>&1; then
+if command -v orca_is_ready >/dev/null 2>&1 && orca_is_ready; then
   HAS_RUNTIME=true
 fi
 
@@ -343,7 +341,7 @@ if [ "$ROUTE" = "orca" ]; then
     exit 1
   fi
   [ -z "$BASE" ] && BASE="$(git -C "$SAT_ABS" rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
-  RAW="$(orca orchestration worker-start \
+  RAW="$(orca_worker_start \
     --task-title "dispatch $TASK_ID -> $SATELLITE" \
     --spec "Agent-OS dispatch: tarea $TASK_ID (perfil $PROFILE, rama $BRANCH) en el satélite $SATELLITE" \
     --repo "path:$SAT_ABS" --worktree new-child --agent "$AGENT" --json 2>&1)" || {
