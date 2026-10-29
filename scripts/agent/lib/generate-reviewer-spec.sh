@@ -241,6 +241,13 @@ q_forbidden = q_tooling.get("forbidden") or []
 if isinstance(q_forbidden, str):
     q_forbidden = [q_forbidden]
 
+q_skills = qa_judge_data.get("skills") or {}
+if not isinstance(q_skills, dict):
+    q_skills = {}
+q_skills_forbidden = q_skills.get("forbidden") or []
+if isinstance(q_skills_forbidden, str):
+    q_skills_forbidden = [q_skills_forbidden]
+
 r_forbidden = reviewer_data.get("forbidden_actions") or []
 if isinstance(r_forbidden, str):
     r_forbidden = [r_forbidden]
@@ -297,6 +304,14 @@ lines = [
 
 for f_item in all_forbidden:
     lines.append(f"- {f_item}")
+
+if q_skills_forbidden:
+    lines.extend([
+        "",
+        "Skills explícitamente prohibidas (skills.forbidden):",
+    ])
+    for s_item in q_skills_forbidden:
+        lines.append(f"- {s_item}")
 
 lines.extend([
     "",
