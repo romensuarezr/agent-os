@@ -81,6 +81,11 @@ task_routing_matrix:
     timeout_seconds: 5
     max_automatic_rounds: 1
     preferred_model: "auto"
+    orca_revisor:
+      enabled: true
+      agent: "opencode"
+      role: "qa-judge"
+      timeout_seconds: 60
     fallback_cascade:
       - "freellmapi"
       - "omniroute"
