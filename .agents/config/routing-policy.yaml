@@ -85,7 +85,7 @@ task_routing_matrix:
       enabled: true
       agent: "opencode"
       role: "qa-judge"
-      timeout_seconds: 15
+      timeout_seconds: 60
     fallback_cascade:
       - "freellmapi"
       - "omniroute"

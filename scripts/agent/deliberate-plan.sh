@@ -105,6 +105,7 @@ cleanup_worker() {
   if [ -n "${ORCA_DISPATCH_ID:-}" ]; then
     local disp="$ORCA_DISPATCH_ID"
     ORCA_DISPATCH_ID=""
+    orca_cmd orchestration worker-stop --dispatch "$disp" --json >/dev/null 2>&1 || true
     orca_worker_release --dispatch "$disp" --json >/dev/null 2>&1 || true
   fi
 }
@@ -448,7 +449,7 @@ if [ -z "$RAW_REVIEW" ] && [ "$ORCA_ENABLED" = "true" ]; then
         fi
 
         # Inyectar instrucción de evaluación estática directa para ceñirse al presupuesto
-        SPEC_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO 15s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto delimitado entre <!-- VERDICT_JSON_START --> y <!-- VERDICT_JSON_END --> en stdout."
+        SPEC_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO 60s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto según el contrato y delimitadores indicados en la directiva."
 
         START_ARGS=()
         [ -n "$RUN_ID" ] && START_ARGS+=(--run "$RUN_ID")
@@ -474,7 +475,7 @@ if [ -z "$RAW_REVIEW" ] && [ "$ORCA_ENABLED" = "true" ]; then
 
             READ_OUT="$(orca_worker_read --dispatch "$ORCA_DISPATCH_ID" --limit 100 --json 2>/dev/null || true)"
             PARSED_VERDICT="$(python3 -c '
-import json, sys
+import json, sys, re
 
 start_delim = "<!-- VERDICT_JSON_START -->"
 end_delim = "<!-- VERDICT_JSON_END -->"
@@ -493,18 +494,39 @@ try:
         lines = res.get("terminal", {}).get("tail", [])
     
     full_text = "\n".join(lines)
-    s_idx = full_text.rfind(start_delim)
-    e_idx = full_text.rfind(end_delim)
-    if s_idx != -1 and e_idx > s_idx:
-        chunk = full_text[s_idx + len(start_delim):e_idx].strip()
-        if "```json" in chunk:
-            chunk = chunk.split("```json")[1].split("```")[0].strip()
-        elif "```" in chunk:
-            chunk = chunk.split("```")[1].split("```")[0].strip()
-        
-        parsed = json.loads(chunk, strict=False)
-        if "verdict" in parsed:
-            print(json.dumps(parsed))
+    matches = []
+    pos = 0
+    while True:
+        s = full_text.find(start_delim, pos)
+        if s == -1:
+            break
+        e = full_text.find(end_delim, s + len(start_delim))
+        if e == -1:
+            break
+        matches.append((s, e))
+        pos = e + len(end_delim)
+
+    for s_idx, e_idx in reversed(matches):
+        raw_chunk = full_text[s_idx + len(start_delim):e_idx]
+        cleaned_lines = []
+        for line in raw_chunk.splitlines():
+            l = re.sub(r"^[│┃╹╻|\s]+", "", line)
+            l = re.sub(r"\s{6,}\S.*$", "", l)
+            l = re.sub(r"[│┃╹╻|\s]+$", "", l)
+            cleaned_lines.append(l)
+        cleaned = "\n".join(cleaned_lines)
+        s_brace = cleaned.find("{")
+        e_brace = cleaned.rfind("}")
+        if s_brace != -1 and e_brace > s_brace:
+            json_str = cleaned[s_brace:e_brace + 1]
+            try:
+                parsed = json.loads(json_str, strict=False)
+                v = parsed.get("verdict", "").strip().upper()
+                if v in ["CONSENSO", "REVISADO_CON_CAMBIOS", "ESCALADO_A_HUMANO", "RECHAZADO"]:
+                    print(json.dumps(parsed))
+                    break
+            except Exception:
+                continue
 except Exception:
     pass
 ' "$READ_OUT" 2>/dev/null || true)"
