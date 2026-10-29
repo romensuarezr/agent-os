@@ -33,8 +33,8 @@
 #  28. Copias no destructivas portables: agent_cp_n sin warnings ni sobrescritura (T-110).
 #  29. Informe de lote read-only: report no muta estado y degrada sin runtime (T-112).
 #  30. VERSION alineado con la release del changelog (lectura semver, idempotencia) (T-113).
-#  31. fleet-version.sh: estados y sincronización de versiones (T-114).
-#  32. secrets.sh: inyección segura y rotación determinista (T-115, T-116).
+#  31. fleet-version.sh: estados y sincronización de versiones (T-115).
+#  32. secrets.sh: inyección segura y rotación determinista (T-117).
 #  33. redact.sh: redacción determinista sin red y normas de secretos (T-118).
 #  34. Deliberación de planes, workflows de sesión y digests de diseño (T-119, T-120, T-121).
 #  35. Gobernanza multi-agente, contratos de handover y despacho con deliberación (T-124, T-125, T-126).
@@ -1941,6 +1941,7 @@ grep -q 'Executive Design Digest' "$SS" || T34_FAILS="$T34_FAILS session-start-s
 grep -q 'APROBADO' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-aprobado"
 
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
+git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
 if [ -n "$T34_FAILS" ]; then
   echo -e "  ❌ ERROR: Sprint 20 incumple:$T34_FAILS"
@@ -2001,6 +2002,7 @@ if [ -f "$RAW_JSON" ]; then
   RAW_TASK="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('task_id',''))" "$RAW_JSON" 2>/dev/null || true)"
   [ "$RAW_TASK" = "T-996" ] || T35_FAILS="$T35_FAILS raw-json-task-id-invalido($RAW_TASK)"
   rm -f "$RAW_JSON" 2>/dev/null || true
+  git rm -q --cached "$RAW_JSON" 2>/dev/null || true
 else
   T35_FAILS="$T35_FAILS raw-json-no-archivado"
 fi
@@ -2081,7 +2083,7 @@ fi
 ORCH_MD="$ROOT/.agents/workflows/parallel-orchestration.md"
 grep -q 'deliberate-plan.sh' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-deliberate-plan"
 grep -q 'dispatched.jsonl' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-dispatched-jsonl"
-grep -i -q 'FASE 2.*deliberaci[oó]n' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-fase-2-deliberacion"
+grep -i -q 'FASE 2.*deliberaci' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-fase-2-deliberacion"
 
 rm -rf "$T35_DIR" 2>/dev/null || true
 
