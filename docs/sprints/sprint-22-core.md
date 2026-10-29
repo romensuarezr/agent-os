@@ -10,6 +10,7 @@
 | T-129 | Enforcement Scout y Auditoría de Completitud en Workflow de Planning (`sprint-planning.md` y validación en `design-digest.sh`) | DX / Workflow | S | ✅ Completada | — | [.agents/tasks/task-129.md](.agents/tasks/_archived/task-129.md) |
 | T-130 | Cascada de Inferencia y Fallback Resiliente en Routing Policy (`routing-policy.yaml` y `deliberate-plan.sh`) | Nueva herramienta / Core | S | ✅ Completada | — | [.agents/tasks/task-130.md](.agents/tasks/_archived/task-130.md) |
 | T-131 | Ensayo End-to-End del Bucle Multi-Agente con Check 36 y Denominador 35→36 en `validate-control-plane.sh` | DX / Tests | M | ✅ Completada | T-128, T-129, T-130 | [.agents/tasks/task-131.md](.agents/tasks/_archived/task-131.md) |
+| T-132 | Resolución Histórica de Research Archivado en `design-digest.sh` | DX / Core | S | ⬜ Pendiente | T-129 | [.agents/tasks/task-132.md](.agents/tasks/task-132.md) |
 
 ## Notas de planning
 
