@@ -84,51 +84,107 @@ fi
 [ -n "$OUTPUT_FILE" ] || OUTPUT_FILE="$ROOT_DIR/.agents/context/plan-deliberation.json"
 
 # ==============================================================================
-# 1. RESOLUCIÓN DE CONFIGURACIÓN Y ENDPOINT (Check 22: Cero Literales de Infra)
+# 1. RESOLUCIÓN DE CASCADA DE INFERENCIA (Check 22: Cero Literales de Infra)
 # ==============================================================================
-resolve_inference_endpoint() {
-  local url="${INFERENCE_BASE_URL:-}"
-  local key="${INFERENCE_API_KEY:-}"
+resolve_inference_cascade() {
+  python3 -c '
+import os, sys, yaml, re, json
 
-  if [ -z "$url" ] && [ -f "$ROOT_DIR/.agents/config/fleet.yaml" ]; then
-    url=$(python3 -c '
-import yaml, os
-try:
-    with open("'"$ROOT_DIR"'/.agents/config/fleet.yaml") as f:
-        cfg = yaml.safe_load(f)
-    gw = cfg.get("inference_gateways", {}).get("freellmapi", {})
-    print(gw.get("base_url", ""))
-except Exception:
-    print("")
-' 2>/dev/null || true)
-  fi
+root = os.environ.get("AGENT_OS_ROOT", "'"$ROOT_DIR"'")
+routing_file = os.environ.get("AGENT_OS_ROUTING_POLICY", os.path.join(root, ".agents", "config", "routing-policy.yaml"))
+fleet_file = os.environ.get("AGENT_OS_FLEET_CONFIG", os.path.join(root, ".agents", "config", "fleet.yaml"))
 
-  if [ -z "$key" ] && [ -f "$ROOT_DIR/.agents/config/fleet.yaml" ]; then
-    local env_var_name
-    env_var_name=$(python3 -c '
-import yaml
-try:
-    with open("'"$ROOT_DIR"'/.agents/config/fleet.yaml") as f:
-        cfg = yaml.safe_load(f)
-    gw = cfg.get("inference_gateways", {}).get("freellmapi", {})
-    print(gw.get("env_var", ""))
-except Exception:
-    print("")
-' 2>/dev/null || true)
-    if [ -n "$env_var_name" ]; then
-      key="${!env_var_name:-}"
-    fi
-  fi
+cascade = []
+endpoints_cfg = {}
+timeout_seconds = int('"$TIMEOUT"')
 
-  [ -n "$url" ] || url="${FREELLMAPI_URL:-http://localhost:3001/v1}"
-  [ -n "$key" ] || key="${FREELLMAPI_API_KEY:-freeapi}"
+if os.path.isfile(routing_file):
+    try:
+        with open(routing_file, "r", encoding="utf-8") as f:
+            rp = yaml.safe_load(f) or {}
+        endpoints_cfg = rp.get("endpoints", {})
+        delib_cfg = rp.get("task_routing_matrix", {}).get("deliberation_and_review", {})
+        cascade = delib_cfg.get("fallback_cascade", [])
+        if not cascade:
+            for key in ["primary", "secondary", "fallback"]:
+                val = delib_cfg.get(key)
+                if val and val not in cascade:
+                    cascade.append(val)
+        if "timeout_seconds" in delib_cfg and timeout_seconds == 5:
+            try:
+                timeout_seconds = int(delib_cfg["timeout_seconds"])
+            except Exception:
+                pass
+    except Exception:
+        pass
 
-  echo "$url|$key"
+if not cascade:
+    cascade = ["freellmapi", "omniroute", "ollama-local"]
+
+fleet_cfg = {}
+if os.path.isfile(fleet_file):
+    try:
+        with open(fleet_file, "r", encoding="utf-8") as f:
+            fleet_cfg = yaml.safe_load(f) or {}
+    except Exception:
+        pass
+
+gw_fleet = fleet_cfg.get("inference_gateways", {})
+
+def expand_env(val):
+    if not val:
+        return ""
+    def repl(m):
+        var = m.group(1)
+        dflt = m.group(2) if m.group(2) is not None else ""
+        return os.environ.get(var, dflt)
+    return re.sub(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}", repl, str(val))
+
+resolved_tiers = []
+override_url = os.environ.get("INFERENCE_BASE_URL", "").strip()
+override_key = os.environ.get("INFERENCE_API_KEY", "").strip() or "freeapi"
+
+for idx, name in enumerate(cascade):
+    base_url = ""
+    api_key = ""
+
+    # Precedencia: INFERENCE_BASE_URL (prioritario para el primer tier) -> fleet.yaml -> variables de entorno / routing-policy -> loopback
+    if idx == 0 and override_url:
+        base_url = override_url
+        api_key = override_key
+    else:
+        if name in gw_fleet:
+            gw_info = gw_fleet[name]
+            base_url = expand_env(gw_info.get("base_url", ""))
+            env_key_var = gw_info.get("env_var", "")
+            if env_key_var:
+                api_key = os.environ.get(env_key_var, "")
+
+        if not base_url:
+            ep = endpoints_cfg.get(name, {})
+            base_url = expand_env(ep.get("base_url", ""))
+
+        if not base_url:
+            if name == "freellmapi":
+                base_url = os.environ.get("FREELLMAPI_URL", "http://localhost:3001/v1")
+                api_key = os.environ.get("FREELLMAPI_API_KEY", "freeapi")
+            elif name == "omniroute":
+                base_url = os.environ.get("TABBY_URL", "http://localhost:20128/v1")
+                api_key = os.environ.get("TABBY_API_KEY", "omniroute")
+            elif name == "ollama-local":
+                base_url = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434/v1")
+                api_key = "ollama"
+
+    if base_url and not any(t["url"] == base_url for t in resolved_tiers):
+        resolved_tiers.append({"name": name, "url": base_url, "key": api_key or "freeapi"})
+
+print(json.dumps({"timeout": timeout_seconds, "tiers": resolved_tiers}))
+'
 }
 
-ENDPOINT_INFO=$(resolve_inference_endpoint)
-BASE_URL="${ENDPOINT_INFO%%|*}"
-API_KEY="${ENDPOINT_INFO##*|}"
+CASCADE_DATA=$(resolve_inference_cascade)
+NUM_TIERS=$(python3 -c 'import json, sys; print(len(json.loads(sys.argv[1]).get("tiers", [])))' "$CASCADE_DATA" 2>/dev/null || echo 0)
+GLOBAL_TIMEOUT="$TIMEOUT"
 
 # ==============================================================================
 # 2. RECOPILACIÓN Y ACOTE DE INVENTARIO (<4KB)
@@ -227,20 +283,55 @@ body = {
 print(json.dumps(body))
 ' <<< "$prompt_content")
 
-  local response
-  response=$(curl -s -S --max-time "$TIMEOUT" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $API_KEY" \
-    -X POST "$BASE_URL/chat/completions" \
-    -d "$req_body" 2>/dev/null || true)
+  local start_time
+  start_time=$(date +%s)
 
-  if [ -z "$response" ]; then
-    echo ""
-    return 1
-  fi
+  local idx=0
+  while [ "$idx" -lt "$NUM_TIERS" ]; do
+    local now
+    now=$(date +%s)
+    local elapsed=$(( now - start_time ))
+    local remaining=$(( GLOBAL_TIMEOUT - elapsed ))
 
-  local content
-  content=$(python3 -c '
+    if [ "$remaining" -le 0 ]; then
+      break
+    fi
+
+    local tier_timeout=$(( remaining < GLOBAL_TIMEOUT ? remaining : GLOBAL_TIMEOUT ))
+    if [ "$tier_timeout" -le 0 ]; then
+      tier_timeout=1
+    fi
+
+    local tier_info tier_name tier_url tier_key
+    tier_info=$(python3 -c '
+import json, sys
+data = json.loads(sys.argv[1])
+idx = int(sys.argv[2])
+tiers = data.get("tiers", [])
+if idx < len(tiers):
+    t = tiers[idx]
+    n = t.get("name", "")
+    u = t.get("url", "")
+    k = t.get("key", "")
+    print(f"{n}|{u}|{k}")
+' "$CASCADE_DATA" "$idx" 2>/dev/null || true)
+
+    tier_name="${tier_info%%|*}"
+    local rest="${tier_info#*|}"
+    tier_url="${rest%%|*}"
+    tier_key="${rest##*|}"
+
+    if [ -n "$tier_url" ]; then
+      local response
+      response=$(curl -s -S --max-time "$tier_timeout" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $tier_key" \
+        -X POST "$tier_url/chat/completions" \
+        -d "$req_body" 2>/dev/null || true)
+
+      if [ -n "$response" ]; then
+        local content
+        content=$(python3 -c '
 import json, sys
 try:
     data = json.loads(sys.stdin.read())
@@ -248,14 +339,20 @@ try:
     print(c)
 except Exception:
     print("")
-' <<< "$response")
+' <<< "$response" 2>/dev/null || true)
 
-  if [ -z "$content" ]; then
-    return 1
-  fi
+        if [ -n "$content" ]; then
+          echo "$content"
+          return 0
+        fi
+      fi
+    fi
 
-  echo "$content"
-  return 0
+    idx=$(( idx + 1 ))
+  done
+
+  echo ""
+  return 1
 }
 
 # ==============================================================================
