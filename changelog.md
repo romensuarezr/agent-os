@@ -9,6 +9,23 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.17.0] — sprint-21 — 2026-10-29
+
+### ✨ Features
+
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(deliberation): persistencia y handover de deliberación multi-sesión vía deliberation-${TASK_ID}.json (T-124)
+
+### 🐛 Bug Fixes
+
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+
+### 📚 Documentación
+
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+
 ## [1.16.0] — sprint-20 — 2026-10-28
 
 ### ✨ Features

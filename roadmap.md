@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 21 — Arquitectura Multi-Agente, Orquestación y Workflows (T-124 a T-127, planificación en curso). Ver `docs/sprints/sprint-21-core.md`.
+- (Ninguno en curso — Sprint 21 completado; próximo sprint por planificar)
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 21**: Arquitectura Multi-Agente, Orquestación y Workflows (T-124 a T-127). Formalizado como release `v1.17.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-21-core.md`.
 - **Sprint 20**: Deliberación Cruzada Autónoma y Executive Design Digest (T-119 a T-123). Formalizado como release `v1.16.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-20-core.md`.
 - **Sprint 19**: Versiones, Honestidad del Escáner y Seguridad de Secretos (T-113 a T-118). Formalizado como release `v1.15.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-19-core.md`.
 - **Sprint 18**: Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Publicado en `main` como `v1.14.0` (tag `v1.14.0` sobre `cdb1566`).

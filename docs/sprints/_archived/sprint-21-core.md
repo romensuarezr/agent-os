@@ -1,7 +1,7 @@
 # Sprint 21 — Arquitectura Multi-Agente, Orquestación y Workflows
 
 ## Estado
-⚪ Planificado (en proceso de aprobación de planning)
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
