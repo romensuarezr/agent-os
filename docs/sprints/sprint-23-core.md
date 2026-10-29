@@ -1,12 +1,12 @@
 # Sprint 23 — Revisor Ejecutor con Orca ADE, Arbitraje Multi-Nivel y Verificación Autónoma
 
 ## Estado
-⚪ Planificado (en proceso de aprobación de planning)
+🟡 En curso
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
-| T-133 | Cliente Unificado `lib/orca-client.sh` y Detección Portable de Runtime (`orca-ide`) | Nueva herramienta / Core | S | ⬜ Pendiente | — | [.agents/tasks/task-133.md](.agents/tasks/task-133.md) |
+| T-133 | Cliente Unificado `lib/orca-client.sh` y Detección Portable de Runtime (`orca-ide`) | Nueva herramienta / Core | S | ✅ Completada | — | [.agents/tasks/task-133.md](.agents/tasks/_archived/task-133.md) |
 | T-134 | Especificación Inyectable de Revisor Ejecutor Derivada de `qa-judge.md` y `reviewer.yaml` | DX / Workflow | S | ⬜ Pendiente | — | [.agents/tasks/task-134.md](.agents/tasks/task-134.md) |
 | T-135 | Refactor de `deliberate-plan.sh` (Orca Prioritario, Fallback a Cascada HTTP y Degradación Segura) | Core / Deliberación | M | ⬜ Pendiente | T-133, T-134 | [.agents/tasks/task-135.md](.agents/tasks/task-135.md) |
 | T-136 | Check 37 en `validate-control-plane.sh` (Certificación E2E de Revisor Ejecutor y Denominador 36→37) | DX / Tests | M | ⬜ Pendiente | T-133, T-134, T-135 | [.agents/tasks/task-136.md](.agents/tasks/task-136.md) |
