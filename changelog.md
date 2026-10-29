@@ -9,6 +9,20 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.18.0] — sprint-22 — 2026-10-29
+
+### ✨ Features
+
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto temporal global (T-130)
+- feat(workflow): compuerta obligatoria de prospeccion scout y auditoria en planning (T-129)
+- feat(orchestration): puente de deliberacion worktree -> checkout principal antes de purga (T-128)
+
+### 📚 Documentación
+
+- docs(sprint-22): prospección tecnológica scout a $0 tokens y contratos de resiliencia multi-agente
+
 ## [1.17.0] — sprint-21 — 2026-10-29
 
 ### ✨ Features

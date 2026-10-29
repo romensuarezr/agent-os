@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 22 — Resiliencia de Orquestación Multi-Agente, Puentes de Estado y Flujos Autónomos (T-128 a T-131, planificación en curso). Ver `docs/sprints/sprint-22-core.md`.
+- Ninguno (Sprint 22 completado, pendiente planning de Sprint 23).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 22**: Resiliencia de Orquestación Multi-Agente, Puentes de Estado y Flujos Autónomos (T-128 a T-132). Formalizado como release `v1.18.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-22-core.md`.
 - **Sprint 21**: Arquitectura Multi-Agente, Orquestación y Workflows (T-124 a T-127). Formalizado como release `v1.17.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-21-core.md`.
 - **Sprint 20**: Deliberación Cruzada Autónoma y Executive Design Digest (T-119 a T-123). Formalizado como release `v1.16.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-20-core.md`.
 - **Sprint 19**: Versiones, Honestidad del Escáner y Seguridad de Secretos (T-113 a T-118). Formalizado como release `v1.15.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-19-core.md`.
