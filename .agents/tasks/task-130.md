@@ -22,7 +22,7 @@ Esta tarea formaliza la propuesta evaluada del inbox de vídeos respecto a la re
 - `.agents/tasks/task-130.md`
 
 ## Criterios de done
-- [ ] `routing-policy.yaml` enriquecido con esquema declarativo para cascada de inferencia y timeouts acotados.
-- [ ] `deliberate-plan.sh` implementa la evaluación de endpoints en cascada sin superar los límites temporales globales.
-- [ ] Degradación determinista a `SIN_REVISOR` preservada cuando ningún tier de la cascada responde.
-- [ ] Cero dependencias duras ni exposición de credenciales o URLs hardcodeadas en el core.
+- [x] `routing-policy.yaml` enriquecido con esquema declarativo para cascada de inferencia y timeouts acotados.
+- [x] `deliberate-plan.sh` implementa la evaluación de endpoints en cascada sin superar los límites temporales globales.
+- [x] Degradación determinista a `SIN_REVISOR` preservada cuando ningún tier de la cascada responde.
+- [x] Cero dependencias duras ni exposición de credenciales o URLs hardcodeadas en el core.
