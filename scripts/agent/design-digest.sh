@@ -36,22 +36,26 @@ EXPLICIT_KEYS=""
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     show_help "design-digest.sh" \
-      "bash scripts/agent/design-digest.sh --task-id <ID> [--output <PATH>] [--keys <K1,K2>] [--json]" \
+      "bash scripts/agent/design-digest.sh --task-id <ID> [--output <PATH>] [--keys <K1,K2>] [--check-scout] [--json]" \
       "Genera el registro histórico de diseño y deliberación de una tarea, redactando secretos con lib/redact.sh." \
-      "--task-id <ID>       ID de la tarea que se cierra (ej: T-121)." \
+      "--task-id <ID>       ID de la tarea que se cierra (ej: T-121) o número de sprint para --check-scout." \
       "--output <PATH>      Ruta de destino del digest (defecto: docs/sprints/design-decisions/T-XXX-digest.md)." \
       "--keys <K1,K2>       Nombres de claves explícitas a redactar (separadas por comas)." \
+      "--check-scout        Valida la presencia y completitud de docs/sprints/sprint-XX-research.md en planning." \
       "--json               Emite la información generada como JSON a stdout." \
       "-h, --help           Muestra este mensaje de ayuda." \
       "ejemplo: bash scripts/agent/design-digest.sh --task-id T-121"
   fi
 done
 
+CHECK_SCOUT=false
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --task-id) TASK_ID="$2"; shift 2 ;;
     --output) OUTPUT_FILE="$2"; shift 2 ;;
     --keys) EXPLICIT_KEYS="$2"; shift 2 ;;
+    --check-scout) CHECK_SCOUT=true; shift ;;
     --json) JSON_OUTPUT=true; shift ;;
     T-[0-9]*|[0-9]*)
       if [ -z "$TASK_ID" ]; then
@@ -64,6 +68,41 @@ while [[ $# -gt 0 ]]; do
     *) echo "❌ Argumento desconocido: $1" >&2; exit 64 ;;
   esac
 done
+
+if [ "$CHECK_SCOUT" = true ]; then
+  SPRINT_NUM=""
+  if [ -n "$TASK_ID" ]; then
+    if [[ "$TASK_ID" =~ ^[0-9]+$ ]]; then
+      SPRINT_NUM="$TASK_ID"
+    elif [[ "$TASK_ID" =~ ^T-([0-9]+) ]]; then
+      SPRINT_NUM="${BASH_REMATCH[1]}"
+    elif [[ "$TASK_ID" =~ ^sprint-([0-9]+) ]]; then
+      SPRINT_NUM="${BASH_REMATCH[1]}"
+    fi
+  fi
+
+  if [ -z "$SPRINT_NUM" ]; then
+    SPRINT_FILE=$(find "$ROOT_DIR/docs/sprints" -maxdepth 1 \( -name "sprint-*-core.md" -o -name "sprint-[0-9]*.md" \) 2>/dev/null | grep -v "_archived" | sort -V | tail -n 1 || true)
+    if [ -n "$SPRINT_FILE" ]; then
+      SPRINT_NUM=$(basename "$SPRINT_FILE" | sed -E 's/sprint-([0-9]+).*/\1/')
+    fi
+  fi
+
+  RESEARCH_FILE="$ROOT_DIR/docs/sprints/sprint-${SPRINT_NUM}-research.md"
+  if [ ! -f "$RESEARCH_FILE" ]; then
+    echo "❌ Error: Archivo de research no encontrado: $RESEARCH_FILE" >&2
+    echo "💡 Regla: 'Sin research scout estructurado no hay plan de sprint admisible'." >&2
+    exit 1
+  fi
+
+  if ! grep -q "## Descubrimientos Scout (por tarea)" "$RESEARCH_FILE"; then
+    echo "❌ Error: $RESEARCH_FILE no contiene la sección obligatoria '## Descubrimientos Scout (por tarea)'." >&2
+    exit 1
+  fi
+
+  echo "✅ Verificación Scout Conforme: $RESEARCH_FILE cuenta con '## Descubrimientos Scout (por tarea)'."
+  exit 0
+fi
 
 if [ -z "$TASK_ID" ]; then
   # Intentar deducir de la rama activa
@@ -189,6 +228,37 @@ try:
 except Exception:
     recent_commit_msg = ""
 
+# 4. Prospección Scout (T-129): verificación en sprint-XX-research.md
+scout_status = "OMITIDO (sin research registrado / tarea heredada)"
+scout_details = []
+sprints_dir = os.path.join(root, "docs", "sprints")
+if os.path.isdir(sprints_dir):
+    for fname in sorted(os.listdir(sprints_dir)):
+        if fname.startswith("sprint-") and fname.endswith("-research.md"):
+            rpath = os.path.join(sprints_dir, fname)
+            try:
+                with open(rpath, "r", encoding="utf-8") as rf:
+                    rtext = rf.read()
+                import re
+                pattern = rf"^###\s+{re.escape(task_id)}\b.*$"
+                m = re.search(pattern, rtext, re.MULTILINE)
+                if m:
+                    scout_status = f"CONFORME ({fname})"
+                    start_pos = m.end()
+                    rest = rtext[start_pos:]
+                    sub_lines = []
+                    for line in rest.splitlines():
+                        line_s = line.strip()
+                        if line_s.startswith("### ") or line_s.startswith("## ") or line_s.startswith("---"):
+                            break
+                        if line_s:
+                            sub_lines.append(line_s.lstrip("- *"))
+                    if sub_lines:
+                        scout_details = sub_lines[:4]
+                    break
+            except Exception:
+                pass
+
 # Construir Markdown
 md = []
 md.append(f"# Executive Design Digest — {task_id}")
@@ -199,6 +269,10 @@ md.append("")
 md.append("## 🏛️ Decisiones de Arquitectura y Buenas Prácticas")
 md.append(f"- **Veredicto de Deliberación**: `{verdict}` (Rondas: {rounds})")
 md.append(f"- **Síntesis de Diseño**: {summary}")
+md.append(f"- **Prospección Scout**: `{scout_status}`")
+if scout_details:
+    for d in scout_details:
+        md.append(f"  - {d}")
 if recent_commit_msg:
     md.append(f"- **Mensaje de Cierre**: `{recent_commit_msg}`")
 md.append("")

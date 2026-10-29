@@ -145,9 +145,14 @@ Tras la decisión del usuario sobre la tabla del paso 7 (adoptar / desarrollo a 
 - **Recomendación del agente:** adoptar / desarrollo a medida
 - **Decisión del usuario:** [adoptar | desarrollo a medida justificado — motivo en 1 línea]
 - **Notas de integración:** [cómo usarla en la tarea, o N/A]
+- **Alternativas rechazadas y motivos:** [lista de opciones descartadas con su motivo explícito]
 ```
 
-Una subsección por cada tarea candidata evaluada en 2d, incluidas las marcadas "desarrollo a medida justificado".
+Una subsección por cada tarea candidata evaluada en 2d, incluidas las marcadas "desarrollo a medida justificado" y sin alternativas viables.
+
+> 🔒 **Compuerta obligatoria (Gate Scout-First, T-129):**
+> **"Sin research scout estructurado no hay plan de sprint admisible."**
+> Ninguna propuesta de sprint puede pasar a la entrega (paso 7) ni someterse a aprobación humana sin que `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` exista en disco y contenga la sección `## Descubrimientos Scout (por tarea)` con una subsección `### T-XXX` para cada tarea planificada del sprint. Si no hay alternativas viables para un tema, debe declararse explícitamente "sin alternativa aplicable" con su justificación técnica; ninguna subsección puede quedar vacía.
 
 ---
 
@@ -320,6 +325,7 @@ Justo antes del mensaje de pausa del paso 6:
    ```
 7. El prompt para Perplexity listo para copiar.
 8. Ruta del sprint file creado.
+9. **Verificación de compuerta Scout-First (T-129):** Confirmar explícitamente la presencia de `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` con su sección `## Descubrimientos Scout (por tarea)` completa para todas las tareas del sprint. Si falta el research estructurado, detenerse inmediatamente: *"Sin research scout estructurado no hay plan de sprint admisible"*.
 
 ## Reglas
 
@@ -334,6 +340,7 @@ Justo antes del mensaje de pausa del paso 6:
 - **Obligatorio para tareas técnicas y nuevas herramientas**: Toda tarea candidata que introduzca conectores, integraciones, agentes, scrapers o utilidades debe evaluarse previamente con `scout.sh`.
 - Si existe una alternativa consolidada (≥500⭐, licencia permisiva MIT/Apache), la recomendación por defecto es la integración/adopción frente al desarrollo a medida.
 - **Coste cero**: El agente solo consume el digest estructurado producido por el script CLI, garantizando 0 tokens en la fase de búsqueda.
+- **Compuerta estricta de completitud (T-129)**: *"Sin research scout estructurado no hay plan de sprint admisible"*. El documento `sprint-{{SPRINT_SIGUIENTE}}-research.md` es condición de entrega previa a la pausa o solicitud de aprobación humana. Debe incluir subsecciones para cada tarea planificada, documentando alternativas detectadas, recomendaciones, decisiones y opciones rechazadas con su motivo explícito.
 
 ### Escala de Progreso del MVP
 - **0%**: Sin implementación.
