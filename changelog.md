@@ -9,6 +9,20 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.19.0] — sprint-23 — 2026-10-30
+
+### ✨ Features
+
+- feat(tests): Check 37 certificación E2E revisor ejecutor y denominador 36->37 (T-136)
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s (T-135)
+- feat(orchestration): refactor jerárquico de deliberate-plan.sh con orca prioritario y degradación segura (T-135)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT y emisión de skills prohibidas (T-134)
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolución portable de runtime (T-133)
+
+### 📚 Documentación
+
+- docs(sprint-23): Revisor Ejecutor con Orca ADE, arbitraje multi-nivel y verificación autónoma
+
 ## [1.18.0] — sprint-22 — 2026-10-29
 
 ### ✨ Features

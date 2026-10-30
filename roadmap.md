@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 23 — Revisor Ejecutor con Orca ADE, Arbitraje Multi-Nivel y Verificación Autónoma (T-133 a T-136, en curso). Ver `docs/sprints/sprint-23-core.md`.
+- Ninguno (Sprint 23 completado, pendiente planning de Sprint 24).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 23**: Revisor Ejecutor con Orca ADE, Arbitraje Multi-Nivel y Verificación Autónoma (T-133 a T-136). Formalizado como release `v1.19.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-23-core.md`.
 - **Sprint 22**: Resiliencia de Orquestación Multi-Agente, Puentes de Estado y Flujos Autónomos (T-128 a T-132). Formalizado como release `v1.18.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-22-core.md`.
 - **Sprint 21**: Arquitectura Multi-Agente, Orquestación y Workflows (T-124 a T-127). Formalizado como release `v1.17.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-21-core.md`.
 - **Sprint 20**: Deliberación Cruzada Autónoma y Executive Design Digest (T-119 a T-123). Formalizado como release `v1.16.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-20-core.md`.
