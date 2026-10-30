@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno (Sprint 24 completado, pendiente planning de Sprint 25).
+- **Sprint 25**: Despacho Paralelo Controlado (Piloto de Validación del Gate de Paralelismo) (T-141 a T-145). Ver `docs/sprints/sprint-25-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
