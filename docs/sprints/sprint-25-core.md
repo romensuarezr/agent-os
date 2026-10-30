@@ -8,7 +8,7 @@
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
 | T-141 | Pre-flight del gate y batería de calibración concurrente (10 ejecuciones) | Core / Benchmarking | M | ✅ Completada | — | [.agents/tasks/task-141.md](.agents/tasks/_archived/task-141.md) |
 | T-142 | Despacho paralelo supervisado con patrón reactivo Orca (`check --wait` + `worker-read` + `--ack`) | Core / Orquestación | M | ✅ Completada | T-141 | [.agents/tasks/task-142.md](.agents/tasks/_archived/task-142.md) |
-| T-143 | Aislamiento concurrente de variables y archivos de contexto | Core / Hardening | S | ⬜ Pendiente | T-142 | [.agents/tasks/task-143.md](.agents/tasks/task-143.md) |
+| T-143 | Aislamiento concurrente de variables y archivos de contexto | Core / Hardening | S | ✅ Completada | T-142 | [.agents/tasks/task-143.md](.agents/tasks/_archived/task-143.md) |
 | T-144 | Estabilidad de terminales, censo `worker-list` y recolección de basura | Core / Resiliencia | S | ⬜ Pendiente | T-143 | [.agents/tasks/task-144.md](.agents/tasks/task-144.md) |
 | T-145 | Informe final y evaluación de compuerta GO/NO-GO del piloto paralelo | Documentación / Gobernanza | S | ⬜ Pendiente | T-141, T-142, T-143, T-144 | [.agents/tasks/task-145.md](.agents/tasks/task-145.md) |
 
