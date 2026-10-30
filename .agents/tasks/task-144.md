@@ -17,9 +17,9 @@ Esta tarea introduce una utilidad centralizada de saneamiento y trampas de salid
 - `.agents/tasks/task-144.md`
 
 ## Criterios de done
-- [ ] Módulo `scripts/agent/lib/terminal-reaper.sh` implementado con registro de workers activos y traps de limpieza (`EXIT`, `INT`, `TERM`).
-- [ ] Secuencia de liberación determinista (`worker-stop` + `worker-release`) garantizada ante interrupción forzada o salida anómala.
-- [ ] Verificación determinista post-ejecución: `orca orchestration worker-list --json` reporta 0 terminales activas o residuales.
-- [ ] Prueba de estrés simulando aborto abrupto (`SIGINT`/kill de proceso) confirmando que no quedan terminales zombies.
-- [ ] Plan deliberado en Fase 3.5: SIN_REVISOR por timeout/indisponibilidad de pasarela (aprobación del relé, sin Revisor Ejecutor vivo).
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene.
+- [x] Módulo `scripts/agent/lib/terminal-reaper.sh` implementado con registro de workers activos (`REAPER_TRACKED_DISPATCHES`), traps POSIX deterministas (`EXIT`, `INT`, `TERM`, `HUP`) e integración unificada en `deliberate-plan.sh`.
+- [x] Secuencia de liberación determinista (`worker-stop` + `worker-release`) garantizada ante interrupción forzada o salida anómala; fail-safe `worker-abandon` condicionado a backend alcanzable y log para inspección humana en desconexión total.
+- [x] Verificación determinista post-ejecución: `orca orchestration worker-list --terminal-state active --json` reporta 0 terminales activas (`result.workers: []`, `result.page.total: 0`, `delta_active == 0`).
+- [x] Prueba de estrés simulando aborto abrupto (`SIGINT` rc=130 y `SIGTERM` rc=143) confirmando que los traps ejecutan `reaper_cleanup_all` y no quedan terminales zombies.
+- [x] Plan deliberado en Fase 3.5: SIN_REVISOR por timeout/indisponibilidad de pasarela (aprobación del relé, sin Revisor Ejecutor vivo).
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene.
