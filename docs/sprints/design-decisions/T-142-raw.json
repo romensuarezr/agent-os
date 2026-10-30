@@ -1,0 +1,17 @@
+{
+  "task_id": "T-142",
+  "verdict": "SIN_REVISOR",
+  "role": "none",
+  "evaluator_tier": "fallback_safe",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "Revisor no disponible (timeout de pasarela >60s). Se activa fallback seguro a aprobación manual clásica del relé.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "skipped",
+    "reason": "sin_revisor"
+  },
+  "inventory_scoped_bytes": 2114,
+  "plan_source": ".agents/context/plan-draft.md"
+}
