@@ -21,10 +21,11 @@ Esta tarea recopila los datos reales del sprint y redacta el informe analítico 
 - `.agents/tasks/task-140.md`
 
 ## Criterios de done
-- [ ] Datos de telemetría y métricas operativas de T-137, T-138 y T-139 consolidados en el informe.
-- [ ] Distribución de latencias (sonda, inferencia del worker, lectura, veredicto) documentada con tiempos reales del host.
-- [ ] Tasa de disponibilidad del Nivel 1 (Orca) y eficacia del fallback analizadas.
-- [ ] Criterios cuantitativos y salvaguardas arquitectónicas para el paso al despacho paralelo formalizados.
-- [ ] Documento `docs/sprints/sprint-24-observation-report.md` redactado y enlazado en la documentación del core.
-- [ ] Plan de la tarea deliberado en Fase 3.5 con el Revisor Ejecutor vivo en host.
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene de secretos/rutas.
+- [x] Telemetría del ciclo consolidada: 3/3 CONSENSO vivo tier orca, 1 ronda por tarea, T-137 23.4s (default 60s), T-138 37.2s (override 90s), T-139 ~28s (override 90s), 0 objeciones en los tres.
+- [x] Patrón de timeout documentado: el override de 90s se usó en T-138/T-139 pero no fue necesario (37.2s y ~28s < 60s); el default de 60s bastó para todo el sprint. Conclusión estricta de no subir routing-policy a 90s sin un caso empírico que supere 60s.
+- [x] Cifra de sondeo activo de T-139 citada con rigor: ~20 invocaciones CLI/Python por deliberación de 30s (§5), corrigiendo el error conceptual de 'por minuto'.
+- [x] Arrastre abierto explicitado: nota de prospección scout exhaustiva diferida a Sprint 26+/gobernanza, y la línea de resumen §1 de T-139 pendiente de retoque.
+- [x] Criterio cuantitativo de paso al paralelo (Sprint 25) formalizado: umbrales numéricos de latencia, tasa admisible de degradación, estabilidad de terminales (cero huérfanos) y aislamiento concurrente para el GO, junto a las condiciones de bloqueo (NO-GO).
+- [x] Documento canónico redactado en `docs/sprints/sprint-24-observation-report.md` cumpliendo la caja estricta (cero código).
+- [x] Plan de la tarea deliberado y aprobado en Fase 3.5 con el Revisor Ejecutor vivo en host.
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene de secretos/rutas.
