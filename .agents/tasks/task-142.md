@@ -26,7 +26,7 @@ Frente al dictamen NO-GO obtenido en la batería de T-141 (donde `T-BENCH-10` su
 - [x] Filtrado estricto de keepalives en stderr (`._keepalive`) y extracción atómica de `deliveryId` y `dispatchId`.
 - [x] Acuse de recibo automático (`--ack <deliveryId>`) implementado tras cada consumo de entrega, omitiéndolo estrictamente ante entregas ajenas.
 - [x] Integración en `deliberate-plan.sh` con cálculo de timeout decreciente y fallback transparente a sondeo activo (`sleep 1.5`) ante cualquier anomalía.
-- [x] Medición comparativa documentada en el reporte: cuantificación de la reducción de llamadas CLI (1 check + 1 read frente a ~20 de polling mediante `ORCA_CALLS_LOG`) sin alterar la latencia base de inferencia.
-- [x] Ausencia demostrada de re-emisiones de eventos residuales en el buzón FIFO de orquestación.
-- [x] Plan de la tarea deliberado en Fase 3.5 con el Revisor Ejecutor vivo en host (timeout 60s, sin overrides).
+- [x] Medición comparativa documentada: cuantificación empírica en arnés de test (1 llamada `worker-read` en modo reactivo vs 2+ en sondeo activo) contrastada con la proyección teórica (~20 llamadas para una deliberación típica de ~30s con intervalos de 1.5s) mediante instrumentación con `ORCA_CALLS_LOG`, sin alterar la latencia base de inferencia.
+- [x] Ausencia demostrada de re-emisiones de eventos residuales en el buzón FIFO de orquestación (evidencia: consumo atómico verificado con `--ack <deliveryId>`, buzón limpio sin entregas residuales y preservación estricta de entregas ajenas sin acuse).
+- [x] Plan de la tarea deliberado en Fase 3.5 con resultado SIN_REVISOR por timeout de pasarela (>60s en FreeLLMAPI) y aprobación manual del relé (humano) — sin consenso vivo de Revisor Ejecutor.
 - [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene.
