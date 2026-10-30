@@ -81,9 +81,23 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+[ -n "$TASK_ID" ] || TASK_ID="T-UNKNOWN"
+if [ "$TASK_ID" != "T-UNKNOWN" ] && [[ ! "$TASK_ID" =~ ^T- ]]; then
+  TASK_ID="T-${TASK_ID}"
+fi
+
+# Resolución de plan (T-143): --plan explícito manda siempre.
+# Si no se pasó --plan, resolución caller-driven: si hay TASK_ID y existe plan-draft-${TASK_ID}.md, se usa;
+# de lo contrario, cae a plan-draft.md.
 if [ -z "$PLAN_FILE" ]; then
-  echo "❌ Error: Argumento --plan <PATH> es obligatorio." >&2
-  exit 64
+  if [ "$TASK_ID" != "T-UNKNOWN" ] && [ -f "$ROOT_DIR/.agents/context/plan-draft-${TASK_ID}.md" ]; then
+    PLAN_FILE="$ROOT_DIR/.agents/context/plan-draft-${TASK_ID}.md"
+  elif [ -f "$ROOT_DIR/.agents/context/plan-draft.md" ]; then
+    PLAN_FILE="$ROOT_DIR/.agents/context/plan-draft.md"
+  else
+    echo "❌ Error: Argumento --plan <PATH> es obligatorio o debe existir borrador en .agents/context/." >&2
+    exit 64
+  fi
 fi
 
 if [ ! -f "$PLAN_FILE" ]; then
@@ -91,11 +105,17 @@ if [ ! -f "$PLAN_FILE" ]; then
   exit 1
 fi
 
-[ -n "$TASK_ID" ] || TASK_ID="T-UNKNOWN"
-if [ "$TASK_ID" != "T-UNKNOWN" ] && [[ ! "$TASK_ID" =~ ^T- ]]; then
-  TASK_ID="T-${TASK_ID}"
+# Resolución canónica de archivo de veredicto (T-143):
+# Si no se especificó --output:
+#   - Si hay TASK_ID válido, default canónico: .agents/context/deliberation-${TASK_ID}.json
+#   - Si TASK_ID es T-UNKNOWN, default fallback: .agents/context/plan-deliberation.json
+if [ -z "$OUTPUT_FILE" ]; then
+  if [ "$TASK_ID" != "T-UNKNOWN" ]; then
+    OUTPUT_FILE="$ROOT_DIR/.agents/context/deliberation-${TASK_ID}.json"
+  else
+    OUTPUT_FILE="$ROOT_DIR/.agents/context/plan-deliberation.json"
+  fi
 fi
-[ -n "$OUTPUT_FILE" ] || OUTPUT_FILE="$ROOT_DIR/.agents/context/plan-deliberation.json"
 
 # ==============================================================================
 # TRAP DE LIBERACIÓN DE WORKER EN TODOS LOS CAMINOS
@@ -774,13 +794,37 @@ data = {
 print(json.dumps(data, indent=2))
 ')
 
-echo "$DELIBERATION_JSON" > "$OUTPUT_FILE"
+# Escritura atómica POSIX con limpieza garantizada ante error (T-143)
+write_atomic_json() {
+  local target_file="$1"
+  local content="$2"
+  local target_dir
+  target_dir="$(dirname "$target_file")"
+  mkdir -p "$target_dir"
+
+  local tmp_file
+  tmp_file="$(mktemp "${target_file}.tmp.XXXXXX")"
+  if ! echo "$content" > "$tmp_file"; then
+    rm -f "$tmp_file" 2>/dev/null || true
+    echo "❌ Error: Falló la escritura en archivo temporal para $target_file" >&2
+    return 1
+  fi
+  if ! mv -f "$tmp_file" "$target_file"; then
+    rm -f "$tmp_file" 2>/dev/null || true
+    echo "❌ Error: Falló el reemplazo atómico para $target_file" >&2
+    return 1
+  fi
+}
+
+write_atomic_json "$OUTPUT_FILE" "$DELIBERATION_JSON"
 
 # Persistencia de deliberación nombrada para handover multi-sesión (T-124)
+# REGLA VINCULANTE T-143: Si OUTPUT_FILE == NAMED_DELIB_FILE, se realiza UNA SOLA escritura.
 if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "T-UNKNOWN" ]; then
   NAMED_DELIB_FILE="$ROOT_DIR/.agents/context/deliberation-${TASK_ID}.json"
-  mkdir -p "$(dirname "$NAMED_DELIB_FILE")"
-  echo "$DELIBERATION_JSON" > "$NAMED_DELIB_FILE"
+  if [ "$OUTPUT_FILE" != "$NAMED_DELIB_FILE" ]; then
+    write_atomic_json "$NAMED_DELIB_FILE" "$DELIBERATION_JSON"
+  fi
 fi
 
 if [ "$JSON_OUTPUT" = true ]; then

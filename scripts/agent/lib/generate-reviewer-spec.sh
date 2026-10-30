@@ -103,11 +103,20 @@ if [ ! -f "$REVIEWER_FILE" ]; then
 fi
 
 if [ -n "$PLAN_FILE" ]; then
+    # Contrato del escritor (T-143): --plan explícito manda siempre
     if [ ! -f "$PLAN_FILE" ]; then
         echo "❌ ERROR: Archivo de plan especificado no existe: $PLAN_FILE" >&2
         exit 1
     fi
     PLAN_TEXT="$(cat "$PLAN_FILE")"
+elif [ -z "$PLAN_TEXT" ]; then
+    # Resolución caller-driven (T-143): si no se pasó --plan ni --plan-text,
+    # resolver borrador particionado si existe plan-draft-${TASK_ID}.md, o caer a plan-draft.md
+    if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "T-UNKNOWN" ] && [ -f "$REPO_ROOT/.agents/context/plan-draft-${TASK_ID}.md" ]; then
+        PLAN_TEXT="$(cat "$REPO_ROOT/.agents/context/plan-draft-${TASK_ID}.md")"
+    elif [ -f "$REPO_ROOT/.agents/context/plan-draft.md" ]; then
+        PLAN_TEXT="$(cat "$REPO_ROOT/.agents/context/plan-draft.md")"
+    fi
 fi
 
 # Invocación del compilador determinista en Python
