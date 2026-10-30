@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno (Sprint 23 completado, pendiente planning de Sprint 24).
+- **Sprint 24**: Deliberación en producción durante un ciclo completo con el revisor vivo (T-137 a T-140). Ver `docs/sprints/sprint-24-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
