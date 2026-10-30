@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
-| T-137 | Deuda cosmética de T-135 (cabecera y ayuda de `deliberate-plan.sh` en 60s/~66s) | DX / Universalización | S | ⬜ Pendiente | — | [.agents/tasks/task-137.md](.agents/tasks/task-137.md) |
+| T-137 | Deuda cosmética de T-135 (cabecera y ayuda de `deliberate-plan.sh` en 60s/~66s) | DX / Universalización | S | ✅ Completada | — | [.agents/tasks/task-137.md](.agents/tasks/_archived/task-137.md) |
 | T-138 | Corregir y archivar el scout de ciclo de vida Orca (runbooks y guías de arquitectura) | Documentación / Core | S | ⬜ Pendiente | T-137 | [.agents/tasks/task-138.md](.agents/tasks/task-138.md) |
 | T-139 | Verificar el recolector de eventos Orca en host (`check --run --wait` frente a `--types`, payload `worker_done`) | Core / Investigación Empírica | M | ⬜ Pendiente | T-138 | [.agents/tasks/task-139.md](.agents/tasks/task-139.md) |
 | T-140 | Informe de observación del ciclo con criterio de paso al paralelo | Documentación / Gobernanza | S | ⬜ Pendiente | T-137, T-138, T-139 | [.agents/tasks/task-140.md](.agents/tasks/task-140.md) |
