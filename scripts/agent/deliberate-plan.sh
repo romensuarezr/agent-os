@@ -466,15 +466,40 @@ if [ -z "$RAW_REVIEW" ] && [ "$ORCA_ENABLED" = "true" ]; then
         ORCA_DISPATCH_ID="$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("result", {}).get("dispatchId") or "")' "$START_OUT" 2>/dev/null || true)"
 
         if [ -n "$ORCA_DISPATCH_ID" ]; then
-          while true; do
+          # Intento 1: Espera reactiva orientada a eventos (orca-reactive-wait.sh)
+          REACTIVE_LIB="$SCRIPT_DIR/lib/orca-reactive-wait.sh"
+          if [ -f "$REACTIVE_LIB" ]; then
+            # shellcheck source=scripts/agent/lib/orca-reactive-wait.sh
+            source "$REACTIVE_LIB"
             NOW_TS=$(date +%s)
             ELAPSED=$(( NOW_TS - ORCA_START_TS ))
-            if [ "$ELAPSED" -ge "$ORCA_TIMEOUT" ]; then
-              break
+            REMAINING_TIMEOUT=$(( ORCA_TIMEOUT - ELAPSED ))
+            if [ "$REMAINING_TIMEOUT" -gt 0 ]; then
+              if REACTIVE_VERDICT="$(orca_reactive_wait_for_verdict "$ORCA_DISPATCH_ID" "$RUN_ID" "$REMAINING_TIMEOUT")"; then
+                if [ -n "$REACTIVE_VERDICT" ]; then
+                  RAW_REVIEW="$REACTIVE_VERDICT"
+                  EVALUATOR_ROLE="$SPEC_ROLE"
+                  EVALUATION_TIER="orca"
+                fi
+              fi
             fi
+          fi
 
-            READ_OUT="$(orca_worker_read --dispatch "$ORCA_DISPATCH_ID" --limit 100 --json 2>/dev/null || true)"
-            PARSED_VERDICT="$(python3 -c '
+          # Intento 2 / Fallback: Sondeo activo tradicional si la espera reactiva no obtuvo veredicto
+          if [ -z "$RAW_REVIEW" ]; then
+            while true; do
+              NOW_TS=$(date +%s)
+              ELAPSED=$(( NOW_TS - ORCA_START_TS ))
+              if [ "$ELAPSED" -ge "$ORCA_TIMEOUT" ]; then
+                break
+              fi
+
+              if [ -n "${ORCA_CALLS_LOG:-}" ]; then
+                echo "poll worker-read $(date +%s%N) $ORCA_DISPATCH_ID" >> "$ORCA_CALLS_LOG"
+              fi
+
+              READ_OUT="$(orca_worker_read --dispatch "$ORCA_DISPATCH_ID" --limit 100 --json 2>/dev/null || true)"
+              PARSED_VERDICT="$(python3 -c '
 import json, sys, re
 
 start_delim = "<!-- VERDICT_JSON_START -->"
@@ -531,15 +556,16 @@ except Exception:
     pass
 ' "$READ_OUT" 2>/dev/null || true)"
 
-            if [ -n "$PARSED_VERDICT" ]; then
-              RAW_REVIEW="$PARSED_VERDICT"
-              EVALUATOR_ROLE="$SPEC_ROLE"
-              EVALUATION_TIER="orca"
-              break
-            fi
+              if [ -n "$PARSED_VERDICT" ]; then
+                RAW_REVIEW="$PARSED_VERDICT"
+                EVALUATOR_ROLE="$SPEC_ROLE"
+                EVALUATION_TIER="orca"
+                break
+              fi
 
-            sleep 1.5
-          done
+              sleep 1.5
+            done
+          fi
 
           # Liberar terminal garantizado
           cleanup_worker
