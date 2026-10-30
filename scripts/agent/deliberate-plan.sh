@@ -7,7 +7,7 @@
 #
 # Jerarquía determinista de 3 niveles:
 #   1. Nivel 1 — Orca ADE: Revisor Ejecutor supervisado con spec declarativa (T-134)
-#      bajo aislamiento estricto (env -i) y presupuesto acotado (15s).
+#      bajo aislamiento estricto (env -i) y presupuesto acotado (60s).
 #   2. Nivel 2 — Cascada HTTP: Fallback de 3 tiers (freellmapi -> omniroute -> ollama-local)
 #      con presupuesto global estricto de 5s ante fallo de transporte/timeout de Orca.
 #   3. Nivel 3 — Degradación Segura: Emisión de SIN_REVISOR ($0 tokens) si la cascada
@@ -16,7 +16,7 @@
 # Principios y Guardarraíles:
 #   1. Máximo 1 ronda de corrección automática (tope absoluto 2 rondas).
 #      Sin consenso → ESCALADO_A_HUMANO. Nunca bucle infinito.
-#   2. Timeout total en peor caso ~21s (<1s sonda + 15s Orca + 5s cascada HTTP).
+#   2. Timeout total en peor caso ~66s (<1s sonda + 60s Orca + 5s cascada HTTP).
 #   3. Inventario acotado (<4KB): allowlist primero, ficheros de skills declaradas
 #      y árbol estructural filtrado. Declara si hubo truncamiento.
 #   4. Endpoints y agente configurables en routing-policy.yaml / fleet.yaml, nunca hardcodeados.
@@ -59,7 +59,7 @@ for arg in "$@"; do
       "--task-id <ID>       ID de la tarea activa (ej: T-135)." \
       "--output <PATH>      Ruta de destino del veredicto estructurado (defecto: .agents/context/plan-deliberation.json)." \
       "--timeout <SEG>      Timeout para la cascada HTTP en segundos (defecto: 5s)." \
-      "--orca-timeout <SEG> Timeout máximo para el worker de Orca ADE en segundos (defecto: 15s)." \
+      "--orca-timeout <SEG> Timeout máximo para el worker de Orca ADE en segundos. Precedencia: flag CLI > routing-policy.yaml (60s) > centinela en script (15s)." \
       "--no-orca            Omite la ejecución en Orca ADE (salta directamente a Nivel 2 / HTTP)." \
       "--mock <JSON/TEXT>   Payload simulado exclusivo para pruebas automatizadas (ignorado si no se indica)." \
       "--json               Emite el resultado final como JSON estructurado por stdout." \

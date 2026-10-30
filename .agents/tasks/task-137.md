@@ -16,8 +16,8 @@ Esta tarea aborda estrictamente la deuda cosmética y documental del script sin 
 - `.agents/tasks/task-137.md`
 
 ## Criterios de done
-- [ ] Comentarios de cabecera de `scripts/agent/deliberate-plan.sh` actualizados a 60s de timeout del Revisor y ~66s de latencia peor caso.
-- [ ] Texto de ayuda CLI (`show_help`) documenta con claridad la jerarquía de precedencia: argumento CLI `--orca-timeout` > directiva `orca_revisor.timeout_seconds` de `routing-policy.yaml` (60s) > valor centinela por defecto (15s).
-- [ ] Valor centinela `15` en el código de inicialización de variables de `deliberate-plan.sh` preservado para mantener intacta la precedencia algorítmica.
-- [ ] Plan de la tarea deliberado en Fase 3.5 con el Revisor Ejecutor vivo en host.
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene de secretos/rutas.
+- [x] Comentarios de cabecera de `scripts/agent/deliberate-plan.sh` actualizados a 60s de timeout del Revisor y ~66s de latencia peor caso.
+- [x] Texto de ayuda CLI (`show_help`) documenta con claridad la jerarquía de precedencia: argumento CLI `--orca-timeout` > directiva `orca_revisor.timeout_seconds` de `routing-policy.yaml` (60s) > valor centinela por defecto (15s).
+- [x] Valor centinela `15` en el código de inicialización de variables de `deliberate-plan.sh` preservado para mantener intacta la precedencia algorítmica.
+- [x] Plan de la tarea deliberado en Fase 3.5 con el Revisor Ejecutor vivo en host.
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene de secretos/rutas.
