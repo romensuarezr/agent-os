@@ -9,6 +9,19 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.20.0] — sprint-24 — 2026-10-30
+
+### ✨ Features / Gobernanza
+
+- feat(orchestrator): informe de observación del ciclo con telemetría real y criterio de paso al paralelo (T-140)
+- feat(orchestrator): verificación empírica del recolector de eventos reactivo de Orca en host (T-139)
+- feat(orchestration): runbook canónico del ciclo de vida Orca, aislamiento env -i y alineación de docs (T-138)
+- feat(deliberate): alineación de ayuda y cabecera de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+
+### 📚 Documentación
+
+- docs(sprint-24): Deliberación en producción durante un ciclo completo con el revisor vivo (T-137 a T-140)
+
 ## [1.19.0] — sprint-23 — 2026-10-30
 
 ### ✨ Features
