@@ -25,9 +25,9 @@ Se formaliza la decisión de diferir el archivado de una nota scout retrospectiv
 - `.agents/tasks/task-138.md`
 
 ## Criterios de done
-- [x] Comandos de despacho documentados con precisión, distinguiendo modo interactivo GUI (`worktree create`, `worktree ps`, `worktree list`) del flujo de orquestación desacoplado (`worktree-dispatch.sh` + `worker-start`).
+- [x] Comandos de despacho documentados con precisión: eliminado el uso informal de --prompt en ejemplos de orquestación, aportada evidencia de orca worktree create --help, y distinguiendo el modo interactivo (worktree create, worktree ps, worktree list) del flujo desacoplado (worktree-dispatch.sh + worker-start con directiva estructurada).
 - [x] Documentada la máquina de estados canónica del worker en Orca ADE: inicio (`worker-start`), monitoreo/lectura (`worker-read`), detención (`worker-stop`) y liberación forzosa/limpieza (`worker-release`).
-- [x] Documentado el requisito de aislamiento de entorno `env -i` con whitelist explícita de variables (`HOME`, `PATH`, `USER`, etc.) para prevenir contaminación de credenciales.
+- [x] Documentado el requisito de aislamiento de entorno `env -i` con la whitelist canónica exacta de 10 variables de `orca-client.sh` (`HOME`, `PATH`, `USER`, `SHELL`, `LANG`, `LC_ALL`, `TMPDIR`, `ORCA_USER_DATA_PATH`, `ORCA_TERMINAL_HANDLE`, `ORCA_CALLS_LOG`).
 - [x] Sondas de disponibilidad actualizadas para reflejar el uso primario de `orca status --json` con verificación de `.result.runtime.state == "ready"`.
 - [x] Decisión de diferir la nota scout exhaustiva al backlog de Sprint 26+ registrada, con constancia de arrastre en T-140.
 - [x] Plan de la tarea deliberado en Fase 3.5 con el Revisor Ejecutor vivo en host (CONSENSO, tier orca).

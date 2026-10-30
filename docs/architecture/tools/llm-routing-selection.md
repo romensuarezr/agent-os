@@ -145,5 +145,3 @@ orca orchestration worker-release --dispatch "<dispatch_id>" --json
 ```
 
 Esta arquitectura garantiza que la orquestación multi-agente sea fluida, simultánea, segura y con un coste económico de exactamente **$0.00** en todas las fases de ejecución masiva de código.
-
-Esta arquitectura garantiza que la orquestación multi-agente sea fluida, simultánea, segura y con un coste económico de exactamente **$0.00** en todas las fases de ejecución masiva de código.

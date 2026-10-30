@@ -106,18 +106,22 @@ satélite, registro en `dispatched.jsonl`). El JSON final lo dice explícitament
 Útil cuando deseas delegar dos o tres tareas que no tienen dependencia mutua directa.
 
 #### A1. Modo Interactivo en GUI / App
-Para lanzar agentes interactivos directamente en ventanas de terminal embebidas en la aplicación Orca:
+Para aprovisionar un worktree y vincular un agente interactivo en la aplicación Orca:
 
 ```bash
-# Despachar Agente 1 (OpenCode en rama feat-auth)
-orca worktree create --repo name:<repo> --name feat-auth --no-parent --agent opencode --prompt "Implementar validador de tokens JWT en auth.ts"
+# Aprovisionar worktree y lanzar agente interactivo (OpenCode en rama feat-auth)
+orca worktree create --repo name:<repo> --name feat-auth --no-parent --agent opencode
 
-# Despachar Agente 2 en paralelo (OpenCode en rama feat-docs)
-orca worktree create --repo name:<repo> --name feat-docs --no-parent --agent opencode --prompt "Documentar endpoints en docs/api.md"
+# Aprovisionar segundo worktree en paralelo (OpenCode en rama feat-docs)
+orca worktree create --repo name:<repo> --name feat-docs --no-parent --agent opencode
 
 # Resumen de orquestación compacto a través de worktrees (o 'orca worktree list' para listado por repositorio)
 orca worktree ps
 ```
+
+> [!NOTE]
+> **Evidencia de `orca worktree create --help` y Desacoplamiento del Core**:
+> Aunque la CLI de Orca expone `--prompt <text>` (*"Prompt text for agent-backed commands"*) para inyectar instrucciones iniciales en lanzamientos interactivos de GUI, el core de Agent OS descarta su uso para la orquestación programática autónoma. En su lugar, el core reemplaza el paso de prompts informales por la secuencia canónica desacoplada (`worktree-dispatch.sh` + `orca orchestration worker-start` con especificación declarativa estructurada).
 
 #### A2. Modo Desacoplado Programático / Ralph Loop (Core de Agent OS)
 Para flujos automatizados de arbitraje, deliberación y verificación de metas (`deliberate-plan.sh`, `verify-goal.sh`), se utiliza el ciclo de vida canónico del worker:
@@ -127,7 +131,7 @@ Para flujos automatizados de arbitraje, deliberación y verificación de metas (
    orca status --json # verifica que .result.runtime.state == "ready"
    ```
 2. **Aislamiento estricto de entorno (`env -i`)**:
-   Todo worker se ejecuta aislando el entorno con una whitelist de variables explícitas (`HOME`, `PATH`, `USER`, `SHELL`, `LANG`, `LC_ALL`, `TERM`, `AGENT_OS_*`, `INFERENCE_*`), impidiendo que credenciales o tokens de la sesión coordinadora se filtren al worker.
+   Todo worker se ejecuta aislando el entorno con la whitelist canónica exacta de 10 variables de `orca-client.sh` (`HOME`, `PATH`, `USER`, `SHELL`, `LANG`, `LC_ALL`, `TMPDIR`, `ORCA_USER_DATA_PATH`, `ORCA_TERMINAL_HANDLE`, `ORCA_CALLS_LOG`), impidiendo que credenciales, variables de inferencia o tokens de la sesión coordinadora se filtren al worker.
 3. **Inicio de Worker**:
    ```bash
    orca orchestration worker-start \
