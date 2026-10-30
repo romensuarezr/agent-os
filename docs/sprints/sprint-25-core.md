@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
-| T-141 | Pre-flight del gate y batería de calibración concurrente (10 ejecuciones) | Core / Benchmarking | M | ⬜ Pendiente | — | [.agents/tasks/task-141.md](.agents/tasks/task-141.md) |
+| T-141 | Pre-flight del gate y batería de calibración concurrente (10 ejecuciones) | Core / Benchmarking | M | ✅ Completada | — | [.agents/tasks/task-141.md](.agents/tasks/_archived/task-141.md) |
 | T-142 | Despacho paralelo supervisado con patrón reactivo Orca (`check --wait` + `worker-read` + `--ack`) | Core / Orquestación | M | ⬜ Pendiente | T-141 | [.agents/tasks/task-142.md](.agents/tasks/task-142.md) |
 | T-143 | Aislamiento concurrente de variables y archivos de contexto | Core / Hardening | S | ⬜ Pendiente | T-142 | [.agents/tasks/task-143.md](.agents/tasks/task-143.md) |
 | T-144 | Estabilidad de terminales, censo `worker-list` y recolección de basura | Core / Resiliencia | S | ⬜ Pendiente | T-143 | [.agents/tasks/task-144.md](.agents/tasks/task-144.md) |
