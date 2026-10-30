@@ -118,18 +118,29 @@ if [ -z "$OUTPUT_FILE" ]; then
 fi
 
 # ==============================================================================
-# TRAP DE LIBERACIÓN DE WORKER EN TODOS LOS CAMINOS
+# GESTIÓN Y RECOLECCIÓN DETERMINISTA DE TERMINALES (Task-144)
 # ==============================================================================
+REAPER_LIB="$SCRIPT_DIR/lib/terminal-reaper.sh"
+if [ -f "$REAPER_LIB" ]; then
+  # shellcheck source=scripts/agent/lib/terminal-reaper.sh
+  source "$REAPER_LIB"
+  reaper_init "${RUN_ID:-}"
+fi
+
 ORCA_DISPATCH_ID=""
+# Delegación explícita de limpieza para unificar dueño único de liberación
 cleanup_worker() {
   if [ -n "${ORCA_DISPATCH_ID:-}" ]; then
     local disp="$ORCA_DISPATCH_ID"
     ORCA_DISPATCH_ID=""
-    orca_cmd orchestration worker-stop --dispatch "$disp" --json >/dev/null 2>&1 || true
-    orca_worker_release --dispatch "$disp" --json >/dev/null 2>&1 || true
+    if type reaper_reap_dispatch >/dev/null 2>&1; then
+      reaper_reap_dispatch "$disp" || true
+    else
+      orca_cmd orchestration worker-stop --dispatch "$disp" --json >/dev/null 2>&1 || true
+      orca_worker_release --dispatch "$disp" --json >/dev/null 2>&1 || true
+    fi
   fi
 }
-trap cleanup_worker EXIT INT TERM
 
 # ==============================================================================
 # 1. RESOLUCIÓN DE POLÍTICA DE ROUTING Y CASCADA DE INFERENCIA
@@ -486,6 +497,9 @@ if [ -z "$RAW_REVIEW" ] && [ "$ORCA_ENABLED" = "true" ]; then
         ORCA_DISPATCH_ID="$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("result", {}).get("dispatchId") or "")' "$START_OUT" 2>/dev/null || true)"
 
         if [ -n "$ORCA_DISPATCH_ID" ]; then
+          if type reaper_track_dispatch >/dev/null 2>&1; then
+            reaper_track_dispatch "$ORCA_DISPATCH_ID"
+          fi
           # Intento 1: Espera reactiva orientada a eventos (orca-reactive-wait.sh)
           REACTIVE_LIB="$SCRIPT_DIR/lib/orca-reactive-wait.sh"
           if [ -f "$REACTIVE_LIB" ]; then
@@ -587,8 +601,11 @@ except Exception:
             done
           fi
 
-          # Liberar terminal garantizado
+          # Liberar terminal garantizado (reap explícito tras veredicto o timeout)
           cleanup_worker
+          if type reaper_assert_zero_orphans >/dev/null 2>&1; then
+            reaper_assert_zero_orphans "${RUN_ID:-}" || true
+          fi
         fi
       fi
     fi
