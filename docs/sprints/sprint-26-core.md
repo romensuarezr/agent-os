@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
-| T-146 | Cierre de sprint en invocación única concatenada y determinista (`close-sprint.sh` + `update-changelog.sh`) | Core / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-146.md](.agents/tasks/task-146.md) |
+| T-146 | Cierre de sprint en invocación única concatenada y determinista (`close-sprint.sh` + `update-changelog.sh`) | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-146.md](.agents/tasks/_archived/task-146.md) |
 
 ## Notas de planning
 
