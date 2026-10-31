@@ -782,17 +782,29 @@ TASK_FIXTURE="$(mktemp -d)"
     git add -A && git commit -qm init
     printf '\n- [x] Sesion cerrada correctamente\n' >> .agents/tasks/task-100.md
     bash "$ROOT/scripts/agent/close-task.sh" T-100 "test regresion" >/dev/null 2>&1 || true
+
+    # Test fallback de mensaje en rama no-feat sin mensaje personalizado (T-150)
+    git checkout -q -b multi-agent
+    echo "| T-101 | x | S | ✅ Completada | [.agents/tasks/task-101.md](.agents/tasks/task-101.md) |" >> docs/sprints/sprint-99-core.md
+    echo "# Task-101" > .agents/tasks/task-101.md
+    git add -A && git commit -qm "feat: add task 101"
+    printf '\n- [x] T-101 completada\n' >> .agents/tasks/task-101.md
+    bash "$ROOT/scripts/agent/close-task.sh" T-101 >/dev/null 2>&1 || true
 ) 2>/dev/null
 if python3 -c "
-import pathlib, sys
+import pathlib, subprocess, sys
 d = pathlib.Path('$TASK_FIXTURE')
 sprint = (d / 'docs/sprints/sprint-99-core.md').read_text()
 assert '(.agents/tasks/_archived/task-100.md)' in sprint, 'el enlace no se actualizo a _archived/'
 assert (d / '.agents/tasks/_archived/task-100.md').exists(), 'el task file no se archivo'
+assert (d / '.agents/tasks/_archived/task-101.md').exists(), 'el task-101 no se archivo'
+last_msg = subprocess.check_output(['git', 'log', '-1', '--pretty=%B'], cwd=str(d)).decode().strip()
+assert last_msg == 'feat(T-101): cierre de tarea T-101', f'mensaje inesperado en rama no-feat: {last_msg}'
 " 2>/dev/null; then
     echo -e "  ✅ close-task.sh actualiza el enlace de la fila al archivar y el enlace resuelve."
+    echo -e "     fallback de commit en rama no-feat genera feat(T-XXX): cierre de tarea T-XXX (T-150)."
 else
-    echo -e "  ❌ ERROR: close-task.sh deja el enlace del sprint apuntando al directorio activo."
+    echo -e "  ❌ ERROR: close-task.sh deja el enlace del sprint apuntando al directorio activo o falla fallback de mensaje."
     ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$TASK_FIXTURE"

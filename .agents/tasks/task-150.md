@@ -33,17 +33,17 @@ Esta tarea acota exclusivamente la lógica de generación del mensaje por defect
 - `.agents/tasks/task-150.md`
 
 ## Criterios de done
-- [ ] Lógica de derivación de mensaje en `scripts/agent/close-task.sh` actualizada con guardia explícita para ramas no-feat.
-- [ ] En rama no-feat sin `--message`, `close-task.sh` genera el commit con mensaje determinista `feat(${TASK_ID}): cierre de tarea ${TASK_ID}` sin procesar el nombre de la rama.
-- [ ] Test de regresión incorporado en `tests/validate-control-plane.sh` (Check 18) validando el mensaje generado en ramas no-feat.
-- [ ] Plan previo legible presentado en `.agents/context/plan-draft.md` deliberado formalmente mediante `deliberate-plan.sh` (timeout default 60s).
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
+- [x] Lógica de derivación de mensaje en `scripts/agent/close-task.sh` actualizada con guardia explícita para ramas no-feat.
+- [x] En rama no-feat sin `--message`, `close-task.sh` genera el commit con mensaje determinista `feat(${TASK_ID}): cierre de tarea ${TASK_ID}` sin procesar el nombre de la rama.
+- [x] Test de regresión incorporado en `tests/validate-control-plane.sh` (Check 18) validando el mensaje generado en ramas no-feat.
+- [x] Plan previo legible presentado en `.agents/context/plan-draft.md` deliberado formalmente mediante `deliberate-plan.sh` (timeout default 60s).
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada (`feat/T-150-close-task-message-fallback`)
 - [ ] Cierre y merge autorizado por el relé

@@ -82,12 +82,16 @@ if [ -n "$CUSTOM_MSG" ]; then
     MESSAGE="${CUSTOM_MSG} (${TASK_ID})"
   fi
 else
-  BRANCH_TYPE=$(echo "$BRANCH" | sed -n 's|^\([a-zA-Z0-9_-]*\)/T-.*|\1|p')
-  [ -z "$BRANCH_TYPE" ] && BRANCH_TYPE="feat"
-  BRANCH_DESC=$(echo "$BRANCH" | sed -n "s|.*T-${TASK_NUM}-\(.*\)|\1|p" | tr '-' ' ')
-  [ -z "$BRANCH_DESC" ] && BRANCH_DESC="cierre de tarea"
+  if echo "$BRANCH" | grep -qE '^[a-zA-Z0-9_-]+/T-[0-9]+'; then
+    BRANCH_TYPE=$(echo "$BRANCH" | sed -n 's|^\([a-zA-Z0-9_-]*\)/T-.*|\1|p')
+    [ -z "$BRANCH_TYPE" ] && BRANCH_TYPE="feat"
+    BRANCH_DESC=$(echo "$BRANCH" | sed -n "s|.*T-${TASK_NUM}-\(.*\)|\1|p" | tr '-' ' ')
+    [ -z "$BRANCH_DESC" ] && BRANCH_DESC="cierre de tarea"
 
-  MESSAGE="${BRANCH_TYPE}(${TASK_ID}): ${BRANCH_DESC}"
+    MESSAGE="${BRANCH_TYPE}(${TASK_ID}): ${BRANCH_DESC}"
+  else
+    MESSAGE="feat(${TASK_ID}): cierre de tarea ${TASK_ID}"
+  fi
 fi
 
 TASK_FILE="$ROOT/.agents/tasks/task-${TASK_NUM}.md"
