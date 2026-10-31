@@ -1885,6 +1885,35 @@ else
   fi
 fi
 
+# 2b. Gate mecánico fail-closed de skills declaradas en plan contra .agents/skills/ (T-149)
+cat << 'FIXTURE_PLAN_BAD_SKILL' > "$T34_DIR/plan-bad-skill.md"
+# Plan Borrador con Skill Fantasma
+## Cláusula de Skills
+- `modern-web-guidance`: Activa para desarrollo web
+- `rule-creator`: No aplica
+FIXTURE_PLAN_BAD_SKILL
+
+RC_BAD_SKILL=0
+OUT_BAD_SKILL="$(bash "$DP" --plan "$T34_DIR/plan-bad-skill.md" --task-id T-999 2>&1)" || RC_BAD_SKILL=$?
+if [ "$RC_BAD_SKILL" -ne 1 ]; then
+  T34_FAILS="$T34_FAILS gate-skills-no-aborta-rc1($RC_BAD_SKILL)"
+fi
+if ! printf '%s\n' "$OUT_BAD_SKILL" | grep -q "❌ ERROR: Skill declarada no existe en .agents/skills/: modern-web-guidance"; then
+  T34_FAILS="$T34_FAILS gate-skills-mensaje-error-ausente"
+fi
+
+cat << 'FIXTURE_PLAN_VALID_SKILL' > "$T34_DIR/plan-valid-skill.md"
+# Plan Borrador con Skills Válidas
+## Cláusula de Skills
+- `agent-os-scripts`: Regla aplicada
+- `rule-creator`: No aplica
+FIXTURE_PLAN_VALID_SKILL
+
+OUT_VALID_SKILL="$(INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-999 --output "$T34_DIR/delib-valid.json" 2>&1 || true)"
+if printf '%s\n' "$OUT_VALID_SKILL" | grep -q "❌ ERROR: Skill declarada no existe"; then
+  T34_FAILS="$T34_FAILS gate-skills-falso-positivo"
+fi
+
 # 3. Assertar routing-policy.yaml: timeout_seconds: 5 y max_automatic_rounds: 1
 if [ -f "$RP" ]; then
   grep -q 'timeout_seconds: 5' "$RP" || T34_FAILS="$T34_FAILS routing-sin-timeout_seconds-5"
@@ -1971,6 +2000,7 @@ if [ -n "$T34_FAILS" ]; then
   ERRORS=$((ERRORS + 1))
 else
   echo -e "  ✅ deliberate-plan.sh degrada limpiamente a SIN_REVISOR sin pasarela (<1s);"
+  echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     fleet-doctor.sh incluye sonda config-driven warn-only del revisor;"

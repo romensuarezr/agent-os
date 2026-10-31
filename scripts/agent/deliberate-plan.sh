@@ -105,6 +105,72 @@ if [ ! -f "$PLAN_FILE" ]; then
   exit 1
 fi
 
+# ==============================================================================
+# VALIDACIÓN MECÁNICA FAIL-CLOSED DE SKILLS DECLARADAS (Task-149)
+# ==============================================================================
+validate_declared_skills() {
+  AGENT_OS_PLAN_FILE="$PLAN_FILE" AGENT_OS_ROOT="${AGENT_OS_ROOT:-$ROOT_DIR}" python3 -c '
+import os, sys, re
+
+root = os.environ.get("AGENT_OS_ROOT", "")
+plan_file = os.environ.get("AGENT_OS_PLAN_FILE", "")
+skills_dir = os.path.join(root, ".agents", "skills")
+
+if not os.path.isabs(plan_file):
+    plan_file = os.path.abspath(plan_file)
+
+if not os.path.isfile(plan_file):
+    sys.exit(0)
+
+try:
+    with open(plan_file, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+except Exception as e:
+    sys.stderr.write(f"❌ Error leyendo archivo de plan: {e}\n")
+    sys.exit(1)
+
+heading_pattern = re.compile(
+    r"^#{1,4}\s+(?:[0-9]+[.)]\s+)?(?:🧠\s*)?(?:Cl[aá]usula\s+de\s+Skills|Skills\s+Relevantes|SKILLS\s+APLICADAS|Skills\s+Declaradas|Skills)(?:\s*\(.*\))?\s*$",
+    re.IGNORECASE
+)
+
+in_skills = False
+declared = []
+for line in lines:
+    if heading_pattern.match(line.strip()):
+        in_skills = True
+        continue
+    if in_skills:
+        if re.match(r"^#{1,3}\s+", line):
+            break
+        if re.search(r"\b(no\s+aplica|ninguna|n/a)\b", line, re.IGNORECASE):
+            continue
+        m = re.match(r"^\s*[-*](?:\s+\[[ xX]\])?\s+`?([a-zA-Z0-9_-]+)`?(?:\s*:|\s*$|\s+)", line)
+        if m:
+            cand = m.group(1).strip("` ")
+            if not re.search(r"[a-zA-Z0-9]", cand):
+                continue
+            if cand.lower() in ["no", "ninguna", "n/a", "none", "true", "false"]:
+                continue
+            if cand not in declared:
+                declared.append(cand)
+
+missing = []
+for skill in declared:
+    s_dir = os.path.join(skills_dir, skill)
+    s_md = os.path.join(s_dir, "SKILL.md")
+    if not (os.path.isdir(s_dir) and os.path.isfile(s_md)):
+        missing.append(skill)
+
+if missing:
+    for m in missing:
+        sys.stderr.write(f"❌ ERROR: Skill declarada no existe en .agents/skills/: {m}\n")
+    sys.exit(1)
+'
+}
+
+validate_declared_skills
+
 # Resolución canónica de archivo de veredicto (T-143):
 # Si no se especificó --output:
 #   - Si hay TASK_ID válido, default canónico: .agents/context/deliberation-${TASK_ID}.json
