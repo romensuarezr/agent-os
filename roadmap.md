@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 25**: Despacho Paralelo Controlado (Piloto de Validación del Gate de Paralelismo) (T-141 a T-145). Ver `docs/sprints/sprint-25-core.md`.
+- Ninguno (Sprint 25 completado, pendiente planning de Sprint 26).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 25**: Despacho Paralelo Controlado (Piloto de Validación del Gate de Paralelismo) (T-141 a T-145). Formalizado como release `v1.21.0` en `multi-agent` con dictamen vinculante NO-GO (modo estrictamente secuencial ratificado). Ver `docs/sprints/_archived/sprint-25-core.md`.
 - **Sprint 24**: Deliberación en producción durante un ciclo completo con el revisor vivo (T-137 a T-140). Formalizado como release `v1.20.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-24-core.md`.
 - **Sprint 23**: Revisor Ejecutor con Orca ADE, Arbitraje Multi-Nivel y Verificación Autónoma (T-133 a T-136). Formalizado como release `v1.19.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-23-core.md`.
 - **Sprint 22**: Resiliencia de Orquestación Multi-Agente, Puentes de Estado y Flujos Autónomos (T-128 a T-132). Formalizado como release `v1.18.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-22-core.md`.

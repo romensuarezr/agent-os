@@ -9,6 +9,20 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.21.0] — sprint-25 — 2026-10-31
+
+### ✨ Features / Orquestación y Resiliencia
+
+- feat(orchestrator): informe final y evaluación de compuerta GO/NO-GO del piloto paralelo (T-145)
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recolección de basura con terminal-reaper.sh (T-144)
+- feat(orchestrator): aislamiento concurrente de variables de entorno y archivos de contexto (T-143)
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+
+### 📚 Documentación
+
+- docs(sprint-25): Despacho paralelo controlado, validación del gate de paralelismo y dictamen formal NO-GO (T-141 a T-145)
+
 ## [1.20.0] — sprint-24 — 2026-10-30
 
 ### ✨ Features / Gobernanza

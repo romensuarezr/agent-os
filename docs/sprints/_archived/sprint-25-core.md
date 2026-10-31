@@ -1,7 +1,7 @@
 # Sprint 25 — Despacho Paralelo Controlado (Piloto de Validación del Gate de Paralelismo)
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
