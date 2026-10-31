@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno (ejecutar `/sprint-planning` para Sprint 27).
+- **Sprint 27**: Revisor Antigravity CLI, Observabilidad de Liveness y Paridad de Gobernanza (T-151 a T-154). Ver `docs/sprints/sprint-27-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
