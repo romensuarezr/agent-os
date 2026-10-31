@@ -1319,6 +1319,22 @@ rm -rf "$FCH"
     echo -e "  ℹ️  Caso real omitido: el tag $VEXPECT aún no existe (ventana cierre→tag)."
   fi
 
+  # Regresión T-148: propuesta de audit-repo.sh para Sprint 00 debe usar changelog.md (no CHANGELOG.md)
+  # Acotado específicamente a la línea que contiene 'hitos históricos identificados en el Sprint 00'
+  SPRINT00_PROP="$(grep 'hitos históricos identificados en el Sprint 00' "$ROOT/scripts/agent/audit-repo.sh" 2>/dev/null || true)"
+  if [ -z "$SPRINT00_PROP" ]; then
+    echo -e "  ❌ ERROR: no se encontró la propuesta de Sprint 00 en scripts/agent/audit-repo.sh."
+    ERRORS=$((ERRORS + 1))
+  elif echo "$SPRINT00_PROP" | grep -q "CHANGELOG.md"; then
+    echo -e "  ❌ ERROR: la propuesta de Sprint 00 en audit-repo.sh usa mayúsculas 'CHANGELOG.md'."
+    ERRORS=$((ERRORS + 1))
+  elif echo "$SPRINT00_PROP" | grep -q "changelog.md"; then
+    echo -e "  ✅ Propuesta de Sprint 00 en audit-repo.sh usa minúsculas 'changelog.md' (T-148)."
+  else
+    echo -e "  ❌ ERROR: la propuesta de Sprint 00 no referencia changelog.md."
+    ERRORS=$((ERRORS + 1))
+  fi
+
 # ------------------------------------------------------------------------------
 # 27. locator-hygiene.sh --path honra las excepciones del repo escaneado (T-106)
 # ------------------------------------------------------------------------------
