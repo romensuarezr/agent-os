@@ -50,4 +50,4 @@ Este nuevo flujo delimita con claridad:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO CON CAMBIOS recibido — fecha/hora: 2026-10-31 14:02 UTC
 - [x] Rama creada: `feat/T-147-two-tier-governance-flow`
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé

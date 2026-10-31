@@ -7,7 +7,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
 | T-146 | Cierre de sprint en invocación única concatenada y determinista (`close-sprint.sh` + `update-changelog.sh`) | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-146.md](.agents/tasks/_archived/task-146.md) |
-| T-147 | Definición del nuevo flujo de gobernanza (diseño en planning + revisor puerta por tarea) | Core / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-147.md](.agents/tasks/task-147.md) |
+| T-147 | Definición del nuevo flujo de gobernanza (diseño en planning + revisor puerta por tarea) | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-147.md](.agents/tasks/_archived/task-147.md) |
 | T-148 | Corrección de literal CHANGELOG.md a changelog.md en propuesta de audit-repo.sh y test de regresión | Core / DX / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-148.md](.agents/tasks/task-148.md) |
 
 ## Actividades Piloto (No T-XXX)
