@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 26**: Cierre Determinista de Sprint y Hardening de Gobernanza (T-146, T-147). Ver `docs/sprints/sprint-26-core.md`.
+- **Sprint 26**: Cierre Determinista de Sprint y Hardening de Gobernanza (T-146, T-147, T-148). Ver `docs/sprints/sprint-26-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
@@ -46,11 +46,15 @@
 - Refinamiento de workflows globales y estandarización de logs de ejecución.
 
 ## Backlog
-- Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
-- Skill + CLI `bytebox-curator` para registrar snippets y comandos en ByteBox (idea de 2026-09-26, especificación en `docs/idea-inbox/`). Producto específico, no es core; puede conectar con trabajo futuro, no se archiva.
+- Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/_archived/2026-06-18-gestion-automatica-manifest.md`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
+- Skill + CLI `bytebox-curator` para registrar snippets y comandos en ByteBox (idea de 2026-09-26, especificación en `docs/idea-inbox/_archived/2026-09-26-bytebox-curator.md`). Producto específico, no es core; puede conectar con trabajo futuro; archivado para higiene del inbox.
+- Integración de Bane (Self-Hosted Deep Research) en el flujo de sprint planning (captura 2026-10-27, especificación en `docs/external-inbox/_archived/2026-10-27-bane-deep-research-in-sprint-planning.md`). Requiere contenedor Docker VPS y consumo de red. Backlog de Infraestructura de Flota / Satélites.
+- Inspección estática/dinámica mediante servidores MCP de ingeniería inversa y sala blanca (patrón REA) (idea 2026-10-21, especificación en `docs/idea-inbox/_archived/2026-10-21-mcp-inspeccion-clean-room.md`). Ámbito específico de satélites de reversing y herramientas binarias; fuera del core $0.
+- Visión Front-Door + Orca ADE + Knowledge Base Soberana (idea 2026-10-30, especificación en `docs/idea-inbox/_archived/2026-10-30-front-door-orca-kb-soberana.md`). Despacho remoto móvil y cola diferida. Backlog de arquitectura post-piloto bajo principio de parsimonia.
 
 ## Descartado
-- (Sin líneas descartadas por el momento)
+- Catálogo de ideas de vídeos técnicos (captura 2026-10-29, `docs/external-inbox/_archived/2026-10-29-captura-ideas-videos.md`): Evaluado y resuelto en Sprint 22 (`cascada de inferencia` implementada en T-130; ideas satélite fuera del core).
+- PREV_TAG de `update-changelog.sh` por versión en vez de fecha (idea 2026-10-16, `docs/idea-inbox/_archived/2026-10-16-prev-tag-orden-version.md`): Ya implementado en T-114 (`--sort=-v:refname`) y validado en control plane.
 
 ## Deuda observada
 
