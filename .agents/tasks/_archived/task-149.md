@@ -44,4 +44,4 @@ Esta tarea introduce una compuerta mecánica análoga a la comprobación de exis
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido
 - [x] Rama creada (`feat/T-149-skills-fail-closed-gate`)
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé
