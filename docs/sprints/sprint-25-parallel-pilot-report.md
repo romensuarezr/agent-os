@@ -32,8 +32,8 @@ Tras completar la pila tecnológica, se ejecutó una segunda batería idéntica 
 **DICTAMEN: NO-GO**.  
 La compuerta contractual no autoriza el paso a producción del despacho paralelo en el core de `agent-os`. El sistema **permanece en ejecución estrictamente secuencial**.
 
-**Causal del Dictamen**:
-Aunque el criterio de higiene y recolección de terminales se cumplió de forma impecable (cero fugas de procesos en ambas baterías), la pasarela local de inferencia en el host no tolera la concurrencia de dos trabajadores simultáneos sin degradarse o exceder el presupuesto de 60 segundos. En la segunda tanda, la saturación de la pasarela condujo a un 100% de caídas al fallback seguro por timeout (>60s), arrojando un P95 de 63.28s y una disponibilidad de Tier 1 de 0.0%.
+**Causal del Dictamen y Matiz Metodológico**:
+El veredicto de NO-GO es **estrictamente matemático e inapelable** contra los umbrales del Gate de T-140 (P95=63.28s >= 45s, Max=63.28s >= 60s, Disponibilidad Tier 1=0.0% < 95%). Sin embargo, es necesario precisar metodológicamente que la causa raíz (contención de pasarela provocada por la concurrencia $C=2$ frente a una degradación/indisponibilidad intrínseca de la pasarela local entre ambas ventanas temporales) **no está formalmente aislada**, ya que no se ejecutó una tanda de control secuencial simultánea y la Tanda 2 presentó caídas por timeout (>60s) desde el Lote 1. En cualquier caso, el Gate de T-140 evalúa el comportamiento operativo observable del sistema y no causas hipotéticas, por lo que el dictamen vinculante se ratifica en **NO-GO**.
 
 ---
 
@@ -64,7 +64,7 @@ Ambas baterías fueron ejecutadas en el mismo entorno de host, con 10 tareas sin
 | **Tasa Tier 1 (Orca)** | 90.0% (9/10) | 0.0% (0/10) | Pasarela local no respondió en <60s |
 | **Veredictos SIN_REVISOR** | 1/10 | 10/10 | Fallback determinista activado |
 | **Terminales Huérfanas** | 0 | 0 | 100% efectividad de recolección |
-| **Tráfico CLI (`worker-read`)** | ~40 lecturas/tarea (polling 1.5s) | 0 lecturas en timeout (espera de evento) | Reducción del 100% de llamadas ciegas |
+| **Tráfico CLI (`worker-read`)** | ~27 lecturas estimadas / tarea (proyección teórica a 1.5s de sondeo; no medido con log) | 0 lecturas medidas en timeout (sin eventos recibidos que dispararan lectura) | Beneficio reactivo medido referenciado en T-142 (1 llamada con `--ack` vs sondeo continuo) |
 
 ---
 
@@ -93,8 +93,9 @@ Tanda 2 (T-145 - Full-Stack Reactivo + Aislamiento + Reaper):
 A pesar de que el veredicto general es NO-GO debido al cuello de botella externo de inferencia, las mejoras de ingeniería del Sprint 25 han transformado la robustez del sistema:
 
 1. **Patrón Reactivo (`orca-reactive-wait.sh`)**:
-   - En T-141, cuando una deliberación tardaba 60s, el proceso coordinador ejecutaba ~40 llamadas a `worker-read` en un bucle acelerado, saturando los sockets de Orca y compitiendo por I/O.
-   - En T-145, al esperar de forma reactiva el evento `worker_done`, si el evento no llega, el cliente no realiza ninguna llamada de sondeo innecesaria. El tráfico de lectura en timeouts se redujo a **cero**.
+   - En T-141, el tráfico de sondeo no fue instrumentado empíricamente con `ORCA_CALLS_LOG`; la cifra de ~40 lecturas por tarea es una proyección teórica para 60s a intervalos de 1.5s (con la media empírica de 40.9s de T-141, la proyección teórica media sería de ~27 lecturas por tarea).
+   - En T-145, las 0 lecturas a `worker-read` registradas en `$ORCA_CALLS_LOG` obedecen a que nunca se recibió ningún evento `worker_done` en el bus asíncrono que detonara una lectura, y **no** a una optimización mágica de lectura durante una inferencia exitosa.
+   - El beneficio cuantitativo medido del patrón reactivo se mantiene estrictamente referenciado a lo demostrado en **T-142** (1 sola lectura con acuse de recibo `--ack` frente a sondeos iterativos continuos cuando hay entrega de evento).
 2. **Aislamiento Concurrente de Contextos (`deliberate-plan.sh`)**:
    - Se erradicaron totalmente las condiciones de carrera y lecturas parciales (*torn reads*) mediante escrituras atómicas POSIX (`mktemp` + `mv -f`).
    - Los veredictos particionados (`deliberation-${TASK_ID}.json`) garantizaron que ninguna tarea contaminara o sobrescribiera la salida de otra.
@@ -128,4 +129,4 @@ El dictamen NO-GO valida uno de los principios rectores de `agent-os`: **los dat
 ### 6.2 Decisiones Vinculantes de Operación
 1. **Modo Secuencial Preservado**: `agent-os` continuará operando en modo secuencial estricto para la planificación, deliberación y ejecución de tareas.
 2. **Retención de las Mejoras del Sprint**: Los componentes de resiliencia (`terminal-reaper.sh`, `orca-reactive-wait.sh` y el particionado atómico de T-143) se quedan permanentemente en el core, ya que aportan robustez, seguridad de señales e higiene incluso en modo secuencial.
-3. **Condición para Reabrir el Gate en el Futuro**: No se reconsiderará el paralelismo multi-agente en local hasta que la infraestructura de inferencia del host (pasarelas LLM o hardware acelerador) sea capaz de entregar respuestas con latencias P95 < 20s en modo mono-agente.
+3. **Condición para Reabrir el Gate en el Futuro**: La reapertura del Gate de paralelismo no depende de reglas informales ni umbrales aislados en mono-agente (como la sugerencia de margen orientativo de P95 < 20s), sino del **cumplimiento formal de los cuatro umbrales cuantitativos del Gate de T-140** (P95 < 45.0s, Máximo individual < 60.0s, Disponibilidad Tier 1 ≥ 95.0% y 0 terminales huérfanas) evaluados rigurosamente en una nueva batería de calibración bajo concurrencia real.
