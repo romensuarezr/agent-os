@@ -16,13 +16,14 @@ Con estos datos cuantitativos, se emite una evaluación objetiva contra los umbr
 
 ## Caja de archivos
 - `docs/sprints/sprint-25-parallel-pilot-report.md` (nuevo informe de evaluación)
+- `.agents/context/bench-results-10-full-stack.json` (segunda telemetría empírica del stack completo)
 - `.agents/tasks/task-145.md`
 
 ## Criterios de done
-- [ ] Telemetría consolidada de las baterías concurrentes (latencias, percentiles P50/P90/P95 y disponibilidad Tier 1) documentada.
-- [ ] Auditoría de higiene de sockets y procesos (censo `worker-list` y confirmación de 0 terminales huérfanas) reflejada en el informe.
-- [ ] Evaluación matemática contra los umbrales literales del Gate de T-140 realizada sin omisiones.
-- [ ] Dictamen vinculante (GO o NO-GO) emitido de forma explícita, definiendo el camino a seguir para futuros sprints.
-- [ ] Documento `docs/sprints/sprint-25-parallel-pilot-report.md` redactado respetando la caja estricta (cero código).
-- [ ] Plan de la tarea deliberado en Fase 3.5 con el Revisor Ejecutor vivo en host (timeout 60s, sin overrides).
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene de secretos/rutas.
+- [x] Telemetría consolidada de las baterías concurrentes (latencias, percentiles P50/P90/P95 y disponibilidad Tier 1) documentada en tabla comparativa (baseline T-141 vs full-stack T-145 con nearest-rank).
+- [x] Auditoría de higiene de sockets y procesos (censo `worker-list` y confirmación de 0 terminales huérfanas, 10/10 liberadas) reflejada en el informe.
+- [x] Evaluación matemática contra los umbrales literales del Gate de T-140 realizada sin omisiones.
+- [x] Dictamen vinculante NO-GO emitido de forma explícita, preservando el modelo secuencial y definiendo la hoja de ruta para futuros sprints.
+- [x] Documento `docs/sprints/sprint-25-parallel-pilot-report.md` redactado respetando la caja estricta (cero código).
+- [x] Plan deliberado en Fase 3.5: SIN_REVISOR por timeout/indisponibilidad de pasarela (aprobación del relé, sin Revisor Ejecutor vivo).
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) y cero violaciones de higiene de secretos/rutas.
