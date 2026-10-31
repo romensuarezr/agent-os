@@ -661,7 +661,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     
     if [ -n "$sprint_sugerido" ]; then
         propuestas+="- [ ] Crear docs/sprints/_archived/sprint-00-historical.md con los commits agrupados por semana\n"
-        propuestas+="- [ ] Actualizar CHANGELOG.md con los hitos históricos identificados en el Sprint 00\n"
+        propuestas+="- [ ] Actualizar changelog.md con los hitos históricos identificados en el Sprint 00\n"
     fi
 else
     incompatibilidades+="- ⚠️ El directorio no es un repositorio Git válido.\n"
