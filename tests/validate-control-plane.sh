@@ -824,12 +824,17 @@ d = pathlib.Path('$SPRINT_FIXTURE')
 arch = d / 'docs/sprints/_archived/sprint-98-core.md'
 assert arch.exists(), 'el sprint no se archivo'
 assert 'Marcado antes de cerrar' in arch.read_text(), 'la modificacion sin stagear quedo fuera del commit'
+cl = d / 'changelog.md'
+assert cl.exists(), 'changelog.md no fue generado automaticamente'
+assert 'sprint-98' in cl.read_text(), 'entrada de changelog no contiene sprint-98'
+ver = d / 'VERSION'
+assert ver.exists(), 'VERSION no fue sincronizado'
 st = subprocess.check_output(['git','status','--porcelain'], cwd=str(d)).decode().strip()
 assert st == '', 'el working tree quedo sucio: ' + st
 " 2>/dev/null; then
-    echo -e "  ✅ close-sprint.sh incluye el working tree en el commit y no deja el árbol sucio."
+    echo -e "  ✅ close-sprint.sh auto-genera changelog, sincroniza VERSION, archiva sprint y deja árbol limpio."
 else
-    echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear o cuelga el árbol de trabajo."
+    echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear, no genera changelog o cuelga el árbol."
     ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$SPRINT_FIXTURE"

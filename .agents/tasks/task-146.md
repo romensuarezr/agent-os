@@ -22,10 +22,17 @@ Para garantizar la robustez operativa, trazabilidad y automatización desatendid
 - `.agents/tasks/task-146.md`
 
 ## Criterios de done
-- [ ] `close-sprint.sh` orquesta de forma interna y determinista la presencia de la entrada en `changelog.md`, invocando `update-changelog.sh` si no hay cambios previos sin requerir ejecución manual separada.
-- [ ] Compatibilidad estricta con satélites: si el changelog ya viene modificado o preparado en stage/working tree, no duplica la entrada ni sobreescribe el contenido manual.
-- [ ] Comportamiento fail-closed explícito: si `update-changelog.sh` falla o no puede generar la entrada, `close-sprint.sh` aborta con diagnóstico claro sin corromper el árbol ni mover ramas.
-- [ ] El bump de versión resultante es 100% determinista y desatendido, sin menús interactivos.
-- [ ] Prueba del flujo completo de cierre sobre un sprint de prueba o fixture en seco ejecutada con éxito, demostrando que ya no hace falta el paso manual previo.
-- [ ] Plan previo legible presentado en `.agents/context/plan-draft.md` y deliberado mediante `deliberate-plan.sh` con timeout default de 60s.
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) sin regresiones.
+- [x] `close-sprint.sh` orquesta de forma interna y determinista la presencia de la entrada en `changelog.md`, invocando `update-changelog.sh` si no hay cambios previos sin requerir ejecución manual separada.
+  - *Evidencia*: Implementado en `scripts/agent/close-sprint.sh:138-165`. Invocación automática desatendida de `update-changelog.sh $SPRINT_BASE` cuando `CHANGELOG_PREPARED=false`.
+- [x] Compatibilidad estricta con satélites: si el changelog ya viene modificado o preparado en stage/working tree, no duplica la entrada ni sobreescribe el contenido manual.
+  - *Evidencia*: Verificado empíricamente en Escenario B de fixture temporal (`demo-t146-fixture.sh`): entrada única para `sprint-100` (`count: 1`), notas personalizadas preservadas íntegramente.
+- [x] Comportamiento fail-closed explícito: si `update-changelog.sh` falla o no puede generar la entrada, `close-sprint.sh` aborta con diagnóstico claro sin corromper el árbol ni mover ramas.
+  - *Evidencia*: Comprobado en fixture: ante fallo de `update-changelog.sh`, aborta con código 1 emitiendo mensaje de error, restaura cualquier modificación parcial con `git checkout -- "$CHANGELOG"`, no mueve ficheros a `_archived/` y deja el working tree limpio.
+- [x] El bump de versión resultante es 100% determinista y desatendido, sin menús interactivos.
+  - *Evidencia*: Regla de semver documentada y normalizada en `scripts/agent/update-changelog.sh`: `feat!` -> MAJOR, `feat` -> MINOR, `fix`/`docs`/`chore` -> PATCH (PATCH explícito para sprints de gobernanza pura).
+- [x] Prueba del flujo completo de cierre sobre un sprint de prueba o fixture en seco ejecutada con éxito, demostrando que ya no hace falta el paso manual previo.
+  - *Evidencia*: Fixture automatizada con `mktemp -d`, base de VERSION 1.0.0 y limpieza `trap EXIT` ejecutada exitosamente (Escenario A: auto-generación y bump 1.0.0 -> 1.0.1; Escenario B: preservación de changelog satélite).
+- [x] Plan previo legible presentado en `.agents/context/plan-draft.md` y deliberado mediante `deliberate-plan.sh` con timeout default de 60s.
+  - *Evidencia*: Deliberación completada en Fase 3.5 con veredicto `SIN_REVISOR` registrado en `.agents/context/deliberation-T-146.json` y aprobación manual del relé.
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia (37/37) sin regresiones.
+  - *Evidencia*: Suite ejecutada con 37/37 verificaciones pasando exitosamente (Check 19 enriquecido validando auto-generación de changelog y sincronización de VERSION).
