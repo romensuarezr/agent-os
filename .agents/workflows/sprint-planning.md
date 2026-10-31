@@ -216,8 +216,20 @@ Crear `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` con esta estructura:
 | T-001 | [descripción] | S/M/L | ⬜ Pendiente | — |
 
 ## Notas de planning
-[Observaciones del sprint anterior, dependencias, riesgos]
+[Observaciones del sprint anterior, dependencias, riesgos, decisiones macro aprobadas]
 ```
+
+### 4a. Formalización y Sellado de Diseño Macro por Tarea (Nivel Macro de Gobernanza)
+
+El sprint planning es el ritual **exclusivo y vinculante** donde el usuario humano evalúa y aprueba el diseño arquitectónico, límites de interfaces y alcance de cada tarea.
+Para cada tarea incorporada a la tabla del sprint:
+1. **Artefacto de aprobación de diseño**: Toda tarea debe instanciarse con la sección canónica `## Diseño macro aprobado en planning` rellenada en su task file (`.agents/tasks/task-XXX.md`):
+   - `Sprint / Fecha`: referencia temporal y sprint al que pertenece.
+   - `Diseño y arquitectura aprobados por`: `[Humano / Relé]`.
+   - `Decisiones e interfaces selladas`: descripción concreta de interfaces pactadas, contratos de tipos, dependencias admitidas y guardarraíles técnicos acordados.
+   - `Veredicto de diseño macro`: `[APROBADO_EN_PLANNING]`.
+2. **Reflejo en notas de planning**: Las decisiones arquitectónicas transversales del conjunto de tareas se resumen en `## Notas de planning` del sprint file.
+3. **Invariante de desacoplamiento**: Una vez aprobado el sprint, el diseño macro queda sellado. En la posterior ejecución por tarea (`/session-start`), el Revisor Ejecutor opera como compuerta técnica (Nivel Micro) y no reabre diseño; ante cualquier desviación técnica del plan frente a esta sección, el revisor emite bloqueo técnico vinculante (`ESCALADO_A_HUMANO`) suspendiendo la ejecución desatendida.
 
 ### 4b. Actualización del MVP Tracker
 
@@ -353,3 +365,9 @@ Justo antes del mensaje de pausa del paso 6:
 - **Limpieza previa**: Obligatorio ejecutar `check-session.sh` y resolver sesiones colgadas antes de iniciar.
 - **Auditoría de completado**: Si `check-sprint.sh` alerta de un "sprint completado sin marcar", actualizar estado antes de generar el nuevo sprint.
 - **Restricción de lectura**: Solo leer archivos devueltos por `inventory-check.sh`. Prohibido navegar `src/` manualmente.
+
+### Gobernanza Desacoplada en Dos Niveles (Macro en Planning, Micro por Tarea)
+- **Aprobación de Diseño en Planning**: El usuario humano evalúa y aprueba formalmente la arquitectura, dependencias, interfaces y alcance funcional de cada tarea durante el sprint planning. Ninguna tarea entra al sprint con diseño o contratos abiertos.
+- **Artefacto Concreto Requerido**: Toda tarea activa debe formalizarse con la sección canónica `## Diseño macro aprobado en planning` conteniendo el veredicto `[APROBADO_EN_PLANNING]` y el desglose de interfaces y decisiones acordadas.
+- **Compuerta Técnica y Escalado Vinculante**: Durante `/session-start`, el Revisor Ejecutor (o relé) audita estrictamente la caja de archivos, pruebas y apego al diseño macro ya sellado. Ante cualquier desviación o fuga de alcance, emite bloqueo técnico inmediato con `ESCALADO_A_HUMANO`, suspendiendo la ejecución desatendida.
+- **Papel del Relé en Transición**: El operador humano / relé se mantiene como fallback operativo ante indisponibilidad de pasarela (`SIN_REVISOR`) y sigue frenando de forma obligatoria y manual los merges hasta verificar paridad estadística empírica en el Sprint 27.

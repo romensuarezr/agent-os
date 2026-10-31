@@ -79,7 +79,13 @@ bash scripts/agent/check-session.sh
 
 ### FASE 3.4 — Generación del Borrador y Deliberación Autónoma
 
-1. El Coder redacta el borrador del plan en `.agents/context/plan-draft.md` conteniendo objetivo, rama propuesta, archivos a modificar/crear, pasos secuenciales, riesgos y justificación de skills.
+> **Arquitectura de Gobernanza de Dos Niveles**:
+> - **Nivel Macro (Diseño y Arquitectura)**: El diseño conceptual, arquitectura, interfaces y alcance de la tarea ya fueron evaluados, pactados y sellados durante el sprint planning en la sección `## Diseño macro aprobado en planning` del task file.
+> - **Nivel Micro (Compuerta Técnica por Tarea)**: La deliberación entre Coder y Reviewer mediante `deliberate-plan.sh` actúa estrictamente como compuerta técnica determinista (auditoría de caja de archivos, ausencia de duplicación, cobertura de pruebas, compatibilidad del stack y apego estricto al diseño macro ya aprobado). Queda prohibido reabrir o cuestionar decisiones conceptuales selladas en planning.
+> - **Escalado Vinculante**: Ante cualquier desviación entre el plan y el diseño macro aprobado (fuga de alcance, alteración de contratos de interfaces o dependencias no pactadas), el revisor emite bloqueo técnico vinculante y escala al humano (`ESCALADO_A_HUMANO`), suspendiendo inmediatamente cualquier ejecución desatendida hasta resolución humana.
+> - **Papel del Relé en Transición**: Durante la ventana de transición hasta calibrar y certificar la paridad empírica Revisor-vs-Relé (prevista en el Sprint 27), el operador humano / relé se mantiene como fallback operativo ante indisponibilidad de pasarela (`SIN_REVISOR`), y **sigue frenando de forma obligatoria y manual los merges** hacia las ramas base (`multi-agent`, `main`), garantizando que ninguna tarea se integre sin revisión humana.
+
+1. El Coder redacta el borrador del plan en `.agents/context/plan-draft.md` conteniendo objetivo, rama propuesta, archivos a modificar/crear, pasos secuenciales, riesgos, justificación de skills y verificación de conformidad con `## Diseño macro aprobado en planning`.
 2. Ejecuta el motor determinista de arbitraje Coder-Reviewer:
    ```bash
    bash scripts/agent/deliberate-plan.sh --plan .agents/context/plan-draft.md --task-id T-XXX
