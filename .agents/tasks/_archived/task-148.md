@@ -49,4 +49,4 @@ La corrección requiere:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO CON CAMBIOS recibido — fecha/hora: 2026-10-31 14:33 UTC
 - [x] Rama creada: `feat/T-148-audit-repo-changelog-lowercase`
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé
