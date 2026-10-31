@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 26**: Cierre Determinista de Sprint y Hardening de Gobernanza (T-146, T-147, T-148). Ver `docs/sprints/sprint-26-core.md`.
+- **Sprint 26**: Cierre Determinista de Sprint y Hardening de Gobernanza (T-146 a T-150). Ver `docs/sprints/sprint-26-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.

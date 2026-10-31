@@ -9,6 +9,8 @@
 | T-146 | Cierre de sprint en invocación única concatenada y determinista (`close-sprint.sh` + `update-changelog.sh`) | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-146.md](.agents/tasks/_archived/task-146.md) |
 | T-147 | Definición del nuevo flujo de gobernanza (diseño en planning + revisor puerta por tarea) | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-147.md](.agents/tasks/_archived/task-147.md) |
 | T-148 | Corrección de literal CHANGELOG.md a changelog.md en propuesta de audit-repo.sh y test de regresión | Core / DX / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-148.md](.agents/tasks/_archived/task-148.md) |
+| T-149 | Gate mecánico fail-closed de skills declaradas en plan contra .agents/skills/ | Core / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-149.md](.agents/tasks/task-149.md) |
+| T-150 | Fallback determinista de mensaje de commit en close-task.sh en ramas no-feat | Core / DX / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-150.md](.agents/tasks/task-150.md) |
 
 ## Actividades Piloto (No T-XXX)
 
@@ -38,11 +40,11 @@ Actividad de pilotaje exploratorio asistido por CLI (no tarea formal T-XXX) para
 
 ## Notas de planning
 
-- **Objetivo del Sprint**: Garantizar que el cierre de cualquier sprint en el ecosistema de Agent OS sea determinista en una única llamada (T-146), formalizar la arquitectura de gobernanza desacoplada en dos niveles (T-147: usuario valida diseño macro en planning, revisor actúa como compuerta técnica por tarea) y subsanar inconsistencias residuales de literales en herramientas de auditoría (T-148).
+- **Objetivo del Sprint**: Garantizar que el cierre de cualquier sprint en el ecosistema de Agent OS sea determinista en una única llamada (T-146), formalizar la arquitectura de gobernanza desacoplada en dos niveles (T-147: usuario valida diseño macro en planning, revisor actúa como compuerta técnica por tarea), subsanar inconsistencias residuales de literales en herramientas de auditoría (T-148), blindar el pre-flight de planes contra skills inexistentes de forma fail-closed (T-149) y asegurar un mensaje de commit determinista en `close-task.sh` sobre ramas no-feat (T-150).
 - **Guardarraíles operativos**:
   - Trabajo estrictamente secuencial en ramas aisladas `feat/T-XXX-*`.
   - Deliberación obligatoria en Fase 3.5 con `deliberate-plan.sh` (timeout default 60s).
   - Suite de control plane limpia (`tests/validate-control-plane.sh` 37/37).
   - Cero modificaciones a `main`, cero tags de Git.
 - **Relación con el Documento de Research**:
-  - Toda la prospección scout de T-146, T-147 y T-148 se encuentra registrada en `docs/sprints/sprint-26-research.md` (Gate Scout-First T-129).
+  - Toda la prospección scout de T-146, T-147, T-148, T-149 y T-150 se encuentra registrada en `docs/sprints/sprint-26-research.md` (Gate Scout-First T-129).

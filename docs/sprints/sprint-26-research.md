@@ -13,6 +13,8 @@ Se ejecutaron consultas deterministas sobre el ecosistema open source (GitHub, N
 1. `changelog automation release deterministic bash` (T-146)
 2. `multi-agent governance review gate approval workflow` (T-147)
 3. Prospección de consistencia y linters de shell/nomenclatura (T-148)
+4. `skills validator manifest fail closed bash` (T-149)
+5. `git commit message fallback bash branch convention` (T-150)
 
 ---
 
@@ -51,3 +53,33 @@ Se ejecutaron consultas deterministas sobre el ecosistema open source (GitHub, N
   - Añadir verificación automatizada en la suite del control plane (`tests/validate-control-plane.sh`) que asegure que `audit-repo.sh` no propone archivos en mayúsculas contrarios a la convención.
 - **Alternativas rechazadas y motivos:**
   - Herramientas o linters externos de Markdown: Innecesarios y desproporcionados para la corrección de un literal de una línea en Bash.
+
+---
+
+### T-149: Gate mecánico fail-closed de skills declaradas en plan contra .agents/skills/
+
+- **Alternativa detectada:** `ajv` (v8.20.0, NPM), `@deepseek-ai/dsh-sandbox` (v0.0.1-rc.1, NPM).
+- **Recomendación del agente:** Desarrollo a medida justificado (validación estática fail-closed en Bash nativo).
+- **Decisión del usuario:** Desarrollo a medida justificado — la verificación de skills debe ser determinista, instantánea y con $0 tokens, sin añadir dependencias del ecosistema Node/NPM. Una comprobación directa de la existencia del directorio `.agents/skills/<skill>` y su `SKILL.md` es completamente análoga a la comprobación de la caja de archivos.
+- **Notas de integración:**
+  - Integrar en `scripts/agent/deliberate-plan.sh` una función de parsing de la sección de skills del plan antes de iniciar cualquier llamada de arbitraje.
+  - Comprobar que cada skill declarada existe físicamente en `.agents/skills/<skill>/SKILL.md`.
+  - Abortar fail-closed con mensaje descriptivo y código != 0 si alguna skill no existe.
+  - Añadir aserción de regresión en `tests/validate-control-plane.sh` comprobando el rechazo de planes con skills fantasma (ej: `modern-web-guidance`).
+- **Alternativas rechazadas y motivos:**
+  - `ajv`: Rechazado por requerir runtime de JavaScript y esquemas JSON ajenos a la estructura Markdown/Bash de Agent OS.
+
+---
+
+### T-150: Fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+
+- **Alternativa detectada:** `conventional-changelog` (v8.1.3, NPM), `@currents/commit-info` (v2.0.0, NPM), `@semantic-release/git` (v11.0.1, NPM).
+- **Recomendación del agente:** Desarrollo a medida justificado (guardia de rama en Bash nativo en `close-task.sh`).
+- **Decisión del usuario:** Desarrollo a medida justificado — el core actual ya gestiona el argumento `$1` para el ID de la tarea (`EXPLICIT_TASK_ID`). Esta tarea se limita a corregir la derivación del mensaje de commit cuando no se especifica `--message` y la rama activa no es una rama de feature (`tipo/T-XXX-descripcion`).
+- **Notas de integración:**
+  - Comprobar si `$BRANCH` cumple el formato de rama de tarea `^[a-zA-Z0-9_-]+/T-[0-9]+`.
+  - Si es una rama no-feat (como `multi-agent`), emitir directamente `feat(${TASK_ID}): cierre de tarea` sin procesar el nombre de la rama.
+  - Mantener intacto el soporte de `$1` (`EXPLICIT_TASK_ID`) y los mensajes explícitos `--message`.
+  - Añadir aserción de regresión en `tests/validate-control-plane.sh` (Check 18) verificando el mensaje generado en ramas no-feat.
+- **Alternativas rechazadas y motivos:**
+  - `conventional-changelog` / `@semantic-release/git`: Rechazados por añadir dependencias externas de NodeJS innecesarias para una guarda de branch en Bash puro.
