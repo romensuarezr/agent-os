@@ -46,4 +46,4 @@ Esta tarea acota exclusivamente la lógica de generación del mensaje por defect
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido
 - [x] Rama creada (`feat/T-150-close-task-message-fallback`)
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé

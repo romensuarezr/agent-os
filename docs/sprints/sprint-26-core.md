@@ -10,7 +10,7 @@
 | T-147 | Definición del nuevo flujo de gobernanza (diseño en planning + revisor puerta por tarea) | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-147.md](.agents/tasks/_archived/task-147.md) |
 | T-148 | Corrección de literal CHANGELOG.md a changelog.md en propuesta de audit-repo.sh y test de regresión | Core / DX / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-148.md](.agents/tasks/_archived/task-148.md) |
 | T-149 | Gate mecánico fail-closed de skills declaradas en plan contra .agents/skills/ | Core / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-149.md](.agents/tasks/_archived/task-149.md) |
-| T-150 | Fallback determinista de mensaje de commit en close-task.sh en ramas no-feat | Core / DX / Gobernanza | S | ⬜ Pendiente | — | [.agents/tasks/task-150.md](.agents/tasks/task-150.md) |
+| T-150 | Fallback determinista de mensaje de commit en close-task.sh en ramas no-feat | Core / DX / Gobernanza | S | ✅ Completada | — | [.agents/tasks/task-150.md](.agents/tasks/_archived/task-150.md) |
 
 ## Actividades Piloto (No T-XXX)
 
