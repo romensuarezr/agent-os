@@ -31,17 +31,17 @@ Esta tarea introduce una compuerta mecánica análoga a la comprobación de exis
 - `.agents/tasks/task-149.md`
 
 ## Criterios de done
-- [ ] Función de validación de skills declaradas implementada en `scripts/agent/deliberate-plan.sh`.
-- [ ] Si el plan declara una skill inexistente en `.agents/skills/`, `deliberate-plan.sh` aborta fail-closed con mensaje legible y código de error antes de enviar a inferencia/revisor.
-- [ ] Test de regresión determinista incorporado en `tests/validate-control-plane.sh` comprobando que una skill declarada inexistente gatilla fallo inmediato.
-- [ ] Plan previo legible presentado en `.agents/context/plan-draft.md` deliberado formalmente mediante `deliberate-plan.sh` (timeout default 60s).
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
+- [x] Función de validación de skills declaradas implementada en `scripts/agent/deliberate-plan.sh`.
+- [x] Si el plan declara una skill inexistente en `.agents/skills/`, `deliberate-plan.sh` aborta fail-closed con mensaje legible y código de error antes de enviar a inferencia/revisor.
+- [x] Test de regresión determinista incorporado en `tests/validate-control-plane.sh` (Check 34) comprobando que una skill declarada inexistente gatilla fallo inmediato y que skills válidas con "No aplica" pasan.
+- [x] Plan previo legible presentado en `.agents/context/plan-draft.md` deliberado formalmente mediante `deliberate-plan.sh` (timeout default 60s).
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada (`feat/T-149-skills-fail-closed-gate`)
 - [ ] Cierre y merge autorizado por el relé
