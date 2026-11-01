@@ -42,18 +42,18 @@ Con el cableado de `agy` (T-152) y sus guardas (T-153), procede ejecutar la bate
 - `.agents/tasks/task-154.md`
 
 ## Criterios de done
-- [ ] Batería de al menos 10 casos de prueba ejecutada contra la configuración cableada de `agy`.
-- [ ] Tasa de concordancia cuantitativa (%) calculada y comparada con el veredicto del relé.
-- [ ] Comprobación de que ante desviaciones de diseño macro pactado, el Revisor emite `ESCALADO_A_HUMANO` sin excepciones.
-- [ ] Métricas de coste de tokens, cuota y latencia documentadas por deliberación.
-- [ ] Informe formal documentado en `docs/sprints/sprint-27-parity-report.md`.
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
+- [x] Batería de al menos 10 casos de prueba ejecutada contra la configuración cableada de `agy`.
+- [x] Tasa de concordancia cuantitativa (%) calculada y comparada con el veredicto del relé.
+- [x] Comprobación de que ante desviaciones de diseño macro pactado, el Revisor emite `ESCALADO_A_HUMANO` sin excepciones.
+- [x] Métricas de coste de tokens, cuota y latencia documentadas por deliberación.
+- [x] Informe formal documentado en `docs/sprints/sprint-27-parity-report.md`.
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé
