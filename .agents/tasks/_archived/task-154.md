@@ -56,4 +56,4 @@ Con el cableado de `agy` (T-152) y sus guardas (T-153), procede ejecutar la bate
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido
 - [x] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé
