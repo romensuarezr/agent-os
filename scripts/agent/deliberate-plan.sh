@@ -31,7 +31,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/cli-help.sh"
 source "$SCRIPT_DIR/lib/orca-client.sh"
-if [ -f "$SCRIPT_DIR/lib/portable-timeout.sh" ]; then
+if [ -f "$SCRIPT_DIR/lib/portable-timeout.sh" ] && [ "${AGENT_OS_NO_PORTABLE_TIMEOUT:-0}" != "1" ]; then
   # shellcheck source=scripts/agent/lib/portable-timeout.sh
   source "$SCRIPT_DIR/lib/portable-timeout.sh"
 fi
@@ -73,6 +73,7 @@ for arg in "$@"; do
       "--no-orca            Omite la ejecución en Orca ADE (salta directamente a Nivel 3 / HTTP)." \
       "--mock <JSON/TEXT>   Payload simulado exclusivo para pruebas automatizadas (ignorado si no se indica)." \
       "--json               Emite el resultado final como JSON estructurado por stdout." \
+      "AGY_ALLOW_DIRTY=1    (Variable de entorno) Omite centinela PRE solo para tests/dev. Nunca en producción." \
       "ejemplo: bash scripts/agent/deliberate-plan.sh --plan .agents/context/plan-draft.md --task-id T-135 --json"
   fi
 done
@@ -245,11 +246,10 @@ probe_agy_reviewer() {
   if [ -n "${AGY_MOCK_PROBE:-}" ]; then
     [ "$AGY_MOCK_PROBE" = "ok" ] && return 0 || return 1
   fi
-  if command -v portable_timeout >/dev/null 2>&1; then
-    portable_timeout 2 "$bin" --help >/dev/null 2>&1 || return 1
-  else
-    "$bin" --help >/dev/null 2>&1 || return 1
+  if ! command -v portable_timeout >/dev/null 2>&1; then
+    return 1
   fi
+  portable_timeout 2 "$bin" --help >/dev/null 2>&1 || return 1
   return 0
 }
 
@@ -613,23 +613,97 @@ if [ -f "$SPEC_GEN" ] && [ -x "$SPEC_GEN" ]; then
   SPEC_ROLE="$(python3 -c 'import json, sys; d=json.loads(sys.argv[1]); print(d.get("role", "qa-judge"))' "$SPEC_DATA" 2>/dev/null || echo "$ORCA_ROLE")"
 fi
 
-# NIVEL 1: ANTIGRAVITY CLI (Tier 1 Prioritario — T-152)
+# NIVEL 1: ANTIGRAVITY CLI (Tier 1 Prioritario — T-152, T-153)
 if [ -z "$RAW_REVIEW" ] && [ "$AGY_ENABLED" = "true" ]; then
   if probe_agy_reviewer; then
     AGY_BIN="$(resolve_agy_bin 2>/dev/null || echo "agy")"
     AGY_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO ${AGY_TIMEOUT}s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto según el contrato y delimitadores indicados en la directiva."
 
-    AGY_RAW_OUT=""
-    AGY_RC=0
-    if command -v portable_timeout >/dev/null 2>&1; then
-      AGY_RAW_OUT="$(portable_timeout "$AGY_TIMEOUT" "$AGY_BIN" --print "$AGY_DIRECT" --output-format json --mode plan --disable-slash-commands 2>/dev/null)" || AGY_RC=$?
-    else
-      AGY_RAW_OUT="$("$AGY_BIN" --print "$AGY_DIRECT" --output-format json --mode plan --disable-slash-commands 2>/dev/null)" || AGY_RC=$?
+    # 1. Centinela PRE (T-153): abortar fail-closed si el working tree ya está sucio antes de invocar agy.
+    #
+    # Variable de entorno: AGY_ALLOW_DIRTY (por defecto: 0 / deshabilitado)
+    # - Propósito: Permite omitir la compuerta del centinela PRE exclusivamente en tests automatizados
+    #   o scripts de validación durante el desarrollo local donde el árbol de trabajo contiene cambios en curso.
+    # - Restricción: NUNCA debe activarse en entornos de producción ni en sesiones normales de desarrollo.
+    # - Advertencia de seguridad: Con AGY_ALLOW_DIRTY=1, las mutaciones que el revisor agy pudiera introducir
+    #   sobre ficheros que ya se encontraban modificados previamente en el working tree pueden quedar
+    #   enmascaradas por la comparación línea a línea de git status --porcelain, omitiendo la reversión del centinela POST.
+    PRE_STATUS=""
+    if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      PRE_STATUS="$(git -C "$ROOT_DIR" status --porcelain 2>/dev/null || true)"
+      if [ -n "$PRE_STATUS" ] && [ "${AGY_ALLOW_DIRTY:-0}" != "1" ]; then
+        echo "❌ ERROR (Centinela PRE): Working tree sucio detectado antes de invocar agy. Deliberación abortada." >&2
+        echo "$PRE_STATUS" >&2
+        exit 1
+      fi
     fi
 
-    # Extractor fail-closed: delimitadores obligatorios y 5 campos canónicos
-    # Neutraliza comportamiento de exit 0 con salida parcial/truncada en timeout
-    PARSED_AGY="$(python3 -c '
+    # 2. Cota temporal obligatoria (Nit T-152/T-153): si portable_timeout no está disponible, degradar a siguiente tier
+    if ! command -v portable_timeout >/dev/null 2>&1; then
+      echo "⚠️ AVISO: portable_timeout no disponible; omitiendo agy para no invocar sin cota temporal." >&2
+    else
+      # 3. Aislamiento estricto de variables de entorno (env -i con whitelist)
+      ENV_WHITELIST=(
+        HOME="$HOME"
+        PATH="$PATH"
+        USER="${USER:-$(whoami)}"
+        SHELL="${SHELL:-/bin/bash}"
+        LANG="${LANG:-en_US.UTF-8}"
+        LC_ALL="${LC_ALL:-en_US.UTF-8}"
+        TMPDIR="${TMPDIR:-/tmp}"
+      )
+      [ -n "${HTTP_PROXY:-}" ] && ENV_WHITELIST+=(HTTP_PROXY="$HTTP_PROXY")
+      [ -n "${HTTPS_PROXY:-}" ] && ENV_WHITELIST+=(HTTPS_PROXY="$HTTPS_PROXY")
+      [ -n "${NO_PROXY:-}" ] && ENV_WHITELIST+=(NO_PROXY="$NO_PROXY")
+      [ -n "${AGY_BIN_OVERRIDE:-}" ] && ENV_WHITELIST+=(AGY_BIN_OVERRIDE="$AGY_BIN_OVERRIDE")
+
+      AGY_RAW_OUT=""
+      AGY_RC=0
+      AGY_RAW_OUT="$(portable_timeout "$AGY_TIMEOUT" env -i "${ENV_WHITELIST[@]}" "$AGY_BIN" --print "$AGY_DIRECT" --output-format json --mode plan --disable-slash-commands 2>/dev/null)" || AGY_RC=$?
+
+      # 4. Centinela POST (T-153): verificar si agy intentó mutar el working tree
+      MUTATION_DETECTED=false
+      if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        POST_STATUS="$(git -C "$ROOT_DIR" status --porcelain 2>/dev/null || true)"
+        if [ "$POST_STATUS" != "$PRE_STATUS" ]; then
+          MUTATION_DETECTED=true
+          echo "❌ VIOLACIÓN DE SEGURIDAD: El revisor intentó mutar el working tree." >&2
+
+          # Reversión y limpieza acotada exclusivamente al diff entre pre y post
+          python3 -c '
+import subprocess, sys
+
+pre_raw = """'"$PRE_STATUS"'"""
+post_raw = """'"$POST_STATUS"'"""
+root = "'"$ROOT_DIR"'"
+
+pre_set = {line.strip() for line in pre_raw.splitlines() if line.strip()}
+post_set = {line.strip() for line in post_raw.splitlines() if line.strip()}
+diff_items = post_set - pre_set
+
+for item in diff_items:
+    parts = item.split(None, 1)
+    if len(parts) == 2:
+        code = parts[0]
+        filepath = parts[1].strip("\"")
+        full_path = f"{root}/{filepath}"
+        if "??" in code:
+            subprocess.run(["rm", "-rf", full_path], check=False)
+        else:
+            subprocess.run(["git", "-C", root, "checkout", "--", filepath], check=False)
+' 2>/dev/null || true
+
+          # Invalidar salida y forzar veredicto ESCALADO_A_HUMANO
+          RAW_REVIEW='{"verdict": "ESCALADO_A_HUMANO", "objections": ["Violación de seguridad: intento de mutación del working tree por parte del revisor agy."], "corrections": ["Garantizar que el revisor opere en modo estrictamente de solo lectura sin escribir archivos en el repositorio."], "skills_evaluation": {"status": "rejected", "reason": "security_violation_working_tree_mutation"}, "design_summary": "Violación de seguridad: El revisor agy intentó mutar el working tree durante la deliberación. Se revirtieron los cambios no autorizados y se escala a humano."}'
+          EVALUATOR_ROLE="$SPEC_ROLE"
+          EVALUATION_TIER="agy"
+        fi
+      fi
+
+      if [ "$MUTATION_DETECTED" = false ]; then
+        # Extractor fail-closed: delimitadores obligatorios y 5 campos canónicos
+        # Neutraliza comportamiento de exit 0 con salida parcial/truncada en timeout
+        PARSED_AGY="$(python3 -c '
 import sys, json, re
 
 raw = sys.stdin.read()
@@ -700,10 +774,12 @@ if "design_summary" not in data or not isinstance(data["design_summary"], str) o
 print(json.dumps(data))
 ' <<< "$AGY_RAW_OUT" 2>/dev/null || true)"
 
-    if [ -n "$PARSED_AGY" ]; then
-      RAW_REVIEW="$PARSED_AGY"
-      EVALUATOR_ROLE="$SPEC_ROLE"
-      EVALUATION_TIER="agy"
+        if [ -n "$PARSED_AGY" ]; then
+          RAW_REVIEW="$PARSED_AGY"
+          EVALUATOR_ROLE="$SPEC_ROLE"
+          EVALUATION_TIER="agy"
+        fi
+      fi
     fi
   fi
 fi

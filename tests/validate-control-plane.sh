@@ -2039,6 +2039,7 @@ EOF_AGY_V
 chmod +x "$MOCK_AGY_VALID"
 
 OUT_AGY_OK="$T34_DIR/delib_agy_ok.json"
+AGY_ALLOW_DIRTY=1 \
 AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" \
 AGY_CERT_MODE=1 \
 INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
@@ -2071,6 +2072,7 @@ EOF_AGY_C
 chmod +x "$MOCK_AGY_CORRUPT"
 
 OUT_AGY_FAIL="$T34_DIR/delib_agy_fail.json"
+AGY_ALLOW_DIRTY=1 \
 AGY_BIN_OVERRIDE="$MOCK_AGY_CORRUPT" \
 AGY_CERT_MODE=1 \
 NO_ORCA=true \
@@ -2088,6 +2090,140 @@ assert d.get('evaluator_tier') == 'fallback_safe', f'Tier esperado fallback_safe
 " 2>/dev/null || T34_FAILS="$T34_FAILS agy-exit0-corrupto-no-degrada"
 fi
 
+# 13. Guardas de seguridad, aislamiento read-only y certificación git-limpio para agy (T-153)
+# 13a. Centinela PRE fail-closed ante working tree sucio
+DIRTY_FILE="$ROOT/dirty_test_pre_sentinel.txt"
+touch "$DIRTY_FILE"
+RC_PRE_SENTINEL=0
+OUT_PRE_SENTINEL="$(AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" AGY_CERT_MODE=1 INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 2>&1)" || RC_PRE_SENTINEL=$?
+rm -f "$DIRTY_FILE"
+
+if [ "$RC_PRE_SENTINEL" -ne 1 ]; then
+  T34_FAILS="$T34_FAILS pre-sentinela-no-aborta-rc1($RC_PRE_SENTINEL)"
+fi
+if ! printf '%s\n' "$OUT_PRE_SENTINEL" | grep -q "Centinela PRE"; then
+  T34_FAILS="$T34_FAILS pre-sentinela-mensaje-error-ausente"
+fi
+
+# 13b. Degradación determinista a siguiente tier si falta portable_timeout (Nit T-152/T-153)
+OUT_NO_TIMEOUT="$T34_DIR/delib_no_timeout.json"
+AGY_ALLOW_DIRTY=1 \
+AGENT_OS_NO_PORTABLE_TIMEOUT=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" \
+AGY_CERT_MODE=1 \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_NO_TIMEOUT" --timeout 1 --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_NO_TIMEOUT" ]; then
+  T34_FAILS="$T34_FAILS no-timeout-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_NO_TIMEOUT'))
+assert d.get('evaluator_tier') != 'agy', f'Tier inesperado: no debe ser agy sin timeout, obtenido {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto esperado SIN_REVISOR, obtenido {d.get(\"verdict\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS no-timeout-degradacion-invalida"
+fi
+
+# 13c. Centinela POST: detección de mutación espuria, reversión acotada y ESCALADO_A_HUMANO
+MOCK_AGY_MUTATOR="$T34_DIR/agy_mock_mutator.sh"
+MUTATION_FILE="$ROOT/spurious_mutation_test.txt"
+cat << EOF_AGY_M > "$MOCK_AGY_MUTATOR"
+#!/usr/bin/env bash
+if [ "\${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+touch "$MUTATION_FILE"
+cat << 'JSON_OUT'
+<!-- VERDICT_JSON_START -->
+{
+  "verdict": "CONSENSO",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Alineado con directivas"
+  },
+  "design_summary": "Plan validado pero con mutación en el árbol."
+}
+<!-- VERDICT_JSON_END -->
+JSON_OUT
+exit 0
+EOF_AGY_M
+chmod +x "$MOCK_AGY_MUTATOR"
+
+OUT_AGY_MUT="$T34_DIR/delib_agy_mut.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_MUTATOR" \
+AGY_CERT_MODE=1 \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_MUT" --json >/dev/null 2>&1 || true
+
+if [ -f "$MUTATION_FILE" ]; then
+  rm -f "$MUTATION_FILE"
+  T34_FAILS="$T34_FAILS post-sentinela-no-revertio-mutacion"
+fi
+
+if [ ! -f "$OUT_AGY_MUT" ]; then
+  T34_FAILS="$T34_FAILS agy-mutacion-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_AGY_MUT'))
+assert d.get('evaluator_tier') == 'agy', f'Tier esperado agy, obtenido {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'ESCALADO_A_HUMANO', f'Veredicto esperado ESCALADO_A_HUMANO tras mutación, obtenido {d.get(\"verdict\")}'
+assert any('Violación de seguridad' in obj for obj in d.get('objections', [])), 'Objeción de seguridad ausente'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-post-sentinela-contrato-invalido"
+fi
+
+# 13d. Aislamiento env -i: verificar que secretos ambientales no se propagan a agy
+MOCK_AGY_ENV="$T34_DIR/agy_mock_env.sh"
+cat << 'EOF_AGY_ENV' > "$MOCK_AGY_ENV"
+#!/usr/bin/env bash
+if [ "${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+env > "$(dirname "$0")/agy_captured_env.log"
+cat << 'JSON_OUT'
+<!-- VERDICT_JSON_START -->
+{
+  "verdict": "CONSENSO",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Alineado con directivas"
+  },
+  "design_summary": "Plan auditado con entorno capturado."
+}
+<!-- VERDICT_JSON_END -->
+JSON_OUT
+exit 0
+EOF_AGY_ENV
+chmod +x "$MOCK_AGY_ENV"
+
+OUT_AGY_ENV="$T34_DIR/delib_agy_env.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_SECRET_TRAP="token_super_secreto_agy_99999" \
+AGY_BIN_OVERRIDE="$MOCK_AGY_ENV" \
+AGY_CERT_MODE=1 \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_ENV" --json >/dev/null 2>&1 || true
+
+if [ -f "$T34_DIR/agy_captured_env.log" ]; then
+  if grep -q "AGY_SECRET_TRAP" "$T34_DIR/agy_captured_env.log"; then
+    T34_FAILS="$T34_FAILS agy-secreto-filtrado-en-worker"
+  fi
+  if ! grep -q "PATH=" "$T34_DIR/agy_captured_env.log" || ! grep -q "HOME=" "$T34_DIR/agy_captured_env.log"; then
+    T34_FAILS="$T34_FAILS agy-env-vars-esenciales-ausentes"
+  fi
+else
+  T34_FAILS="$T34_FAILS agy-env-log-no-capturado"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2098,6 +2234,7 @@ else
   echo -e "  ✅ deliberate-plan.sh degrada limpiamente a SIN_REVISOR sin pasarela (<1s);"
   echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
   echo -e "     cableado agy como Tier 1 y degradación ante exit-0 corrupto verificados (T-152);"
+  echo -e "     guardas de seguridad de agy certificadas (centinelas PRE/POST, env -i, no-timeout) (T-153);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
