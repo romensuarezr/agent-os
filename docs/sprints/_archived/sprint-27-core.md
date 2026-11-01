@@ -1,7 +1,7 @@
 # Sprint 27 — Revisor Antigravity CLI, Observabilidad de Liveness y Paridad de Gobernanza
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
