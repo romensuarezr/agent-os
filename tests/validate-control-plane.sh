@@ -2224,6 +2224,20 @@ else
   T34_FAILS="$T34_FAILS agy-env-log-no-capturado"
 fi
 
+# 14. Reporte formal de paridad y calibración Revisor-vs-Relé (T-154)
+PARITY_REPORT="$ROOT/docs/sprints/sprint-27-parity-report.md"
+if [ ! -f "$PARITY_REPORT" ]; then
+  T34_FAILS="$T34_FAILS parity-report-ausente"
+else
+  grep -q -E "PARIDAD_(CONDICIONADA|OBSERVACIONAL|TOTAL)" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-veredicto"
+  grep -q "Batería de 10 Casos y Concordancia" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-tabla-casos"
+  grep -q "C-09" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-caso-c09"
+  grep -q "C-10" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-caso-c10"
+  grep -q "gate_t149" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-gate-t149"
+  grep -q "revisor_skills" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-revisor-skills"
+  grep -q "Consumo de Tokens y Coste" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-metricas-coste"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2235,6 +2249,7 @@ else
   echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
   echo -e "     cableado agy como Tier 1 y degradación ante exit-0 corrupto verificados (T-152);"
   echo -e "     guardas de seguridad de agy certificadas (centinelas PRE/POST, env -i, no-timeout) (T-153);"
+  echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
