@@ -73,6 +73,7 @@ for arg in "$@"; do
       "--no-orca            Omite la ejecución en Orca ADE (salta directamente a Nivel 3 / HTTP)." \
       "--mock <JSON/TEXT>   Payload simulado exclusivo para pruebas automatizadas (ignorado si no se indica)." \
       "--json               Emite el resultado final como JSON estructurado por stdout." \
+      "AGY_ALLOW_DIRTY=1    (Variable de entorno) Omite centinela PRE solo para tests/dev. Nunca en producción." \
       "ejemplo: bash scripts/agent/deliberate-plan.sh --plan .agents/context/plan-draft.md --task-id T-135 --json"
   fi
 done
@@ -618,7 +619,15 @@ if [ -z "$RAW_REVIEW" ] && [ "$AGY_ENABLED" = "true" ]; then
     AGY_BIN="$(resolve_agy_bin 2>/dev/null || echo "agy")"
     AGY_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO ${AGY_TIMEOUT}s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto según el contrato y delimitadores indicados en la directiva."
 
-    # 1. Centinela PRE (T-153): abortar fail-closed si el working tree ya está sucio antes de invocar agy
+    # 1. Centinela PRE (T-153): abortar fail-closed si el working tree ya está sucio antes de invocar agy.
+    #
+    # Variable de entorno: AGY_ALLOW_DIRTY (por defecto: 0 / deshabilitado)
+    # - Propósito: Permite omitir la compuerta del centinela PRE exclusivamente en tests automatizados
+    #   o scripts de validación durante el desarrollo local donde el árbol de trabajo contiene cambios en curso.
+    # - Restricción: NUNCA debe activarse en entornos de producción ni en sesiones normales de desarrollo.
+    # - Advertencia de seguridad: Con AGY_ALLOW_DIRTY=1, las mutaciones que el revisor agy pudiera introducir
+    #   sobre ficheros que ya se encontraban modificados previamente en el working tree pueden quedar
+    #   enmascaradas por la comparación línea a línea de git status --porcelain, omitiendo la reversión del centinela POST.
     PRE_STATUS=""
     if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
       PRE_STATUS="$(git -C "$ROOT_DIR" status --porcelain 2>/dev/null || true)"

@@ -23,6 +23,7 @@ Esta tarea introduce guardarraíles mecánicos de seguridad:
   - Aislamiento estricto de variables de entorno: filtrar credenciales ambientales no explícitas.
   - Tests en `tests/validate-control-plane.sh` simulando intentos de mutación y certificando la respuesta de contención.
   - **Nit de gobernanza (Paso 6 T-152)**: Si `portable_timeout` no está disponible en el entorno, degradar de inmediato al siguiente tier en vez de invocar `agy` sin cota de tiempo.
+  - **Documentación de `AGY_ALLOW_DIRTY` (Paso 6 T-153)**: Variable de entorno para omitir el centinela PRE exclusivamente en tests automatizados o desarrollo local donde el working tree contiene cambios en curso (por defecto `0`, nunca en producción). Advertencia de seguridad explícita: con `AGY_ALLOW_DIRTY=1` activado, mutaciones espurias introducidas por el revisor sobre ficheros que ya se encontraban modificados previamente en el árbol de trabajo pueden quedar enmascaradas por la comparación línea a línea de `git status --porcelain`.
 - **Veredicto de diseño macro**: `[APROBADO_EN_PLANNING]`
 
 ## Skills relevantes
@@ -48,4 +49,4 @@ Esta tarea introduce guardarraíles mecánicos de seguridad:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido
 - [x] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé
