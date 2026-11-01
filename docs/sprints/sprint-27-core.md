@@ -7,7 +7,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :--- | :--: | :--- | :--- |
 | T-151 | Trial de liveness y observabilidad del worker de inferencia en deliberación | Core / Telemetría | S | ✅ Completada | — | [.agents/tasks/task-151.md](.agents/tasks/_archived/task-151.md) |
-| T-152 | Cableado del Revisor Antigravity CLI (agy) como Tier 1 en deliberate-plan.sh | Core / Gobernanza | M | ⬜ Pendiente | T-151 | [.agents/tasks/task-152.md](.agents/tasks/task-152.md) |
+| T-152 | Cableado del Revisor Antigravity CLI (agy) como Tier 1 en deliberate-plan.sh | Core / Gobernanza | M | ✅ Completada | T-151 | [.agents/tasks/task-152.md](.agents/tasks/_archived/task-152.md) |
 | T-153 | Guardas de seguridad, aislamiento read-only y certificación git-limpio para agy | Core / Seguridad | S | ⬜ Pendiente | T-152 | [.agents/tasks/task-153.md](.agents/tasks/task-153.md) |
 | T-154 | Batería de calibración, medición de cuota/coste y paridad Revisor-vs-Relé (T-147) | Core / Calibración | M | ⬜ Pendiente | T-152, T-153 | [.agents/tasks/task-154.md](.agents/tasks/task-154.md) |
 

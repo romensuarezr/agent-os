@@ -1031,7 +1031,14 @@ fi
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
 DELIBERATION_JSON=$(python3 -c '
-import json, sys
+import json, sys, os
+
+root = "'"$ROOT_DIR"'"
+plan_file = "'"$PLAN_FILE"'"
+if os.path.isabs(plan_file) and plan_file.startswith(root):
+    plan_source = os.path.relpath(plan_file, root)
+else:
+    plan_source = plan_file
 
 data = {
     "task_id": "'"$TASK_ID"'",
@@ -1045,7 +1052,7 @@ data = {
     "corrections": '"$CORRECTIONS"',
     "skills_evaluation": '"$SKILLS_EVAL"',
     "inventory_scoped_bytes": len("""'"$INVENTORY_PAYLOAD"'""".encode("utf-8")),
-    "plan_source": "'"$PLAN_FILE"'"
+    "plan_source": plan_source
 }
 print(json.dumps(data, indent=2))
 ')

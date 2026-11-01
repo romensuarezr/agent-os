@@ -22,6 +22,7 @@ Esta tarea introduce guardarraíles mecánicos de seguridad:
   - **Centinela POST y Limpieza Acotada**: Si tras la ejecución de `agy` el working tree presenta cambios respecto al snapshot previo, emitir error estructurado (`❌ VIOLACIÓN DE SEGURIDAD: El revisor intentó mutar el working tree`), ejecutar limpieza post exclusivamente sobre los archivos del diff generado entre el estado pre y post de `agy` (sin borrado indiscriminado del árbol), invalidar el veredicto y degradar a `ESCALADO_A_HUMANO` / aborto fail-closed.
   - Aislamiento estricto de variables de entorno: filtrar credenciales ambientales no explícitas.
   - Tests en `tests/validate-control-plane.sh` simulando intentos de mutación y certificando la respuesta de contención.
+  - **Nit de gobernanza (Paso 6 T-152)**: Si `portable_timeout` no está disponible en el entorno, degradar de inmediato al siguiente tier en vez de invocar `agy` sin cota de tiempo.
 - **Veredicto de diseño macro**: `[APROBADO_EN_PLANNING]`
 
 ## Skills relevantes

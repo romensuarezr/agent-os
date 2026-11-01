@@ -47,4 +47,4 @@ Sin embargo, `agy` presenta un comportamiento particular: ante un timeout durant
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido
 - [x] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Cierre y merge autorizado por el relé
