@@ -33,18 +33,18 @@ Sin embargo, `agy` presenta un comportamiento particular: ante un timeout durant
 - `.agents/tasks/task-152.md`
 
 ## Criterios de done
-- [ ] Función de sonda determinista (`probe_agy_reviewer`) que comprueba binario `agy`, flags admitidos y conectividad básica sin bloquear.
-- [ ] Adaptador de invocación de `agy` como Tier 1 en `deliberate-plan.sh` con wrapper de timeout.
-- [ ] Extracción de veredicto estructurado protegida contra `exit 0` en timeout (validación de delimitador y parser JSON).
-- [ ] Fallback en cascada certificado: fallo o timeout de `agy` transfiere limpiamente la ejecución a Orca ADE / HTTP / `SIN_REVISOR`.
-- [ ] Test de regresión incorporado en `tests/validate-control-plane.sh` validando el cableado de `agy` y su degradación.
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
+- [x] Función de sonda determinista (`probe_agy_reviewer`) que comprueba binario `agy`, flags admitidos y conectividad básica sin bloquear.
+- [x] Adaptador de invocación de `agy` como Tier 1 en `deliberate-plan.sh` con wrapper de timeout.
+- [x] Extracción de veredicto estructurado protegida contra `exit 0` en timeout (validación de delimitador y parser JSON).
+- [x] Fallback en cascada certificado: fallo o timeout de `agy` transfiere limpiamente la ejecución a Orca ADE / HTTP / `SIN_REVISOR`.
+- [x] Test de regresión incorporado en `tests/validate-control-plane.sh` validando el cableado de `agy` y su degradación.
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé

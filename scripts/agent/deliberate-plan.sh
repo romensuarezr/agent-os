@@ -5,18 +5,20 @@
 # Ejecuta la deliberación cruzada entre el Coder local y el Revisor ($0)
 # para auditar el plan contra la realidad del repositorio antes de la aprobación.
 #
-# Jerarquía determinista de 3 niveles:
-#   1. Nivel 1 — Orca ADE: Revisor Ejecutor supervisado con spec declarativa (T-134)
+# Jerarquía determinista de 4 niveles (T-152):
+#   1. Nivel 1 — Antigravity CLI (agy): Revisor prioritario nativo bajo wrapper de timeout
+#      portátil y extracción estructurada fail-closed con delimitadores (T-152).
+#   2. Nivel 2 — Orca ADE: Revisor Ejecutor supervisado con spec declarativa (T-134)
 #      bajo aislamiento estricto (env -i) y presupuesto acotado (60s).
-#   2. Nivel 2 — Cascada HTTP: Fallback de 3 tiers (freellmapi -> omniroute -> ollama-local)
-#      con presupuesto global estricto de 5s ante fallo de transporte/timeout de Orca.
-#   3. Nivel 3 — Degradación Segura: Emisión de SIN_REVISOR ($0 tokens) si la cascada
+#   3. Nivel 3 — Cascada HTTP: Fallback de 3 tiers (freellmapi -> omniroute -> ollama-local)
+#      con presupuesto global estricto de 5s ante fallo de transporte/timeout de CLIs.
+#   4. Nivel 4 — Degradación Segura: Emisión de SIN_REVISOR ($0 tokens) si la cascada
 #      HTTP falla o no hay conexión, sin bloquear el bucle de desarrollo.
 #
 # Principios y Guardarraíles:
 #   1. Máximo 1 ronda de corrección automática (tope absoluto 2 rondas).
 #      Sin consenso → ESCALADO_A_HUMANO. Nunca bucle infinito.
-#   2. Timeout total en peor caso ~66s (<1s sonda + 60s Orca + 5s cascada HTTP).
+#   2. Timeout total en peor caso acotado por tiers deterministas.
 #   3. Inventario acotado (<4KB): allowlist primero, ficheros de skills declaradas
 #      y árbol estructural filtrado. Declara si hubo truncamiento.
 #   4. Endpoints y agente configurables en routing-policy.yaml / fleet.yaml, nunca hardcodeados.
@@ -29,6 +31,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/cli-help.sh"
 source "$SCRIPT_DIR/lib/orca-client.sh"
+if [ -f "$SCRIPT_DIR/lib/portable-timeout.sh" ]; then
+  # shellcheck source=scripts/agent/lib/portable-timeout.sh
+  source "$SCRIPT_DIR/lib/portable-timeout.sh"
+fi
 
 for cmd in git curl python3 sed; do
   command -v "$cmd" >/dev/null 2>&1 || {
@@ -48,19 +54,23 @@ JSON_OUTPUT=false
 TIMEOUT=5
 ORCA_TIMEOUT=15
 NO_ORCA=false
+AGY_TIMEOUT=30
+NO_AGY=false
 MOCK_RESPONSE=""
 
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     show_help "deliberate-plan.sh" \
-      "bash scripts/agent/deliberate-plan.sh --plan <PATH> [--task-id <ID>] [--output <PATH>] [--timeout <SEG>] [--orca-timeout <SEG>] [--no-orca] [--json]" \
-      "Motor determinista de arbitraje Coder-Reviewer: audita el borrador del plan en 3 niveles (Orca ADE -> Cascada HTTP -> SIN_REVISOR)." \
+      "bash scripts/agent/deliberate-plan.sh --plan <PATH> [--task-id <ID>] [--output <PATH>] [--timeout <SEG>] [--orca-timeout <SEG>] [--agy-timeout <SEG>] [--no-agy] [--no-orca] [--json]" \
+      "Motor determinista de arbitraje Coder-Reviewer: audita el borrador del plan en 4 niveles (Antigravity CLI -> Orca ADE -> Cascada HTTP -> SIN_REVISOR)." \
       "--plan <PATH>        Ruta al archivo borrador del plan (ej: .agents/context/plan-draft.md)." \
       "--task-id <ID>       ID de la tarea activa (ej: T-135)." \
       "--output <PATH>      Ruta de destino del veredicto estructurado (defecto: .agents/context/plan-deliberation.json)." \
       "--timeout <SEG>      Timeout para la cascada HTTP en segundos (defecto: 5s)." \
       "--orca-timeout <SEG> Timeout máximo para el worker de Orca ADE en segundos. Precedencia: flag CLI > routing-policy.yaml (60s) > centinela en script (15s)." \
-      "--no-orca            Omite la ejecución en Orca ADE (salta directamente a Nivel 2 / HTTP)." \
+      "--agy-timeout <SEG>  Timeout máximo para Antigravity CLI en segundos (defecto: 30s)." \
+      "--no-agy             Omite la ejecución en Antigravity CLI (salta al siguiente nivel)." \
+      "--no-orca            Omite la ejecución en Orca ADE (salta directamente a Nivel 3 / HTTP)." \
       "--mock <JSON/TEXT>   Payload simulado exclusivo para pruebas automatizadas (ignorado si no se indica)." \
       "--json               Emite el resultado final como JSON estructurado por stdout." \
       "ejemplo: bash scripts/agent/deliberate-plan.sh --plan .agents/context/plan-draft.md --task-id T-135 --json"
@@ -74,6 +84,8 @@ while [[ $# -gt 0 ]]; do
     --output) OUTPUT_FILE="$2"; shift 2 ;;
     --timeout) TIMEOUT="$2"; shift 2 ;;
     --orca-timeout) ORCA_TIMEOUT="$2"; shift 2 ;;
+    --agy-timeout) AGY_TIMEOUT="$2"; shift 2 ;;
+    --no-agy) NO_AGY=true; shift ;;
     --no-orca) NO_ORCA=true; shift ;;
     --mock) MOCK_RESPONSE="$2"; shift 2 ;;
     --json) JSON_OUTPUT=true; shift ;;
@@ -209,6 +221,39 @@ cleanup_worker() {
 }
 
 # ==============================================================================
+# RESOLUCIÓN Y SONDA DETERMINISTA DE ANTIGRAVITY CLI (Task-152)
+# ==============================================================================
+resolve_agy_bin() {
+  if [ -n "${AGY_BIN_OVERRIDE:-}" ] && [ -x "$AGY_BIN_OVERRIDE" ]; then
+    echo "$AGY_BIN_OVERRIDE"
+    return 0
+  fi
+  if command -v agy >/dev/null 2>&1; then
+    command -v agy
+    return 0
+  fi
+  if [ -x "$HOME/.local/bin/agy" ]; then
+    echo "$HOME/.local/bin/agy"
+    return 0
+  fi
+  return 1
+}
+
+probe_agy_reviewer() {
+  local bin
+  bin="$(resolve_agy_bin 2>/dev/null)" || return 1
+  if [ -n "${AGY_MOCK_PROBE:-}" ]; then
+    [ "$AGY_MOCK_PROBE" = "ok" ] && return 0 || return 1
+  fi
+  if command -v portable_timeout >/dev/null 2>&1; then
+    portable_timeout 2 "$bin" --help >/dev/null 2>&1 || return 1
+  else
+    "$bin" --help >/dev/null 2>&1 || return 1
+  fi
+  return 0
+}
+
+# ==============================================================================
 # 1. RESOLUCIÓN DE POLÍTICA DE ROUTING Y CASCADA DE INFERENCIA
 # ==============================================================================
 resolve_deliberation_config() {
@@ -226,6 +271,8 @@ orca_timeout = int('"$ORCA_TIMEOUT"')
 orca_enabled = True
 orca_agent = "opencode"
 orca_role = "qa-judge"
+agy_timeout = int('"$AGY_TIMEOUT"')
+agy_enabled = True
 
 if os.path.isfile(routing_file):
     try:
@@ -259,17 +306,39 @@ if os.path.isfile(routing_file):
                     orca_timeout = int(orca_cfg["timeout_seconds"])
                 except Exception:
                     pass
+
+        # Configuración declarativa de agy_revisor (T-152)
+        agy_cfg = delib_cfg.get("agy_revisor", {}) or delib_cfg.get("antigravity_reviewer", {})
+        if isinstance(agy_cfg, dict):
+            if "enabled" in agy_cfg:
+                agy_enabled = bool(agy_cfg["enabled"])
+            if "timeout_seconds" in agy_cfg and agy_timeout == 30:
+                try:
+                    agy_timeout = int(agy_cfg["timeout_seconds"])
+                except Exception:
+                    pass
     except Exception:
         pass
+
+# Sobreescrituras de entorno para agy_revisor
+if os.environ.get("AGY_REVIEWER_ENABLED") == "false" or os.environ.get("AGENT_OS_AGY_REVIEWER") == "false" or os.environ.get("ORCA_CERT_MODE") == "1":
+    agy_enabled = False
 
 # Sobreescrituras de entorno para orca_revisor
 if os.environ.get("ORCA_REVISOR_ENABLED") == "false" or os.environ.get("AGENT_OS_ORCA_REVIEWER") == "false":
     orca_enabled = False
 
-# Si se indica explícitamente una pasarela HTTP vía INFERENCE_BASE_URL,
-# se asume bypass de Orca para evaluar directamente el endpoint HTTP
+# Si se indica explícitamente una pasarela HTTP vía INFERENCE_BASE_URL:
+# - Se asume bypass de agy a menos que se fuerce AGY_CERT_MODE=1
+# - Se asume bypass de orca a menos que se fuerce ORCA_CERT_MODE=1
 if os.environ.get("INFERENCE_BASE_URL"):
-    orca_enabled = False
+    if os.environ.get("AGY_CERT_MODE") != "1":
+        agy_enabled = False
+    if os.environ.get("ORCA_CERT_MODE") != "1":
+        orca_enabled = False
+
+if "'"$NO_AGY"'" == "true":
+    agy_enabled = False
 
 if "'"$NO_ORCA"'" == "true":
     orca_enabled = False
@@ -339,6 +408,8 @@ out = {
     "orca_enabled": orca_enabled,
     "orca_agent": orca_agent,
     "orca_role": orca_role,
+    "agy_timeout": agy_timeout,
+    "agy_enabled": agy_enabled,
     "tiers": resolved_tiers
 }
 print(json.dumps(out))
@@ -346,6 +417,8 @@ print(json.dumps(out))
 }
 
 CONFIG_DATA=$(resolve_deliberation_config)
+AGY_ENABLED=$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("agy_enabled", True) else "false")' "$CONFIG_DATA" 2>/dev/null || echo "true")
+AGY_TIMEOUT=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("agy_timeout", 30))' "$CONFIG_DATA" 2>/dev/null || echo 30)
 ORCA_ENABLED=$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("orca_enabled", False) else "false")' "$CONFIG_DATA" 2>/dev/null || echo "false")
 ORCA_AGENT=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("orca_agent", "opencode"))' "$CONFIG_DATA" 2>/dev/null || echo "opencode")
 ORCA_ROLE=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("orca_role", "qa-judge"))' "$CONFIG_DATA" 2>/dev/null || echo "qa-judge")
@@ -514,7 +587,9 @@ except Exception:
 }
 
 # ==============================================================================
-# 4. EJECUCIÓN JERÁRQUICA: NIVEL 1 (ORCA) -> NIVEL 2 (HTTP) -> NIVEL 3 (SIN_REVISOR)
+# ==============================================================================
+# 4. EJECUCIÓN JERÁRQUICA EN 4 NIVELES (T-152):
+#    Nivel 1 (Antigravity CLI) -> Nivel 2 (Orca ADE) -> Nivel 3 (HTTP Cascade) -> Nivel 4 (SIN_REVISOR)
 # ==============================================================================
 RAW_REVIEW=""
 EVALUATOR_ROLE=""
@@ -528,25 +603,124 @@ if [ -n "$MOCK_RESPONSE" ]; then
   EVALUATION_TIER="mock"
 fi
 
-# NIVEL 1: ORCA ADE (Prioritario)
+# Generar directiva de revisión declarativa (spec) para evaluadores de rol qa-judge
+SPEC_TEXT=""
+SPEC_ROLE="$ORCA_ROLE"
+SPEC_GEN="$SCRIPT_DIR/lib/generate-reviewer-spec.sh"
+if [ -f "$SPEC_GEN" ] && [ -x "$SPEC_GEN" ]; then
+  SPEC_DATA="$("$SPEC_GEN" --task-id "$TASK_ID" --plan "$PLAN_FILE" --json 2>/dev/null || true)"
+  SPEC_TEXT="$(python3 -c 'import json, sys; d=json.loads(sys.argv[1]); print(d.get("spec", ""))' "$SPEC_DATA" 2>/dev/null || true)"
+  SPEC_ROLE="$(python3 -c 'import json, sys; d=json.loads(sys.argv[1]); print(d.get("role", "qa-judge"))' "$SPEC_DATA" 2>/dev/null || echo "$ORCA_ROLE")"
+fi
+
+# NIVEL 1: ANTIGRAVITY CLI (Tier 1 Prioritario — T-152)
+if [ -z "$RAW_REVIEW" ] && [ "$AGY_ENABLED" = "true" ]; then
+  if probe_agy_reviewer; then
+    AGY_BIN="$(resolve_agy_bin 2>/dev/null || echo "agy")"
+    AGY_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO ${AGY_TIMEOUT}s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto según el contrato y delimitadores indicados en la directiva."
+
+    AGY_RAW_OUT=""
+    AGY_RC=0
+    if command -v portable_timeout >/dev/null 2>&1; then
+      AGY_RAW_OUT="$(portable_timeout "$AGY_TIMEOUT" "$AGY_BIN" --print "$AGY_DIRECT" --output-format json --mode plan --disable-slash-commands 2>/dev/null)" || AGY_RC=$?
+    else
+      AGY_RAW_OUT="$("$AGY_BIN" --print "$AGY_DIRECT" --output-format json --mode plan --disable-slash-commands 2>/dev/null)" || AGY_RC=$?
+    fi
+
+    # Extractor fail-closed: delimitadores obligatorios y 5 campos canónicos
+    # Neutraliza comportamiento de exit 0 con salida parcial/truncada en timeout
+    PARSED_AGY="$(python3 -c '
+import sys, json, re
+
+raw = sys.stdin.read()
+if not raw.strip():
+    sys.exit(1)
+
+text = raw
+try:
+    envelope = json.loads(raw)
+    if isinstance(envelope, dict) and "response" in envelope and isinstance(envelope["response"], str):
+        text = envelope["response"]
+except Exception:
+    pass
+
+start_delim = "<!-- VERDICT_JSON_START -->"
+end_delim = "<!-- VERDICT_JSON_END -->"
+s_idx = text.rfind(start_delim)
+e_idx = text.rfind(end_delim)
+if s_idx == -1 or e_idx == -1 or e_idx <= s_idx:
+    sys.exit(1)
+
+chunk = text[s_idx + len(start_delim):e_idx].strip()
+cleaned_lines = []
+for line in chunk.splitlines():
+    l = re.sub(r"^[│┃╹╻|\s]+", "", line)
+    l = re.sub(r"\s{6,}\S.*$", "", l)
+    l = re.sub(r"[│┃╹╻|\s]+$", "", l)
+    cleaned_lines.append(l)
+cleaned = "\n".join(cleaned_lines)
+if "```json" in cleaned:
+    cleaned = cleaned.split("```json")[1].split("```")[0].strip()
+elif "```" in cleaned:
+    cleaned = cleaned.split("```")[1].split("```")[0].strip()
+
+s_brace = cleaned.find("{")
+e_brace = cleaned.rfind("}")
+if s_brace == -1 or e_brace <= s_brace:
+    sys.exit(1)
+
+try:
+    data = json.loads(cleaned[s_brace:e_brace + 1], strict=False)
+except Exception:
+    sys.exit(1)
+
+# Validar 5 campos canónicos obligatorios
+v = data.get("verdict", "").strip().upper()
+if v not in ["CONSENSO", "REVISADO_CON_CAMBIOS", "ESCALADO_A_HUMANO", "RECHAZADO"]:
+    sys.exit(1)
+
+if "objections" not in data or not isinstance(data["objections"], list):
+    sys.exit(1)
+
+has_corrs = False
+if "corrections" in data and isinstance(data["corrections"], list):
+    has_corrs = True
+elif "proposed_corrections" in data and isinstance(data["proposed_corrections"], list):
+    has_corrs = True
+    data["corrections"] = data["proposed_corrections"]
+if not has_corrs:
+    sys.exit(1)
+
+if "skills_evaluation" not in data or not isinstance(data["skills_evaluation"], dict):
+    sys.exit(1)
+
+if "design_summary" not in data or not isinstance(data["design_summary"], str) or not data["design_summary"].strip():
+    sys.exit(1)
+
+print(json.dumps(data))
+' <<< "$AGY_RAW_OUT" 2>/dev/null || true)"
+
+    if [ -n "$PARSED_AGY" ]; then
+      RAW_REVIEW="$PARSED_AGY"
+      EVALUATOR_ROLE="$SPEC_ROLE"
+      EVALUATION_TIER="agy"
+    fi
+  fi
+fi
+
+# NIVEL 2: ORCA ADE (Tier 2 / Fallback de agy)
 if [ -z "$RAW_REVIEW" ] && [ "$ORCA_ENABLED" = "true" ]; then
   # Sonda determinista fail-fast (<1s). Si está inactivo o sordo, salta sin demora
   if orca_is_ready; then
-    SPEC_GEN="$SCRIPT_DIR/lib/generate-reviewer-spec.sh"
-    if [ -f "$SPEC_GEN" ] && [ -x "$SPEC_GEN" ]; then
-      SPEC_DATA="$("$SPEC_GEN" --task-id "$TASK_ID" --plan "$PLAN_FILE" --json 2>/dev/null || true)"
-      SPEC_TEXT="$(python3 -c 'import json, sys; d=json.loads(sys.argv[1]); print(d.get("spec", ""))' "$SPEC_DATA" 2>/dev/null || true)"
-      SPEC_ROLE="$(python3 -c 'import json, sys; d=json.loads(sys.argv[1]); print(d.get("role", "qa-judge"))' "$SPEC_DATA" 2>/dev/null || echo "$ORCA_ROLE")"
+    if [ -n "$SPEC_TEXT" ]; then
+      RUN_ID="$(orca_cmd orchestration run-current --json 2>/dev/null | python3 -c 'import json, sys; print(json.load(sys.stdin).get("result", {}).get("run", {}).get("id") or "")' 2>/dev/null || true)"
+      if [ -z "$RUN_ID" ]; then
+        RUN_OUT="$(orca_cmd orchestration run-create --objective "Deliberate $TASK_ID" --json 2>/dev/null || true)"
+        RUN_ID="$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("result", {}).get("run", {}).get("id") or "")' "$RUN_OUT" 2>/dev/null || true)"
+      fi
 
-      if [ -n "$SPEC_TEXT" ]; then
-        RUN_ID="$(orca_cmd orchestration run-current --json 2>/dev/null | python3 -c 'import json, sys; print(json.load(sys.stdin).get("result", {}).get("run", {}).get("id") or "")' 2>/dev/null || true)"
-        if [ -z "$RUN_ID" ]; then
-          RUN_OUT="$(orca_cmd orchestration run-create --objective "Deliberate $TASK_ID" --json 2>/dev/null || true)"
-          RUN_ID="$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("result", {}).get("run", {}).get("id") or "")' "$RUN_OUT" 2>/dev/null || true)"
-        fi
-
-        # Inyectar instrucción de evaluación estática directa para ceñirse al presupuesto
-        SPEC_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO 60s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto según el contrato y delimitadores indicados en la directiva."
+      # Inyectar instrucción de evaluación estática directa para ceñirse al presupuesto
+      SPEC_DIRECT="$SPEC_TEXT"$'\n\n'"INSTRUCCIÓN DE EJECUCIÓN DIRECTA (PRESUPUESTO 60s): Evalúa el plan provisto estáticamente contra el inventario y reglas indicadas. Sé conciso (design_summary en 1-2 párrafos). No ejecutes herramientas bash de mutación ni tests de control plane. Emite directamente tu veredicto según el contrato y delimitadores indicados en la directiva."
 
         START_ARGS=()
         [ -n "$RUN_ID" ] && START_ARGS+=(--run "$RUN_ID")
@@ -676,7 +850,6 @@ except Exception:
       fi
     fi
   fi
-fi
 
 # NIVEL 2: CASCADA HTTP (Solo ante fallo transporte/timeout/no-parseable de Orca o si Orca está deshabilitado)
 if [ -z "$RAW_REVIEW" ]; then

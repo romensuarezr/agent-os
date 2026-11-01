@@ -2011,7 +2011,84 @@ if [ -f "$LIVENESS_REPORT" ]; then
   grep -q "Tabla por Caso y Tamaño de Muestra Declarado" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-tabla-muestra"
 fi
 
-rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
+# 12. Cableado de Antigravity CLI (agy) como Tier 1 en deliberate-plan.sh (T-152)
+# 12a. Mock agy exitoso con delimitadores y 5 campos canónicos -> evaluator_tier=agy
+MOCK_AGY_VALID="$T34_DIR/agy_mock_valid.sh"
+cat << 'EOF_AGY_V' > "$MOCK_AGY_VALID"
+#!/usr/bin/env bash
+if [ "${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+cat << 'JSON_OUT'
+<!-- VERDICT_JSON_START -->
+{
+  "verdict": "CONSENSO",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Alineado con directivas"
+  },
+  "design_summary": "Plan validado correctamente por Revisor Antigravity CLI."
+}
+<!-- VERDICT_JSON_END -->
+JSON_OUT
+exit 0
+EOF_AGY_V
+chmod +x "$MOCK_AGY_VALID"
+
+OUT_AGY_OK="$T34_DIR/delib_agy_ok.json"
+AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" \
+AGY_CERT_MODE=1 \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_OK" --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_AGY_OK" ]; then
+  T34_FAILS="$T34_FAILS agy-tier1-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_AGY_OK'))
+assert d.get('evaluator_tier') == 'agy', f'Tier esperado agy, obtenido {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'CONSENSO', f'Veredicto esperado CONSENSO, obtenido {d.get(\"verdict\")}'
+assert d.get('role') in ['qa-judge', 'reviewer'], f'Rol inesperado: {d.get(\"role\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-tier1-contrato-invalido"
+fi
+
+# 12b. Mock agy con salida truncada/corrupta con exit 0 -> degradación fail-closed a SIN_REVISOR
+MOCK_AGY_CORRUPT="$T34_DIR/agy_mock_corrupt.sh"
+cat << 'EOF_AGY_C' > "$MOCK_AGY_CORRUPT"
+#!/usr/bin/env bash
+if [ "${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+echo "<!-- VERDICT_JSON_START -->"
+echo '{"verdict": "CONSENSO", "design_summary": "salida truncada...'
+exit 0
+EOF_AGY_C
+chmod +x "$MOCK_AGY_CORRUPT"
+
+OUT_AGY_FAIL="$T34_DIR/delib_agy_fail.json"
+AGY_BIN_OVERRIDE="$MOCK_AGY_CORRUPT" \
+AGY_CERT_MODE=1 \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_FAIL" --timeout 1 --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_AGY_FAIL" ]; then
+  T34_FAILS="$T34_FAILS agy-corrupto-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_AGY_FAIL'))
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto esperado SIN_REVISOR, obtenido {d.get(\"verdict\")}'
+assert d.get('evaluator_tier') == 'fallback_safe', f'Tier esperado fallback_safe, obtenido {d.get(\"evaluator_tier\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-exit0-corrupto-no-degrada"
+fi
+
+rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
 if [ -n "$T34_FAILS" ]; then
@@ -2020,6 +2097,7 @@ if [ -n "$T34_FAILS" ]; then
 else
   echo -e "  ✅ deliberate-plan.sh degrada limpiamente a SIN_REVISOR sin pasarela (<1s);"
   echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
+  echo -e "     cableado agy como Tier 1 y degradación ante exit-0 corrupto verificados (T-152);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
