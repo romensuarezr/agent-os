@@ -2004,6 +2004,13 @@ grep -q 'deliberate-plan.sh' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-de
 grep -q 'Executive Design Digest' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-executive-digest"
 grep -q 'APROBADO' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-aprobado"
 
+# 11. Reporte formal de trial de liveness (T-151): veredicto explícito y tabla de muestra declarada
+LIVENESS_REPORT="$ROOT/docs/sprints/sprint-27-liveness-trial-report.md"
+if [ -f "$LIVENESS_REPORT" ]; then
+  grep -q -E "LIVENESS_(VIABLE|DESCARTADO)" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-veredicto"
+  grep -q "Tabla por Caso y Tamaño de Muestra Declarado" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-tabla-muestra"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2015,6 +2022,7 @@ else
   echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
+  echo -e "     reporte de liveness trial formal verificado (T-151);"
   echo -e "     fleet-doctor.sh incluye sonda config-driven warn-only del revisor;"
   echo -e "     .gitignore y AGENTS.md mantienen higiene de deliberación y herramientas CLI;"
   echo -e "     close-task.sh y session-start.md integran deliberación y preservan autorización humana."

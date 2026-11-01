@@ -34,16 +34,16 @@ El resultado de este trial determinará si el liveness se convierte en component
 - `.agents/tasks/task-151.md`
 
 ## Criterios de done
-- [ ] Arnés/sonda de medición ejecutado sobre invocaciones reales o simuladas de deliberación.
-- [ ] Telemetría registrada: estado del worker al timeout (vivo+avanzando, vivo+atascado, muerto) y tiempo de llegada de respuesta en ventana extendida (+30s / +60s).
-- [ ] Informe formal documentado en `docs/sprints/sprint-27-liveness-trial-report.md` con veredicto explícito (`LIVENESS_VIABLE` o `LIVENESS_DESCARTADO`).
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37), utilizada solo para instrumentación del trial sin mutar `deliberate-plan.sh` ni sus timeouts.
+- [x] Arnés/sonda de medición ejecutado sobre invocaciones reales o simuladas de deliberación.
+- [x] Telemetría registrada: estado del worker al timeout (vivo+avanzando, vivo+atascado, muerto) y tiempo de llegada de respuesta en ventana extendida (+30s / +60s).
+- [x] Informe formal documentado en `docs/sprints/sprint-27-liveness-trial-report.md` con veredicto explícito (`LIVENESS_VIABLE` o `LIVENESS_DESCARTADO`).
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37), utilizada solo para instrumentación del trial sin mutar `deliberate-plan.sh` ni sus timeouts.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé
