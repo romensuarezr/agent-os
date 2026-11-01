@@ -35,17 +35,17 @@ Esta tarea introduce guardarraíles mecánicos de seguridad:
 - `.agents/tasks/task-153.md`
 
 ## Criterios de done
-- [ ] Centinela PRE implementado en `scripts/agent/deliberate-plan.sh` que aborta sin invocar `agy` si el working tree ya está sucio.
-- [ ] Centinela POST y limpieza determinista acotada exclusivamente al diff pre/post generado por `agy` ante mutaciones no autorizadas, con emisión de bloqueo técnico.
-- [ ] Aislamiento de entorno en la llamada de `agy`.
-- [ ] Test de regresión determinista en `tests/validate-control-plane.sh` verificando la captura y contención ante modificaciones espurias.
-- [ ] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
+- [x] Centinela PRE implementado en `scripts/agent/deliberate-plan.sh` que aborta sin invocar `agy` si el working tree ya está sucio.
+- [x] Centinela POST y limpieza determinista acotada exclusivamente al diff pre/post generado por `agy` ante mutaciones no autorizadas, con emisión de bloqueo técnico.
+- [x] Aislamiento de entorno en la llamada de `agy`.
+- [x] Test de regresión determinista en `tests/validate-control-plane.sh` verificando la captura y contención ante modificaciones espurias.
+- [x] Suite completa de control plane `tests/validate-control-plane.sh` pasando limpia sin regresiones (37/37).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé
