@@ -47,9 +47,15 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - `.agents/tasks/task-164.md`
 
 ## Criterios de done
-- [ ] `.agents/workflows/session-start.md` actualizado consagrando el camino limpio desatendido y el aborto fail-closed.
-- [ ] `.agents/workflows/sprint-planning.md` actualizado con el requisito habilitante de sellado de diseño macro.
-- [ ] `AGENTS.md` actualizado reflejando el régimen Opción D como estándar.
-- [ ] Check 34 y Check 35 de `tests/validate-control-plane.sh` adaptados sin regresiones.
-- [ ] Suite de control plane 38/38 pasando limpia (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] `.agents/workflows/session-start.md` actualizado consagrando el camino limpio desatendido y el aborto fail-closed.
+- [x] `.agents/workflows/sprint-planning.md` actualizado con el requisito habilitante de sellado de diseño macro.
+- [x] `AGENTS.md` actualizado reflejando el régimen Opción D como estándar.
+- [x] Check 34 y Check 35 de `tests/validate-control-plane.sh` adaptados sin regresiones.
+- [x] Suite de control plane 38/38 pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
+
+## Recibo de deliberación acreditado
+- Veredicto: `CONSENSO` (Tier 1 `agy: qa-judge`)
+- Archivo: `.agents/context/deliberation-T-164.json`
+- Ronda: 1 (Consenso inicial sin objeciones de inventario)
+- Hash deliberación: `d3600f6805179cbff7d97e3fc55c635be9d375bb6a445d43fb60fe7322987115`

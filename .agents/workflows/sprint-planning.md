@@ -229,7 +229,7 @@ Para cada tarea incorporada a la tabla del sprint:
    - `Decisiones e interfaces selladas`: descripción concreta de interfaces pactadas, contratos de tipos, dependencias admitidas y guardarraíles técnicos acordados.
    - `Veredicto de diseño macro`: `[APROBADO_EN_PLANNING]`.
 2. **Reflejo en notas de planning**: Las decisiones arquitectónicas transversales del conjunto de tareas se resumen en `## Notas de planning` del sprint file.
-3. **Invariante de desacoplamiento**: Una vez aprobado el sprint, el diseño macro queda sellado. En la posterior ejecución por tarea (`/session-start`), el Revisor Ejecutor opera como compuerta técnica (Nivel Micro) y no reabre diseño; ante cualquier desviación técnica del plan frente a esta sección, el revisor emite bloqueo técnico vinculante (`ESCALADO_A_HUMANO`) suspendiendo la ejecución desatendida.
+3. **Invariante de desacoplamiento y habilitación de Opción D**: Una vez aprobado el sprint, el diseño macro queda sellado. Este sellado formal en planning constituye la **única autorización habilitante** que faculta la ejecución autónoma en el flujo `/session-start` bajo el régimen estándar de **Opción D**. En la posterior ejecución por tarea, el Revisor Ejecutor opera como compuerta técnica determinista (Nivel Micro) mediante `deliberate-plan.sh` y no reabre diseño; si se alcanzan las 5 condiciones del camino limpio (`CONSENSO`), la tarea se ejecuta, integra y cierra de forma 100% desatendida. Ante cualquier discrepancia técnica frente a esta sección o veredicto no consensual, el revisor emite bloqueo técnico vinculante (`ESCALADO_A_HUMANO`) suspendiendo inmediatamente la autonomía y devolviendo el control al operador humano en el chat.
 
 ### 4b. Actualización del MVP Tracker
 
