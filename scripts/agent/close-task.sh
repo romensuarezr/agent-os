@@ -226,11 +226,30 @@ if [ -f "$DIGEST_SCRIPT" ]; then
     fi
 fi
 
+# 4d. Verificación determinista de higiene de localizadores en staging (T-163)
+# Semántica fail-closed: aborta el cierre si hay fugas de secretos, IPs o rutas personales.
+LOCATOR_HYGIENE="$SCRIPT_DIR/lib/locator-hygiene.sh"
+if [ -f "$LOCATOR_HYGIENE" ]; then
+    echo "🔍 Verificando higiene de frontera portable en el staging de cierre..."
+    if ! bash "$LOCATOR_HYGIENE" --staged --path "$ROOT"; then
+        RED='\033[0;31m'; NC='\033[0m'
+        echo -e "${RED}❌ ERROR: Violación de frontera portable o literales privados detectados en el staging de cierre.${NC}" >&2
+        echo -e "${RED}   Semántica fail-closed: subsana las rutas personales o secretos antes de cerrar la tarea.${NC}" >&2
+        exit 1
+    fi
+    echo "  ✅ Staging 100% limpio de literales privados."
+fi
+
 # 5. Commit atómico único, VALIDADO ANTES de mover el ref
 if agent_verify_commit "$ROOT" "$MESSAGE" "_archived/$TASK_BASENAME" "archivado del task file a _archived/"; then
     echo "✅ Commit realizado: $MESSAGE"
 else
     exit 1
+fi
+
+# 5b. Re-chequeo post-cierre de higiene (T-163)
+if [ -f "$LOCATOR_HYGIENE" ]; then
+    bash "$LOCATOR_HYGIENE" --path "$ROOT" --tracked-only --quiet 2>/dev/null || true
 fi
 
 echo ""

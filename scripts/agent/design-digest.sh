@@ -373,12 +373,20 @@ if [ "${#UNIQUE_KEYS[@]}" -gt 0 ]; then
 fi
 
 # ==============================================================================
-# CANALIZACIÓN OBLIGATORIA POR LIB/REDACT.SH (FAIL-CLOSED)
+# SANEAMIENTO UNIVERSAL DE RUTAS Y CANALIZACIÓN POR LIB/REDACT.SH (FAIL-CLOSED)
 # ==============================================================================
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
+sanitize_paths() {
+  local home_sub=""
+  if [ -n "${HOME:-}" ]; then
+    home_sub="s#file://${HOME}/#<home>/#g; s#${HOME}/#<home>/#g; "
+  fi
+  sed -E "s#file://${ROOT_DIR}/##g; s#${ROOT_DIR}/##g; ${home_sub}s#file:///(home|Users)/[-a-zA-Z0-9_.]+/?#<home>/#g; s#/(home|Users)/[-a-zA-Z0-9_.]+/?#<home>/#g"
+}
+
 TMP_OUTPUT="${OUTPUT_FILE}.tmp.$$"
-if ! echo "$UNREDACTED_CONTENT" | sed -E "s|file://${ROOT_DIR}/||g; s|${ROOT_DIR}/||g" | "${REDACT_CMD[@]}" > "$TMP_OUTPUT"; then
+if ! echo "$UNREDACTED_CONTENT" | sanitize_paths | "${REDACT_CMD[@]}" > "$TMP_OUTPUT"; then
   echo "❌ Error: Fallo crítico al canalizar el digest por $REDACT_SCRIPT. Abortando sin persistir." >&2
   rm -f "$TMP_OUTPUT"
   exit 1
@@ -393,11 +401,11 @@ fi
 mv "$TMP_OUTPUT" "$OUTPUT_FILE"
 chmod 644 "$OUTPUT_FILE"
 
-# Archivado de JSON crudo redactado si existe deliberación de la tarea (T-123 / T-124)
+# Archivado de JSON crudo redactado si existe deliberación de la tarea (T-123 / T-124 / T-163)
 if [ -f "$DELIBERATION_JSON" ]; then
   RAW_OUTPUT="$ROOT_DIR/docs/sprints/design-decisions/${TASK_ID}-raw.json"
   TMP_RAW="${RAW_OUTPUT}.tmp.$$"
-  if cat "$DELIBERATION_JSON" | sed -E "s|file://${ROOT_DIR}/||g; s|${ROOT_DIR}/||g" | "${REDACT_CMD[@]}" > "$TMP_RAW"; then
+  if cat "$DELIBERATION_JSON" | sanitize_paths | "${REDACT_CMD[@]}" > "$TMP_RAW"; then
     mv "$TMP_RAW" "$RAW_OUTPUT"
     chmod 644 "$RAW_OUTPUT"
     if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
