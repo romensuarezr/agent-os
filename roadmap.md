@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno (ejecutar `/sprint-planning` para Sprint 29).
+- **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Ver `docs/sprints/sprint-29-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
