@@ -35,18 +35,18 @@ Para decidir si se implementa un enrutador inteligente basado en dificultad léx
 - `.agents/tasks/task-156.md`
 
 ## Criterios de done
-- [ ] Batería de casos discordantes (C-04, C-06, C-07) ejecutada contra Orca ADE con medición de latencia y veredictos.
-- [ ] Comparativa empírica tabular detallada agy vs. Orca documentada.
-- [ ] Dictamen vinculante emitido (`ENRUTADO_DIFICIL_VIABLE` o `ENRUTADO_DIFICIL_DESCARTADO`).
-- [ ] Informe formal documentado en `docs/sprints/sprint-28-difficulty-routing-report.md`.
-- [ ] Aserción en Check 34 de `tests/validate-control-plane.sh` verificando el informe.
-- [ ] Suite pasando limpia en 37/37 (0 errores).
+- [x] Batería de casos discordantes (C-04, C-06, C-07) ejecutada contra Orca ADE con medición de latencia y veredictos.
+- [x] Comparativa empírica tabular detallada agy vs. Orca documentada.
+- [x] Dictamen vinculante emitido (`ENRUTADO_DIFICIL_DESCARTADO` fundamentado en 0/3 aciertos).
+- [x] Informe formal documentado en `docs/sprints/sprint-28-difficulty-routing-report.md`.
+- [x] Aserción en Check 34 de `tests/validate-control-plane.sh` verificando el informe.
+- [x] Suite pasando limpia en 37/37 (0 errores).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé
