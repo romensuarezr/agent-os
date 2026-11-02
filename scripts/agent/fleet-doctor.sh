@@ -403,6 +403,44 @@ if reviewer_endpoint and not doc_mode and "100.x.y.z" not in reviewer_endpoint a
             reviewer_status = "WARN"
             reviewer_note = "Revisor offline o no alcanzable (fallback SIN_REVISOR disponible)"
 
+# Sonda config-driven warn-only de Bane (Deep Research, T-161)
+bane_endpoint = os.environ.get("BANE_API_URL", "")
+if not bane_endpoint and isinstance(nodes_data, dict):
+    for nname, ninfo in nodes_data.items():
+        svcs = ninfo.get("services", {})
+        if isinstance(svcs, dict) and "bane" in svcs:
+            bconf = svcs["bane"]
+            if isinstance(bconf, dict):
+                bane_endpoint = bconf.get("endpoint", bconf.get("url", ""))
+            elif isinstance(bconf, str):
+                bane_endpoint = bconf
+            break
+
+bane_status = "WARN"
+bane_note = "Bane no configurado (fallback manual Perplexity disponible)"
+if bane_endpoint:
+    if doc_mode or "100.x.y.z" in bane_endpoint or "example.com" in bane_endpoint or "192.0.2." in bane_endpoint or "<nodo" in bane_endpoint:
+        bane_status = "OK"
+        bane_note = "Bane configurado (declarativo)"
+    else:
+        probe_url = bane_endpoint.rstrip("/")
+        try:
+            req = urllib.request.Request(probe_url + "/health", headers={"User-Agent": "agent-os-fleet-doctor/1.0"})
+            with urllib.request.urlopen(req, timeout=min(timeout, 2.0)) as resp:
+                if resp.getcode() < 500:
+                    bane_status = "OK"
+                    bane_note = f"Bane activo (HTTP {resp.getcode()})"
+        except urllib.error.HTTPError as he:
+            if he.code < 500:
+                bane_status = "OK"
+                bane_note = f"Bane vivo (HTTP {he.code})"
+            else:
+                bane_status = "WARN"
+                bane_note = f"Bane HTTP {he.code}"
+        except Exception:
+            bane_status = "WARN"
+            bane_note = "Bane inalcanzable (fallback manual disponible)"
+
 # Estructurar resultado global
 cli_ok_count = sum(1 for c, data in auth_status.items() if data.get("ok"))
 total_clis = len(clis_to_check)
@@ -424,6 +462,11 @@ summary_data = {
         "status": reviewer_status,
         "message": reviewer_note,
         "endpoint_masked": mask_endpoint(reviewer_endpoint) if reviewer_endpoint else None
+    },
+    "bane_probe": {
+        "status": bane_status,
+        "message": bane_note,
+        "endpoint_masked": mask_endpoint(bane_endpoint) if bane_endpoint else None
     }
 }
 
@@ -475,6 +518,7 @@ else:
         lines.append(line_entry)
 
 lines.append(f"Reviewer: {reviewer_status} ({reviewer_note})")
+lines.append(f"Bane: {bane_status} ({bane_note})")
 lines.append(f"Summary: CLIs {cli_ok_count}/{total_clis} OK | Services: {services_up} UP, {services_down} DOWN, {total_services - services_up - services_down} SKIPPED")
 lines.append("=== FIN FLEET DOCTOR (0 tokens inferidos, infraestructura enmascarada) ===")
 

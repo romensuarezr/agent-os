@@ -43,18 +43,18 @@ Esta tarea es la última del mini-sprint y del Sprint 28, y consolida las métri
 - `.agents/tasks/task-161.md`
 
 ## Criterios de done
-- [ ] Sonda de Bane integrada en `scripts/agent/fleet-doctor.sh` operando en modo warn-only.
-- [ ] Runbook `docs/runbooks/bane-deep-research-service.md` redactado y libre de literales privados.
-- [ ] Check 38 implementado en `tests/validate-control-plane.sh`.
-- [ ] Denominador formal de la suite actualizado a 38/38 en todos los checks y mensajes.
-- [ ] Suite de pruebas pasando limpia al 100% (38/38) sin errores ni regresiones.
-- [ ] Métricas finales del piloto Opción D consolidadas en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
+- [x] Sonda de Bane integrada en `scripts/agent/fleet-doctor.sh` operando en modo warn-only.
+- [x] Runbook `docs/runbooks/bane-deep-research-service.md` redactado y libre de literales privados.
+- [x] Check 38 implementado en `tests/validate-control-plane.sh`.
+- [x] Denominador formal de la suite actualizado a 38/38 en todos los checks y mensajes.
+- [x] Suite de pruebas pasando limpia al 100% (38/38) sin errores ni regresiones.
+- [x] Métricas finales del piloto Opción D consolidadas en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5 / Régimen Opción D)
+- [x] APROBADO recibido (Régimen Opción D)
+- [x] Rama creada
+- [x] Cierre y merge autorizado por el relé (Régimen Opción D camino limpio)
