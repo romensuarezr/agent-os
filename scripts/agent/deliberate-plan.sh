@@ -222,12 +222,15 @@ cleanup_worker() {
 }
 
 # ==============================================================================
-# RESOLUCIÓN Y SONDA DETERMINISTA DE ANTIGRAVITY CLI (Task-152)
+# RESOLUCIÓN Y SONDA DETERMINISTA DE ANTIGRAVITY CLI (Task-152, T-155)
 # ==============================================================================
 resolve_agy_bin() {
-  if [ -n "${AGY_BIN_OVERRIDE:-}" ] && [ -x "$AGY_BIN_OVERRIDE" ]; then
-    echo "$AGY_BIN_OVERRIDE"
-    return 0
+  if [ -n "${AGY_BIN_OVERRIDE:-}" ]; then
+    if [ -x "$AGY_BIN_OVERRIDE" ]; then
+      echo "$AGY_BIN_OVERRIDE"
+      return 0
+    fi
+    return 1
   fi
   if command -v agy >/dev/null 2>&1; then
     command -v agy
@@ -236,6 +239,31 @@ resolve_agy_bin() {
   if [ -x "$HOME/.local/bin/agy" ]; then
     echo "$HOME/.local/bin/agy"
     return 0
+  fi
+  return 1
+}
+
+# ==============================================================================
+# RESOLUCIÓN Y PUNTO DE INYECCIÓN DETERMINISTA DE ORCA ADE (Task-155)
+# ==============================================================================
+# Precedente AGY_BIN_OVERRIDE: si ORCA_BIN_OVERRIDE está definido, precedencia estricta
+# fail-fast sin fallback a sistema (no-op sin definir). Sobreescribe orca_resolve_bin
+# para asegurar coherencia en el flujo de deliberate-plan.sh.
+if type orca_resolve_bin >/dev/null 2>&1; then
+  eval "$(declare -f orca_resolve_bin | sed 's/^orca_resolve_bin ()/_orig_orca_resolve_bin ()/')"
+fi
+
+orca_resolve_bin() {
+  if [ -n "${ORCA_BIN_OVERRIDE:-}" ]; then
+    if [ -x "$ORCA_BIN_OVERRIDE" ]; then
+      echo "$ORCA_BIN_OVERRIDE"
+      return 0
+    fi
+    return 1
+  fi
+  if type _orig_orca_resolve_bin >/dev/null 2>&1; then
+    _orig_orca_resolve_bin
+    return $?
   fi
   return 1
 }
@@ -330,11 +358,11 @@ if os.environ.get("ORCA_REVISOR_ENABLED") == "false" or os.environ.get("AGENT_OS
 
 # Si se indica explícitamente una pasarela HTTP vía INFERENCE_BASE_URL:
 # - Se asume bypass de agy a menos que se fuerce AGY_CERT_MODE=1
-# - Se asume bypass de orca a menos que se fuerce ORCA_CERT_MODE=1
+# - Se asume bypass de orca a menos que se fuerce ORCA_CERT_MODE=1 o se pase ORCA_BIN_OVERRIDE (T-155)
 if os.environ.get("INFERENCE_BASE_URL"):
     if os.environ.get("AGY_CERT_MODE") != "1":
         agy_enabled = False
-    if os.environ.get("ORCA_CERT_MODE") != "1":
+    if os.environ.get("ORCA_CERT_MODE") != "1" and not os.environ.get("ORCA_BIN_OVERRIDE"):
         orca_enabled = False
 
 if "'"$NO_AGY"'" == "true":

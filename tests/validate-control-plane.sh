@@ -2238,6 +2238,170 @@ else
   grep -q "Consumo de Tokens y Coste" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-metricas-coste"
 fi
 
+# 15. Batería de tests de hueco del Revisor Dual (T-155)
+# 15a. Sub-test 1: Sonda determinista ante binario agy ausente o no ejecutable
+# Caso 1a: PATH sin agy y sin override (salto <1s, tier != agy)
+OUT_NO_AGY="$T34_DIR/delib_no_agy.json"
+T_START_1A=$(python3 -c "import time; print(time.time())")
+PATH="/usr/bin:/bin" \
+AGY_BIN_OVERRIDE="" \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_NO_AGY" --timeout 1 --json >/dev/null 2>&1 || true
+T_END_1A=$(python3 -c "import time; print(time.time())")
+
+if [ ! -f "$OUT_NO_AGY" ]; then
+  T34_FAILS="$T34_FAILS agy-ausente-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_NO_AGY'))
+assert d.get('evaluator_tier') != 'agy', f'Tier indebido agy: {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto inesperado: {d.get(\"verdict\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-ausente-tier-indebido"
+  python3 -c "
+elapsed = $T_END_1A - $T_START_1A
+assert elapsed < 2.0, f'Salto de agy ausente demasiado lento: {elapsed:.2f}s'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-ausente-demasiado-lento"
+fi
+
+# Caso 1b: AGY_BIN_OVERRIDE a fichero inexistente/no ejecutable (fail-fast sin fallback a agy en sistema)
+OUT_BAD_OVERRIDE="$T34_DIR/delib_bad_override.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$T34_DIR/nonexistent_bin_155" \
+AGY_CERT_MODE=1 \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_BAD_OVERRIDE" --timeout 1 --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_BAD_OVERRIDE" ]; then
+  T34_FAILS="$T34_FAILS agy-bad-override-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_BAD_OVERRIDE'))
+assert d.get('evaluator_tier') != 'agy', f'Tier indebido agy tras bad override: {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto inesperado: {d.get(\"verdict\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-bad-override-fallback-indebido"
+fi
+
+# 15b. Sub-test 2: Escalado SIGKILL (TERM -> gracia -> KILL) certificando muerte dentro de timeout+gracia y 0 huérfanos
+source "$ROOT/scripts/agent/lib/portable-timeout.sh"
+MOCK_HANG="$T34_DIR/agy_mock_hang.sh"
+cat << 'EOF_HANG' > "$MOCK_HANG"
+#!/usr/bin/env bash
+trap '' TERM
+sleep 10 &
+wait $!
+EOF_HANG
+chmod +x "$MOCK_HANG"
+
+T_START_KILL=$(python3 -c "import time; print(time.time())")
+RC_KILL=0
+PORTABLE_TIMEOUT_KILL_GRACE=1s portable_timeout 1 "$MOCK_HANG" >/dev/null 2>&1 || RC_KILL=$?
+T_END_KILL=$(python3 -c "import time; print(time.time())")
+
+if [ "$RC_KILL" -ne 137 ]; then
+  T34_FAILS="$T34_FAILS portable-timeout-sigkill-rc=$RC_KILL"
+fi
+python3 -c "
+elapsed = $T_END_KILL - $T_START_KILL
+assert elapsed < 3.5, f'Timeout kill excedió tiempo límite: {elapsed:.2f}s'
+" 2>/dev/null || T34_FAILS="$T34_FAILS portable-timeout-sigkill-demasiado-lento"
+
+# Certificar 0 huérfanos del mock rebelde
+if ps -ef | grep "$MOCK_HANG" | grep -v grep >/dev/null 2>&1; then
+  T34_FAILS="$T34_FAILS procesos-huerfanos-detectados-tras-sigkill"
+fi
+
+# 15c. Sub-test 3: Handoff agy -> Orca con veredicto spec completo
+MOCK_ORCA="$T34_DIR/mock_orca_handoff.sh"
+cat << 'EOF_ORCA' > "$MOCK_ORCA"
+#!/usr/bin/env bash
+cmd="${1:-}"
+case "$cmd" in
+  status)
+    echo '{"status": "ready"}'
+    exit 0
+    ;;
+  orchestration)
+    sub="${2:-}"
+    case "$sub" in
+      run-current)
+        echo '{"result": {"run": {"id": "run-test-155"}}}'
+        exit 0
+        ;;
+      worker-start)
+        echo '{"result": {"dispatchId": "disp-test-155"}}'
+        exit 0
+        ;;
+      worker-read)
+        python3 -c '
+import json
+payload = {
+    "verdict": "CONSENSO",
+    "role": "qa-judge",
+    "design_summary": "Plan aprobado por Orca ADE mock en handoff.",
+    "objections": [],
+    "corrections": [],
+    "skills_evaluation": {
+        "status": "verified",
+        "details": "Skills verificadas en Orca."
+    }
+}
+res = {
+    "ok": True,
+    "result": {
+        "terminal": {
+            "tail": [
+                "<!-- VERDICT_JSON_START -->",
+                json.dumps(payload),
+                "<!-- VERDICT_JSON_END -->"
+            ]
+        }
+    }
+}
+print(json.dumps(res))
+'
+        exit 0
+        ;;
+      worker-release|worker-stop)
+        echo '{"ok": true}'
+        exit 0
+        ;;
+    esac
+    ;;
+esac
+echo '{"ok": true}'
+exit 0
+EOF_ORCA
+chmod +x "$MOCK_ORCA"
+
+OUT_HANDOFF="$T34_DIR/delib_handoff.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_CORRUPT" \
+AGY_CERT_MODE=1 \
+ORCA_BIN_OVERRIDE="$MOCK_ORCA" \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_HANDOFF" --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_HANDOFF" ]; then
+  T34_FAILS="$T34_FAILS handoff-orca-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_HANDOFF'))
+assert d.get('evaluator_tier') == 'orca', f'Tier esperado orca, obtenido: {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'CONSENSO', f'Veredicto esperado CONSENSO, obtenido: {d.get(\"verdict\")}'
+assert d.get('role') == 'qa-judge', f'Rol esperado qa-judge, obtenido: {d.get(\"role\")}'
+assert 'design_summary' in d and len(d['design_summary']) > 0, 'design_summary ausente o vacio'
+assert isinstance(d.get('objections'), list), 'objections no es lista'
+assert isinstance(d.get('corrections'), list), 'corrections no es lista'
+assert isinstance(d.get('skills_evaluation'), dict), 'skills_evaluation no es dict'
+assert d['skills_evaluation'].get('status') == 'verified', 'skills_evaluation status no verified'
+" 2>/dev/null || T34_FAILS="$T34_FAILS handoff-orca-contrato-invalido"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2249,7 +2413,8 @@ else
   echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
   echo -e "     cableado agy como Tier 1 y degradación ante exit-0 corrupto verificados (T-152);"
   echo -e "     guardas de seguridad de agy certificadas (centinelas PRE/POST, env -i, no-timeout) (T-153);"
-  echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);"
+  echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);
+     batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"

@@ -6,10 +6,13 @@
 #   source "$(dirname "$0")/lib/portable-timeout.sh"
 #   portable_timeout <segundos> <comando> [argumentos...]
 #
+# Variables de entorno:
+#   PORTABLE_TIMEOUT_KILL_GRACE: Tiempo de gracia entre SIGTERM y SIGKILL (por defecto: 1s).
+#
 # Comportamiento:
-#   - Si existe 'timeout' (GNU coreutils en Linux) o 'gtimeout' (macOS con coreutils), lo usa directamente.
-#   - Si no existe 'timeout', utiliza un wrapper determinista con python3 (dependencia base).
-#   - Devuelve código 124 ante timeout, respetando la convención estándar de GNU timeout.
+#   - Si existe 'timeout' (GNU coreutils en Linux) o 'gtimeout' (macOS con coreutils), lo usa con escalado -k.
+#   - Si no existe 'timeout', utiliza un wrapper determinista con python3 (dependencia base) con escalado a SIGKILL.
+#   - Devuelve código 124 si termina tras SIGTERM, o 137 si requiere escalado forzoso a SIGKILL.
 # ==============================================================================
 
 portable_timeout() {
@@ -23,25 +26,48 @@ portable_timeout() {
   # Normalizar sufijo opcional 's' (ej: '3s' -> '3')
   duration="${duration%s}"
 
+  local grace="${PORTABLE_TIMEOUT_KILL_GRACE:-1s}"
+  grace="${grace%s}"
+
   if command -v timeout >/dev/null 2>&1; then
-    timeout "$duration" "$@"
+    timeout -k "${grace}s" "$duration" "$@"
     return $?
   elif command -v gtimeout >/dev/null 2>&1; then
-    gtimeout "$duration" "$@"
+    gtimeout -k "${grace}s" "$duration" "$@"
     return $?
   elif command -v python3 >/dev/null 2>&1; then
     python3 -c '
-import sys, subprocess
+import sys, subprocess, os, signal
+
 try:
     duration = float(sys.argv[1])
-    cmd = sys.argv[2:]
-    res = subprocess.run(cmd, timeout=duration)
-    sys.exit(res.returncode)
-except subprocess.TimeoutExpired:
-    sys.exit(124)
+    kill_grace = float(sys.argv[2])
+    cmd = sys.argv[3:]
+    proc = subprocess.Popen(cmd, start_new_session=True)
+    try:
+        ret = proc.wait(timeout=duration)
+        sys.exit(ret)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            proc.wait(timeout=kill_grace)
+            sys.exit(124)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            try:
+                proc.wait(timeout=1.0)
+            except Exception:
+                pass
+            sys.exit(137)
 except Exception:
     sys.exit(1)
-' "$duration" "$@"
+' "$duration" "$grace" "$@"
     return $?
   else
     # Fallback básico con subshell si ni timeout ni python3 estuviesen disponibles
@@ -51,7 +77,7 @@ except Exception:
       (
         sleep "$duration"
         kill -TERM "$child" 2>/dev/null || true
-        sleep 0.2
+        sleep "$grace"
         kill -KILL "$child" 2>/dev/null || true
       ) 2>/dev/null &
       watcher=$!
