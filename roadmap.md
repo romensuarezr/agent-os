@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Ver `docs/sprints/sprint-29-core.md`.
+- Ninguno (ejecutar `/sprint-planning` para Sprint 30).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Formalizado como release `v1.25.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-29-core.md`.
 - **Sprint 28**: Autonomía Acotada (Opción D), Enrutado por Dificultad e Integración Soberana de Bane (T-155 a T-161). Formalizado como release `v1.24.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-28-core.md`.
 - **Sprint 27**: Revisor Antigravity CLI, Observabilidad de Liveness y Paridad de Gobernanza (T-151 a T-154). Formalizado como release `v1.23.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-27-core.md`.
 - **Sprint 26**: Cierre Determinista de Sprint y Hardening de Gobernanza (T-146 a T-150). Formalizado como release `v1.22.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-26-core.md`.
