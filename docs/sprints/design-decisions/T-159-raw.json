@@ -1,0 +1,17 @@
+{
+  "task_id": "T-159",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan t\u00e9cnico para T-159 se ajusta de forma exacta al dise\u00f1o macro aprobado en planning y al contrato formal de [.agents/tasks/task-159.md](file:///home/romen/orca/workspaces/agent-os/multi-agent/.agents/tasks/task-159.md). Define con precisi\u00f3n la interfaz de flags (`--query`, `--timeout`, `--output`, `--check`, `--json`), la salida primaria estructurada por stdout y la sem\u00e1ntica binaria estricta para la sonda de salud (c\u00f3digo 0 para activo y alcanzable dentro del timeout; c\u00f3digo 2 para inactivo o no configurado) con degradaci\u00f3n fail-soft.\n\nLa caja de archivos autorizados est\u00e1 estrictamente acotada a tres elementos (`scripts/agent/lib/bane-client.sh`, `tests/validate-control-plane.sh` y `.agents/tasks/task-159.md`), garantizando la preservaci\u00f3n del denominador de la suite de control plane en 37/37 sin introducir dependencias externas ni riesgos de regresi\u00f3n.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Las skills declaradas (agent-os-scripts y tool-inventory) son directamente aplicables al desarrollo de librer\u00edas deterministas CLI del core y resoluci\u00f3n de topolog\u00eda en fleet.yaml. No se invocan skills prohibidas."
+  },
+  "inventory_scoped_bytes": 2032,
+  "plan_source": ".agents/context/plan-draft.md"
+}

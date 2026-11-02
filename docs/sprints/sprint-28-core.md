@@ -18,7 +18,7 @@
 | **T-156** | Experimento empírico de enrutamiento por dificultad: evaluación comparada Orca vs. agy | Core / Calibración | M | ✅ Completada | T-155 | [.agents/tasks/task-156.md](.agents/tasks/task-156.md) |
 | **T-157** | Marco del piloto de autonomía Opción D, arnés de compuertas deterministas e informe | Core / Gobernanza | M | ✅ Completada | T-155, T-156 | [.agents/tasks/task-157.md](.agents/tasks/task-157.md) |
 | **T-158** | Plantillas Docker Compose y configuración de flota de Bane con frontera portable | Core / Infraestructura | S | ✅ Completada | T-157 | [.agents/tasks/task-158.md](.agents/tasks/task-158.md) |
-| **T-159** | Cliente CLI determinista para Bane (`bane-client.sh`) con salida stdout y sonda | Core / Tooling | M | ⬜ Pendiente | T-158 | [.agents/tasks/task-159.md](.agents/tasks/task-159.md) |
+| **T-159** | Cliente CLI determinista para Bane (`bane-client.sh`) con salida stdout y sonda | Core / Tooling | M | ✅ Completada | T-158 | [.agents/tasks/task-159.md](.agents/tasks/task-159.md) |
 | **T-160** | Workflow `deep-research` con bifurcación autónomo (Bane activo) / manual (Perplexity) | Core / Workflows | M | ⬜ Pendiente | T-159 | [.agents/tasks/task-160.md](.agents/tasks/task-160.md) |
 | **T-161** | Diagnóstico de flota (`fleet-doctor`), compuerta técnica, runbook y suite (38/38) | Core / Calibración & Suite | S | ⬜ Pendiente | T-160 | [.agents/tasks/task-161.md](.agents/tasks/task-161.md) |
 
