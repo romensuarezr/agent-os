@@ -40,9 +40,9 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - `.agents/tasks/task-162.md`
 
 ## Criterios de done
-- [ ] Directivas `deploy.resources.limits` y `reservations` incorporadas en `templates/bane/docker-compose.yml` con sintaxis Compose v2 válida.
-- [ ] `templates/bane/.env.example` creado con todas las variables requeridas y placeholders agnósticos.
-- [ ] `docs/runbooks/bane-deep-research-service.md` actualizado con instrucciones de límites de recursos y variables.
-- [ ] Check 22 de higiene de frontera portable pasando sin hallazgos.
-- [ ] Suite de control plane 38/38 pasando limpia (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Directivas `deploy.resources.limits` y `reservations` incorporadas en `templates/bane/docker-compose.yml` con sintaxis Compose v2 válida.
+- [x] `templates/bane/.env.example` creado con todas las variables requeridas y placeholders agnósticos.
+- [x] `docs/runbooks/bane-deep-research-service.md` actualizado con instrucciones de límites de recursos y variables.
+- [x] Check 22 de higiene de frontera portable pasando sin hallazgos.
+- [x] Suite de control plane 38/38 pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
