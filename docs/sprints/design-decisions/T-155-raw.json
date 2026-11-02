@@ -1,0 +1,17 @@
+{
+  "task_id": "T-155",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "<redacted:evaluator_tier>",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan t\u00e9cnico para T-155 cubre con precisi\u00f3n los tres casos de hueco identificados en T-154 para el Check 34: degradaci\u00f3n instant\u00e1nea ante binario no ejecutable o ausente, terminaci\u00f3n forzosa con SIGKILL frente a procesos bloqueados que ignoran SIGTERM, y handoff limpio entre agy y Orca ADE. La caja de cambios est\u00e1 estrictamente acotada a los archivos requeridos, asegurando el determinismo de la suite en 37/37 sin efectos secundarios en el repositorio.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Las skills declaradas ('agent-os-scripts' y 'testing-flows') corresponden al alcance de mantenimiento del script de arbitraje y dise\u00f1o de sub-tests deterministas, respetando \u00edntegramente la lista de skills.forbidden."
+  },
+  "inventory_scoped_bytes": 2032,
+  "plan_source": ".agents/context/plan-draft.md"
+}
