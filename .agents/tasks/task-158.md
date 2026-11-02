@@ -37,17 +37,17 @@ Esta tarea se ejecuta bajo el régimen autónomo del **Piloto Opción D**.
 - `.agents/tasks/task-158.md`
 
 ## Criterios de done
-- [ ] Plantilla `templates/bane/docker-compose.yml` creada y sintácticamente válida.
-- [ ] Especificación de `services.bane` añadida en `.agents/config/fleet.example.yaml` con placeholders genéricos.
-- [ ] Higiene de frontera portable certificada por Check 22 (`locator-hygiene.sh` pasando limpio).
-- [ ] Suite de control plane pasando limpia (37/37) con 0 errores.
-- [ ] Ejecutada y registrada bajo las reglas del piloto Opción D.
+- [x] Plantilla `templates/bane/docker-compose.yml` creada y sintácticamente válida.
+- [x] Especificación de `services.bane` añadida en `.agents/config/fleet.example.yaml` con placeholders genéricos.
+- [x] Higiene de frontera portable certificada por Check 22 (`locator-hygiene.sh` pasando limpio).
+- [x] Suite de control plane pasando limpia (37/37) con 0 errores.
+- [x] Ejecutada y registrada bajo las reglas del piloto Opción D.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5 / Régimen Opción D)
+- [x] APROBADO recibido (Régimen Opción D)
+- [x] Rama creada
+- [x] Cierre y merge autorizado por el relé (Régimen Opción D camino limpio)
