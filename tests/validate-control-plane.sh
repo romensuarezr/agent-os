@@ -2440,6 +2440,18 @@ else
   python3 -c "import yaml; d=yaml.safe_load(open('$ROOT/.agents/config/fleet.example.yaml')); assert 'bane' in d['nodes']['<nodo-inferencia>']['services']" 2>/dev/null || T34_FAILS="$T34_FAILS fleet-example-sin-bane"
 fi
 
+# 19. Cliente CLI determinista para Bane (T-159)
+BANE_CLIENT="$ROOT/scripts/agent/lib/bane-client.sh"
+if [ ! -x "$BANE_CLIENT" ]; then
+  T34_FAILS="$T34_FAILS bane-client-no-ejecutable"
+else
+  bash "$BANE_CLIENT" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS bane-client-help-falla"
+  RC_NC=0; bash "$BANE_CLIENT" --check >/dev/null 2>&1 || RC_NC=$?
+  [ "$RC_NC" -eq 2 ] || T34_FAILS="$T34_FAILS bane-client-check-sin-config-no-sale-2"
+  OUT_JSON=$(bash "$BANE_CLIENT" --check --json 2>/dev/null || true)
+  echo "$OUT_JSON" | grep -q '"status": "inactive"' || T34_FAILS="$T34_FAILS bane-client-check-json-invalido"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2455,7 +2467,8 @@ else
      batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
      reporte formal de enrutamiento por dificultad verificado (T-156);
      marco del piloto de autonomía Opción D verificado (T-157);
-     plantilla compose y flota de Bane verificadas (T-158);"
+     plantilla compose y flota de Bane verificadas (T-158);
+     cliente CLI determinista de Bane verificado (T-159);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"

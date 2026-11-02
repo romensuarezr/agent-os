@@ -43,18 +43,18 @@ Esta tarea se ejecuta bajo el régimen autónomo del **Piloto Opción D**.
 - `.agents/tasks/task-159.md`
 
 ## Criterios de done
-- [ ] Script `scripts/agent/lib/bane-client.sh` implementado y con permisos de ejecución.
-- [ ] Ayuda estándar expuesta con `-h` y `--help`.
-- [ ] Salida primaria por stdout en Markdown estructurado verificada.
-- [ ] Semántica de "activo" (configurado Y alcanzable en timeout) probada con mocks de red offline y online.
-- [ ] Degradación limpia fail-soft ante servicio caído sin bloquear procesos padres.
-- [ ] Suite pasando limpia en 37/37 (0 errores).
+- [x] Script `scripts/agent/lib/bane-client.sh` implementado y con permisos de ejecución.
+- [x] Ayuda estándar expuesta con `-h` y `--help`.
+- [x] Salida primaria por stdout en Markdown estructurado verificada.
+- [x] Semántica de "activo" (configurado Y alcanzable en timeout) probada con mocks de red offline y online.
+- [x] Degradación limpia fail-soft ante servicio caído sin bloquear procesos padres.
+- [x] Suite pasando limpia en 37/37 (0 errores).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5 / Régimen Opción D)
+- [x] APROBADO recibido (Régimen Opción D)
+- [x] Rama creada
+- [x] Cierre y merge autorizado por el relé (Régimen Opción D camino limpio)
