@@ -1,59 +1,51 @@
-# Task-157: Piloto de autonomía acotada con canal directo Agente-Relé y medición de intervenciones
+# Task-157: Marco del piloto de autonomía Opción D, arnés de compuertas deterministas e informe
 
 ## Objetivo
-Implementar y ejecutar un piloto de autonomía acotada sobre una tarea testigo representativa utilizando un canal directo agente → relé (eliminando la necesidad de que el operador humano copie y pegue informes o veredictos de texto), con compuertas estrictas de aborto fail-closed (vuelta obligatoria al modo manual ante fallos del canal, `SIN_REVISOR` o desviaciones del macro) y medición cuantitativa de las intervenciones humanas frente a la línea base actual (~3 por tarea), documentando el informe formal en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
+Formalizar la arquitectura operativa, reglas de compuerta y arnés determinista del **Piloto de Autonomía Opción D** (avance autónomo en camino limpio con merge desatendido a `multi-agent`, publicación en `origin` para auditoría *a posteriori* y aborto fail-closed ante cualquier anomalía), preparando el marco de ejecución e instrumentación de métricas de intervención para el mini-sprint testigo de Bane (T-158 a T-161), y documentando la estructura base del informe en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
 
 ## Contexto técnico
-El flujo operativo tradicional de Agent OS exige que el operador humano intervenga manualmente aproximadamente 3 veces por cada tarea:
-1. **Fase 3.5**: El usuario recibe el resumen de plan, revisa el veredicto del revisor y escribe/pega `T-XXX: APROBADO...`.
-2. **Paso 6 (Pre-Merge)**: El agente genera el reporte de implementación y diffstat; el usuario escribe/pega `T-XXX: APROBADO por el relé (Paso 6)...`.
-3. **Cierre**: Autorización para merge a `multi-agent`, borrado de rama y ejecución de `close-task.sh`.
-
-Bajo el modelo de gobernanza de dos niveles (T-147), el diseño macro queda sellado en planning. Para reducir la sobrecarga cognitiva sin comprometer la seguridad del control plane:
-- Se implementa un canal directo y determinista Agente → Relé (diseñado en planning con opciones de fichero marcador/señal local o interacción estructurada en UI).
-- Se establecen compuertas de aborto inmediatas: si el canal no responde, si la pasarela degrada a `SIN_REVISOR`, si los centinelas detectan mutación o si el plan diverge del diseño macro aprobado en planning, el sistema aborta de inmediato la autonomía y regresa al protocolo interactivo clásico.
-- Se evalúa de forma estricta en 1 sola tarea antes de cualquier consideración de generalizar a sprints completos.
+En la enmienda de planning del Sprint 28, el relé humano aprobó la **Opción D** como el modelo de autonomía para evaluar en el core:
+- **Camino Limpio**:
+  1. Revisor técnico emite veredicto estructurado de `CONSENSO`.
+  2. Suite de pruebas `tests/validate-control-plane.sh` pasa limpia al 100% (37/37).
+  3. El diff del código está estrictamente circunscrito a la caja de archivos autorizada.
+  4. El plan técnico no presenta ninguna desviación frente al `## Diseño macro aprobado en planning`.
+  5. Centinelas PRE y POST de seguridad certifican cero mutaciones espurias fuera del perímetro de trabajo.
+- **Avance Autónomo Autorizado**: En este camino limpio, el agente avanza de forma continua y desatendida a través de las compuertas internas de sesión, ejecutando el commit de implementación, el merge `--no-ff` a `multi-agent`, push a `origin` y ejecución de `close-task.sh`, eliminando las ~3 intervenciones rutinarias de copiado y pegado por parte del usuario.
+- **Auditoría *A Posteriori***: Todo el rastro queda publicado en `origin` para revisión asíncrona del relé humano (recibos `.agents/context/deliberation-T-XXX.json` y digests redactados).
+- **Compuertas de Aborto Inmediato (Fail-Closed)**: Ante `SIN_REVISOR`, `ESCALADO_A_HUMANO`, `RECHAZADO`, desviación del diseño macro, mutación de centinelas o fallo en la suite, el agente aborta de inmediato la autonomía y escala al chat interactivo.
 
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
 
 - **Sprint / Fecha**: Sprint 28 / 2026-11-02
-- **Diseño y arquitectura aprobados por**: Humano / Relé (Sprint Planning Sprint 28)
+- **Diseño y arquitectura aprobados por**: Humano / Relé (Sprint Planning Sprint 28 - Enmienda Opción D)
 - **Decisiones e interfaces selladas**:
-  - Implementar el mecanismo de canal directo seleccionado en planning (ej: helper determinista `scripts/agent/rele-signal.sh` con fichero de señal en `.agents/context/` o consulta asistida sin copiado manual de informes).
-  - Criterios de aborto rigurosos e inviolables:
-    - Fallo de lectura del canal o timeout de señal → ABORTO INMEDIATO.
-    - Veredicto `SIN_REVISOR` del revisor → ESCALADO OBLIGATORIO A HUMANO (jamás auto-aprobado).
-    - Detección de mutación en árbol por centinelas PRE/POST → REVERSIÓN Y ESCALADO A HUMANO.
-    - Desviación de la caja de archivos o diseño macro pactado → ABORTO.
-  - Puertas humanas preservadas intactas:
-    - Diseño macro en sprint planning (sellado previo).
-    - `ESCALADO_A_HUMANO` (siempre interactivo).
-    - Promoción a `main` (exclusivamente manual).
-  - Medición cuantitativa: registrar número exacto de intervenciones del usuario (reducción vs. baseline ~3), comprobando 0 degradaciones silenciosas, 0 fugas de alcance y suite en verde (37/37).
-  - Elaboración de informe en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
-  - Aserción en Check 34 de `tests/validate-control-plane.sh`.
+  - Definición explícita de las reglas de Opción D documentadas en la base operativa del core.
+  - Creación del arnés de métricas en `docs/sprints/sprint-28-autonomy-pilot-report.md` para registrar sistemáticamente las intervenciones por tarea (baseline ~3/tarea vs. piloto Opción D).
+  - Reglas de compuerta inviolables:
+    - Humano interviene exclusivamente en: sellado del diseño macro en planning, resolución de anomalías/abortos y promoción manual a `main`.
+    - `SIN_REVISOR` jamás se auto-aprueba desatendidamente; escala siempre de forma obligatoria al humano.
+  - T-157 se ejecuta como la última tarea bajo el régimen de puertas interactivas del relé, dejando el marco listo para que T-158..T-161 operen bajo Opción D.
+  - Denominador de la suite de control plane se mantiene en **37/37** (0 errores).
 - **Veredicto de diseño macro**: `[APROBADO_EN_PLANNING]`
 
 ## Skills relevantes
 - `agent-os-scripts`: Integración con workflows de sesión y scripts de gobernanza.
-- `orchestrator`: Gestión de compuertas y señalización multi-agente / relé.
-- `testing-flows`: Aserciones de control plane y verificación de compuertas de seguridad.
+- `orchestrator`: Reglas de compuerta y protocolos de autonomía multi-agente / relé.
+- `testing-flows`: Aserciones de control plane y verificación de compuertas fail-closed.
 
 ## Caja de archivos
-- `scripts/agent/rele-signal.sh` (si aplica al canal elegido)
-- `.agents/workflows/session-start.md`
 - `docs/sprints/sprint-28-autonomy-pilot-report.md`
 - `tests/validate-control-plane.sh`
 - `.agents/tasks/task-157.md`
 
 ## Criterios de done
-- [ ] Canal directo Agente → Relé implementado y probado con compuertas deterministas.
-- [ ] Protocolo de aborto fail-closed verificado ante fallos, `SIN_REVISOR` y desviaciones.
-- [ ] Tarea testigo completada bajo el canal directo sin copiado manual de informes ni veredictos por el usuario.
-- [ ] Métrica de intervenciones calculada y comparada cuantitativamente contra la línea base (~3 por tarea).
-- [ ] Informe formal documentado en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
+- [ ] Marco operativo y reglas del piloto Opción D formalizadas y documentadas.
+- [ ] Criterios de aborto fail-closed explícitamente declarados y blindados.
+- [ ] Estructura del informe del piloto e instrumentación de métricas de intervención creada en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
+- [ ] Aserción en Check 34 de `tests/validate-control-plane.sh` verificando la presencia del informe del piloto.
 - [ ] Suite de control plane pasando limpia (37/37) con 0 errores.
 
 ## Estado de aprobación y deliberación

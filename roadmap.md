@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 28**: Autonomía Acotada, Enrutado por Dificultad y Hardening del Revisor Dual (T-155 a T-157). Ver `docs/sprints/sprint-28-core.md`.
+- **Sprint 28**: Autonomía Acotada (Opción D), Enrutado por Dificultad e Integración Soberana de Bane (T-155 a T-161). Ver `docs/sprints/sprint-28-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
