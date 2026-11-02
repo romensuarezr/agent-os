@@ -5,7 +5,7 @@ Implementar el cliente CLI determinista en Bash `scripts/agent/lib/bane-client.s
 
 ## 🏛️ Decisiones de Arquitectura y Buenas Prácticas
 - **Veredicto de Deliberación**: `CONSENSO` (Rondas: 1)
-- **Síntesis de Diseño**: El plan técnico para T-159 se ajusta de forma exacta al diseño macro aprobado en planning y al contrato formal de [.agents/tasks/task-159.md](file:///home/romen/orca/workspaces/agent-os/multi-agent/.agents/tasks/task-159.md). Define con precisión la interfaz de flags (`--query`, `--timeout`, `--output`, `--check`, `--json`), la salida primaria estructurada por stdout y la semántica binaria estricta para la sonda de salud (código 0 para activo y alcanzable dentro del timeout; código 2 para inactivo o no configurado) con degradación fail-soft.
+- **Síntesis de Diseño**: El plan técnico para T-159 se ajusta de forma exacta al diseño macro aprobado en planning y al contrato formal de [.agents/tasks/task-159.md](.agents/tasks/task-159.md). Define con precisión la interfaz de flags (`--query`, `--timeout`, `--output`, `--check`, `--json`), la salida primaria estructurada por stdout y la semántica binaria estricta para la sonda de salud (código 0 para activo y alcanzable dentro del timeout; código 2 para inactivo o no configurado) con degradación fail-soft.
 
 La caja de archivos autorizados está estrictamente acotada a tres elementos (`scripts/agent/lib/bane-client.sh`, `tests/validate-control-plane.sh` y `.agents/tasks/task-159.md`), garantizando la preservación del denominador de la suite de control plane en 37/37 sin introducir dependencias externas ni riesgos de regresión.
 - **Prospección Scout**: `CONFORME (sprint-28-research.md)`
