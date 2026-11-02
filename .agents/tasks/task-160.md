@@ -39,17 +39,17 @@ Esta tarea se ejecuta bajo el régimen autónomo del **Piloto Opción D**.
 - `.agents/tasks/task-160.md`
 
 ## Criterios de done
-- [ ] Workflow `.agents/workflows/deep-research.md` creado según el estándar oficial.
-- [ ] Integración de bifurcación completada en `.agents/workflows/sprint-planning.md`.
-- [ ] Comprobación de que ante Bane inactivo, el flujo manual de Perplexity se mantiene 100% idéntico y funcional.
-- [ ] Comprobación de que ante Bane activo, la investigación se vuelca de forma autónoma en el research file.
-- [ ] Suite pasando limpia en 37/37 (0 errores).
+- [x] Workflow `.agents/workflows/deep-research.md` creado según el estándar oficial.
+- [x] Integración de bifurcación completada en `.agents/workflows/sprint-planning.md`.
+- [x] Comprobación de que ante Bane inactivo, el flujo manual de Perplexity se mantiene 100% idéntico y funcional.
+- [x] Comprobación de que ante Bane activo, la investigación se vuelca de forma autónoma en el research file.
+- [x] Suite pasando limpia en 37/37 (0 errores).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Cierre y merge autorizado por el relé
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5 / Régimen Opción D)
+- [x] APROBADO recibido (Régimen Opción D)
+- [x] Rama creada
+- [x] Cierre y merge autorizado por el relé (Régimen Opción D camino limpio)

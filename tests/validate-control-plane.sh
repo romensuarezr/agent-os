@@ -2452,6 +2452,18 @@ else
   echo "$OUT_JSON" | grep -q '"status": "inactive"' || T34_FAILS="$T34_FAILS bane-client-check-json-invalido"
 fi
 
+# 20. Workflow deep-research y bifurcación en sprint-planning (T-160)
+DEEP_WORKFLOW="$ROOT/.agents/workflows/deep-research.md"
+SP_WORKFLOW="$ROOT/.agents/workflows/sprint-planning.md"
+if [ ! -f "$DEEP_WORKFLOW" ]; then
+  T34_FAILS="$T34_FAILS deep-research-workflow-ausente"
+else
+  grep -q "bane-client.sh --check" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-check"
+  grep -q "FASE 2A — Ruta Autónoma" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-ruta-autonoma"
+  grep -q "FASE 2B — Ruta Manual" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-ruta-manual"
+  grep -q "bane-client.sh --check" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-bifurcacion-bane"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2468,7 +2480,8 @@ else
      reporte formal de enrutamiento por dificultad verificado (T-156);
      marco del piloto de autonomía Opción D verificado (T-157);
      plantilla compose y flota de Bane verificadas (T-158);
-     cliente CLI determinista de Bane verificado (T-159);"
+     cliente CLI determinista de Bane verificado (T-159);
+     workflow deep-research y bifurcación verificados (T-160);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
