@@ -40,8 +40,8 @@ scripts/agent/lib/bane-client.sh
 
 | Recurso | Mínimo Recomendado | Notas |
 |---|---|---|
-| **CPU** | 2 vCPUs | Procesamiento concurrente de consultas y parseo web |
-| **RAM** | 2 GB libres | Consumo ligero (~300MB en reposo, ~800MB bajo carga) |
+| **CPU** | 1-2 vCPUs | Límite por defecto: 1.0 CPU (`BANE_CPU_LIMIT`), reserva: 0.1 |
+| **RAM** | 512 MB - 2 GB libres | Límite por defecto (<250MB spec): 250MB (`BANE_MEMORY_LIMIT`), reserva: 64MB |
 | **Disco** | 5 GB SSD | Volumen persistente `bane-data` para índices temporales |
 | **Red** | Red privada / Tailscale | Acceso restringido al puerto `3000` |
 
@@ -49,21 +49,22 @@ scripts/agent/lib/bane-client.sh
 
 ## 3. Procedimiento de Despliegue (Docker Compose)
 
-La plantilla estándar está disponible en `templates/bane/docker-compose.yml`.
+La plantilla estándar está disponible en `templates/bane/docker-compose.yml` y las variables de configuración en `templates/bane/.env.example`.
 
 ### Paso 1: Aprovisionar directorio de servicio en el nodo
 ```bash
 mkdir -p ~/services/bane
 cp templates/bane/docker-compose.yml ~/services/bane/
+cp templates/bane/.env.example ~/services/bane/.env
 cd ~/services/bane
 ```
 
 ### Paso 2: Configurar variables de entorno (`.env`)
+Ajustar los valores en `.env` según la topología del nodo:
 ```bash
-cat << 'EOF' > .env
-# Puerto local de escucha
-BANE_PORT=3000
+# Puerto local de escucha y enlace
 HOST_BIND_IP=127.0.0.1
+BANE_PORT=3000
 
 # Conexión con la pasarela de inferencia de la flota
 BANE_INFERENCE_URL=http://<nodo-inferencia>:3001/v1
@@ -71,7 +72,12 @@ BANE_API_KEY=
 
 # Conexión con motor de búsqueda SearXNG
 BANE_SEARCH_URL=http://<nodo-inferencia>:8080
-EOF
+
+# Límites de recursos de contenedor (Compose v2)
+BANE_CPU_LIMIT=1.0
+BANE_MEMORY_LIMIT=250M
+BANE_CPU_RESERVATION=0.1
+BANE_MEMORY_RESERVATION=64M
 ```
 
 ### Paso 3: Desplegar el contenedor
