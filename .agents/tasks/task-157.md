@@ -42,17 +42,17 @@ En la enmienda de planning del Sprint 28, el relé humano aprobó la **Opción D
 - `.agents/tasks/task-157.md`
 
 ## Criterios de done
-- [ ] Marco operativo y reglas del piloto Opción D formalizadas y documentadas.
-- [ ] Criterios de aborto fail-closed explícitamente declarados y blindados.
-- [ ] Estructura del informe del piloto e instrumentación de métricas de intervención creada en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
-- [ ] Aserción en Check 34 de `tests/validate-control-plane.sh` verificando la presencia del informe del piloto.
-- [ ] Suite de control plane pasando limpia (37/37) con 0 errores.
+- [x] Marco operativo y reglas del piloto Opción D formalizadas y documentadas.
+- [x] Criterios de aborto fail-closed explícitamente declarados y blindados.
+- [x] Estructura del informe del piloto e instrumentación de métricas de intervención creada en `docs/sprints/sprint-28-autonomy-pilot-report.md`.
+- [x] Aserción en Check 34 de `tests/validate-control-plane.sh` verificando la presencia del informe del piloto.
+- [x] Suite de control plane pasando limpia (37/37) con 0 errores.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé

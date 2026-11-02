@@ -2416,6 +2416,19 @@ else
   grep -q "Presupuesto 120s" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-presupuesto-120s"
 fi
 
+# 17. Marco del piloto de autonomía Opción D y reporte (T-157)
+AUTONOMY_REPORT="$ROOT/docs/sprints/sprint-28-autonomy-pilot-report.md"
+if [ ! -f "$AUTONOMY_REPORT" ]; then
+  T34_FAILS="$T34_FAILS autonomy-pilot-report-ausente"
+else
+  grep -q "Modelo Opción D" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-modelo-d"
+  grep -q "exactamente igual a \`CONSENSO\`" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-consenso-estricto"
+  grep -q "Condición Pre-Merge Inviolable" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-condicion-pre-merge"
+  grep -q "Compuertas de Aborto Inmediato (Fail-Closed)" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-aborto-fail-closed"
+  grep -q "PENDIENTE DE EVALUACIÓN" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-evaluacion-pendiente"
+  grep -q "Batería Bane T-158..T-161" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-tabla-bane"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2429,7 +2442,8 @@ else
   echo -e "     guardas de seguridad de agy certificadas (centinelas PRE/POST, env -i, no-timeout) (T-153);"
   echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);
      batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
-     reporte formal de enrutamiento por dificultad verificado (T-156);"
+     reporte formal de enrutamiento por dificultad verificado (T-156);
+     marco del piloto de autonomía Opción D verificado (T-157);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
