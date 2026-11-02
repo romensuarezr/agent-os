@@ -31,22 +31,24 @@ Estos tres escenarios son:
 - `testing-flows`: Diseño de tests de integración con mocks deterministas y aserciones de señales.
 
 ## Caja de archivos
+- `scripts/agent/lib/portable-timeout.sh`
 - `scripts/agent/deliberate-plan.sh`
 - `tests/validate-control-plane.sh`
 - `.agents/tasks/task-155.md`
 
 ## Criterios de done
-- [ ] Sub-test 1 (binario ausente): validado en Check 34 con salto inmediato a siguiente tier (<1s).
-- [ ] Sub-test 2 (timeout con kill): validado en Check 34 con terminación contundente (`SIGKILL`) de proceso rebelde colgado.
-- [ ] Sub-test 3 (handoff agy → Orca): validado en Check 34 con aceptación de veredicto estructurado emitido por Orca.
-- [ ] Suite completa de control plane pasando limpia (37/37) con 0 errores.
-- [ ] Cero residuos de procesos en segundo plano tras la ejecución de la suite.
+- [x] Sub-test 1 (binario ausente): validado en Check 34 para los dos casos: PATH sin agy sin override (salto <1s, tier != agy) Y override a fichero inexistente/no ejecutable (fail-fast sin fallback a sistema).
+- [x] Sub-test 2 (timeout con kill): validado en Check 34 con escalado SIGKILL (TERM → gracia → KILL) certificando muerte dentro de timeout+gracia y 0 huérfanos.
+- [x] Sub-test 3 (handoff agy → Orca): validado en Check 34 con inyección ORCA_BIN_OVERRIDE y mock Orca con veredicto spec completo (5 campos canónicos) y evaluator_tier=orca.
+- [x] Escalado SIGKILL implementado en `scripts/agent/lib/portable-timeout.sh` para GNU timeout (`--kill-after`) y wrapper Python (`SIGTERM` + gracia + `SIGKILL`).
+- [x] Suite completa de control plane pasando limpia (37/37) con 0 errores.
+- [x] Cero residuos de procesos en segundo plano tras la ejecución de la suite.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido
-- [ ] Rama creada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido
+- [x] Rama creada
 - [ ] Cierre y merge autorizado por el relé
