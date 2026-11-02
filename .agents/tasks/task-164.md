@@ -21,9 +21,10 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - **Diseño y arquitectura aprobados por**: Humano / Relé (Sprint Planning Sprint 29)
 - **Decisiones e interfaces selladas**:
   - En `.agents/workflows/session-start.md`:
-    - Rediseñar Fase 3.4 y Fase 3.5: si el veredicto es estrictamente `CONSENSO`, la suite está verde, el diff está en la caja de archivos y se respeta el diseño macro, el agente ejecuta el camino limpio desatendido (implementación, tests, commit, push de rama + recibo a `origin`, merge `--no-ff` a `multi-agent`, push y `close-task.sh`).
+    - Rediseñar Fase 3.4 y Fase 3.5: si el veredicto es estrictamente `CONSENSO`, la suite está verde, el diff está en la caja de archivos y se respeta el diseño macro, el agente ejecuta el camino limpio desatendido (implementación, tests, commits atómicos, condición pre-merge refinada, merge `--no-ff` a la rama base, push y `close-task.sh`).
+    - Formalizar la regla pre-merge refinada (Precision 2 relé): condición pre-merge = rama + informe/notas publicados en origin ANTES del merge, y recibo de deliberación debidamente acreditado (referenciado con su veredicto/SHA); la persistencia del digest y del raw JSON de deliberación se captura formalmente en el cierre (`close-task.sh` vía `design-digest.sh`), sin exigir publicación literal aislada del archivo de recibo en origin previa al merge.
     - Si el veredicto es != `CONSENSO` (`SIN_REVISOR`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO`, `RECHAZADO`), la suite falla, hay mutaciones de centinelas o archivos fuera de caja: aborto inmediato fail-closed y escalado al chat.
-    - Preservar la auditoría *a posteriori* en `origin` con el recibo y el digest.
+    - Preservar la auditoría *a posteriori* en `origin` con el digest histórico y el raw JSON redactado en `docs/sprints/design-decisions/`.
   - En `.agents/workflows/sprint-planning.md`:
     - Formalizar el sellado de diseño macro en planning como el requisito indispensable para la autonomía en la sesión.
   - En `AGENTS.md`:

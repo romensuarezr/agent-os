@@ -69,8 +69,9 @@ Tras la conclusión y certificación empírica del piloto en el Sprint 28 (`PILO
 - **Objetivo**: Incorporar directivas de control de recursos en la plantilla Compose de Bane y proporcionar la plantilla de configuración `.env.example` con fallbacks portables.
 - **Interfaces y decisiones selladas**:
   - En `templates/bane/docker-compose.yml`:
-    - Añadir bloque `deploy.resources.limits` con `cpus: "${BANE_CPU_LIMIT:-2.0}"` y `memory: "${BANE_MEMORY_LIMIT:-2G}"`.
-    - Añadir bloque `deploy.resources.reservations` con `cpus: "${BANE_CPU_RESERVATION:-0.5}"` y `memory: "${BANE_MEMORY_RESERVATION:-512M}"`.
+    - Ajuste vinculante de memoria (Precision 1 relé): al no haber medición empírica en caliente de Bane en el core, los defaults se mantienen estrictamente dentro del spec original (<250MB):
+      - Bloque `deploy.resources.limits`: `cpus: "${BANE_CPU_LIMIT:-1.0}"`, `memory: "${BANE_MEMORY_LIMIT:-250M}"`.
+      - Bloque `deploy.resources.reservations`: `cpus: "${BANE_CPU_RESERVATION:-0.1}"`, `memory: "${BANE_MEMORY_RESERVATION:-64M}"`.
   - Crear `templates/bane/.env.example` conteniendo todas las variables parametrizadas con valores seguros y descriptivos (`HOST_BIND_IP`, `BANE_PORT`, `BANE_INFERENCE_URL`, `BANE_API_KEY`, `BANE_SEARCH_URL`, `BANE_CPU_LIMIT`, `BANE_MEMORY_LIMIT`, `BANE_CPU_RESERVATION`, `BANE_MEMORY_RESERVATION`).
   - Documentar las variables y directivas de límites en `docs/runbooks/bane-deep-research-service.md`.
   - Caja de archivos: `templates/bane/docker-compose.yml`, `templates/bane/.env.example`, `docs/runbooks/bane-deep-research-service.md`, `.agents/tasks/task-162.md`.
@@ -95,8 +96,8 @@ Tras la conclusión y certificación empírica del piloto en el Sprint 28 (`PILO
 - **Interfaces y decisiones selladas**:
   - En `.agents/workflows/session-start.md`:
     - Actualizar Fase 3.4 y Fase 3.5 para formalizar que, ante veredicto `CONSENSO` con suite en verde y sin desviaciones del diseño macro, el agente ejecuta el camino limpio de forma desatendida.
+    - Formalizar la regla pre-merge refinada (Precision 2 relé): condición pre-merge = rama + informe/notas publicados en origin ANTES del merge, y recibo de deliberación debidamente acreditado (referenciado con su veredicto/SHA); la persistencia del digest y del raw JSON de deliberación se captura formalmente en el cierre (`close-task.sh` vía `design-digest.sh`), sin exigir publicación literal aislada del archivo de recibo en origin previa al merge.
     - Mantener compuertas de aborto fail-closed ante cualquier anomalía (`SIN_REVISOR`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO`, mutaciones o fallos de suite).
-    - Preservar la exigencia de publicación previa en `origin` antes del merge.
   - En `.agents/workflows/sprint-planning.md`:
     - Actualizar el workflow para estipular que el sprint planning es el ritual exclusivo donde el humano aprueba y sella el diseño macro que habilita la autonomía en las sesiones.
   - En `AGENTS.md`:

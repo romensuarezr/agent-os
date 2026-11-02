@@ -19,10 +19,11 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - **Diseño y arquitectura aprobados por**: Humano / Relé (Sprint Planning Sprint 29)
 - **Decisiones e interfaces selladas**:
   - En `templates/bane/docker-compose.yml`:
-    - Bloque `deploy.resources.limits`: `cpus: "${BANE_CPU_LIMIT:-2.0}"`, `memory: "${BANE_MEMORY_LIMIT:-2G}"`.
-    - Bloque `deploy.resources.reservations`: `cpus: "${BANE_CPU_RESERVATION:-0.5}"`, `memory: "${BANE_MEMORY_RESERVATION:-512M}"`.
-  - Crear `templates/bane/.env.example` análogo a `templates/freellmapi/.env.example`.
-  - Actualizar `docs/runbooks/bane-deep-research-service.md`.
+    - Ajuste vinculante de memoria (Precision 1 relé): al no disponer de medición empírica en caliente de Bane en el core, los defaults se mantienen estrictamente dentro del spec original (<250MB):
+      - Bloque `deploy.resources.limits`: `cpus: "${BANE_CPU_LIMIT:-1.0}"`, `memory: "${BANE_MEMORY_LIMIT:-250M}"`.
+      - Bloque `deploy.resources.reservations`: `cpus: "${BANE_CPU_RESERVATION:-0.1}"`, `memory: "${BANE_MEMORY_RESERVATION:-64M}"`.
+  - Crear `templates/bane/.env.example` análogo a `templates/freellmapi/.env.example` reflejando estos defaults seguros.
+  - Actualizar `docs/runbooks/bane-deep-research-service.md` documentando los límites y el uso de `.env.example`.
   - Cero literales de IPs, dominios privados, hostnames personales o credenciales (Check 22 limpio).
   - Denominador de la suite de control plane se mantiene en **38/38** (0 errores).
   - Régimen Opción D: avance desatendido en camino limpio ante veredicto `CONSENSO`.

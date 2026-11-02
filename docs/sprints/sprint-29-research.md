@@ -13,7 +13,7 @@
 - **Alternativa detectada:** Específicación oficial Docker Compose v2 (`deploy.resources.limits` y `reservations`), paquete `docker-compose` en npm (v1.5.0) y librería `dockerode` (v5.0.1).
 - **Recomendación del agente:** Desarrollo a medida justificado (especificación declarativa Compose estándar).
 - **Decisión del usuario:** Desarrollo a medida justificado — se parametriza la plantilla YAML del core sin añadir dependencias runtime externas.
-- **Notas de integración:** Añadir en `templates/bane/docker-compose.yml` las claves estándar `deploy.resources.limits.cpus`, `deploy.resources.limits.memory`, `deploy.resources.reservations.cpus` y `deploy.resources.reservations.memory` con fallbacks deterministas por variable (`${BANE_CPU_LIMIT:-2.0}`, `${BANE_MEMORY_LIMIT:-2G}`). Crear `templates/bane/.env.example` análogo a `templates/freellmapi/.env.example`.
+- **Notas de integración:** Añadir en `templates/bane/docker-compose.yml` las claves estándar `deploy.resources.limits.cpus`, `deploy.resources.limits.memory`, `deploy.resources.reservations.cpus` y `deploy.resources.reservations.memory` con fallbacks deterministas dentro del spec original (<250MB) al no disponer de medición empírica bajo carga (`${BANE_CPU_LIMIT:-1.0}`, `${BANE_MEMORY_LIMIT:-250M}`, `${BANE_CPU_RESERVATION:-0.1}`, `${BANE_MEMORY_RESERVATION:-64M}`). Crear `templates/bane/.env.example` análogo a `templates/freellmapi/.env.example`.
 - **Alternativas rechazadas y motivos:**
   - `dockerode` / `docker-compose` npm: Inadecuados por exigir runtime Node.js innecesario para un template YAML declarativo agnóstico.
   - Límites de recursos hardcodeados: Descartados por violar el principio de frontera portable y configurabilidad en nodos VPS heterogéneos.
@@ -37,7 +37,7 @@
 - **Notas de integración:**
   1. Formalizar el **Camino Limpio**: ante veredicto `CONSENSO`, suite verde, diff estrictamente en caja y diseño macro respetado, el agente avanza desatendidamente hasta el cierre y push sin solicitar confirmación interactiva en el chat en cada puerta.
   2. Formalizar el **Compuerta de Aborto Inmediato (Fail-Closed)**: cualquier veredicto != `CONSENSO`, fallo en suite, archivo fuera de caja o mutación centinela suspende la autonomía y escala inmediatamente al humano.
-  3. Formalizar la **Auditoría A Posteriori**: publicación obligatoria en `origin` de la rama de feat, recibo `.agents/context/deliberation-T-XXX.json`, digest histórico y raw json para supervisión asíncrona.
+  3. Formalizar la **Condición Pre-Merge Refinada y Auditoría A Posteriori**: publicación obligatoria en `origin` de la rama de feat y el informe/notas antes del merge, recibo de deliberación debidamente acreditado (referenciado por veredicto/SHA), y captura persistente del digest y raw json en el commit atómico de cierre de tarea (`close-task.sh`).
 - **Alternativas rechazadas y motivos:**
   - Regímenes permisivos con auto-aprobación de `SIN_REVISOR` o `REVISADO_CON_CAMBIOS`: Rechazados por violar el principio fail-closed y arriesgar degradación silenciosa sin auditoría.
   - Retorno al régimen clásico de interacción obligatoria en todas las puertas: Descartado tras comprobarse en el piloto Sprint 28 una reducción del 91.7% de fricción con 100% de apego arquitectónico.
