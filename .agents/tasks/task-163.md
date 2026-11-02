@@ -42,9 +42,9 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - `.agents/tasks/task-163.md`
 
 ## Criterios de done
-- [ ] Pipeline de sanitización en `scripts/agent/design-digest.sh` generalizado para cualquier ruta personal de host Unix/macOS.
-- [ ] Verificación de higiene determinista (`locator-hygiene.sh`) integrada en `scripts/agent/close-task.sh`.
-- [ ] Verificación de higiene determinista integrada en `scripts/agent/close-sprint.sh`.
-- [ ] Suite de control plane 38/38 pasando limpia (0 errores).
-- [ ] Tests de Check 18, Check 19 y Check 34 cubren los nuevos re-chequeos.
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Pipeline de sanitización en `scripts/agent/design-digest.sh` generalizado para cualquier ruta personal de host Unix/macOS.
+- [x] Verificación de higiene determinista (`locator-hygiene.sh`) integrada en `scripts/agent/close-task.sh`.
+- [x] Verificación de higiene determinista integrada en `scripts/agent/close-sprint.sh`.
+- [x] Suite de control plane 38/38 pasando limpia (0 errores).
+- [x] Tests de Check 18, Check 19 y Check 34 cubren los nuevos re-chequeos.
+- [x] Ejecutada y registrada bajo las reglas de Opción D.

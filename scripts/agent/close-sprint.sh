@@ -245,6 +245,19 @@ else
   echo "ℹ️  changelog.md sin cambios: VERSION no se toca."
 fi
 
+# --- Verificación determinista de higiene en staging (T-163) ---
+LOCATOR_HYGIENE="$SCRIPT_DIR/lib/locator-hygiene.sh"
+if [ -f "$LOCATOR_HYGIENE" ]; then
+  echo "🔍 Verificando higiene de frontera portable en el staging del sprint..."
+  if ! bash "$LOCATOR_HYGIENE" --staged --path "$ROOT"; then
+    RED='\033[0;31m'; NC='\033[0m'
+    echo -e "${RED}❌ ERROR: Violación de frontera portable o literales privados detectados en el staging del sprint.${NC}" >&2
+    echo -e "${RED}   Semántica fail-closed: subsana las rutas personales o secretos antes de archivar el sprint.${NC}" >&2
+    exit 1
+  fi
+  echo "  ✅ Staging 100% limpio de literales privados."
+fi
+
 # --- Commit atómico ---
 if [ -n "$VERSION_TAG" ]; then
   COMMIT_MSG="chore: archive ${SPRINT_FULL} [v${VERSION_TAG}]"
@@ -261,6 +274,11 @@ source "$SCRIPT_DIR/lib/verify-commit.sh" 2>/dev/null || {
 
 if ! agent_verify_commit "$ROOT" "$COMMIT_MSG" "_archived/" "archivado del sprint a _archived/"; then
   exit 1
+fi
+
+# Re-chequeo post-cierre de higiene (T-163)
+if [ -f "$LOCATOR_HYGIENE" ]; then
+  bash "$LOCATOR_HYGIENE" --path "$ROOT" --tracked-only --quiet 2>/dev/null || true
 fi
 
 echo ""

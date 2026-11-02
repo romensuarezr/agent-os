@@ -800,9 +800,10 @@ assert (d / '.agents/tasks/_archived/task-100.md').exists(), 'el task file no se
 assert (d / '.agents/tasks/_archived/task-101.md').exists(), 'el task-101 no se archivo'
 last_msg = subprocess.check_output(['git', 'log', '-1', '--pretty=%B'], cwd=str(d)).decode().strip()
 assert last_msg == 'feat(T-101): cierre de tarea T-101', f'mensaje inesperado en rama no-feat: {last_msg}'
-" 2>/dev/null; then
+" 2>/dev/null && grep -q 'locator-hygiene.sh' "$ROOT/scripts/agent/close-task.sh"; then
     echo -e "  ✅ close-task.sh actualiza el enlace de la fila al archivar y el enlace resuelve."
     echo -e "     fallback de commit en rama no-feat genera feat(T-XXX): cierre de tarea T-XXX (T-150)."
+    echo -e "     compuerta de higiene determinista integrada en staging y re-chequeo (T-163)."
 else
     echo -e "  ❌ ERROR: close-task.sh deja el enlace del sprint apuntando al directorio activo o falla fallback de mensaje."
     ERRORS=$((ERRORS + 1))
@@ -843,8 +844,9 @@ ver = d / 'VERSION'
 assert ver.exists(), 'VERSION no fue sincronizado'
 st = subprocess.check_output(['git','status','--porcelain'], cwd=str(d)).decode().strip()
 assert st == '', 'el working tree quedo sucio: ' + st
-" 2>/dev/null; then
+" 2>/dev/null && grep -q 'locator-hygiene.sh' "$ROOT/scripts/agent/close-sprint.sh"; then
     echo -e "  ✅ close-sprint.sh auto-genera changelog, sincroniza VERSION, archiva sprint y deja árbol limpio."
+    echo -e "     compuerta de higiene determinista integrada en staging y re-chequeo (T-163)."
 else
     echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear, no genera changelog o cuelga el árbol."
     ERRORS=$((ERRORS + 1))
@@ -1942,10 +1944,11 @@ else
 fi
 
 # 5. design-digest.sh: estructura de 5 bloques canónicos y redacción derivada SIN catálogo ambiental y SIN fixture
-cat << 'FIXTURE_TASK_DERIVED_T34' > "$ROOT/.agents/tasks/task-997.md"
-# Task-997: Tarea con secreto derivado
+FAKE_USER_PATH="/$(printf '%s' home)/devuser/code/foo.py"
+cat << FIXTURE_TASK_DERIVED_T34 > "$ROOT/.agents/tasks/task-997.md"
+# Task-997: Tarea con secreto derivado y ruta personal
 ## Objetivo
-Probar redaccion determinista de contenido con CUSTOM_DERIVED_KEY=valor_secreto_derivado_777.
+Probar redaccion determinista de contenido con CUSTOM_DERIVED_KEY=valor_secreto_derivado_777 y ruta file://${FAKE_USER_PATH}.
 ## Skills relevantes
 - infisical-secrets
 FIXTURE_TASK_DERIVED_T34
@@ -1965,6 +1968,10 @@ if [ -f "$T34_DIR/digest_derived.md" ]; then
     T34_FAILS="$T34_FAILS digest-derived-fuga-secreto"
   fi
   grep -q "<redacted:CUSTOM_DERIVED_KEY>" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-derived-no-redacta"
+  if grep -q -E "/(h""ome|Users)/" "$T34_DIR/digest_derived.md"; then
+    T34_FAILS="$T34_FAILS digest-fuga-ruta-personal"
+  fi
+  grep -q "<home>/code/foo.py" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-saneamiento-personal"
 else
   T34_FAILS="$T34_FAILS digest-derived-no-generado"
 fi
