@@ -119,7 +119,7 @@ Las siguientes fronteras operativas son exclusivas del operador humano y no form
 | **T-157** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme | Conforme | 1 (Puerta clásica de transición) | Marco formalizado |
 | **T-158** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme | Conforme | 0 (Avance autónomo) | Testigo 1 cerrado desatendido |
 | **T-159** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme | Conforme | 0 (Avance autónomo) | Testigo 2 cerrado desatendido |
-| **T-160** | *Pendiente* | *Pendiente* | *Pendiente* | *Pendiente* | *Pendiente* | Testigo 3 (Workflow Deep Research) |
+| **T-160** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme (Caja ampliada por relé) | Conforme | 1 (Aborto Check 22 + autorización saneamiento) | Testigo 3 cerrado tras resolución fail-closed |
 | **T-161** | *Pendiente* | *Pendiente* | *Pendiente* | *Pendiente* | *Pendiente* | Testigo 4 (Doctor, Gate & Suite 38/38) |
 
 ---
