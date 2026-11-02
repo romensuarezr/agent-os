@@ -249,26 +249,38 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
 - Ejecutar de nuevo `update-mvp-tracker.sh` para recalcular.
 - Añadir fila en `## Historial de actualizaciones` con fecha, sprint y % global.
 
-### 5. Generación del prompt para Perplexity
+### 5. Investigación técnica: bifurcación autónoma (Bane) / manual (Perplexity)
 
-> Condicional: solo para proyectos con producto y stakeholders externos que requieran
-> investigación en Perplexity. En el core, la investigación se resuelve en el research del
-> sprint (pasos 2d/2e); omitir este paso.
+> Protocolo unificado de investigación técnica profunda. Si Bane está disponible en la flota,
+> ejecuta la investigación de forma 100% desatendida; si no, preserva el flujo asistido con Perplexity.
 
-Antes de redactar, usar como fuente primaria el digest de `inventory-check.sh` si la señal de complejidad fue ≥2. Si fue baja, leer directamente los archivos más relevantes del código relacionado (máx. 3 archivos).
+1. **Comprobar disponibilidad de Bane:**
+   ```bash
+   bash scripts/agent/lib/bane-client.sh --check
+   ```
 
-Producir un bloque listo para pegar en Perplexity:
+2. **Bifurcación:**
+   - **Si Bane está activo (`exit 0`):**
+     Ejecutar desatendidamente el workflow especializado `@[.agents/workflows/deep-research.md]`:
+     ```bash
+     bash scripts/agent/lib/bane-client.sh --query "[Consulta técnica con contexto, stack y tarea]" --output "docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md"
+     ```
+     La investigación se integra automáticamente en el research file. Pasar directamente al Paso 6 sin requerir intervención manual del usuario.
+   - **Si Bane está inactivo (`exit 2` o fallback):**
+     Preservar íntegramente el comportamiento manual clásico:
+     Antes de redactar, usar como fuente primaria el digest de `inventory-check.sh` si la señal de complejidad fue ≥2. Si fue baja, leer directamente los archivos más relevantes del código relacionado (máx. 3 archivos).
+     Producir el bloque listo para pegar en Perplexity Pro:
 
-```
-CONTEXTO: Estoy desarrollando [descripción de {{PROJECT_NAME}} en 2 líneas].
-STACK: [Describe el stack tecnológico principal].
-SITUACIÓN ACTUAL: [qué ya existe en el código relacionado con la tarea:
-helpers implementados, patrones ya en uso, deuda técnica conocida].
-TAREA DE ESTA SEMANA: [descripción de la tarea principal del sprint]
-NECESITO INVESTIGAR: [pregunta específica de investigación]
-FORMATO DE RESPUESTA ESPERADO: [lo que necesitas: comparativa, ejemplo
-de código, decisión de arquitectura, etc.]
-```
+     ```
+     CONTEXTO: Estoy desarrollando [descripción de {{PROJECT_NAME}} en 2 líneas].
+     STACK: [Describe el stack tecnológico principal].
+     SITUACIÓN ACTUAL: [qué ya existe en el código relacionado con la tarea:
+     helpers implementados, patrones ya en uso, deuda técnica conocida].
+     TAREA DE ESTA SEMANA: [descripción de la tarea principal del sprint]
+     NECESITO INVESTIGAR: [pregunta específica de investigación]
+     FORMATO DE RESPUESTA ESPERADO: [lo que necesitas: comparativa, ejemplo
+     de código, decisión de arquitectura, etc.]
+     ```
 
 ### 6. Pausa y handoff a /session-start
 

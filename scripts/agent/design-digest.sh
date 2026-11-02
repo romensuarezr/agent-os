@@ -378,7 +378,7 @@ fi
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
 TMP_OUTPUT="${OUTPUT_FILE}.tmp.$$"
-if ! echo "$UNREDACTED_CONTENT" | "${REDACT_CMD[@]}" > "$TMP_OUTPUT"; then
+if ! echo "$UNREDACTED_CONTENT" | sed -E "s|file://${ROOT_DIR}/||g; s|${ROOT_DIR}/||g" | "${REDACT_CMD[@]}" > "$TMP_OUTPUT"; then
   echo "❌ Error: Fallo crítico al canalizar el digest por $REDACT_SCRIPT. Abortando sin persistir." >&2
   rm -f "$TMP_OUTPUT"
   exit 1
@@ -397,7 +397,7 @@ chmod 644 "$OUTPUT_FILE"
 if [ -f "$DELIBERATION_JSON" ]; then
   RAW_OUTPUT="$ROOT_DIR/docs/sprints/design-decisions/${TASK_ID}-raw.json"
   TMP_RAW="${RAW_OUTPUT}.tmp.$$"
-  if cat "$DELIBERATION_JSON" | "${REDACT_CMD[@]}" > "$TMP_RAW"; then
+  if cat "$DELIBERATION_JSON" | sed -E "s|file://${ROOT_DIR}/||g; s|${ROOT_DIR}/||g" | "${REDACT_CMD[@]}" > "$TMP_RAW"; then
     mv "$TMP_RAW" "$RAW_OUTPUT"
     chmod 644 "$RAW_OUTPUT"
     if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
