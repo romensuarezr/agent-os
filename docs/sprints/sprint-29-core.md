@@ -14,7 +14,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :--: | :--- | :--- |
-| T-162 | Cierre de Bane (límites de recursos en docker-compose.yml + templates/bane/.env.example) | Core / Infraestructura | S | ⬜ Pendiente | — | [.agents/tasks/task-162.md](.agents/tasks/task-162.md) |
+| T-162 | Cierre de Bane (límites de recursos en docker-compose.yml + templates/bane/.env.example) | Core / Infraestructura | S | ✅ Completada | — | [.agents/tasks/task-162.md](.agents/tasks/_archived/task-162.md) |
 | T-163 | Higiene de cierre completa (blindaje de rutas personales fuera de repo y re-chequeo) | Core / Tooling | M | ⬜ Pendiente | T-162 | [.agents/tasks/task-163.md](.agents/tasks/task-163.md) |
 | T-164 | Formalizar Opción D como régimen por defecto (workflows y docs) | Core / Gobernanza | M | ⬜ Pendiente | T-163 | [.agents/tasks/task-164.md](.agents/tasks/task-164.md) |
 
