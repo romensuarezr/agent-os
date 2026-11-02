@@ -120,11 +120,30 @@ Las siguientes fronteras operativas son exclusivas del operador humano y no form
 | **T-158** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme | Conforme | 0 (Avance autónomo) | Testigo 1 cerrado desatendido |
 | **T-159** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme | Conforme | 0 (Avance autónomo) | Testigo 2 cerrado desatendido |
 | **T-160** | `CONSENSO` (agy) | 37/37 (0 errores) | Conforme (Caja ampliada por relé) | Conforme | 1 (Aborto Check 22 + autorización saneamiento) | Testigo 3 cerrado tras resolución fail-closed |
-| **T-161** | *Pendiente* | *Pendiente* | *Pendiente* | *Pendiente* | *Pendiente* | Testigo 4 (Doctor, Gate & Suite 38/38) |
+| **T-161** | `CONSENSO` (agy) | 38/38 (0 errores) | Conforme | Conforme | 0 (Avance autónomo) | Testigo 4 cerrado desatendido |
 
 ---
 
 ## 8. Evaluación y Dictamen Final del Piloto
 
-> ⏳ **ESTADO**: **PENDIENTE DE EVALUACIÓN**  
-> El dictamen final de viabilidad, cálculo de reducción efectiva de fricción operativa y recomendación de adopción definitiva para futuros sprints se computará tras el cierre de la tarea testigo **T-161**.
+> 🏁 **ESTADO**: **EVALUACIÓN CONSOLIDADA (Sprint 28)**  
+> **Veredicto Vinculante**: `PILOTO_OPCION_D_EXITOSO`
+
+### 8.1 Resultados de la Telemetría
+
+- **Línea Base Histórica**: **~3 intervenciones/tarea** × 4 tareas testigo = **~12 intervenciones estimadas**.
+- **Intervenciones Reales en el Piloto Opción D**: **1 intervención** en total:
+  - T-158: 0 intervenciones (avance 100% desatendido).
+  - T-159: 0 intervenciones (avance 100% desatendido).
+  - T-160: 1 intervención (aborto fail-closed en Check 22 + autorización humana para saneamiento de ruta personal).
+  - T-161: 0 intervenciones (avance 100% desatendido).
+- **Reducción de Fricción Interactiva**: **91.7% de reducción** en interrupciones rutinarias de copiado/pegado.
+
+### 8.2 Auditoría de Seguridad y Calidad del Core
+1. **Tasa de Falsos Consensos**: **0.0%** (0 falsos consensos colados; ni el revisor ni el arnés emitieron aprobaciones indebidas).
+2. **Degradaciones Silenciosas**: **0.0%** (ninguna degradación pasó desatendida; el único fallo de higiene activó inmediatamente la compuerta fail-closed con escalado a humano).
+3. **Desviaciones del Macro Planning**: **0.0%** (todas las tareas respetaron rigurosamente sus interfaces y contratos sellados).
+4. **Integridad de la Suite**: **100% verde** (**38/38 checks pasando exitosamente** con 0 errores).
+
+### 8.3 Conclusión y Recomendación
+El modelo **Opción D** ha demostrado empíricamente su fiabilidad, combinando máxima fluidez en camino limpio con contención estricta ante anomalías. Se recomienda formalizar la Opción D como el régimen operativo estándar para los futuros sprints de desarrollo en el core de Agent OS.
