@@ -2471,6 +2471,13 @@ else
   grep -q "bane-client.sh --check" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-bifurcacion-bane"
 fi
 
+# 21. Formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164)
+grep -q "Opción D" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-opcion-d"
+grep -q "Camino Limpio Desatendido" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-camino-limpio"
+grep -q "Protocolo Pre-Merge Refinado" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-protocolo-pre-merge"
+grep -q "única autorización habilitante" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-autorizacion-habilitante"
+grep -q "Opción D" "$ROOT/AGENTS.md" || T34_FAILS="$T34_FAILS agents-md-sin-opcion-d"
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2488,7 +2495,8 @@ else
      marco del piloto de autonomía Opción D verificado (T-157);
      plantilla compose y flota de Bane verificadas (T-158);
      cliente CLI determinista de Bane verificado (T-159);
-     workflow deep-research y bifurcación verificados (T-160);"
+     workflow deep-research y bifurcación verificados (T-160);
+     formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"

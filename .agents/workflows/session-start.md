@@ -83,7 +83,7 @@ bash scripts/agent/check-session.sh
 > - **Nivel Macro (Diseño y Arquitectura)**: El diseño conceptual, arquitectura, interfaces y alcance de la tarea ya fueron evaluados, pactados y sellados durante el sprint planning en la sección `## Diseño macro aprobado en planning` del task file.
 > - **Nivel Micro (Compuerta Técnica por Tarea)**: La deliberación entre Coder y Reviewer mediante `deliberate-plan.sh` actúa estrictamente como compuerta técnica determinista (auditoría de caja de archivos, ausencia de duplicación, cobertura de pruebas, compatibilidad del stack y apego estricto al diseño macro ya aprobado). Queda prohibido reabrir o cuestionar decisiones conceptuales selladas en planning.
 > - **Escalado Vinculante**: Ante cualquier desviación entre el plan y el diseño macro aprobado (fuga de alcance, alteración de contratos de interfaces o dependencias no pactadas), el revisor emite bloqueo técnico vinculante y escala al humano (`ESCALADO_A_HUMANO`), suspendiendo inmediatamente cualquier ejecución desatendida hasta resolución humana.
-> - **Papel del Relé en Transición**: Durante la ventana de transición hasta calibrar y certificar la paridad empírica Revisor-vs-Relé (prevista en el Sprint 27), el operador humano / relé se mantiene como fallback operativo ante indisponibilidad de pasarela (`SIN_REVISOR`), y **sigue frenando de forma obligatoria y manual los merges** hacia las ramas base (`multi-agent`, `main`), garantizando que ninguna tarea se integre sin revisión humana.
+> - **Régimen Operativo Opción D (Autonomía Acotada Estándar)**: El diseño macro aprobado y sellado en el sprint planning constituye la única autorización previa vinculante. En el flujo `/session-start`, el proceso de deliberación técnica actúa como compuerta determinista. Si se satisfacen todas las condiciones de camino limpio, el agente ejecuta el ciclo de forma desatendida hasta el merge y cierre inclusive. Ante cualquier anomalía técnica o discordancia, el agente aplica contención inmediata fail-closed y escala al operador humano en el chat.
 
 1. El Coder redacta el borrador del plan en `.agents/context/plan-draft.md` conteniendo objetivo, rama propuesta, archivos a modificar/crear, pasos secuenciales, riesgos, justificación de skills y verificación de conformidad con `## Diseño macro aprobado en planning`.
 2. Ejecuta el motor determinista de arbitraje Coder-Reviewer:
@@ -92,11 +92,33 @@ bash scripts/agent/check-session.sh
    ```
 3. El motor emite el veredicto en `.agents/context/plan-deliberation.json` con uno de los 4 estados canónicos: `CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO` o `SIN_REVISOR`.
 
-### FASE 3.5 — Decision Gate: Executive Design Digest (OBLIGATORIA Y BLOQUEANTE)
+### FASE 3.5 — Decision Gate: Bifurcación Opción D y Executive Design Digest
 
-El agente DEBE presentar el bloque de decisión **antes de realizar cualquier acción operativa**. Este bloque es obligatorio. No hay excepción posible.
+Tras emitir el veredicto de deliberación, el agente evalúa la compuerta determinista de gobernanza según el régimen estándar de **Opción D**:
 
-#### Caso A: Revisor activo (`CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO`)
+#### 1. Camino Limpio Desatendido (Happy Path)
+
+Se activa si y solo si se satisfacen copulativamente las **5 condiciones inviolables**:
+1. **Veredicto estricto**: El resultado de `deliberate-plan.sh` es estrictamente igual a `CONSENSO`.
+2. **Suite en verde**: La suite de pruebas de control plane pasa al 100% (0 errores).
+3. **Caja de archivos**: La lista de modificaciones se encuentra estrictamente dentro de `authorized_files` del task file.
+4. **Fidelidad al Macro**: No existen alteraciones, expansiones de alcance ni desvíos frente a `## Diseño macro aprobado en planning`.
+5. **Centinelas intactos**: Cero modificaciones en variables de entorno críticas, secretos, rutas personales o archivos fuera de alcance.
+
+*Acción determinista*: El agente emite un resumen compacto acreditando el consenso y avanza automáticamente y sin pausas interactivas a la **FASE 4 (Apertura del lock)**, **FASE 5 (Ejecución controlada)** y **FASE 6 (Cierre de sesión)**, completando la condición pre-merge refinada, el merge `--no-ff` y `close-task.sh`.
+
+#### 2. Compuertas de Aborto Inmediato Fail-Closed (Anomalías o Modo Interactivo)
+
+Se activa ante CUALQUIERA de las siguientes anomalías:
+- **Veredicto no consensual**: El veredicto es `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO`, `SIN_REVISOR` o `RECHAZADO`. Queda prohibido re-etiquetar veredictos o auto-aplicar cambios del revisor sin mediación humana.
+- **Fallo en suite**: Regresiones o errores en la ejecución de la suite de validación.
+- **Fuera de caja**: Necesidad de alterar archivos no autorizados en el task file.
+- **Desviación de diseño**: Discrepancias respecto a las decisiones selladas en planning.
+- **Violación de centinelas o higiene**: Presencia de rutas absolutas personales o secretos.
+
+*Acción determinista*: El avance autónomo se suspende de inmediato (fail-closed) y el agente DEBE presentar el bloque de decisión correspondiente antes de realizar cualquier acción operativa adicional:
+
+##### Caso A: Revisor activo (`REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO` o revisión manual solicitada)
 Se presenta el **Executive Design Digest** estructurado para que el operador decida sobre la visión estratégica y buenas prácticas sin necesidad de ser un intermediario de mensajes manuales:
 
 ```
@@ -132,7 +154,7 @@ Se presenta el **Executive Design Digest** estructurado para que el operador dec
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-#### Caso B: Revisor no disponible (`SIN_REVISOR`)
+##### Caso B: Revisor no disponible (`SIN_REVISOR`)
 Si el Revisor no responde tras 5s de timeout o no hay conectividad a la pasarela, se emite un aviso visible y se activa el fallback al formato de plan crudo clásico de Fase 3.5 para aprobación manual directa sin bloquear la sesión:
 
 ```
@@ -162,8 +184,9 @@ Si el Revisor no responde tras 5s de timeout o no hay conectividad a la pasarela
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-#### Prohibiciones absolutas hasta recibir APROBADO (o Y)
+#### Prohibiciones absolutas ante compuerta de aborto hasta recibir APROBADO (o Y)
 
+En caso de compuerta de aborto o modo interactivo, queda terminantemente prohibido hasta recibir `APROBADO` (o `Y`):
 - ❌ Crear `.agent-session.lock`
 - ❌ Crear o cambiar de rama (`git checkout`, `git branch`)
 - ❌ Editar, crear o borrar cualquier archivo del proyecto
@@ -176,13 +199,13 @@ Si el Revisor no responde tras 5s de timeout o no hay conectividad a la pasarela
 
 ✅ Permitido: leer **exclusivamente** el task file activo (`task-XXX.md`), el sprint file y el research file, y ejecutar `deliberate-plan.sh`.
 
-Si el agente detecta que ha ejecutado cualquier acción operativa sin haber recibido `APROBADO` (o `Y`):
+Si el agente detecta que ha ejecutado cualquier acción operativa sin la debida autorización (camino limpio Opción D o `APROBADO` explícito):
 1. Detenerse inmediatamente.
 2. Informar al usuario de qué ejecutó.
 3. Proponer el rollback correspondiente.
 4. Presentar el plan de nuevo y esperar aprobación.
 
-#### Respuestas válidas del usuario
+#### Respuestas válidas del usuario en modo escalado
 - `APROBADO` o `Y` → autoriza abrir la sesión y ejecutar el plan consensuado
 - `APROBADO CON CAMBIOS: [descripción]` → ajustar el plan y confirmar los cambios antes de ejecutar
 - `CANCELAR` → cerrar la sesión sin ninguna acción
@@ -211,6 +234,14 @@ Mostrar: `"🔒 Sesión abierta. Ejecución autorizada para [T-XXX] en [worktree
 `git diff --name-only` → comparar con `authorized_files`. Si hay archivos fuera: informar y esperar instrucción.
 
 Durante el cierre: prohibido leer fuera de la Caja, preparar planes nuevos o analizar trabajo futuro. Si el usuario lanza una petición nueva, confirmar que está capturada en idea-inbox y proceder al cierre sin desviarse.
+
+#### C1b. Protocolo Pre-Merge Refinado y Cierre Atómico (Opción D)
+Bajo el régimen Opción D, la integración y cierre se completan desatendidamente en camino limpio siguiendo esta secuencia determinista:
+1. **Ejecución y pruebas**: Verificar suite de control plane completa y linters en verde.
+2. **Publicación remota previa**: Publicar la rama de feature en remoto (`git push origin feat/T-XXX-...`).
+3. **Acreditación del recibo**: El informe y notas de la tarea acreditan el recibo de deliberación (referenciando el veredicto `CONSENSO` y el identificador/SHA del recibo generado en `.agents/context/deliberation-T-XXX.json`).
+4. **Integración controlada**: Cambiar a la rama base (ej. `git checkout multi-agent`), ejecutar merge `--no-ff` (`git merge --no-ff feat/T-XXX-... -m "Merge branch 'feat/T-XXX-...' into multi-agent"`), empujar a origin (`git push origin multi-agent`) y eliminar la rama feature remota y local.
+5. **Cierre y Digest atómico**: Ejecutar `bash scripts/agent/close-task.sh T-XXX "tipo(scope): descripción"`. El script ejecuta internamente `design-digest.sh`, el cual redacta secretos y rutas de forma determinista, persistiendo `T-XXX-digest.md` y `T-XXX-raw.json` en `docs/sprints/design-decisions/` y commiteando atómicamente. La persistencia definitiva del digest y raw ocurre en el cierre, sin requerir la publicación manual previa del archivo JSON crudo en origin antes del merge.
 
 #### C2. Commit atómico
 Usar siempre el script de cierre:
@@ -249,15 +280,19 @@ Mostrar: `"✅ Sesión cerrada. Hasta la próxima."`
 
 ## Casos especiales
 
-### Fase 5b — 🔴 BLOQUEADO (tarea completada)
+### Fase 5b — Tarea completada
 
-Al completar todos los criterios de done:
-
+En modo interactivo clásico o si se aborta a humano:
 1. Detener ejecución. No leer más archivos ni preparar planes.
 2. Mostrar: `"✅ Tarea completada. ¿Confirmas commit y cierre?"`
 3. Respuestas válidas: `sí, commitea` / `cierra` → Fase 6. `no, primero…` → escuchar sin actuar.
 4. Petición nueva en el mismo mensaje: capturar en `docs/idea-inbox/YYYY-MM-DD.md`. Responder: `"💡 Capturada. Primero cierro. ¿Confirmas?"` No leer ni preparar nada nuevo.
 5. Solo tras cerrar la sesión (Fase 6 completa) se puede `/session-start` para la petición nueva.
+
+En camino limpio bajo el régimen Opción D:
+El cumplimiento de todos los criterios de done desencadena directamente el Protocolo Pre-Merge Refinado y la ejecución de `close-task.sh` sin requerir pausas interactivas en esta compuerta.
+
+> ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.
 
 > ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.
 
