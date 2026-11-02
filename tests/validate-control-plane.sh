@@ -2402,6 +2402,20 @@ assert d['skills_evaluation'].get('status') == 'verified', 'skills_evaluation st
 " 2>/dev/null || T34_FAILS="$T34_FAILS handoff-orca-contrato-invalido"
 fi
 
+# 16. Reporte formal de enrutamiento por dificultad (T-156)
+ROUTING_REPORT="$ROOT/docs/sprints/sprint-28-difficulty-routing-report.md"
+if [ ! -f "$ROUTING_REPORT" ]; then
+  T34_FAILS="$T34_FAILS difficulty-routing-report-ausente"
+else
+  grep -q -E "ENRUTADO_DIFICIL_(VIABLE|DESCARTADO)" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-dictamen"
+  grep -q "Tabla Comparativa Empírica" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-tabla"
+  grep -q "C-04" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-caso-c04"
+  grep -q "C-06" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-caso-c06"
+  grep -q "C-07" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-caso-c07"
+  grep -q "Presupuesto 60s" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-presupuesto-60s"
+  grep -q "Presupuesto 120s" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-presupuesto-120s"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2414,7 +2428,8 @@ else
   echo -e "     cableado agy como Tier 1 y degradación ante exit-0 corrupto verificados (T-152);"
   echo -e "     guardas de seguridad de agy certificadas (centinelas PRE/POST, env -i, no-timeout) (T-153);"
   echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);
-     batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);"
+     batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
+     reporte formal de enrutamiento por dificultad verificado (T-156);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
