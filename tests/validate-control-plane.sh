@@ -2429,6 +2429,17 @@ else
   grep -q "Batería Bane T-158..T-161" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-tabla-bane"
 fi
 
+# 18. Plantillas Docker Compose y configuración de flota de Bane (T-158)
+BANE_COMPOSE="$ROOT/templates/bane/docker-compose.yml"
+if [ ! -f "$BANE_COMPOSE" ]; then
+  T34_FAILS="$T34_FAILS bane-compose-ausente"
+else
+  grep -q "ghcr.io/pythops/bane" "$BANE_COMPOSE" || T34_FAILS="$T34_FAILS bane-compose-sin-imagen"
+  grep -q "BANE_PORT" "$BANE_COMPOSE" || T34_FAILS="$T34_FAILS bane-compose-sin-port"
+  grep -q "BANE_INFERENCE_URL" "$BANE_COMPOSE" || T34_FAILS="$T34_FAILS bane-compose-sin-inference-url"
+  python3 -c "import yaml; d=yaml.safe_load(open('$ROOT/.agents/config/fleet.example.yaml')); assert 'bane' in d['nodes']['<nodo-inferencia>']['services']" 2>/dev/null || T34_FAILS="$T34_FAILS fleet-example-sin-bane"
+fi
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
@@ -2443,7 +2454,8 @@ else
   echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);
      batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
      reporte formal de enrutamiento por dificultad verificado (T-156);
-     marco del piloto de autonomía Opción D verificado (T-157);"
+     marco del piloto de autonomía Opción D verificado (T-157);
+     plantilla compose y flota de Bane verificadas (T-158);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
   echo -e "     reporte de liveness trial formal verificado (T-151);"
