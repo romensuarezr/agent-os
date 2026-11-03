@@ -12,15 +12,15 @@ Esta tarea valida la puesta en producción viva de Bane como motor de investigac
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
 
 - **Sprint / Fecha**: Sprint 30 / 2026-11-03
-- **Diseño y arquitectura aprobados por**: Humano / Relé (Sprint Planning Sprint 30)
+- **Diseño y arquitectura aprobados por**: Relé (Veredicto APROBADO CON CAMBIOS con enmienda vinculante en Sprint Planning Sprint 30)
 - **Decisiones e interfaces selladas**:
   - Desplegar el stack Compose de Bane en el servidor de inferencia (<nodo-inferencia>) respetando los límites de recursos configurados (`BANE_CPU_LIMIT`, `BANE_MEMORY_LIMIT: 250M`).
   - Configurar las variables de entorno en el host VPS según `templates/bane/.env.example` enlazando con el endpoint de inferencia ($0) y embeddings locales.
-  - Registrar el endpoint vivo en el overlay de flota (`fleet.yaml`) bajo el nodo correspondiente.
+  - Registrar el endpoint vivo exclusivamente en el overlay privado (`fleet.yaml`); si `fleet.example.yaml` se toca, únicamente con placeholders o esquema neutro, nunca endpoints reales de host.
   - Ejecutar verificación determinista de salud con `bash scripts/agent/lib/bane-client.sh --check`, certificando transición de estado inactivo (`exit 2`) a activo (`exit 0`).
-  - Ejecutar una consulta de prueba real con `bash scripts/agent/lib/bane-client.sh --query "[consulta]" --output [archivo]` verificando generación de respuesta Markdown estructurada.
+  - Ejecutar una búsqueda de investigación real mediante la rama autónoma del workflow canónico `@[.agents/workflows/deep-research.md]` (Fase 2A) con Bane activo, verificando integración de extremo a extremo sin intermediación manual.
   - Actualizar `docs/runbooks/bane-deep-research-service.md` con los hallazgos operativos y notas de despliegue real.
-  - Mantener la suite de control plane `tests/validate-control-plane.sh` en verde (**38/38**, 0 errores).
+  - Mantener la suite de control plane `tests/validate-control-plane.sh` inmutable en **38/38** (0 errores).
   - Régimen Opción D: avance desatendido en camino limpio ante veredicto `CONSENSO`.
 - **Veredicto de diseño macro**: `[APROBADO_EN_PLANNING]`
 
@@ -38,9 +38,9 @@ Esta tarea valida la puesta en producción viva de Bane como motor de investigac
 ## Criterios de done
 - [ ] Servicio Bane desplegado y en ejecución en el servidor de inferencia.
 - [ ] Variables de entorno configuradas en el host VPS sin fuga de credenciales en el repositorio.
-- [ ] Endpoint de Bane declarado en el overlay de flota (`fleet.yaml`).
+- [ ] Endpoint de Bane declarado exclusivamente en el overlay privado (`fleet.yaml`); `fleet.example.yaml` preserva frontera portable (solo placeholders).
 - [ ] `bash scripts/agent/lib/bane-client.sh --check` retorna código 0 y JSON con estado `"active"`.
-- [ ] Consulta real de investigación ejecutada con éxito mediante `bane-client.sh`.
+- [ ] Búsqueda real de investigación ejecutada con éxito a través de la rama autónoma del workflow canónico `deep-research.md` (Fase 2A) con Bane activo.
 - [ ] `docs/runbooks/bane-deep-research-service.md` actualizado con instrucciones verificadas en producción.
-- [ ] Suite de validación de control plane pasando limpia (0 errores).
+- [ ] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
 - [ ] Ejecutada y registrada bajo las reglas de Opción D.

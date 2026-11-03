@@ -11,14 +11,14 @@
 
 ### T-165 — Despliegue en vivo y validación operativa de Bane en la flota
 - **Alternativa detectada:** Imagen oficial `ghcr.io/pythops/bane` (1060⭐), SearXNG (`searxng/searxng`), cliente `bane-client.sh` nativo del core.
-- **Recomendación del agente:** Desarrollo a medida y adopción de la imagen oficial Docker existente en el core (`templates/bane/docker-compose.yml`), operando en vivo sobre el host VPS de inferencia.
-- **Decisión del usuario:** Adoptar la imagen oficial `ghcr.io/pythops/bane` desplegada con la plantilla declarativa validada en T-162.
+- **Recomendación del agente:** Adopción de la imagen oficial Docker existente en el core (`templates/bane/docker-compose.yml`), operando en producción viva sobre el VPS de inferencia.
+- **Dictamen del Relé (Enmienda vinculante):** Recomendación ratificada. Precisiones operativas: el endpoint vivo se registra exclusivamente en el overlay privado (`fleet.yaml`), nunca en `fleet.example.yaml` commiteado (que solo contiene placeholders o esquema). El criterio de done exige una búsqueda real ejecutada a través de la rama autónoma del workflow `deep-research` con Bane activo, no solo un `--query` aislado del cliente CLI.
 - **Notas de integración:**
   1. Conectar con el VPS de inferencia (<nodo-inferencia>) vía SSH determinista o Coolify.
   2. Desplegar el stack de Bane configurando las variables de entorno (`BANE_PORT`, `BANE_INFERENCE_URL`, `BANE_EMBEDDING_URL`) conforme a `templates/bane/.env.example`.
-  3. Actualizar el overlay `fleet.yaml` para registrar el servicio Bane con su endpoint alcanzable.
+  3. Actualizar el overlay privado `fleet.yaml` para registrar el servicio Bane con su endpoint alcanzable.
   4. Ejecutar verificación viva con `bash scripts/agent/lib/bane-client.sh --check` validando código de salida 0.
-  5. Ejecutar una query real mediante `bane-client.sh --query "..."` y certificar la integración con el workflow `deep-research`.
+  5. Ejecutar una consulta real mediante la rama autónoma del workflow canónico `@[.agents/workflows/deep-research.md]`, validando la integración de extremo a extremo sin intermediación manual.
 - **Alternativas rechazadas y motivos:**
   - Perplexity Pro manual: Descartado por requerir intermediación interactiva humana y no permitir ejecución 100% desatendida.
   - Re-implementar motor de búsqueda propio desde cero: Descartado por violar la regla OSS-first (Bane ya provee el clon soberano de Perplexity).
@@ -26,25 +26,30 @@
 ### T-166 — Plantilla de despliegue soberano de Nango en VPS y runbook de integración
 - **Alternativa detectada:** `NangoHQ/nango` (13101⭐ | Open Source / Source-Available), CLI oficial `nango` (v0.71.14 npm), `Anil-matcha/open-agent-connector` (849⭐ Apache-2.0).
 - **Recomendación del agente:** Adoptar `NangoHQ/nango` oficial como plataforma de autenticación unificada OAuth y token broker para la flota de Agent OS.
-- **Decisión del usuario:** Adoptar `NangoHQ/nango` creando la plantilla Compose declarativa soberana (`templates/nango/docker-compose.yml` y `.env.example`) bajo estricta frontera portable.
+- **Dictamen del Relé (Enmienda vinculante):** Recomendación ratificada con despliegue vivo obligatorio. Se añade como criterio de done desplegar en vivo su propia plantilla en el VPS y verificar que el health check real responde, con evidencia en el reporte y sin secretos en el repo. Si el despliegue vivo resulta inviable, eso es aborto a humano (fail-closed), no cierre con solo plantilla. Además, la composición Compose debe validarse contra la especificación oficial de Nango self-hosted antes de sellarla (no asumir que server + postgres basten, y el puerto no queda fijo en 4004 si el spec oficial define otro; la versión del CLI npm no determina la imagen Docker).
 - **Notas de integración:**
-  1. Diseñar `templates/nango/docker-compose.yml` conteniendo el servidor Nango (`nangohq/nango-server`) y base de datos PostgreSQL dedicada, con puertos configurables y límites de recursos estándar.
-  2. Proveer `templates/nango/.env.example` con variables saneadas (`NANGO_SERVER_PORT`, `NANGO_DB_PASSWORD`, `NANGO_ENCRYPTION_KEY`, etc.).
-  3. Declarar el servicio en `.agents/config/fleet.example.yaml` bajo el nodo de orquestación (<nodo-orquestacion>).
-  4. Documentar el runbook operativo `docs/runbooks/nango-oauth-service.md` detallando aprovisionamiento en Coolify/VPS, flujo de rotación de claves y uso por herramientas/agentes.
+  1. Auditar la especificación oficial de despliegue de Nango self-hosted para determinar los contenedores exactos requeridos, variables de entorno obligatorias y puertos canónicos.
+  2. Diseñar `templates/nango/docker-compose.yml` conteniendo los servicios requeridos por el spec oficial con límites de recursos estándar.
+  3. Proveer `templates/nango/.env.example` con variables saneadas.
+  4. Declarar el servicio en `.agents/config/fleet.example.yaml` bajo el nodo de orquestación (<nodo-orquestacion>) usando placeholders.
+  5. Desplegar en vivo en el VPS y verificar que el endpoint de salud responde satisfactoriamente.
+  6. Documentar el runbook operativo `docs/runbooks/nango-oauth-service.md` detallando aprovisionamiento en Coolify/VPS, flujo de rotación de claves y uso por herramientas/agentes.
 - **Alternativas rechazadas y motivos:**
   - `open-agent-connector`: Descartado por menor madurez (849⭐ vs 13.1k⭐ de Nango) y ecosistema de conectores más limitado.
   - Gestión manual de tokens en archivos `.env`: Descartada por riesgos de expiración de tokens, dispersión y falta de interfaz de renovación OAuth automática.
+  - Cierre con solo plantilla sin despliegue vivo: Descartado terminantemente por el Relé.
 
 ### T-167 — Remediación determinista de compatibilidad en generate-homepage-config.sh y puesta a punto de Homepage Dashboard
 - **Alternativa detectada:** Paquete `gethomepage.dev`, `0xN1nja/homepagectl` (207⭐), generador nativo determinista `scripts/agent/generate-homepage-config.sh`.
 - **Recomendación del agente:** Desarrollo a medida justificado sobre el generador nativo existente del core (`generate-homepage-config.sh`) para asegurar tolerancia a esquemas heterogéneos de `fleet.yaml` sin añadir dependencias runtime.
-- **Decisión del usuario:** Desarrollo a medida justificado — extender y robustecer el script nativo determinista y corregir las plantillas del core.
+- **Dictamen del Relé (Enmienda vinculante):** Recomendación ratificada con remediación viva obligatoria y dependencia de T-166. Criterio de done: regenerar la configuración con el generador ya tolerante y redesplegar en la instancia viva, con verificación tarjeta por tarjeta desde el contenedor y pase visual. Corrección estrictamente vía generador y redespliegue, nunca editando a mano el volumen Docker. El proxy de Docker y Glances se resuelven según la realidad viva (Glances solo se reactiva si responde, si no queda documentado). La tolerancia al esquema abreviado queda como fallback con defaults transparentes (el esquema estándar sigue siendo el preferido y documentado, y los fixtures en tests deben cubrir casos estándar, abreviado y mixto). En la plantilla, nada de URLs inventadas: placeholders reconocibles por el filtro de omisión, Orca configurable u omitida (no localhost rígido), y la tarjeta de Ollama reflejando la realidad viva verificada.
 - **Notas de integración:**
-  1. En `scripts/agent/generate-homepage-config.sh`, normalizar el parsing de servicios: si el valor de un servicio es un entero o string (puerto numérico), convertirlo internamente a diccionario estándar `{ "port": int, "enabled": true }`, evitando el fallo `AttributeError: 'int' object has no attribute 'get'`.
+  1. En `scripts/agent/generate-homepage-config.sh`, normalizar el parsing de servicios: si el valor de un servicio es un entero o string (puerto numérico), convertirlo internamente a diccionario estándar `{ "port": int, "enabled": true }` como fallback transparente, evitando el fallo `AttributeError: 'int' object has no attribute 'get'`.
   2. Soportar el campo `ip` como fallback automático cuando no exista el campo `host` en la definición del nodo.
-  3. Sanear `templates/homepage/config/services.yaml`: sustituir dominios ficticios (`example.com`) por placeholders controlados o configurables, y corregir las referencias locales de Ollama y Orca para evitar `localhost:8000` / `ECONNREFUSED` dentro del contenedor.
-  4. Actualizar `docs/runbooks/coolify-homepage-deployment.md` documentando la configuración del proxy de Docker (`docker-socket-proxy`) y variables `HOMEPAGE_VAR_*`.
+  3. Incorporar tarjeta de Nango en Homepage utilizando el puerto y esquema efectivamente verificados en T-166.
+  4. Sanear `templates/homepage/config/services.yaml`: sustituir dominios ficticios (`example.com`) por placeholders controlados reconocibles por el filtro, hacer configurable o condicional la tarjeta de Orca, y alinear la tarjeta de Ollama con la realidad viva.
+  5. Redesplegar Homepage en vivo y verificar tarjeta por tarjeta desde dentro del contenedor y visualmente.
+  6. Actualizar `docs/runbooks/coolify-homepage-deployment.md`.
 - **Alternativas rechazadas y motivos:**
   - `homepagectl`: Descartado por asumir un daemon Docker local exclusivo, mientras que Agent OS opera sobre una flota heterogénea distribuida (Tailscale + nodos remotos).
   - Edición manual directa en volúmenes Docker del VPS: Rechazada terminantemente; todo cambio debe partir de plantillas y generadores del core trazables en git.
@@ -64,10 +69,10 @@
 
 ## Decisiones tomadas
 
-- **Decisión 1**: Desplegar Bane en el nodo de inferencia y validar el flujo determinista con `bane-client.sh --check` (`exit 0`) y query real, cerrando la brecha entre el código del core y la operativa viva.
-- **Decisión 2**: Incorporar la plantilla oficial de Nango (`templates/nango/`) y su runbook operativo para habilitar gestión OAuth soberana en la flota.
-- **Decisión 3**: Robustecer `generate-homepage-config.sh` eliminando el fallo con puertos numéricos y campos `ip`, saneando `templates/homepage/config/services.yaml` de URLs ficticias.
-- **Decisión 4**: El denominador de la suite de validación `tests/validate-control-plane.sh` se mantiene o expande según corresponda (mínimo 38/38, 0 errores).
+- **Decisión 1**: Desplegar Bane en el nodo de inferencia y validar el flujo determinista con `bane-client.sh --check` (`exit 0`) y búsqueda real por la rama autónoma del workflow `deep-research`, cerrando la brecha entre el código del core y la operativa viva.
+- **Decisión 2**: Incorporar la plantilla oficial de Nango (`templates/nango/`) validada contra el spec self-hosted oficial, ejecutar despliegue en vivo en VPS con health check real verificado (fail-closed) y runbook operativo para habilitar gestión OAuth soberana en la flota.
+- **Decisión 3**: Robustecer `generate-homepage-config.sh` eliminando el fallo con puertos numéricos y campos `ip` (fallback transparente), sanear `templates/homepage/config/services.yaml` de URLs ficticias y redesplegar en vivo verificando tarjeta por tarjeta y pase visual.
+- **Decisión 4**: El denominador de la suite de validación `tests/validate-control-plane.sh` se mantiene **estrictamente inmutable en 38/38** (0 errores), integrando las nuevas aserciones como subchecks dentro de checks existentes.
 
 ---
 
