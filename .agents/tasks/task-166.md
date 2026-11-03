@@ -42,12 +42,22 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - `.agents/tasks/task-166.md`
 
 ## Criterios de done
-- [ ] Composición Compose validada contra la especificación oficial de Nango self-hosted (servicios requeridos, imagen y puerto canónicos).
-- [ ] `templates/nango/docker-compose.yml` y `templates/nango/.env.example` creados bajo estricta frontera portable y límites de recursos.
-- [ ] Servicio Nango declarado en `.agents/config/fleet.example.yaml` (solo placeholders).
-- [ ] Despliegue en vivo ejecutado en el VPS de orquestación (<nodo-orquestacion>) usando la propia plantilla.
-- [ ] Health check real responde exitosamente en vivo (evidencia acreditada en el reporte de cierre, sin credenciales en repo).
-- [ ] Runbook `docs/runbooks/nango-oauth-service.md` redactado con procedimientos verificados en producción.
-- [ ] Subchecks de validación integrados en checks existentes de `tests/validate-control-plane.sh` manteniendo denominador inmutable en 38/38 (0 errores).
-- [ ] Cero literales privados o rutas de host en los archivos nuevos.
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Composición Compose validada contra la especificación oficial de Nango self-hosted (servicios requeridos, imagen y puerto canónicos).
+- [x] `templates/nango/docker-compose.yml` y `templates/nango/.env.example` creados bajo estricta frontera portable y límites de recursos.
+- [x] Servicio Nango declarado en `.agents/config/fleet.example.yaml` (solo placeholders).
+- [x] Despliegue en vivo ejecutado en el VPS de orquestación (<nodo-orquestacion>) usando la propia plantilla.
+- [x] Health check real responde exitosamente en vivo (evidencia acreditada en el reporte de cierre, sin credenciales en repo).
+- [x] Runbook `docs/runbooks/nango-oauth-service.md` redactado con procedimientos verificados en producción.
+- [x] Subchecks de validación integrados en checks existentes de `tests/validate-control-plane.sh` manteniendo denominador inmutable en 38/38 (0 errores).
+- [x] Cero literales privados o rutas de host en los archivos nuevos.
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
+
+## Evidencia acreditada de deliberación y verificación en vivo
+- **Deliberación de plan técnico**: Recibo `.agents/context/deliberation-T-166.json` emitido por Revisor Ejecutor Tier 1 (`qa-judge`) con veredicto `CONSENSO`.
+- **Despliegue en vivo**: Stack desplegado en nodo de orquestación (`~/services/nango`) con Docker Compose v2.
+- **Health check real verificado**:
+  - `GET http://localhost:3003/health` -> HTTP 200 OK `{"result":"ok"}`
+  - `HEAD http://localhost:3009` -> HTTP 200 OK (Connect UI)
+  - Contenedores activos: `nango-server` (712MB), `nango-db` (85MB), `nango-redis` (3.4MB)
+- **Suite de control plane**: 38/38 checks en verde (0 errores).
+- **Higiene de localizadores**: 0 hallazgos en `locator-hygiene.sh`.
