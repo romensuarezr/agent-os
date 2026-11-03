@@ -1,0 +1,17 @@
+{
+  "task_id": "T-166",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan t\u00e9cnico presentado para T-166 respeta con total fidelidad el dise\u00f1o macro aprobado en Sprint Planning (Sprint 30) y los principios de arquitectura de Agent OS. La delimitaci\u00f3n de la caja de archivos es exacta, la composici\u00f3n Compose se adhiere a la especificaci\u00f3n oficial self-hosted de Nango (server + postgres + redis, puertos can\u00f3nicos 3003/3009 y l\u00edmites de recursos), y se respeta la inviolabilidad del despliegue en vivo en VPS con verificaci\u00f3n obligatoria del endpoint de salud y pol\u00edtica fail-closed ante anomal\u00edas.\n\nAsimismo, se garantiza el aislamiento estricto de secretos y par\u00e1metros privados (generaci\u00f3n local en host y uso exclusivo de placeholders en plantillas/fleet), y se preserva el control plane manteniendo el denominador r\u00edgidamente inmutable en 38/38 mediante subchecks integrados. El plan califica para avance desatendido bajo el r\u00e9gimen de Opci\u00f3n D.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Las skills declaradas ('remote-admin', 'coolify-admin', 'infisical-secrets') coinciden un\u00edvocamente con el task file can\u00f3nico .agents/tasks/task-166.md y son t\u00e9cnicamente necesarias y pertinentes para el aprovisionamiento remoto en el VPS y la gesti\u00f3n segura de secretos sin exposici\u00f3n en el repositorio."
+  },
+  "inventory_scoped_bytes": 2123,
+  "plan_source": ".agents/context/plan-draft.md"
+}
