@@ -285,3 +285,22 @@ Si el nuevo stack experimenta un fallo de inicio (`CrashLoopBackOff`) o no conec
    - Si se requiere rollback manual de emergencia, volver a montar el socket directo temporalmente mientras se depura la red interna `homepage-internal`.
 3. **Validación de Red Docker**:
    - Asegurarse de que ambos contenedores comparten la red bridge interna (`docker network inspect <project_name>_homepage-internal`).
+
+---
+
+## 9. Estado de Observabilidad en Vivo: Socket Proxy y Glances (T-167)
+
+Tras la puesta a punto determinista de Sprint 30 (T-167):
+
+### 9.1 Docker Socket Proxy
+- **Estado**: Activo y saludable (`docker-socket-proxy`, contenedor `Up 5+ weeks`).
+- **Conectividad**: Homepage consulta `http://docker-socket-proxy:2375/version` y `/containers/json` de forma transparente.
+- **Seguridad**: Solo llamadas de lectura (`GET`) autorizadas (`POST=0`), contención de memoria en 32MB conforme a ADR 004.
+
+### 9.2 Telemetría Glances
+- **Estado**: Daemon inactivo en el nodo de inferencia (`port 61208`).
+- **Política de Dashboard**: Siguiendo el principio de veracidad de la flota, el widget de Glances en `widgets.yaml` se mantiene desactivado/omitido para prevenir errores visuales de conexión (`ECONNREFUSED` / `ENOTFOUND`) en la interfaz de Homepage. Solo debe reactivarse si el servicio responde afirmativamente al pre-flight.
+
+### 9.3 Integración de Nango OAuth
+- **Estado**: Desplegado y verificado en vivo en `<nodo-orquestacion>` (T-166).
+- **Tarjeta**: Incorporada bajo el grupo *PaaS & Orquestación* con ping de salud a `/health` (:3003) y enlace a Connect UI (:3009).

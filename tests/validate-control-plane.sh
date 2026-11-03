@@ -387,11 +387,70 @@ if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
   ERRORS=$((ERRORS + 1))
 else
-  if bash "$HOMEPAGE_SCRIPT" --fleet .agents/config/fleet.example.yaml --check >/dev/null 2>&1; then
-    echo -e "  ✅ generate-homepage-config.sh genera configuraciones válidas a partir de fleet.example.yaml en modo agnóstico."
-  else
-    echo -e "  ❌ ERROR: generate-homepage-config.sh falló al procesar fleet.example.yaml en modo --check."
+  HP_FAILS=""
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet .agents/config/fleet.example.yaml --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fleet-example-check-falla"
+  fi
+
+  # Sub-checks: Validación determinista contra fixtures (estándar, abreviado y mixto)
+  HP_TMP="$(mktemp -d)"
+  cat <<'EOF' > "$HP_TMP/std.yaml"
+nodes:
+  infra:
+    host: "192.0.2.10"
+    services:
+      freellmapi:
+        endpoint: "http://192.0.2.10:3001/v1"
+        description: "Unified AI inference proxy"
+      nango:
+        endpoint: "http://192.0.2.10:3003"
+        connect_ui_url: "http://192.0.2.10:3009"
+        description: "Unified OAuth & API integration platform"
+EOF
+
+  cat <<'EOF' > "$HP_TMP/abb.yaml"
+nodes:
+  worker:
+    ip: "198.51.100.5"
+    services:
+      freellmapi: 3001
+      omniroute: 20128
+      nango: 3003
+EOF
+
+  cat <<'EOF' > "$HP_TMP/mix.yaml"
+nodes:
+  node_a:
+    host: "198.51.100.1"
+    services:
+      freellmapi:
+        endpoint: "http://198.51.100.1:3001/v1"
+      ollama: 11434
+  node_b:
+    ip: "198.51.100.2"
+    services:
+      nango: 3003
+      coolify:
+        url: "http://coolify.example.com"
+EOF
+
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/std.yaml" --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fixture-standard-falla"
+  fi
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/abb.yaml" --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fixture-abbreviated-falla"
+  fi
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/mix.yaml" --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fixture-mixed-falla"
+  fi
+
+  rm -rf "$HP_TMP"
+
+  if [ -n "$HP_FAILS" ]; then
+    echo -e "  ❌ ERROR: Check 11 incumple:$HP_FAILS"
     ERRORS=$((ERRORS + 1))
+  else
+    echo -e "  ✅ generate-homepage-config.sh genera configuraciones válidas (fleet.example.yaml, estándar, abreviado y mixto)."
   fi
 fi
 
