@@ -15,7 +15,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :--: | :--- | :--- |
 | T-166 | Plantilla de despliegue soberano de Nango en VPS, despliegue en vivo y runbook | Core / Infraestructura & Auth | M | ✅ Completada | — | [.agents/tasks/task-166.md](.agents/tasks/_archived/task-166.md) |
-| T-167 | Remediación determinista de compatibilidad en `generate-homepage-config.sh` y Homepage Dashboard | Core / Tooling & Observabilidad | M | ⬜ Pendiente | T-166 | [.agents/tasks/task-167.md](.agents/tasks/task-167.md) |
+| T-167 | Remediación determinista de compatibilidad en `generate-homepage-config.sh` y Homepage Dashboard | Core / Tooling & Observabilidad | M | ✅ Completada | T-166 | [.agents/tasks/task-167.md](.agents/tasks/_archived/task-167.md) |
 | T-165 | Despliegue en vivo y validación operativa de Bane en la flota | Core / Infraestructura & Ops | M | ⏸ Pausada | — | [.agents/tasks/task-165.md](.agents/tasks/task-165.md) |
 
 ---
