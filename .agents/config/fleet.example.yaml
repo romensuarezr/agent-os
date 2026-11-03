@@ -118,6 +118,11 @@ nodes:
         url: "https://homepage.example.com"
         coolify_uuid: "example-application-uuid-homepage"
         description: "Fleet control dashboard and service status monitor"
+      nango:
+        endpoint: "http://203.0.113.10:3003"
+        url: "http://<nodo-orquestacion>:3003"
+        connect_ui_url: "http://<nodo-orquestacion>:3009"
+        description: "Self-hosted unified OAuth & API integration platform"
 
 # ------------------------------------------------------------------------------
 # 2b. Fleet Observability & Dashboard Monitoring (Homepage)

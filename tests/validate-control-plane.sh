@@ -3122,7 +3122,33 @@ if ! echo "$FDR_JSON" | grep -q '"bane_probe"'; then
   T38_FAILS="$T38_FAILS fleet-doctor-sin-sonda-bane"
 fi
 
-# Sub-check 5: Aserción de denominador exhaustivo (0 remanentes de 37 y 38 activos)
+# Sub-check 5: Integración soberana de Nango (T-166)
+NANGO_COMPOSE="$ROOT/templates/nango/docker-compose.yml"
+NANGO_ENV="$ROOT/templates/nango/.env.example"
+NANGO_RUNBOOK="$ROOT/docs/runbooks/nango-oauth-service.md"
+if [ ! -f "$NANGO_COMPOSE" ]; then
+  T38_FAILS="$T38_FAILS nango-compose-ausente"
+else
+  python3 -c "import yaml; yaml.safe_load(open('$NANGO_COMPOSE'))" 2>/dev/null || T38_FAILS="$T38_FAILS nango-compose-yaml-invalido"
+  grep -q "nangohq/nango-server" "$NANGO_COMPOSE" || T38_FAILS="$T38_FAILS nango-compose-sin-imagen"
+  grep -q "nango-db" "$NANGO_COMPOSE" || T38_FAILS="$T38_FAILS nango-compose-sin-db"
+  grep -q "nango-redis" "$NANGO_COMPOSE" || T38_FAILS="$T38_FAILS nango-compose-sin-redis"
+fi
+if [ ! -f "$NANGO_ENV" ]; then
+  T38_FAILS="$T38_FAILS nango-env-ausente"
+else
+  grep -q "NANGO_ENCRYPTION_KEY=" "$NANGO_ENV" || T38_FAILS="$T38_FAILS nango-env-sin-encryption-key"
+fi
+if [ ! -f "$NANGO_RUNBOOK" ]; then
+  T38_FAILS="$T38_FAILS nango-runbook-ausente"
+else
+  grep -q "templates/nango/docker-compose.yml" "$NANGO_RUNBOOK" || T38_FAILS="$T38_FAILS nango-runbook-sin-referencia-compose"
+fi
+if ! grep -q "nango:" "$ROOT/.agents/config/fleet.example.yaml"; then
+  T38_FAILS="$T38_FAILS fleet-example-sin-nango"
+fi
+
+# Sub-check 6: Aserción de denominador exhaustivo (0 remanentes de 37 y 38 activos)
 D_37="/3"$(printf "7]")
 D_38="/3"$(printf "8]")
 NUM_37=$(grep -F -c "$D_37" "$ROOT/tests/validate-control-plane.sh" || true)
