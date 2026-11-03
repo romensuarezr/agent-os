@@ -1,5 +1,9 @@
 # Task-165: Despliegue en vivo y validación operativa de Bane en la flota
 
+## Estado
+⏸ Pausada
+> **Causa**: Imagen no desplegable públicamente (`ghcr.io/pythops/bane:latest` inexistente en registro). Aborto fail-closed registrado; pendiente de redefinición humana del motor de búsqueda profunda. Queda excluida del encadenado autónomo de Sprint 30 hasta nueva autorización macro.
+
 ## Objetivo
 Poner en funcionamiento real el motor Bane en el servidor de inferencia (<nodo-inferencia>) desplegando la plantilla declarativa validada en T-162 (`templates/bane/docker-compose.yml`), aprovisionando sus variables de entorno en el host, actualizando el overlay de flota con el endpoint accesible y validando la disponibilidad con `bane-client.sh --check` (`exit 0`) y una búsqueda profunda real autónoma mediante el workflow `deep-research`.
 

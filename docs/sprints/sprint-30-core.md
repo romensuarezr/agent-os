@@ -14,9 +14,9 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :--: | :--- | :--- |
-| T-165 | Despliegue en vivo y validación operativa de Bane en la flota | Core / Infraestructura & Ops | M | ⬜ Pendiente | — | [.agents/tasks/task-165.md](.agents/tasks/task-165.md) |
-| T-166 | Plantilla de despliegue soberano de Nango en VPS y runbook de integración | Core / Infraestructura & Auth | M | ⬜ Pendiente | T-165 | [.agents/tasks/task-166.md](.agents/tasks/task-166.md) |
+| T-166 | Plantilla de despliegue soberano de Nango en VPS, despliegue en vivo y runbook | Core / Infraestructura & Auth | M | ⬜ Pendiente | — | [.agents/tasks/task-166.md](.agents/tasks/task-166.md) |
 | T-167 | Remediación determinista de compatibilidad en `generate-homepage-config.sh` y Homepage Dashboard | Core / Tooling & Observabilidad | M | ⬜ Pendiente | T-166 | [.agents/tasks/task-167.md](.agents/tasks/task-167.md) |
+| T-165 | Despliegue en vivo y validación operativa de Bane en la flota | Core / Infraestructura & Ops | M | ⏸ Pausada | — | [.agents/tasks/task-165.md](.agents/tasks/task-165.md) |
 
 ---
 
@@ -58,12 +58,18 @@ Las 3 tareas cuentan con su respectiva prospección determinista registrada en [
    - Proxy de Docker y Glances se resuelven según la realidad viva (Glances solo se reactiva si responde; si no, queda documentado).
    - Tolerancia a esquema abreviado como fallback transparente (el estándar es el preferido); fixtures de tests deben cubrir casos estándar, abreviado y mixto.
    - Plantilla saneada: cero URLs inventadas, placeholders reconocibles por el filtro de omisión, Orca configurable u omitida (no localhost rígido), y Ollama reflejando la realidad viva verificada.
-3. **T-165 Precisiones operativas**:
+3. **T-165 Precisiones operativas y pausa**:
    - El endpoint vivo se registra exclusivamente en el overlay privado (`fleet.yaml`), nunca en `fleet.example.yaml` commiteado (este solo admite placeholders o esquema).
-   - El criterio de done exige una búsqueda real ejecutada a través de la rama autónoma del workflow canónico `deep-research` con Bane activo, no solo un `--query` aislado del cliente CLI.
+   - Aborto fail-closed registrado por inexistencia de la imagen declarada `ghcr.io/pythops/bane:latest`. Estado: `⏸ Pausada` pendiente de redefinición humana.
 4. **Denominador de Suite Inmutable**:
    - Las validaciones añadidas para T-166 y T-167 se integran como subchecks dentro de Checks existentes (Check 11 para Homepage, Check 38 o Check 1 para Nango), manteniendo el denominador de la suite rígidamente en **38/38** (0 errores).
 5. **Honestidad de Actas**:
    - Las actas reflejan que las propuestas del scout son recomendaciones técnicas del agente ratificadas por el Relé en esta enmienda de planning.
-6. **Orden de Ejecución Secuencial Sellado**:
-   - Secuencia obligatoria: `T-165 → T-166 → T-167`.
+
+### 4. Enmienda de Reordenación de Secuencia (Decisión Macro Humana — 2026-11-03)
+- **Nuevo Orden**: `T-166 → T-167 → T-165` (sustituye formalmente la secuencia previa `T-165 → T-166 → T-167`).
+- **T-166**: Arranca como primera tarea del sprint bajo Opción D, sin dependencia de T-165 (`Dependencias: —`).
+- **T-167**: Mantiene su dependencia estricta de T-166 (la tarjeta de Nango en Homepage requiere el puerto y esquema efectivamente verificados en vivo en T-166).
+- **T-165**: Queda en estado `⏸ Pausada` (causa: imagen Docker `ghcr.io/pythops/bane:latest` inexistente en registro, aborto fail-closed). Queda **FUERA del encadenado desatendido**: su arranque futuro exige una nueva decisión humana sobre el motor de búsqueda y no arrancará automáticamente tras T-167.
+- **Contexto registrado**: Activación de SearXNG aprobada por el humano como backend del motor a redefinir; no constituye compuerta para T-166/T-167 ni trabajo suelto de esta enmienda.
+- **Resto del Macro**: Denominador inmutable en **38/38**, despliegue vivo en T-166, remediación viva en T-167, sin tocar `main`, sin tags de release.

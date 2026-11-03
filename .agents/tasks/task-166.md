@@ -13,8 +13,9 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
 
 - **Sprint / Fecha**: Sprint 30 / 2026-11-03
-- **Diseño y arquitectura aprobados por**: Relé (Veredicto APROBADO CON CAMBIOS con enmienda vinculante en Sprint Planning Sprint 30)
+- **Diseño y arquitectura aprobados por**: Relé (Veredicto APROBADO CON CAMBIOS con enmienda vinculante y reordenación macro en Sprint Planning Sprint 30)
 - **Decisiones e interfaces selladas**:
+  - **Secuencia y dependencias**: Pasa a ser la primera tarea ejecutada del Sprint 30, sin dependencia de T-165 (`Dependencias: —`).
   - Validar la composición contra la especificación oficial de Nango self-hosted antes de sellarla (no asumir ciegamente que server + postgres basten; verificar si requiere redis/workers, puertos oficiales y variables obligatorias; la versión del CLI npm no determina la imagen del servidor).
   - Crear `templates/nango/docker-compose.yml` conteniendo los servicios requeridos por el spec oficial con variables parametrizadas, volúmenes persistentes y límites de recursos estándar.
   - Crear `templates/nango/.env.example` con variables saneadas y documentación de configuración.
