@@ -21,9 +21,8 @@
         description: "Infisical Community Edition standalone lite secrets manager"
     - Orca Desktop Engine:
         icon: si-docker
-        href: http://localhost:8000
-        description: "Task queue and read-only inspection engine"
-        ping: http://localhost:8000
+        href: http://orca.example.com
+        description: "Task queue and read-only inspection engine (configurable)"
 
 - Productividad Dev & Snippets:
     - GitHub Core (Agent OS):
@@ -44,3 +43,8 @@
         icon: si-traefikproxy
         href: https://coolify.example.com
         description: "Edge reverse proxy with automatic SSL"
+    - Nango Unified OAuth:
+        icon: si-auth0
+        href: http://nango.example.com:3009
+        description: "Self-hosted unified OAuth & API integration platform"
+        ping: http://nango.example.com:3003/health
