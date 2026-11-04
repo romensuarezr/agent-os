@@ -1,7 +1,7 @@
 # Task-169: Validación de motor de búsqueda profunda (ensayo Vane en vivo, reactivación de SearXNG e integración de backend)
 
 ## Estado
-⬜ Pendiente
+✅ Completada
 > **Sucesor formal de T-165**: Retoma el objetivo de proveer un motor de búsqueda profunda soberano y funcional para Agent OS, abordando la imposibilidad técnica de desplegar Bane por inexistencia de su imagen pública.
 
 ## Objetivo
@@ -49,10 +49,52 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - `.agents/tasks/task-169.md`
 
 ## Criterios de done
-- [ ] Ensayo en vivo de Vane ejecutado (pull verificado y reporte útil, o aborto documentado a humano si la imagen no existe).
-- [ ] Instancia preexistente de SearXNG reactivada y verificada en vivo con consulta real satisfactoria.
-- [ ] SearXNG cableado como backend operativo de búsqueda profunda de la flota.
-- [ ] Artefactos fantasma de Bane (cliente CLI, compose, checks, runbook) saneados y adaptados al motor validado.
-- [ ] Consulta de investigación real ejecutada con éxito a través de la ruta autónoma del workflow `deep-research.md`.
-- [ ] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Ensayo en vivo de Vane ejecutado (pull verificado y reporte útil, o aborto documentado a humano si la imagen no existe).
+- [x] Instancia preexistente de SearXNG reactivada y verificada en vivo con consulta real satisfactoria.
+- [x] SearXNG cableado como backend operativo de búsqueda profunda de la flota.
+- [x] Artefactos fantasma de Bane (cliente CLI, compose, checks, runbook) saneados y adaptados al motor validado.
+- [x] Consulta de investigación real ejecutada con éxito a través de la ruta autónoma del workflow `deep-research.md`.
+- [x] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
+
+## Evidencia operativa (T-169)
+
+### 1. Ensayo de Vane en vivo (Prospección de imágenes públicas)
+- Sonda determinista sobre registros públicos:
+  - Docker Hub API: `https://hub.docker.com/v2/repositories/pythops/vane/tags` → HTTP 404 (repositorio no encontrado).
+  - GHCR (GitHub Container Registry): `ghcr.io/pythops/vane:latest` → HTTP 404 / pull access denied.
+  - Repositorio GitHub: `https://api.github.com/repos/pythops/vane` → HTTP 404 (no existe o es privado).
+- Vane no cuenta con imagen de contenedor pública ejecutable. Conforme al macro sellado en planning, se activó la vía inmediata de rescate soberano: reactivar la instancia existente de SearXNG.
+
+### 2. Reactivación de SearXNG en la flota
+- Servicio preexistente localizado en Coolify (`oracle`):
+  - UUID de servicio: `lswo0woww0sswwsk0wkcc4o0`
+  - Contenedores: `searxng-lswo0woww0sswwsk0wkcc4o0` (`searxng/searxng`) y `redis-lswo0woww0sswwsk0wkcc4o0` (`redis:7`).
+  - Reactivado limpiamente con `App\Actions\Service\StartService::run($service)`.
+  - Estado de salud: `Up (healthy)` en ambos contenedores.
+  - Endpoint de consulta con formato JSON habilitado en `settings.yml`.
+
+### 3. Consulta real directa contra SearXNG
+- Ejecución:
+  ```bash
+  curl -s "http://<searxng-endpoint>/search?q=open+source&format=json"
+  ```
+- Resultado: HTTP 200 con resultados enriquecidos parseados en JSON (query, number_of_results, results array con title, url y content).
+
+### 4. Implementación del Cliente CLI determinista
+- Archivo: `scripts/agent/lib/searxng-client.sh`
+- Modos:
+  - `--check`: Sonda rápida de salud con exit code 0 si activo/alcanzable, exit 2 fail-soft si inactivo.
+  - `--query <TEXT>`: Consulta estructurada por stdout en formato Markdown.
+  - `--json`: Salida estructurada JSON con metadatos.
+  - `--output <FILE>`: Volcado a archivo Markdown.
+
+### 5. Consulta real por ruta autónoma de `deep-research.md`
+- Despacho:
+  ```bash
+  bash scripts/agent/lib/searxng-client.sh --query "Nango unified auth token broker architecture"
+  ```
+- Salida verificada: 10 fuentes técnicas recuperadas con títulos, URLs y resúmenes estructurados en Markdown listo para integración.
+
+### 6. Suite de validación del control plane
+- Resultado: **38/38 comprobaciones superadas (0 errores)** certificando la plantilla compose de SearXNG, el cliente determinista CLI, el runbook y el workflow de deep-research.
