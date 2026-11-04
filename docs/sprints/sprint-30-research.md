@@ -54,6 +54,29 @@
   - `homepagectl`: Descartado por asumir un daemon Docker local exclusivo, mientras que Agent OS opera sobre una flota heterogénea distribuida (Tailscale + nodos remotos).
   - Edición manual directa en volúmenes Docker del VPS: Rechazada terminantemente; todo cambio debe partir de plantillas y generadores del core trazables en git.
 
+### T-168 — Arreglo en vivo de Homepage, ping granular y descubrimiento portable multi-repo
+- **Alternativa detectada:** Docker Swarm Service Discovery integrado en Homepage, API manual de comprobación, generador determinista `generate-homepage-config.sh` con overlay privado `fleet.yaml`.
+- **Recomendación del agente:** Eliminar el socket proxy Swarm discovery (`docker.yaml`) que causa fallos continuos 403 Forbidden y `ECONNREFUSED` al estar configurado `SERVICES: '0'`. Fundamentar el descubrimiento enteramente en el overlay privado `fleet.yaml`. Implementar soporte para `ping_path` granular por servicio (permitiendo `/` para OmniRoute y resolviendo el 404 de `/health`). Integrar Glances si responde vivo en nodo secundario. Garantizar backup fechado (`.bak.<timestamp>`) previo a la sobrescritura y compuerta estricta de pase visual por el usuario en navegador.
+- **Dictamen del Relé (Enmienda vinculante):** Recomendación ratificada. El descubrimiento se mantiene portable: mismo generador y plantillas en cualquier repo hijo, cada repo con su overlay privado, 0 datos privados en git. Triage riguroso de tarjetas faltantes (Ollama en su nodo real, clarificación de Open-WebUI y Hermes). Cierre solo con pase visual del usuario en navegador, no con HTTP del agente.
+- **Alternativas rechazadas y motivos:**
+  - Habilitar `SERVICES: 1` en el socket proxy de Docker: Descartado por elevar la superficie de ataque y privilegios del proxy de Docker sobre la API del daemon innecesariamente, cuando los servicios de la flota ya están declarados y versionados en `fleet.yaml`.
+  - Cierre automático sin inspección del usuario: Rechazado taxativamente por el Relé; Homepage es una interfaz de usuario visual y requiere validación en navegador.
+
+### T-169 — Motor de búsqueda profunda (ensayo Vane en vivo, reactivación de SearXNG e integración de backend)
+- **Alternativa detectada:** Vane (`pythops/vane`), SearXNG (`searxng/searxng`), DuckDuckGo HTML scraping, APIs comerciales (Tavily, Perplexity).
+- **Recomendación del agente:** Ensayo de Vane con compuerta fail-closed: pull previo obligatorio de imagen Docker pública; si no existe o el ensayo no da informe útil, aborto inmediato a humano. Reactivación del contenedor SearXNG preexistente en la flota (sin duplicar instancias), probando consulta real y conectándolo como backend del motor de búsqueda profunda. Sustituir componentes de Bane por los del motor probado.
+- **Dictamen del Relé (Enmienda vinculante):** Ratificado. T-169 sucede a T-165 con nuevo ID. El cierre exige investigación real autónoma ejecutada por el workflow canónico `deep-research.md`. Denominador inmutable en 38/38.
+- **Alternativas rechazadas y motivos:**
+  - Desplegar una segunda instancia de SearXNG desde cero: Rechazado por ineficiencia de recursos; la flota ya aloja una instancia inactiva que debe auditarse y reactivarse.
+  - Asumir la existencia de Vane sin pull determinista previo: Rechazado para prevenir el mismo fallo fail-closed de T-165.
+
+### T-170 — Primera integración real de Nango en flujo operativo de agente
+- **Alternativa detectada:** Cloudflare API / OAuth, Infisical Universal Auth, GitHub App Connector, Slack / Notion.
+- **Recomendación del agente:** Elaborar propuesta formal sellada ante el humano con trade-offs, analizando Cloudflare e Infisical como candidatos inmediatos, flujos desbloqueados y credenciales implicadas. Bloquear toda conexión hasta obtener aprobación humana expresa. Conectar en Nango y crear/adaptar flujo de agente con evidencia real.
+- **Dictamen del Relé (Enmienda vinculante):** Ratificado. La compuerta humana previa es estricta: ninguna credencial ni conector se aprovisiona sin la aprobación explícita en chat. Denominador inmutable en 38/38.
+- **Alternativas rechazadas y motivos:**
+  - Conectar APIs de producción sin revisión humana previa: Rechazado terminantemente por seguridad y gobernanza de credenciales.
+
 ---
 
 ## Hallazgos clave
