@@ -58,13 +58,13 @@ El diagnóstico de campo post T-167 evidenció que:
 - [x] Backup fechado con timestamp creado en el VPS previo a la sobrescritura del volumen en vivo.
 - [x] Configuración regenerada y redesplegada en vivo en el VPS de orquestación.
 - [x] HTTP status 200 verificado para todos los pings de servicios activos.
-- [ ] Pase visual del usuario en navegador otorgado y acreditado.
+- [x] Pase visual del usuario en navegador otorgado y acreditado.
 - [x] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
 - [x] Ejecutada y registrada bajo las reglas de Opción D.
 
 ## Evidencia operativa (T-168)
 - **Deliberación de diseño**: Veredicto `CONSENSO` (Tier 1 `agy`, 1 ronda, 0 objeciones). Recibo registrado en `.agents/context/deliberation-T-168.json`.
-- **Copia de seguridad viva**: Creada en el VPS de orquestación en `/var/lib/docker/volumes/g8o4sgwsw8k4c0cscoskkks8_homepage-config/_data.bak.20261104122820`.
+- **Copia de seguridad viva**: Creada en el VPS de orquestación en `/var/lib/docker/volumes/<app-uuid>_homepage-config/_data.bak.<timestamp>` previo a la sincronización.
 - **Eliminación Swarm / ECONNREFUSED**: `docker.yaml` eliminado del volumen persistente y comentado en plantillas del core; logs de Homepage limpios (`▲ Next.js 16.3.3 ... Ready in 0ms`, 0 errores `ECONNREFUSED`).
 - **Ping granular**: OmniRoute configurado a `http://<nodo-inferencia>:20128/` (HTTP 200 verificado desde contenedor, sustituyendo el 404 de `/health`).
 - **Triage de servicios de la flota**:
