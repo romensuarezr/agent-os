@@ -17,7 +17,7 @@
 | T-166 | Plantilla de despliegue soberano de Nango en VPS, despliegue en vivo y runbook | Core / Infraestructura & Auth | M | ✅ Completada | — | [.agents/tasks/_archived/task-166.md](.agents/tasks/_archived/task-166.md) |
 | T-167 | Remediación determinista de compatibilidad en `generate-homepage-config.sh` y Homepage Dashboard | Core / Tooling & Observabilidad | M | ✅ Completada | T-166 | [.agents/tasks/_archived/task-167.md](.agents/tasks/_archived/task-167.md) |
 | T-168 | Arreglo en vivo de Homepage, ping granular y descubrimiento portable multi-repo | Core / Observabilidad & DX | S | ✅ Completada | T-167 | [.agents/tasks/task-168.md](.agents/tasks/_archived/task-168.md) |
-| T-169 | Validación de motor de búsqueda profunda (ensayo Vane en vivo, reactivación de SearXNG e integración de backend) | Core / Motores & Búsqueda | M | ⬜ Pendiente | T-168 | [.agents/tasks/task-169.md](.agents/tasks/task-169.md) |
+| T-169 | Validación de motor de búsqueda profunda (ensayo Vane en vivo, reactivación de SearXNG e integración de backend) | Core / Motores & Búsqueda | M | ✅ Completada | T-168 | [.agents/tasks/task-169.md](.agents/tasks/_archived/task-169.md) |
 | T-170 | Primera integración real de Nango en flujo operativo de agente | Core / Auth & Integraciones | M | ⬜ Pendiente | T-169 | [.agents/tasks/task-170.md](.agents/tasks/task-170.md) |
 | T-165 | Despliegue en vivo y validación operativa de Bane en la flota | Core / Infraestructura & Ops | M | ⏸ Pausada | — | [.agents/tasks/task-165.md](.agents/tasks/task-165.md) |
 

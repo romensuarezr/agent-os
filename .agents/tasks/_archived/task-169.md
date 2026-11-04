@@ -67,7 +67,7 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - Vane no cuenta con imagen de contenedor pública ejecutable. Conforme al macro sellado en planning, se activó la vía inmediata de rescate soberano: reactivar la instancia existente de SearXNG.
 
 ### 2. Reactivación de SearXNG en la flota
-- Servicio preexistente localizado en Coolify (`oracle`):
+- Servicio preexistente localizado en Coolify (`<nodo-orquestacion>`):
   - UUID de servicio: `lswo0woww0sswwsk0wkcc4o0`
   - Contenedores: `searxng-lswo0woww0sswwsk0wkcc4o0` (`searxng/searxng`) y `redis-lswo0woww0sswwsk0wkcc4o0` (`redis:7`).
   - Reactivado limpiamente con `App\Actions\Service\StartService::run($service)`.
