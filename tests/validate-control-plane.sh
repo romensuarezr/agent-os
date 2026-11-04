@@ -440,6 +440,13 @@ EOF
   if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/abb.yaml" --check >/dev/null 2>&1; then
     HP_FAILS="$HP_FAILS fixture-abbreviated-falla"
   fi
+  ABB_OUT=$(bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/abb.yaml" --check 2>/dev/null)
+  if echo "$ABB_OUT" | grep -q "20128/health"; then
+    HP_FAILS="$HP_FAILS omniroute-ping-health-invalido"
+  fi
+  if grep -E "^[[:space:]]*host:[[:space:]]*tcp://" templates/homepage/config/docker.yaml >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS docker-socket-proxy-activo"
+  fi
   if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/mix.yaml" --check >/dev/null 2>&1; then
     HP_FAILS="$HP_FAILS fixture-mixed-falla"
   fi

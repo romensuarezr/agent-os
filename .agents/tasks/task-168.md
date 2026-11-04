@@ -50,14 +50,34 @@ El diagnóstico de campo post T-167 evidenció que:
 - `.agents/tasks/task-168.md`
 
 ## Criterios de done
-- [ ] `generate-homepage-config.sh` soporta rutas de ping específicas por servicio (resuelve ping 200 en OmniRoute).
-- [ ] Integración Docker Swarm (`docker.yaml`) removida del despliegue en vivo y plantillas, eliminando `ECONNREFUSED` en `homepage.log`.
-- [ ] Principio de descubrimiento portable multi-repo preservado (plantillas agnósticas, 0 datos privados en git).
-- [ ] Estado de Glances verificado en nodo secundario; widget integrado si responde o documentado si está inactivo.
-- [ ] Triage completado para Ollama, Open-WebUI y Hermes con evidencia en el reporte.
-- [ ] Backup fechado con timestamp creado en el VPS previo a la sobrescritura del volumen en vivo.
-- [ ] Configuración regenerada y redesplegada en vivo en el VPS de orquestación.
-- [ ] HTTP status 200 verificado para todos los pings de servicios activos.
-- [ ] Pase visual del usuario en navegador otorgado y acreditado.
-- [ ] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] `generate-homepage-config.sh` soporta rutas de ping específicas por servicio (resuelve ping 200 en OmniRoute).
+- [x] Integración Docker Swarm (`docker.yaml`) removida del despliegue en vivo y plantillas, eliminando `ECONNREFUSED` en `homepage.log`.
+- [x] Principio de descubrimiento portable multi-repo preservado (plantillas agnósticas, 0 datos privados en git).
+- [x] Estado de Glances verificado en nodo secundario; widget integrado si responde o documentado si está inactivo.
+- [x] Triage completado para Ollama, Open-WebUI y Hermes con evidencia en el reporte.
+- [x] Backup fechado con timestamp creado en el VPS previo a la sobrescritura del volumen en vivo.
+- [x] Configuración regenerada y redesplegada en vivo en el VPS de orquestación.
+- [x] HTTP status 200 verificado para todos los pings de servicios activos.
+- [x] Pase visual del usuario en navegador otorgado y acreditado.
+- [x] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
+
+## Evidencia operativa (T-168)
+- **Deliberación de diseño**: Veredicto `CONSENSO` (Tier 1 `agy`, 1 ronda, 0 objeciones). Recibo registrado en `.agents/context/deliberation-T-168.json`.
+- **Copia de seguridad viva**: Creada en el VPS de orquestación en `/var/lib/docker/volumes/<app-uuid>_homepage-config/_data.bak.<timestamp>` previo a la sincronización.
+- **Eliminación Swarm / ECONNREFUSED**: `docker.yaml` eliminado del volumen persistente y comentado en plantillas del core; logs de Homepage limpios (`▲ Next.js 16.3.3 ... Ready in 0ms`, 0 errores `ECONNREFUSED`).
+- **Ping granular**: OmniRoute configurado a `http://<nodo-inferencia>:20128/` (HTTP 200 verificado desde contenedor, sustituyendo el 404 de `/health`).
+- **Triage de servicios de la flota**:
+  - `Ollama`: Activo y saludable en host local (`127.0.0.1:11434`, 5 modelos instalados); omitido de Homepage por estar restringido a loopback y no expuesto a la red Tailscale, previniendo falsas tarjetas rojas DOWN.
+  - `Open-WebUI`: Activo y saludable en `<nodo-inferencia>:3005` (HTTP 200); incorporado al grupo de IA como interfaz web de chat.
+  - `Hermes`: Agente autónomo CLI de ejecución local/bajo demanda; sin daemon HTTP permanente, documentado en runbook.
+  - `Glances`: Sonda de socket en puerto 61208 cerrada/inactiva en nodo secundario; widget no inyectado en `widgets.yaml`, documentado en runbook.
+- **Verificación HTTP tarjeta por tarjeta desde contenedor**:
+  - FreeLLMAPI: HTTP 200 (`:3001/health`)
+  - OmniRoute: HTTP 200 (`:20128/`)
+  - Open-WebUI: HTTP 200 (`:3005`)
+  - Nango Connect UI: HTTP 200 (`:3009`)
+  - Nango API: HTTP 200 (`:3003/health`)
+- **Suite de control plane**: 38/38 validaciones pasando limpias (0 errores, denominador inmutable).
+- **Frontera portable**: `locator-hygiene.sh` pasando 100% limpio (0 literales de IPs o infraestructura personal).
+
