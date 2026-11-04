@@ -1,0 +1,3 @@
+# Configuración de bot detection para SearXNG en Agent OS
+[botdetection.ip_limit]
+link_token = false

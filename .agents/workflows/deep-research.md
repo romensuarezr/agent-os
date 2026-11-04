@@ -1,5 +1,5 @@
 ---
-description: Protocolo determinista de investigación técnica profunda (Deep Research). Utiliza Bane de forma autónoma si está activo en la flota, o genera el prompt guiado para Perplexity Pro en modo manual.
+description: Protocolo determinista de investigación técnica profunda (Deep Research). Utiliza el motor soberano de búsqueda de la flota (SearXNG) de forma autónoma si está activo en la flota, o genera el prompt guiado para Perplexity Pro en modo manual.
 ---
 
 # deep-research
@@ -9,12 +9,12 @@ description: Protocolo determinista de investigación técnica profunda (Deep Re
 ## Objetivo
 
 - Automatizar la recolección, síntesis y contraste de documentación técnica y arquitectónica antes de abordar implementaciones complejas.
-- Despachar consultas a motores de razonamiento profundo soberanos (Bane) cuando estén disponibles en la flota.
+- Despachar consultas al motor de búsqueda profunda soberano (SearXNG) cuando esté disponible en la flota.
 - Degradar limpiamente al modo manual asistido (Perplexity Pro) si el servicio no está configurado o no responde en tiempo.
 
 ## Archivos y rutas involucradas
 
-- `scripts/agent/lib/bane-client.sh`
+- `scripts/agent/lib/searxng-client.sh` (y wrapper compatible `scripts/agent/lib/bane-client.sh`)
 - `.agents/config/fleet.yaml` (o `fleet.example.yaml`)
 - `docs/sprints/sprint-{{SPRINT_ACTIVE}}-research.md` (o archivo de destino especificado)
 
@@ -24,32 +24,32 @@ description: Protocolo determinista de investigación técnica profunda (Deep Re
 
 ### FASE 1 — Comprobación Determinista de Disponibilidad
 
-Antes de intentar cualquier llamada remota o pedir acciones al usuario, el agente evalúa la disponibilidad del servicio Bane con un timeout estricto de 3 segundos:
+Antes de intentar cualquier llamada remota o pedir acciones al usuario, el agente evalúa la disponibilidad del servicio de búsqueda soberana con un timeout estricto de 3 segundos (usando `searxng-client.sh --check` o el wrapper de retrocompatibilidad `bane-client.sh --check`):
 
 ```bash
-bash scripts/agent/lib/bane-client.sh --check --json
+bash scripts/agent/lib/searxng-client.sh --check --json 2>/dev/null || bash scripts/agent/lib/bane-client.sh --check --json
 ```
 
-- **Código de salida 0 (`status: active`)** → El servicio está configurado y alcanzable. Proceder inmediatamente a la **FASE 2A (Ruta Autónoma Bane)**.
+- **Código de salida 0 (`status: active`)** → El servicio está configurado y alcanzable. Proceder inmediatamente a la **FASE 2A (Ruta Autónoma SearXNG / Bane)**.
 - **Código de salida 2 (`status: inactive`)** → El servicio no está configurado o no responde. Proceder inmediatamente a la **FASE 2B (Ruta Manual Perplexity)** sin emitir bloqueos ni errores fatales.
 
 ---
 
-### FASE 2A — Ruta Autónoma (Bane Activo)
+### FASE 2A — Ruta Autónoma (SearXNG / Bane Activo)
 
 1. **Construcción de la Consulta**:
    El agente formula la consulta técnica profunda estructurada con contexto del proyecto, stack y alternativas analizadas.
 
 2. **Despacho desatendido vía CLI**:
    ```bash
-   bash scripts/agent/lib/bane-client.sh --query "<CONSULTA_ESTRUCTURADA>" --timeout 120
+   bash scripts/agent/lib/searxng-client.sh --query "<CONSULTA_ESTRUCTURADA>" --timeout 30
    ```
 
 3. **Integración Directa en Research**:
    El resultado Markdown devuelto por stdout se vuelca directamente en `docs/sprints/sprint-{{SPRINT_ACTIVE}}-research.md` respetando las secciones canónicas:
    ```markdown
    ## Hallazgos clave
-   [Síntesis estructurada obtenida desatendidamente de Bane]
+   [Síntesis estructurada obtenida desatendidamente de SearXNG]
 
    ## Decisiones tomadas
    [Conclusiones técnicas directas para la tarea o sprint]
@@ -59,13 +59,13 @@ bash scripts/agent/lib/bane-client.sh --check --json
    ```
 
 4. **Transición Continua**:
-   El agente informa brevemente: `"✅ Investigación técnica completada autónomamente mediante Bane."` y continúa el flujo de trabajo sin pausas humanas.
+   El agente informa brevemente: `"✅ Investigación técnica completada autónomamente mediante SearXNG."` y continúa el flujo de trabajo sin pausas humanas.
 
 ---
 
 ### FASE 2B — Ruta Manual (Fallback Perplexity Pro)
 
-Si Bane está inactivo, ausente o experimenta una caída transitoria de red:
+Si el motor soberano está inactivo, ausente o experimenta una caída transitoria de red:
 
 1. **Generación del Prompt Estructurado**:
    El agente emite por el chat el bloque de prompt listo para copiar:

@@ -3214,7 +3214,34 @@ if ! grep -q "nango:" "$ROOT/.agents/config/fleet.example.yaml"; then
   T38_FAILS="$T38_FAILS fleet-example-sin-nango"
 fi
 
-# Sub-check 6: Aserción de denominador exhaustivo (0 remanentes de 37 y 38 activos)
+# Sub-check 6: Integración soberana de SearXNG (T-169)
+SEARXNG_COMPOSE="$ROOT/templates/searxng/docker-compose.yml"
+SEARXNG_ENV="$ROOT/templates/searxng/.env.example"
+SEARXNG_CLIENT="$ROOT/scripts/agent/lib/searxng-client.sh"
+SEARXNG_RUNBOOK="$ROOT/docs/runbooks/searxng-deep-research-service.md"
+if [ ! -f "$SEARXNG_COMPOSE" ]; then
+  T38_FAILS="$T38_FAILS searxng-compose-ausente"
+else
+  python3 -c "import yaml; yaml.safe_load(open('$SEARXNG_COMPOSE'))" 2>/dev/null || T38_FAILS="$T38_FAILS searxng-compose-yaml-invalido"
+  grep -q "searxng/searxng" "$SEARXNG_COMPOSE" || T38_FAILS="$T38_FAILS searxng-compose-sin-imagen"
+fi
+if [ ! -f "$SEARXNG_ENV" ]; then
+  T38_FAILS="$T38_FAILS searxng-env-ausente"
+fi
+if [ ! -x "$SEARXNG_CLIENT" ]; then
+  T38_FAILS="$T38_FAILS searxng-client-no-ejecutable"
+else
+  bash "$SEARXNG_CLIENT" --help >/dev/null 2>&1 || T38_FAILS="$T38_FAILS searxng-client-help-falla"
+  SX_RC=0; FLEET_FILE="/dev/null" SEARXNG_API_URL="" bash "$SEARXNG_CLIENT" --check >/dev/null 2>&1 || SX_RC=$?
+  [ "$SX_RC" -eq 2 ] || T38_FAILS="$T38_FAILS searxng-client-check-sin-config-no-sale-2"
+fi
+if [ ! -f "$SEARXNG_RUNBOOK" ]; then
+  T38_FAILS="$T38_FAILS searxng-runbook-ausente"
+else
+  grep -q "templates/searxng" "$SEARXNG_RUNBOOK" || T38_FAILS="$T38_FAILS searxng-runbook-sin-referencia-compose"
+fi
+
+# Sub-check 7: Aserción de denominador exhaustivo (0 remanentes de 37 y 38 activos)
 D_37="/3"$(printf "7]")
 D_38="/3"$(printf "8]")
 NUM_37=$(grep -F -c "$D_37" "$ROOT/tests/validate-control-plane.sh" || true)
@@ -3230,7 +3257,7 @@ if [ -n "$T38_FAILS" ]; then
   echo -e "  ❌ ERROR: Check 38 incumple:$T38_FAILS"
   ERRORS=$((ERRORS + 1))
 else
-  echo -e "  ✅ Integración de Bane certificada: Docker Compose válido, cliente CLI determinista (exit 2 fail-soft),"
+  echo -e "  ✅ Integración de Bane y SearXNG certificada: Docker Compose válido, cliente CLI determinista (exit 2 fail-soft),"
   echo -e "     runbook operativo libre de literales privados, sonda fleet-doctor activa y denominador 38/38 conforme."
 fi
 

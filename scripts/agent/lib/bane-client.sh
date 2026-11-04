@@ -124,9 +124,12 @@ print(json.dumps({"status": "inactive", "active": False, "reason": "not_configur
   # Probar conectividad HTTP rápida
   HTTP_CODE=0
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m "$CHECK_TIMEOUT" "$BANE_URL/health" 2>/dev/null || true)
-  if [ "$HTTP_CODE" -eq 0 ] || [ "$HTTP_CODE" -ge 500 ]; then
-    # Fallback a raíz si /health no responde
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m "$CHECK_TIMEOUT" "$BANE_URL/" 2>/dev/null || true)
+  if [ "$HTTP_CODE" -eq 0 ] || [ "$HTTP_CODE" -ge 400 ]; then
+    # Fallback a /healthz o raíz si /health no responde
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m "$CHECK_TIMEOUT" "$BANE_URL/healthz" 2>/dev/null || true)
+    if [ "$HTTP_CODE" -eq 0 ] || [ "$HTTP_CODE" -ge 400 ]; then
+      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m "$CHECK_TIMEOUT" "$BANE_URL/" 2>/dev/null || true)
+    fi
   fi
 
   if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
