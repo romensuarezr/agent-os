@@ -8,7 +8,7 @@
         icon: si-probot
         href: http://100.x.y.z:20128
         description: "Multi-provider AI gateway with RTK compression"
-        ping: http://100.x.y.z:20128/health
+        ping: http://100.x.y.z:20128/
     - Ollama (Local Models):
         icon: si-ollama
         href: http://100.x.y.z:11434
