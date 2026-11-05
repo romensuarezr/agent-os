@@ -3214,6 +3214,16 @@ if ! grep -q "nango:" "$ROOT/.agents/config/fleet.example.yaml"; then
   T38_FAILS="$T38_FAILS fleet-example-sin-nango"
 fi
 
+# Sub-check 5b: Cliente determinista CLI para Nango (T-170)
+NANGO_CLIENT="$ROOT/scripts/agent/lib/nango-client.sh"
+if [ ! -x "$NANGO_CLIENT" ]; then
+  T38_FAILS="$T38_FAILS nango-client-no-ejecutable"
+else
+  bash "$NANGO_CLIENT" --help >/dev/null 2>&1 || T38_FAILS="$T38_FAILS nango-client-help-falla"
+  NC_RC=0; FLEET_FILE="/dev/null" NANGO_SERVER_URL="" NANGO_API_URL="" bash "$NANGO_CLIENT" --check >/dev/null 2>&1 || NC_RC=$?
+  [ "$NC_RC" -eq 2 ] || T38_FAILS="$T38_FAILS nango-client-check-sin-config-no-sale-2"
+fi
+
 # Sub-check 6: Integración soberana de SearXNG (T-169)
 SEARXNG_COMPOSE="$ROOT/templates/searxng/docker-compose.yml"
 SEARXNG_ENV="$ROOT/templates/searxng/.env.example"
