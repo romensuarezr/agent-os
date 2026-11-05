@@ -1,7 +1,7 @@
 # Task-170: Primera integración real de Nango en flujo operativo de agente
 
 ## Estado
-⬜ Pendiente
+✅ Completada
 
 ## Objetivo
 Implementar la primera integración productiva real de Nango en un flujo de trabajo de la flota de Agent OS. La tarea inicia obligatoriamente con una **propuesta formal sellada ante el humano** (analizando candidatos como Cloudflare / Infisical u otros servicios de la flota, el flujo real desbloqueado y qué credenciales u OAuth toca). **Sin aprobación humana explícita de la propuesta en el chat, queda prohibido conectar nada**. Tras recibir dicha aprobación, conectar el conector seleccionado a la instancia viva de Nango (<nodo-orquestacion>:3003) y construir o adaptar un flujo operativo de agente que lo consuma activamente con evidencia verificable.
@@ -43,11 +43,53 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 - `.agents/tasks/task-170.md`
 
 ## Criterios de done
-- [ ] Documento formal de propuesta de integración de Nango presentado al operador.
-- [ ] Aprobación humana explícita obtenida antes de conectar credenciales.
-- [ ] Integración provisionada y conectada en la instancia viva de Nango.
-- [ ] Flujo operativo o script de Agent OS consumiendo activamente la integración con Nango.
-- [ ] Evidencia de funcionamiento real verificada y reportada sin exposición de secretos.
-- [ ] Runbook operativo actualizado con el flujo de uso del conector.
-- [ ] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Documento formal de propuesta de integración de Nango presentado al operador.
+- [x] Aprobación humana explícita obtenida antes de conectar credenciales.
+- [x] Integración provisionada y conectada en la instancia viva de Nango.
+- [x] Flujo operativo o script de Agent OS consumiendo activamente la integración con Nango.
+- [x] Evidencia de funcionamiento real verificada y reportada sin exposición de secretos.
+- [x] Runbook operativo actualizado con el flujo de uso del conector.
+- [x] Suite de validación de control plane inmutable en 38/38 pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
+
+## Evidencia operativa (T-170)
+
+### 1. Propuesta de Integración y Aprobación Humana
+- Propuesta formal presentada en el chat evaluando Cloudflare DNS frente a Infisical y GitHub.
+- Aprobación explícita recibida para la zona `romensuarez.com` bajo directiva estricta:
+  - Token acotado a `Zone.DNS:Edit` y `Zone.Zone:Read` exclusivamente para `romensuarez.com`.
+  - Cero secretos en git, nunca impresos, nunca por chat.
+  - Clave de Nango almacenada en Infisical (`/shared`, entorno `dev`).
+  - Primera verificación en solo lectura (listar registros DNS).
+
+### 2. Gestión de Credenciales y Registro Seguro en Nango
+- `NANGO_SECRET_KEY` extraída de forma segura desde la instancia viva y guardada en Infisical (`/shared`).
+- Conexión autorizada `romensuarez-com` registrada en Nango (`<nodo-orquestacion>:3003`) vinculada al proveedor nativo `cloudflare` (`unique_key: cloudflare-dns`).
+- Token verificado en Cloudflare validando pertenencia exclusiva de la zona `romensuarez.com` sin exponer el valor.
+
+### 3. Implementación de `scripts/agent/lib/nango-client.sh`
+- Cliente determinista CLI con soporte para:
+  - `--check`: Sonda rápida de salud (exit 0 si activo, exit 2 si no configurado).
+  - `--list-integrations`: Lista integraciones activas (`cloudflare-dns`).
+  - `--list-connections`: Lista conexiones activas (`romensuarez-com`).
+  - `--proxy <path>`: Proxy unificado autenticado hacia la API externa sin exponer tokens.
+  - `--json`: Salida estructurada.
+
+### 4. Verificación de Funcionamiento en Solo Lectura (Evidencia Nango Proxy)
+- Ejecución de inspección DNS a través del proxy de Nango:
+  ```bash
+  bash scripts/agent/lib/nango-client.sh --proxy "/v4/zones?name=romensuarez.com" --provider cloudflare-dns --connection romensuarez-com
+  ```
+  Retorna la zona activa `romensuarez.com` de forma delegada.
+- Consulta de registros DNS existentes (primeros 5 registros):
+  ```
+  - A api.romensuarez.com -> 158.179.213.240 (Proxied: False)
+  - A blog.romensuarez.com -> 158.179.213.240 (Proxied: True)
+  - A brain-api.romensuarez.com -> 158.179.213.240 (Proxied: True)
+  - A brain.romensuarez.com -> 158.179.213.240 (Proxied: False)
+  - A cdn.romensuarez.com -> 158.179.213.240 (Proxied: True)
+  ```
+- 0 escrituras ejecutadas; lectura delegada 100% verificada sin credenciales en disco.
+
+### 5. Suite de Validación de Control Plane
+- Resultado: **38/38 validaciones superadas (0 errores)** certificando cliente determinista, templates, runbook y scripts de integración.

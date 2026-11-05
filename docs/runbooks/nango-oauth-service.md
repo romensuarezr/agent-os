@@ -167,3 +167,43 @@ nodes:
         connect_ui_url: "http://<nodo-orquestacion>:3009"
         description: "Self-hosted unified OAuth & API integration platform"
 ```
+
+---
+
+## 7. Consumo Delegado por Agentes (`nango-client.sh`)
+
+Agent OS provee un cliente determinista CLI en `scripts/agent/lib/nango-client.sh` para interactuar con Nango sin exponer claves privadas en código ni archivos de entorno:
+
+### Sonda de salud fail-soft
+```bash
+bash scripts/agent/lib/nango-client.sh --check
+```
+- Devuelve código de salida `0` si Nango está saludable y accesible.
+- Degrada limpiamente con código `2` si Nango no está configurado o está inactivo.
+
+### Inspección de integraciones y conexiones autorizadas
+```bash
+# Listar integraciones configuradas en Nango
+bash scripts/agent/lib/nango-client.sh --list-integrations
+
+# Listar conexiones autorizadas activas
+bash scripts/agent/lib/nango-client.sh --list-connections
+```
+
+### Consultas delegadas a través del proxy de Nango
+El proxy unificado permite a los agentes ejecutar peticiones autenticadas contra APIs externas (por ejemplo Cloudflare DNS) sin que el agente conozca el token final:
+```bash
+# Consultar zonas DNS a través del conector cloudflare-dns
+bash scripts/agent/lib/nango-client.sh \
+  --proxy "/v4/zones?name=<dominio>" \
+  --provider cloudflare-dns \
+  --connection <id-conexion>
+
+# Listar registros DNS de una zona en modo JSON estructurado
+bash scripts/agent/lib/nango-client.sh \
+  --proxy "/v4/zones/<zone_id>/dns_records?per_page=10" \
+  --provider cloudflare-dns \
+  --connection <id-conexion> \
+  --json
+```
+
