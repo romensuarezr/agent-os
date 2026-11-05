@@ -83,11 +83,11 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
   Retorna la zona activa `romensuarez.com` de forma delegada.
 - Consulta de registros DNS existentes (primeros 5 registros):
   ```
-  - A api.romensuarez.com -> 158.179.213.240 (Proxied: False)
-  - A blog.romensuarez.com -> 158.179.213.240 (Proxied: True)
-  - A brain-api.romensuarez.com -> 158.179.213.240 (Proxied: True)
-  - A brain.romensuarez.com -> 158.179.213.240 (Proxied: False)
-  - A cdn.romensuarez.com -> 158.179.213.240 (Proxied: True)
+  - A api.romensuarez.com -> <ip-publica-vps> (Proxied: False)
+  - A blog.romensuarez.com -> <ip-publica-vps> (Proxied: True)
+  - A brain-api.romensuarez.com -> <ip-publica-vps> (Proxied: True)
+  - A brain.romensuarez.com -> <ip-publica-vps> (Proxied: False)
+  - A cdn.romensuarez.com -> <ip-publica-vps> (Proxied: True)
   ```
 - 0 escrituras ejecutadas; lectura delegada 100% verificada sin credenciales en disco.
 
