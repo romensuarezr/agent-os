@@ -1,7 +1,7 @@
 # Task-171: Re-ensayo de Vane (`itzcrazykns1337/vane:latest`), investigación real y posible integración soberana
 
 ## Estado
-⚠️ Escalado a Humano / Ensayo Concluido (Fail-Closed: No forzar integración)
+✅ Completada (Ensayo Concluido / Fail-Closed: No forzar integración)
 
 ## Objetivo
 Ejecutar un re-ensayo técnico riguroso de Vane partiendo de la imagen exacta `itzcrazykns1337/vane:latest` antes de sondear cualquier otra variante, descartando terminantemente `pythops/vane` y variantes `slim`.
