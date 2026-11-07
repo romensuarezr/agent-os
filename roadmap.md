@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Ver `docs/sprints/sprint-30-core.md`.
+- Ninguno activo (Sprint 30 completado; pendiente `sprint-planning` para Sprint 31).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Formalizado como release `v1.26.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-30-core.md`.
 - **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Formalizado como release `v1.25.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-29-core.md`.
 - **Sprint 28**: Autonomía Acotada (Opción D), Enrutado por Dificultad e Integración Soberana de Bane (T-155 a T-161). Formalizado como release `v1.24.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-28-core.md`.
 - **Sprint 27**: Revisor Antigravity CLI, Observabilidad de Liveness y Paridad de Gobernanza (T-151 a T-154). Formalizado como release `v1.23.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-27-core.md`.
