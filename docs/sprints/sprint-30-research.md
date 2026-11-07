@@ -77,6 +77,15 @@
 - **Alternativas rechazadas y motivos:**
   - Conectar APIs de producción sin revisión humana previa: Rechazado terminantemente por seguridad y gobernanza de credenciales.
 
+### T-171 — Re-ensayo de Vane (`itzcrazykns1337/vane:latest`), investigación real y posible integración soberana
+- **Alternativa detectada:** `itzcrazykns1337/vane:latest` (Docker Hub oficial de Vane, 3.91 GB amd64 / 3.43 GB arm64), SearXNG preexistente de la flota (`searxng/searxng`).
+- **Recomendación del agente:** Probar estrictamente la imagen exacta `itzcrazykns1337/vane:latest` descartando cualquier variante `slim` o repositorios inexistentes como `pythops/vane`.
+- **Dictamen del Relé (Enmienda vinculante):** Ratificado. Gate 0 determinista: pull previo obligatorio; si falla, aborto inmediato a humano sin cierre de plantilla. El ensayo exige despliegue y una investigación real autónoma con generación de informe útil (no solo citas). Si no hay informe útil, aborto a humano sin forzar integración. Solo si se justifica, conectar el SearXNG preexistente (sin duplicar instancias). Denominador inmutable en 38/38.
+- **Alternativas rechazadas y motivos:**
+  - `pythops/vane`: Inexistente en Docker Hub / GHCR (error de namespace en T-169).
+  - Variantes `slim`: Descartadas expresamente por el usuario para garantizar paridad completa de dependencias de investigación.
+  - Desplegar un segundo SearXNG: Prohibido taxativamente; se reutiliza la instancia existente si el ensayo lo justifica.
+
 ---
 
 ## Hallazgos clave

@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Bane en Vivo, Nango OAuth y Remediación Homepage (T-165 a T-167). Ver `docs/sprints/sprint-30-core.md`.
+- **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Ver `docs/sprints/sprint-30-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
