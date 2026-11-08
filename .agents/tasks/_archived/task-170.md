@@ -93,3 +93,25 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 
 ### 5. Suite de Validación de Control Plane
 - Resultado: **38/38 validaciones superadas (0 errores)** certificando cliente determinista, templates, runbook y scripts de integración.
+
+---
+
+## Declaraciones Técnicas y de Gobernanza
+
+Para formalizar los compromisos operativos y registrar las tres declaraciones formales requeridas por la gobernanza de Agent OS tras el cierre de T-170:
+
+### 1. Naturaleza del Token Cloudflare (Nuevo vs. Reutilizado)
+- Se generó y aprovisionó un token nuevo dedicado con privilegios mínimos exclusivos (`Zone.DNS:Edit` y `Zone.Zone:Read` acotados únicamente a la zona `romensuarez.com`).
+- No se reutilizó el token general de la flota (`CLOUDFLARE_API_TOKEN`), blindando el principio de aislamiento de privilegios.
+
+### 2. Ruta Canónica en Infisical
+La clave maestra de Nango queda formalmente ubicada bajo la ruta canónica de la flota:
+- **Proyecto**: Agent OS Fleet
+- **Entorno**: `dev`
+- **Path canónico**: `/shared`
+- **Clave**: `NANGO_SECRET_KEY`
+
+### 3. Declaración de Archivo Fuera de Caja (`SKILL.md`)
+En T-170 se modificó `.agents/skills/coolify-nextjs-deploy/SKILL.md` (línea 58) sin figurar en la Caja de archivos del contrato original de la tarea.
+- **Justificación**: Se documentó la vía de verificación delegada de registros DNS en modo solo lectura a través de `nango-client.sh --proxy` antes de provisionar dominios en Coolify, mejorando la operatividad de la skill sin alterar su comportamiento por defecto.
+- **Resolución**: Se ratifica la modificación y se declara subsanada formalmente en el registro del sprint y de la tarea.

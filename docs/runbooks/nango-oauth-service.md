@@ -147,8 +147,15 @@ docker logs nango-server --tail 50
 
 ## 5. Gestión de Secretos y Rotación
 
-Los secretos de producción (`NANGO_ENCRYPTION_KEY`, `NANGO_DB_PASSWORD`) deben gestionarse centralizadamente según el estándar de la flota:
-1. Almacenar las credenciales en Infisical bajo el proyecto de infraestructura (`/infrastructure/nango`).
+Los secretos de producción y credenciales maestras (`NANGO_SECRET_KEY`, `NANGO_ENCRYPTION_KEY`, `NANGO_DB_PASSWORD`) deben gestionarse centralizadamente según el estándar de la flota:
+1. Almacenar las credenciales en Infisical bajo el path canónico de la flota:
+   - **Proyecto**: `Agent OS Fleet`
+   - **Entorno**: `dev`
+   - **Path canónico**: `/shared`
+   - **Claves gestionadas**:
+     - `NANGO_SECRET_KEY`: Clave maestra consumida por agentes y clientes deterministas (`nango-client.sh`).
+     - `NANGO_ENCRYPTION_KEY`: Clave simétrica de 32 bytes en base64 para cifrado de datos en reposo (DEK).
+     - `NANGO_DB_PASSWORD`: Contraseña de la base de datos PostgreSQL de Nango.
 2. En caso de requerir rotación de `NANGO_ENCRYPTION_KEY`, consultar el procedimiento de re-cifrado de DEK documentado en Nango KMS antes de modificar la variable.
 
 ---
