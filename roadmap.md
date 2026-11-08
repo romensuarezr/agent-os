@@ -1,7 +1,12 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno activo (Sprint 30 completado; pendiente `sprint-planning` para Sprint 31).
+- **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Ver `docs/sprints/sprint-31-core.md`.
+  - [ ] [T-172] Matriz de roles y capacidades de CLIs de la flota (OpenCode 2, Claude Code, Aider, Hermes, Antigravity) (M).
+  - [ ] [T-173] Sonda determinista de actualización de herramientas (`check-tooling-updates.sh`) multi-registro (M).
+  - [ ] [T-174] Skill canónica `tooling-advisor` para prospección pasiva de flota y propuestas a `idea-inbox/` (M).
+  - [ ] [T-175] Saneamiento integral del fantasma Bane (purga de wrapper, plantillas y runbook; migración a SearXNG; 38/38) (S).
+  - [ ] [T-176] Diagnóstico determinista de inoperatividad de `whatsapp-bridge` (causa raíz + evidencia, cero arreglo a ciegas) (S).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
