@@ -8,6 +8,21 @@ La flota cuenta con diversos CLIs agénticos distribuidos entre el host local y 
 Esta tarea codifica de forma determinista la distribución de roles aprobada en el sprint planning del Sprint 31.
 Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
 
+### Integración de Research Scout (T-129)
+- **Alternativas detectadas y analizadas**:
+  - `@opencode/cli` (npm v2.2.6 / repo `anomalyco/opencode`): CLI local agnóstico para tareas de programación rápida.
+  - `stablyai/orca` / binario `orca-ide`: Entorno de orquestación y revisión autónoma (Tier 2).
+  - `NousResearch/hermes-agent` (v0.22.7): Agente de mensajería e inferencia con WhatsApp bridge propio.
+  - `anthropic/claude-code`: CLI agéntico de terminal con flags permisivos.
+  - `aider-chat/aider`: Asistente CLI de terminal orientado a commits y edición directa.
+  - `Google Antigravity CLI` (`agy`): Motor central de orquestación, planificación y Tier 1 Reviewer.
+- **Dictámenes vinculantes del operador**:
+  - *OpenCode 2*: Ratificado como Worker/Coder acotado en worktrees efímeros.
+  - *Antigravity CLI*: Ratificado como Coder, Planificador y Revisor Tier 1.
+  - *Claude Code*: Descartado formalmente como juez (mantenimiento de jerarquía `agy` Tier 1 / Orca ADE Tier 2).
+  - *Aider*: Descartado como rescatador de merges (doctrina estricta Sprint 25: solo coordinador o humano fusionan).
+  - *Hermes*: Descartado como front door separado (comunicación directa vía su propio puente en host).
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
@@ -38,22 +53,22 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-172.md`
 
 ## Criterios de done
-- [ ] Matriz de roles y capacidades formalizada en `docs/architecture/tools/fleet-cli-roles-matrix.md` reflejando con exactitud las decisiones vinculantes selladas.
-- [ ] Perfiles declarativos en `.agents/profiles/` actualizados con los guardarraíles, permisos y roles definidos para cada CLI.
-- [ ] Exclusión de Aider en merges, Claude Code como juez y Hermes como front door separado explícitamente documentada con su justificación técnica.
-- [ ] Compatibilidad estricta con la validación de perfiles (Checks 1, 2 y 10 de `tests/validate-control-plane.sh`).
-- [ ] Suite de validación de control plane inmutable en **38/38** pasando limpia (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Matriz de roles y capacidades formalizada en `docs/architecture/tools/fleet-cli-roles-matrix.md` reflejando con exactitud las decisiones vinculantes selladas.
+- [x] Perfiles declarativos en `.agents/profiles/` actualizados con los guardarraíles, permisos y roles definidos para cada CLI.
+- [x] Exclusión de Aider en merges, Claude Code como juez y Hermes como front door separado explícitamente documentada con su justificación técnica.
+- [x] Compatibilidad estricta con la validación de perfiles (Checks 1, 2 y 10 de `tests/validate-control-plane.sh`).
+- [x] Suite de validación de control plane inmutable en **38/38** pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-09T09:32:05Z (vía consenso determinista Opción D)
+- [x] Rama creada: `feat/T-172-fleet-cli-roles-matrix`
+- [x] Lock activo: `.agent-session.lock`
+- [x] Sesión cerrada correctamente

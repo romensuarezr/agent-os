@@ -20,6 +20,8 @@ fallback_model_tier: "freellmapi"
 
 forbidden_actions:
   - "Commit o push directo a main sin pasar por rama de feature y workflow"
+  - "Merge desatendido o directo hacia ramas troncales (main, multi-agent) — reservado al Coordinador o Humano (Sprint 25)"
+  - "Operar como planificador o coordinador global del sistema (rol reservado a agy/Coordinador)"
   - "Modificar código fuera de la 'Caja de archivos autorizados'"
   - "Instalar paquetes o binarios globales a nivel de sistema operativo sin validación previa del usuario (las dependencias locales del workspace están permitidas con autonomía según maximum-autonomy.md)"
   - "Escribir secretos en código fuente o archivos versionados"
