@@ -18,7 +18,7 @@
 | T-173 | Sonda determinista de actualización de herramientas (`check-tooling-updates.sh`) multi-registro | Core / Tooling & Observabilidad | M | ⬜ Pendiente | T-172 | [.agents/tasks/task-173.md](.agents/tasks/task-173.md) |
 | T-174 | Skill canónica `tooling-advisor` para prospección pasiva de flota y propuestas a `idea-inbox/` | Core / Skills & Evolución | M | ⬜ Pendiente | T-173 | [.agents/tasks/task-174.md](.agents/tasks/task-174.md) |
 | T-175 | Saneamiento integral del fantasma Bane (purga de wrapper, plantillas y runbook; migración a SearXNG; 38/38) | Core / Motores & Control Plane | S | ⬜ Pendiente | — | [.agents/tasks/task-175.md](.agents/tasks/task-175.md) |
-| T-176 | Diagnóstico determinista de inoperatividad de `whatsapp-bridge` (causa raíz + evidencia, cero arreglo a ciegas) | Core / Infraestructura & Diagnóstico | S | ⬜ Pendiente | — | [.agents/tasks/task-176.md](.agents/tasks/task-176.md) |
+| T-176 | Diagnóstico determinista de inoperatividad de `whatsapp-bridge` (causa raíz + evidencia, cero arreglo a ciegas) | Core / Infraestructura & Diagnóstico | S | ✅ Hecho | — | [.agents/tasks/task-176.md](.agents/tasks/_archived/task-176.md) |
 
 ---
 
