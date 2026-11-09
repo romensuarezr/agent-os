@@ -70,7 +70,7 @@
 - **Dictamen del Relé:** Recomendación ratificada con **directiva estricta de diagnóstico puro**: determinar por qué no funciona y reportar causa + evidencia. Prohibido aplicar parches, modificaciones de código o reinicios arbitrarios a ciegas. El arreglo se decidirá tras la entrega del diagnóstico.
 - **Notas de integración:**
   1. Comprobar el estado del servicio systemd de usuario en el nodo de inferencia.
-  2. Auditar la escucha en el puerto `:3000` y socket relay local.
+  2. Auditar la escucha en sockets y puertos locales (p. ej. puerto `:3000`, según determine el diagnóstico) y socket relay local.
   3. Extraer los últimos 100 eventos de log mediante `journalctl --user -u whatsapp-bridge` analizando errores de inicialización, stack traces de Node o cierres de conexión.
   4. Diagnosticar la capa de sesión de WhatsApp (estado de Baileys / Evolution API, token de sesión expirado, QR no leído o bloqueo de red upstream).
   5. Redactar el informe de diagnóstico en `docs/runbooks/whatsapp-bridge-diagnostic-report.md` con hallazgos, causa raíz y opciones de remediación para decisión del usuario.

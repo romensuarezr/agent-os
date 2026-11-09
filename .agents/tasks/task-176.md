@@ -19,7 +19,7 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D**.
   - **Alcance estrictamente diagnóstico**: Inspección forense no destructiva de:
     - Estado de la unidad systemd de usuario (`systemctl --user status whatsapp-bridge` o equivalente).
     - Estado de procesos activos en el host (procesos `node` o contenedores asociados).
-    - Inspección de sockets y puertos locales de escucha (puerto `:3000` y socket relay E2EE).
+    - Inspección de sockets y puertos locales de escucha (p. ej. puerto `:3000`, según determine el diagnóstico, y socket relay E2EE).
     - Volcado y análisis de los últimos 100 eventos de logs (`journalctl --user -u whatsapp-bridge -n 100` y logs en disco si existen).
     - Estado de la sesión de mensajería (sesión de autenticación, token, QR no resuelto o error de handshake con upstream).
   - **Artefacto de entrega**: Informe técnico de diagnóstico estructurado en `docs/runbooks/whatsapp-bridge-diagnostic-report.md`.
@@ -37,7 +37,7 @@ Archivos autorizados para modificación / creación:
 
 ## Criterios de done
 - [ ] Estado del servicio `systemd --user` y procesos activos de Node.js en el host inspeccionados con evidencia capturada.
-- [ ] Escucha en puerto `:3000` y sockets de red verificados de forma determinista.
+- [ ] Escucha en sockets y puertos locales (p. ej. puerto `:3000`, según determine el diagnóstico) verificados de forma determinista.
 - [ ] Logs recientes extraídos y analizados (`journalctl --user -u whatsapp-bridge` y ficheros de logs), documentando errores específicos o stack traces.
 - [ ] Estado de la sesión de autenticación y conexión con WhatsApp / backend evaluado y clasificado.
 - [ ] Informe técnico `docs/runbooks/whatsapp-bridge-diagnostic-report.md` publicado conteniendo:

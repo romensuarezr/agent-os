@@ -53,7 +53,7 @@ Las 5 tareas cuentan con su respectiva prospección determinista registrada en [
 2. **Aider**: **DESCARTADO** como rescate de merges. Se ratifica sin excepciones la doctrina estricta de Sprint 25: solo coordinador o humano fusionan.
 3. **Claude Code como Juez**: **DESCARTADO**. Se mantiene rígidamente la cadena actual de deliberación: `agy` (Tier 1) / Orca ADE (Tier 2).
 4. **T-175 Aprobada con Alcance Verificado**: Reconocimiento de `searxng-client.sh` como cliente soberano primario activo existente. Cero duplicación de cliente SearXNG. Purga integral de wrapper, plantillas y runbook de Bane. Adaptación de checks 34 y 38 en control plane preservando denominador 38/38.
-5. **T-176 Diagnóstico de WhatsApp Bridge (Cero Arreglo a Ciegas)**: Diagnóstico determinista puro (inspección de systemd, procesos, sockets `:3000` y logs forenses) para reportar causa raíz y evidencia verificable. Queda estrictamente prohibido aplicar arreglos o parches a ciegas; el plan de remediación se decide tras la entrega del diagnóstico.
+5. **T-176 Diagnóstico de WhatsApp Bridge (Cero Arreglo a Ciegas)**: Diagnóstico determinista puro (inspección de systemd, procesos, sockets y puertos locales —p. ej. puerto `:3000`, según determine el diagnóstico— y logs forenses) para reportar causa raíz y evidencia verificable. Queda estrictamente prohibido aplicar arreglos o parches a ciegas; el plan de remediación se decide tras la entrega del diagnóstico.
 
 ### 4. Denominador de Suite Inmutable
 - El denominador de la suite `tests/validate-control-plane.sh` permanece rígidamente inmutable en **38/38** (0 errores).
