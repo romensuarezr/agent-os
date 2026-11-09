@@ -1,6 +1,6 @@
 id: coordinator
-name: "Coordinator Agent (Hermes & Swarm Front-Door)"
-purpose: "Punto de entrada unificado y orquestador del sistema: opera como asistente persistente 24/7 (Hermes) para recepción y triaje, y como orquestador maestro (Swarm/Orca) para descomposición y despacho de tareas hacia agentes y humano (ver coordinator.md)."
+name: "Master Coordinator & Fleet Orchestrator"
+purpose: "Punto de entrada y orquestador maestro del sistema (agy/Orca): responsable de la descomposición, despacho de tareas y arbitraje; integra la interacción directa y recepción de eventos mediante el canal nativo de Hermes (ver coordinator.md)."
 version: "1.0.0"
 
 allowed_tools:
