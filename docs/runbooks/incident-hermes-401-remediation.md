@@ -134,5 +134,50 @@ $ hermes -z "Responde en una linea: Cuanto es 15+27?"
 
 ## 5. Acciones de Seguimiento
 
-1. **Rotación Formal de FreeLLMAPI (Opción B)**: Agendada como ítem técnico formal en el backlog para realizar el aprovisionamiento y rotación coordinada de claves con Infisical y FreeLLMAPI.
-2. **Re-autenticación de WhatsApp Bridge**: Pendiente de ejecución interactiva del operador para escanear el nuevo código/QR de emparejamiento.
+1. **Rotación Formal de FreeLLMAPI (Opción B)**: Resuelta formalmente en Sprint 32 (T-182). Ver detalle en Sección 6.
+2. **Re-autenticación de WhatsApp Bridge**: El proceso bridge.js y las credenciales quedaron restablecidos y enlazados en el VPS.
+
+---
+
+## 6. Resolución Definitiva: Rotación Formal de FreeLLMAPI (Opción B — Sprint 32 / T-182)
+
+> **Fecha de Ejecución**: 2026-11-10 19:51 UTC  
+> **Compuerta HITL**: Aprobación explícita del operador ("OK, ventana abierta") tras auditoría de la rama `feat/T-182-rotacion-freellmapi-hermes-hitl` (`1186092`).  
+> **Modalidad**: Modalidad B (Rotación formal estricta con generación de clave nueva y sincronización multi-consumidor).  
+> **Estado**: 🟢 COMPLETADO Y VALIDADO EN PRODUCCIÓN
+
+### 6.1. Ejecución de la Maquinaria Determinista
+Bajo el script [`scripts/agent/lib/rotate-freellmapi-token.sh`](../../scripts/agent/lib/rotate-freellmapi-token.sh):
+```bash
+bash scripts/agent/lib/rotate-freellmapi-token.sh --target <nodo-inferencia> --rotate --sync-opencode --apply
+```
+- **Base de Datos FreeLLMAPI**: Clave unificada regenerada criptográficamente (`freellmapi-<hex48>`) y persistida en tabla `settings` de `freeapi.db`.
+- **Hermes Agent**: Configuración `~/.hermes/config.yaml` respaldada con timestamp (`bak.20261110_195057`, permisos `0600`) y actualizada en `custom_providers.freellmapi.api_key`. El bloque raíz `model:` se mantuvo intacto apuntando a `custom:omniroute` (`auto/best-coding`).
+- **OpenCode**: Configuración `~/.config/opencode/opencode.json` sincronizada en caliente con la clave rotada para garantizar la continuidad operativa de `freellmapi/auto`.
+
+### 6.2. Sincronización en Bóveda Infisical
+Conforme a la directiva del operador, la nueva clave fue sincronizada de forma determinista vía stdin en la bóveda central:
+```bash
+bash scripts/agent/secrets.sh set FREELLMAPI_API_KEY --path /shared --env dev --stdin
+```
+- **Confirmación**: `sha256: 8a0152860ce6` (entorno `dev`, carpeta `/shared`). Cero filtración de valores en pantalla ni en variables de proceso.
+
+### 6.3. Reinicio y Evidencia de Liveness en Producción
+Tras el reinicio controlado de `hermes-gateway.service`:
+1. **Ping de Inferencia**:
+   ```text
+   $ hermes -z ping
+   Pong.
+   [Exit Code: 0]
+   ```
+2. **Inferencia Real Sintética**:
+   ```text
+   $ hermes -z "Responde en una palabra: Cuanto es 20+22?"
+   42
+   [Exit Code: 0]
+   ```
+3. **Validación Directa de Pasarela FreeLLMAPI**:
+   - Petición HTTP contra `/v1/models` autenticada con la clave unificada rotada devolvió **`HTTP 200 OK`**, confirmando la total erradicación del error 401.
+4. **Mensajería**:
+   - `[Telegram] Connected to Telegram (polling mode)`.
+   - Logs limpios de excepciones de autenticación.

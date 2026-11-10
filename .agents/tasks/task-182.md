@@ -31,11 +31,11 @@ Archivos autorizados para modificación:
 
 ## Criterios de done
 - [x] Script determinista de rotación de token de FreeLLMAPI operativo sin fugas de secretos en salida estándar (`scripts/agent/lib/rotate-freellmapi-token.sh`).
-- [ ] Compuerta HITL ejecutada en el chat con solicitud de ventana y aprobación humana explícita antes de reiniciar el gateway.
-- [ ] Configuración de Hermes actualizada apuntando al proveedor verificado sin incidencias de autenticación 401.
-- [ ] Verificación de liveness (`hermes -z ping` y llamada real de inferencia) 100% exitosa.
-- [ ] Runbook `docs/runbooks/incident-hermes-401-remediation.md` actualizado con evidencia técnica y redacción determinista.
-- [ ] Suite `tests/validate-control-plane.sh` 38/38 en verde y `locator-hygiene.sh` limpio.
+- [x] Compuerta HITL ejecutada en el chat con solicitud de ventana y aprobación humana explícita antes de reiniciar el gateway.
+- [x] Configuración de Hermes actualizada apuntando al proveedor verificado sin incidencias de autenticación 401.
+- [x] Verificación de liveness (`hermes -z ping` y llamada real de inferencia) 100% exitosa.
+- [x] Runbook `docs/runbooks/incident-hermes-401-remediation.md` actualizado con evidencia técnica y redacción determinista.
+- [x] Suite `tests/validate-control-plane.sh` 38/38 en verde y `locator-hygiene.sh` limpio.
 
 ## Diagnóstico determinista y mapeo de consumidores
 > Registro técnico verificado vía sonda determinista en `<nodo-inferencia>` (2026-11-10 19:30 UTC):
