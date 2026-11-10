@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno activo (Sprint 32 completado; pendiente `sprint-planning` para Sprint 33).
+- **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Gobernanza & UI Critique (T-183 a T-187). Ver `docs/sprints/sprint-33-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
@@ -48,7 +48,7 @@
 - ✅ Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (T-110, sprint-18).
 - Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
 - Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
-- [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S).
+- ✅ [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S): resuelto y superado por `check-tooling-updates.sh` (T-174) y `tooling-advisor` (T-173, T-180).
 - Auditorías automáticas del estado de salud de los scripts en proyectos hijos.
 - Refinamiento de workflows globales y estandarización de logs de ejecución.
 
