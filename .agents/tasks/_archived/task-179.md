@@ -44,4 +44,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-11-10T19:04:15Z (Opción D - Desatendida, Aprobado en Planning Sprint 32)
 - [x] Rama creada: feat/T-179-soporte-declarativo-mcp-remotos-fleet
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente

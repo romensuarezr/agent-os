@@ -15,7 +15,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :--: | :--- | :--- |
 | T-178 | Purga definitiva de residuos Bane (`fleet.example.yaml`, `searxng-client.sh`, Check 34 §18) | Core / Control Plane | S | ✅ Hecho | — | [.agents/tasks/task-178.md](.agents/tasks/_archived/task-178.md) |
-| T-179 | Soporte declarativo de servidores MCP remotos HTTP/SSE en Fleet (`fleet.yaml`, `fleet-doctor.sh`) | Core / Fleet & Tooling | M | ⬜ Pendiente | — | [.agents/tasks/task-179.md](.agents/tasks/task-179.md) |
+| T-179 | Soporte declarativo de servidores MCP remotos HTTP/SSE en Fleet (`fleet.yaml`, `fleet-doctor.sh`) | Core / Fleet & Tooling | M | ✅ Hecho | — | [.agents/tasks/task-179.md](.agents/tasks/_archived/task-179.md) |
 | T-180 | DeepWiki MCP como fuente secundaria de comprensión estructural profunda post-scout en `tooling-advisor` | Core / Skills & Prospección | M | ⬜ Pendiente | T-179 | [.agents/tasks/task-180.md](.agents/tasks/task-180.md) |
 | T-181 | Sincronización y automatización de `last-sync.md` en el cierre de sprint (`close-sprint.sh`) | Core / DX & Trazabilidad | S | ⬜ Pendiente | — | [.agents/tasks/task-181.md](.agents/tasks/task-181.md) |
 | T-182 | Remediación planificada y rotación de FreeLLMAPI en Hermes (solo scripts, sin valores, gate HITL) | Infraestructura / Inferencia | M | ⬜ Pendiente | — | [.agents/tasks/task-182.md](.agents/tasks/task-182.md) |
