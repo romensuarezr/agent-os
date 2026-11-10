@@ -25,13 +25,13 @@
 ## Régimen Operativo del Sprint
 > Declaración vinculante del modo de ejecución y orden de carriles del sprint. Se sella en el arranque del sprint tras consulta proactiva única al operador en /session-start.
 
-- **Régimen**: [PENDIENTE_ARRANQUE — Desatendida (Opción D) | Tarea a tarea (Clásico)]
+- **Régimen**: Desatendida (Opción D)
 - **Orden de Carriles (DAG de dependencias)**:
   - Carril 1: [T-178] (Saneamiento Bane en control plane)
   - Carril 2: [T-179 → T-180] (Soporte MCP remoto + DeepWiki en tooling-advisor)
   - Carril 3: [T-181] (Automatización last-sync.md)
   - Carril 4: [T-182] (Rotación FreeLLMAPI Hermes bajo gate HITL)
-- **Sellado en**: [PENDIENTE]
+- **Sellado en**: 2026-11-10 18:55 UTC
 
 ---
 
