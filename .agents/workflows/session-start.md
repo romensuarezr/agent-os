@@ -32,7 +32,41 @@ bash scripts/agent/check-session.sh
 ### FASE 1 — Lectura de contexto
 
 1. Leer sprint file más reciente en `docs/sprints/`.
-2. **Comprobar tareas `🟡 En curso`:** si existe alguna, mostrar alerta y esperar confirmación:
+2. **Compuerta proactiva de arranque de sprint (Pregunta única de Régimen y Camino)**:
+   Verificar la sección `## Régimen Operativo del Sprint` en el sprint file (`docs/sprints/sprint-XX.md`).
+   - Si la sección está ausente, sin sellar o contiene `[PENDIENTE]` / `[PENDIENTE_ARRANQUE]` (típicamente al abrir la primera sesión del sprint):
+     El flujo se detiene y formula **PROACTIVAMENTE** al usuario una única consulta antes de seleccionar tarea o abrir planes:
+     ```
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     🚀 ARRANQUE DE SPRINT {{SPRINT_ACTIVE}} — CONFIGURACIÓN OPERATIVA
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+     Para este sprint, define el régimen operativo y el camino de ejecución:
+
+     1️⃣ RÉGIMEN OPERATIVO:
+        A) Desatendida (Opción D): Encadena tareas automáticamente en camino limpio sin volver al usuario entre ellas. Aborta de inmediato a humano ante cualquier anomalía técnica o si la verificación del relé falla.
+        B) Tarea a tarea (Clásico): Pausa para revisión y aprobación humana explícita en cada puerta antes de proceder con la siguiente tarea.
+
+     2️⃣ CAMINO DE CARRILES (derivado de la tabla de dependencias del acta):
+        Propuesta de carriles según dependencias:
+        - Carril 1: [T-XXX → T-YYY] (secuencial por dependencias)
+        - Carril 2: [T-ZZZ] (independiente)
+        ¿Confirmas este orden de carriles o prefieres un orden alternativo?
+
+     Esperando tu respuesta (ej: "A, confirmo carriles" o "Opción D, carril 2 primero").
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     ```
+   - Al recibir la respuesta del operador, el agente actualiza inmediatamente el sprint file sellando la sección:
+     ```markdown
+     ## Régimen Operativo del Sprint
+     - **Régimen**: Desatendida (Opción D) [o Tarea a tarea (Clásico)]
+     - **Orden de Carriles (DAG de dependencias)**:
+       - Carril 1: [T-XXX → T-YYY]
+       - Carril 2: [T-ZZZ]
+     - **Sellado en**: YYYY-MM-DD HH:MM UTC
+     ```
+   - **Invariante**: Una vez sellado, el régimen es vinculante e inmutable durante todo el sprint. Las siguientes invocaciones de `/session-start` detectan el sellado y proceden directamente sin volver a preguntar.
+3. **Comprobar tareas `🟡 En curso`:** si existe alguna, mostrar alerta y esperar confirmación:
    ```
    ⚠️ La tarea [T-XXX] quedó en estado 🟡 En curso en la sesión anterior.
    Opciones:
@@ -42,7 +76,8 @@ bash scripts/agent/check-session.sh
    ¿Qué hacemos?
    ```
    No continuar hasta recibir respuesta explícita.
-3. Identificar primera tarea `⬜ Pendiente` o `⏸ Pausada`. Mostrar: `"Tarea activa: [T-XXX] — [descripción]"`.
+4. Identificar la siguiente tarea activa:
+   - Siguiendo el `Orden de Carriles` sellado en `## Régimen Operativo del Sprint`, seleccionar la primera tarea `⬜ Pendiente` o `⏸ Pausada` cuyas dependencias (declaradas en la columna `Dependencias` del acta) estén ya completadas (`✅ Hecho`). Mostrar: `"Tarea activa: [T-XXX] — [descripción]"`.
 
 > ⚠️ **Una sola tarea activa por sesión.** El task file identificado aquí (ej: `task-029.md`) es el **Único** que puede leerse durante las Fases 0–2. Cualquier otro task file del sprint está **prohibido** hasta después de la aprobación del plan. Leerlos antes constituye una **violación lazy-planning**.
 
@@ -242,6 +277,11 @@ Bajo el régimen Opción D, la integración y cierre se completan desatendidamen
 3. **Acreditación del recibo**: El informe y notas de la tarea acreditan el recibo de deliberación (referenciando el veredicto `CONSENSO` y el identificador/SHA del recibo generado en `.agents/context/deliberation-T-XXX.json`).
 4. **Integración controlada**: Cambiar a la rama base (ej. `git checkout multi-agent`), ejecutar merge `--no-ff` (`git merge --no-ff feat/T-XXX-... -m "Merge branch 'feat/T-XXX-...' into multi-agent"`), empujar a origin (`git push origin multi-agent`) y eliminar la rama feature remota y local.
 5. **Cierre y Digest atómico**: Ejecutar `bash scripts/agent/close-task.sh T-XXX "tipo(scope): descripción"`. El script ejecuta internamente `design-digest.sh`, el cual redacta secretos y rutas de forma determinista, persistiendo `T-XXX-digest.md` y `T-XXX-raw.json` en `docs/sprints/design-decisions/` y commiteando atómicamente. La persistencia definitiva del digest y raw ocurre en el cierre, sin requerir la publicación manual previa del archivo JSON crudo en origin antes del merge.
+6. **Encadenamiento desatendido a la siguiente tarea**:
+   Bajo el régimen Opción D (Desatendida), tras completarse el commit atómico con `close-task.sh`:
+   - El agente ejecuta la verificación del relé de la tarea recién cerrada: suite de pruebas `tests/validate-control-plane.sh` y `verify-goal.sh` (si la tarea cuenta con contrato de meta).
+   - **Compuerta Fail-Closed Crítica**: **El encadenamiento en Opción D aborta inmediatamente a humano si la verificación del relé de la tarea recién cerrada falla** (fallo en suite, error en meta, archivos fuera de caja o anomalías en git). Ante cualquier fallo, el agente NO inicia la siguiente tarea, suspende la autonomía y notifica la anomalía al operador en el chat con la evidencia del error.
+   - **Camino Limpio**: Si la verificación del relé es 100% verde (0 errores), el agente evalúa si restan tareas pendientes en el sprint según el `Orden de Carriles` sellado en el acta. De haberlas, encadena automáticamente iniciando de inmediato el ciclo de la siguiente tarea disponible (Fases 1–6) sin pausar para pedir confirmación interactiva. Si no restan tareas pendientes, procede al archivado del sprint con `close-sprint.sh`.
 
 #### C2. Commit atómico
 Usar siempre el script de cierre:
@@ -282,17 +322,15 @@ Mostrar: `"✅ Sesión cerrada. Hasta la próxima."`
 
 ### Fase 5b — Tarea completada
 
-En modo interactivo clásico o si se aborta a humano:
+En modo interactivo clásico (`Tarea a tarea`) o si se aborta a humano:
 1. Detener ejecución. No leer más archivos ni preparar planes.
 2. Mostrar: `"✅ Tarea completada. ¿Confirmas commit y cierre?"`
 3. Respuestas válidas: `sí, commitea` / `cierra` → Fase 6. `no, primero…` → escuchar sin actuar.
 4. Petición nueva en el mismo mensaje: capturar en `docs/idea-inbox/YYYY-MM-DD.md`. Responder: `"💡 Capturada. Primero cierro. ¿Confirmas?"` No leer ni preparar nada nuevo.
-5. Solo tras cerrar la sesión (Fase 6 completa) se puede `/session-start` para la petición nueva.
+5. Solo tras cerrar la sesión (Fase 6 completa) se puede abrir `/session-start` para la petición nueva o siguiente tarea.
 
-En camino limpio bajo el régimen Opción D:
-El cumplimiento de todos los criterios de done desencadena directamente el Protocolo Pre-Merge Refinado y la ejecución de `close-task.sh` sin requerir pausas interactivas en esta compuerta.
-
-> ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.
+En camino limpio bajo el régimen `Desatendida (Opción D)`:
+El cumplimiento de todos los criterios de done desencadena directamente el Protocolo Pre-Merge Refinado y la ejecución de `close-task.sh` sin requerir pausas interactivas en esta compuerta. A continuación, si la verificación del relé post-cierre pasa al 100%, encadena automáticamente con la siguiente tarea del carril según el orden sellado en el acta; si la verificación del relé falla, aborta inmediatamente a humano (fail-closed).
 
 > ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.
 

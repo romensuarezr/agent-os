@@ -211,9 +211,16 @@ Crear `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` con esta estructura:
 🟡 En curso
 
 ## Tareas
-| ID | Descripción | Tamaño | Estado | Task file |
-|---|---|---|---|---|
-| T-001 | [descripción] | S/M/L | ⬜ Pendiente | — |
+| ID | Descripción | Tamaño | Estado | Dependencias | Task file |
+|---|---|---|---|---|---|
+| T-001 | [descripción] | S/M/L | ⬜ Pendiente | — | — |
+
+## Régimen Operativo del Sprint
+> Se sella en la primera sesión de /session-start tras consulta proactiva única al operador.
+- **Régimen**: [PENDIENTE_ARRANQUE — Desatendida (Opción D) | Tarea a tarea (Clásico)]
+- **Orden de Carriles (DAG de dependencias)**:
+  - Carril 1: [T-001 → ...]
+- **Sellado en**: [PENDIENTE]
 
 ## Notas de planning
 [Observaciones del sprint anterior, dependencias, riesgos, decisiones macro aprobadas]
@@ -228,8 +235,9 @@ Para cada tarea incorporada a la tabla del sprint:
    - `Diseño y arquitectura aprobados por`: `[Humano / Relé]`.
    - `Decisiones e interfaces selladas`: descripción concreta de interfaces pactadas, contratos de tipos, dependencias admitidas y guardarraíles técnicos acordados.
    - `Veredicto de diseño macro`: `[APROBADO_EN_PLANNING]`.
-2. **Reflejo en notas de planning**: Las decisiones arquitectónicas transversales del conjunto de tareas se resumen en `## Notas de planning` del sprint file.
-3. **Invariante de desacoplamiento y habilitación de Opción D**: Una vez aprobado el sprint, el diseño macro queda sellado. Este sellado formal en planning constituye la **única autorización habilitante** que faculta la ejecución autónoma en el flujo `/session-start` bajo el régimen estándar de **Opción D**. En la posterior ejecución por tarea, el Revisor Ejecutor opera como compuerta técnica determinista (Nivel Micro) mediante `deliberate-plan.sh` y no reabre diseño; si se alcanzan las 5 condiciones del camino limpio (`CONSENSO`), la tarea se ejecuta, integra y cierra de forma 100% desatendida. Ante cualquier discrepancia técnica frente a esta sección o veredicto no consensual, el revisor emite bloqueo técnico vinculante (`ESCALADO_A_HUMANO`) suspendiendo inmediatamente la autonomía y devolviendo el control al operador humano en el chat.
+2. **Modelado de dependencias y carriles de ejecución**: En la tabla de tareas, la columna `Dependencias` explicita las precondiciones técnicas (IDs de tareas precedentes obligatorias o `—` si es independiente). A partir de la tabla, se deriva el grafo acíclico dirigido (DAG) y se proyecta la distribución en carriles de ejecución en la sección `## Régimen Operativo del Sprint` (ej. Carril 1: T-172 → T-173 → T-174; Carril 2: T-175; Carril 3: T-176).
+3. **Reflejo en notas de planning**: Las decisiones arquitectónicas transversales del conjunto de tareas se resumen en `## Notas de planning` del sprint file.
+4. **Invariante de desacoplamiento y handoff al arranque del sprint**: Una vez aprobado el sprint, el diseño macro de las tareas queda sellado. El planning prepara la propuesta de orden de carriles, dejando el régimen en `[PENDIENTE_ARRANQUE]`. Al arrancar el sprint en la primera sesión de `/session-start`, el flujo formula una **consulta proactiva única** al operador para sellar (1) el régimen operativo (Desatendida Opción D vs. Tarea a tarea clásico) y (2) el camino de carriles. Si se sella Opción D, el diseño macro actúa como la **única autorización habilitante** para que el agente encadene autónomamente las tareas en camino limpio sin volver al usuario entre ellas. En la posterior ejecución por tarea, el Revisor Ejecutor opera como compuerta técnica determinista (Nivel Micro) mediante `deliberate-plan.sh` y no reabre diseño; si se alcanzan las 5 condiciones del camino limpio (`CONSENSO`), la tarea se ejecuta, integra y cierra de forma 100% desatendida. Ante cualquier discrepancia técnica frente a esta sección, fallo en la verificación del relé de la tarea cerrada o veredicto no consensual, el sistema aborta de inmediato a fail-closed (`ESCALADO_A_HUMANO`) suspendiendo la autonomía y devolviendo el control al operador humano en el chat.
 
 ### 4b. Actualización del MVP Tracker
 
