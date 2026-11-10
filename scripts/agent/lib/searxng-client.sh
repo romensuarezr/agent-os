@@ -81,10 +81,6 @@ resolve_searxng_url() {
     echo "$SEARXNG_API_URL"
     return 0
   fi
-  if [ -n "${BANE_API_URL:-}" ]; then
-    echo "$BANE_API_URL"
-    return 0
-  fi
   local root fleet_file
   root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
   fleet_file="${FLEET_FILE:-$root/.agents/config/fleet.yaml}"
@@ -104,11 +100,6 @@ try:
                 exit(0)
             elif isinstance(s, str):
                 print(s)
-                exit(0)
-        if 'bane' in svcs:
-            b = svcs['bane']
-            if isinstance(b, dict):
-                print(b.get('endpoint') or b.get('url') or '')
                 exit(0)
 except Exception:
     pass

@@ -86,10 +86,6 @@ nodes:
       searxng:
         endpoint: "http://192.0.2.10:8080"
         description: "Self-hosted meta-search engine"
-      bane:
-        endpoint: "http://192.0.2.10:3000"
-        url: "http://<nodo-inferencia>:3000"
-        description: "Self-hosted deep research and reasoning search engine"
 
   <nodo-orquestacion>:
     role: "orchestration-and-paas"
