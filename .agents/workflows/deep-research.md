@@ -14,7 +14,7 @@ description: Protocolo determinista de investigación técnica profunda (Deep Re
 
 ## Archivos y rutas involucradas
 
-- `scripts/agent/lib/searxng-client.sh` (y wrapper compatible `scripts/agent/lib/bane-client.sh`)
+- `scripts/agent/lib/searxng-client.sh`
 - `.agents/config/fleet.yaml` (o `fleet.example.yaml`)
 - `docs/sprints/sprint-{{SPRINT_ACTIVE}}-research.md` (o archivo de destino especificado)
 
@@ -24,18 +24,18 @@ description: Protocolo determinista de investigación técnica profunda (Deep Re
 
 ### FASE 1 — Comprobación Determinista de Disponibilidad
 
-Antes de intentar cualquier llamada remota o pedir acciones al usuario, el agente evalúa la disponibilidad del servicio de búsqueda soberana con un timeout estricto de 3 segundos (usando `searxng-client.sh --check` o el wrapper de retrocompatibilidad `bane-client.sh --check`):
+Antes de intentar cualquier llamada remota o pedir acciones al usuario, el agente evalúa la disponibilidad del servicio de búsqueda soberana con un timeout estricto de 3 segundos (usando `searxng-client.sh --check`):
 
 ```bash
-bash scripts/agent/lib/searxng-client.sh --check --json 2>/dev/null || bash scripts/agent/lib/bane-client.sh --check --json
+bash scripts/agent/lib/searxng-client.sh --check --json
 ```
 
-- **Código de salida 0 (`status: active`)** → El servicio está configurado y alcanzable. Proceder inmediatamente a la **FASE 2A (Ruta Autónoma SearXNG / Bane)**.
+- **Código de salida 0 (`status: active`)** → El servicio está configurado y alcanzable. Proceder inmediatamente a la **FASE 2A (Ruta Autónoma SearXNG)**.
 - **Código de salida 2 (`status: inactive`)** → El servicio no está configurado o no responde. Proceder inmediatamente a la **FASE 2B (Ruta Manual Perplexity)** sin emitir bloqueos ni errores fatales.
 
 ---
 
-### FASE 2A — Ruta Autónoma (SearXNG / Bane Activo)
+### FASE 2A — Ruta Autónoma (SearXNG Activo)
 
 1. **Construcción de la Consulta**:
    El agente formula la consulta técnica profunda estructurada con contexto del proyecto, stack y alternativas analizadas.
