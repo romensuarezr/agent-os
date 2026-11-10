@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno activo (Sprint 31 completado; pendiente `sprint-planning` para Sprint 32).
+- **Sprint 32**: Saneamiento Final de Motores, Soporte MCP Remoto, Integración DeepWiki & Rotación Hermes FreeLLMAPI (T-178 a T-182). Ver `docs/sprints/sprint-32-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
