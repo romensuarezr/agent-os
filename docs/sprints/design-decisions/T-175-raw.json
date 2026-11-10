@@ -1,0 +1,17 @@
+{
+  "task_id": "T-175",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan de trabajo para T-175 satisface con rigor los requisitos del dise\u00f1o macro aprobado para el Sprint 31. Establece una delimitaci\u00f3n estricta de la caja de archivos autorizados (purga de 'bane-client.sh', 'templates/bane/' y su runbook, junto con la actualizaci\u00f3n de los workflows 'sprint-planning.md', 'deep-research.md' y 'fleet-doctor.sh') y garantiza la reutilizaci\u00f3n soberana del cliente determinista preexistente 'scripts/agent/lib/searxng-client.sh' sin incurrir en duplicaciones de c\u00f3digo.\n\nAsimismo, la estrategia de adaptaci\u00f3n de la suite de validaci\u00f3n de control plane ('tests/validate-control-plane.sh') preserva la invariante estricta del denominador 38/38 mediante la reconfiguraci\u00f3n determinista de los Checks 34 y 38. El protocolo de integraci\u00f3n y cierre se ajusta de forma limpia al est\u00e1ndar de Opci\u00f3n D (avance desatendido en camino limpio, merge no-ff y ejecuci\u00f3n de 'close-task.sh'). Proceder con la ejecuci\u00f3n sin objeciones t\u00e9cnicas.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Las skills declaradas ('agent-os-scripts' y 'tool-inventory') son pertinentes y operativamente v\u00e1lidas. No se invocan skills expl\u00edcitamente prohibidas (como 'implementar-feature-dry', 'infisical-secrets' o 'roadmap-a-tarea')."
+  },
+  "inventory_scoped_bytes": 2377,
+  "plan_source": ".agents/context/plan-draft.md"
+}
