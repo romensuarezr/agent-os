@@ -293,8 +293,8 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/38] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
-ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
+echo -e "🔍 [9/38] Verificando sintaxis y permisos de scripts de metas, orquestación, promoción y tooling..."
+ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh" "scripts/agent/check-tooling-updates.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
   if [ ! -f "$s" ]; then
@@ -310,6 +310,13 @@ for s in "${ORCH_SCRIPTS[@]}"; do
     echo -e "  ✅ Script íntegro y ejecutable: $s"
   fi
 done
+
+if bash scripts/agent/check-tooling-updates.sh --help >/dev/null 2>&1; then
+  echo -e "  ✅ check-tooling-updates.sh expone ayuda estándar (--help)."
+else
+  echo -e "  ❌ check-tooling-updates.sh falló al invocar --help."
+  ERRORS=$((ERRORS + 1))
+fi
 
 # ------------------------------------------------------------------------------
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
