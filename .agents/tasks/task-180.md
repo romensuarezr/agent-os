@@ -27,21 +27,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-180.md`
 
 ## Criterios de done
-- [ ] `.agents/skills/tooling-advisor/SKILL.md` formaliza el protocolo de uso de DeepWiki MCP como complemento post-scout.
-- [ ] Guardarraíles de contraste obligatorio contra HEAD, restricción a repos públicos y cero auto-ejecución explícitamente sellados en la skill.
-- [ ] Configuración del servidor DeepWiki MCP registrada en `.agents/config/fleet.example.yaml`.
-- [ ] Suite de pruebas `tests/validate-control-plane.sh` 38/38 en verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] `.agents/skills/tooling-advisor/SKILL.md` formaliza el protocolo de uso de DeepWiki MCP como complemento post-scout.
+- [x] Guardarraíles de contraste obligatorio contra HEAD, restricción a repos públicos y cero auto-ejecución explícitamente sellados en la skill.
+- [x] Configuración del servidor DeepWiki MCP registrada en `.agents/config/fleet.example.yaml`.
+- [x] Suite de pruebas `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10T19:10:39Z (Opción D - Desatendida, Aprobado en Planning Sprint 32)
+- [x] Rama creada: feat/T-180-deepwiki-post-scout-tooling-advisor
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
