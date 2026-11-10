@@ -1,15 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Ver `docs/sprints/sprint-31-core.md`.
-  - [ ] [T-172] Matriz de roles y capacidades de CLIs de la flota (OpenCode 2, Claude Code, Aider, Hermes, Antigravity) (M).
-  - [ ] [T-173] Sonda determinista de actualización de herramientas (`check-tooling-updates.sh`) multi-registro (M).
-  - [ ] [T-174] Skill canónica `tooling-advisor` para prospección pasiva de flota y propuestas a `idea-inbox/` (M).
-  - [ ] [T-175] Saneamiento integral del fantasma Bane (purga de wrapper, plantillas y runbook; migración a SearXNG; 38/38) (S).
-  - [ ] [T-176] Diagnóstico determinista de inoperatividad de `whatsapp-bridge` (causa raíz + evidencia, cero arreglo a ciegas) (S).
+- Ninguno activo (Sprint 31 completado; pendiente `sprint-planning` para Sprint 32).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Formalizado como release `v1.27.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-31-core.md`.
 - **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Formalizado como release `v1.26.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-30-core.md`.
 - **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Formalizado como release `v1.25.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-29-core.md`.
 - **Sprint 28**: Autonomía Acotada (Opción D), Enrutado por Dificultad e Integración Soberana de Bane (T-155 a T-161). Formalizado como release `v1.24.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-28-core.md`.
