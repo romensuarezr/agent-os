@@ -67,4 +67,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-11-10T19:22:59Z (Opción D - Desatendida, Aprobado en Planning Sprint 32 con condición de Gate HITL)
 - [x] Rama creada: feat/T-182-rotacion-freellmapi-hermes-hitl
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
