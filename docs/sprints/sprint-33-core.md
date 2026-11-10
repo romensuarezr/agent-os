@@ -26,7 +26,7 @@
 ## Régimen Operativo del Sprint
 > Declaración vinculante del modo de ejecución y orden de carriles del sprint. Se sella en el arranque del sprint tras consulta proactiva única al operador en /session-start.
 
-- **Régimen**: [PENDIENTE_ARRANQUE — Desatendida (Opción D) | Tarea a tarea (Clásico)]
+- **Régimen**: Desatendida (Opción D)
 - **Orden de Carriles (DAG de dependencias)**:
   - Carril 1: [T-188] (Endurecimiento del flujo desatendido: huérfanos agy, paso 6 SearXNG, compuerta proactiva)
   - Carril 2: [T-183] (Estandarización Coolify)
@@ -34,7 +34,7 @@
   - Carril 4: [T-185] (Refinamiento session-close Opción D)
   - Carril 5: [T-186] (Hardening y tests de rotate-freellmapi-token.sh)
   - Carril 6: [T-187] (Skill de auditoría UI critique)
-- **Sellado en**: [PENDIENTE]
+- **Sellado en**: 2026-11-10 21:19 UTC
 
 ---
 
