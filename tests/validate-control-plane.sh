@@ -890,7 +890,7 @@ SPRINT_FIXTURE="$(mktemp -d)"
 (
     cd "$SPRINT_FIXTURE" || exit 1
     git init -q . && git config user.email t@t.t && git config user.name t
-    mkdir -p docs/sprints
+    mkdir -p docs/sprints .agents/context
     {
         echo "# Sprint 98 - regresion"
         echo ""
@@ -901,6 +901,12 @@ SPRINT_FIXTURE="$(mktemp -d)"
         echo "| ID | D | T | E |"
         echo "| T-098 | x | S | ✅ Completada |"
     } > docs/sprints/sprint-98-core.md
+    {
+        echo "# last-sync.md"
+        echo "- **Sprint activo**: sprint-98-core"
+        echo "- **Último sprint cerrado**: sprint-97-core"
+        echo "- **Versión del core**: \`v1.0.0\`"
+    } > .agents/context/last-sync.md
     git add -A && git commit -qm init
     printf '\n## Notas\n- Marcado antes de cerrar.\n' >> docs/sprints/sprint-98-core.md
     bash "$ROOT/scripts/agent/close-sprint.sh" sprint-98-core >/dev/null 2>&1 || true
@@ -916,11 +922,14 @@ assert cl.exists(), 'changelog.md no fue generado automaticamente'
 assert 'sprint-98' in cl.read_text(), 'entrada de changelog no contiene sprint-98'
 ver = d / 'VERSION'
 assert ver.exists(), 'VERSION no fue sincronizado'
+ls = d / '.agents/context/last-sync.md'
+assert ls.exists(), 'last-sync.md no existe'
+assert 'sprint-98-core' in ls.read_text(), 'last-sync.md no contiene sprint-98-core'
 st = subprocess.check_output(['git','status','--porcelain'], cwd=str(d)).decode().strip()
 assert st == '', 'el working tree quedo sucio: ' + st
 " 2>/dev/null && grep -q 'locator-hygiene.sh' "$ROOT/scripts/agent/close-sprint.sh"; then
-    echo -e "  ✅ close-sprint.sh auto-genera changelog, sincroniza VERSION, archiva sprint y deja árbol limpio."
-    echo -e "     compuerta de higiene determinista integrada en staging y re-chequeo (T-163)."
+    echo -e "  ✅ close-sprint.sh auto-genera changelog, sincroniza VERSION y last-sync.md, archiva sprint y deja árbol limpio."
+    echo -e "     compuerta de higiene determinista integrada en staging y re-chequeo (T-163, T-181)."
 else
     echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear, no genera changelog o cuelga el árbol."
     ERRORS=$((ERRORS + 1))
