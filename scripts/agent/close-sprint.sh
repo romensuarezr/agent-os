@@ -192,7 +192,7 @@ add_own() {
 }
 
 # Detectar modificaciones ajenas ANTES de stagear, para avisar sin mezclar
-FOREIGN_BEFORE=$(git -C "$ROOT" status --porcelain 2>/dev/null | grep -vE "^..[[:space:]]+(docs/sprints/|CHANGELOG\.md|changelog\.md|roadmap\.md|ROADMAP\.md)" || true)
+FOREIGN_BEFORE=$(git -C "$ROOT" status --porcelain 2>/dev/null | grep -vE "^..[[:space:]]+(docs/sprints/|CHANGELOG\.md|changelog\.md|roadmap\.md|ROADMAP\.md|\.agents/context/last-sync\.md|VERSION)" || true)
 if [ -n "$FOREIGN_BEFORE" ]; then
   YELLOW='\033[0;33m'; NC='\033[0m'
   echo -e "${YELLOW}⚠️  Hay cambios AJENOS al cierre de sprint en el working tree:${NC}"
@@ -243,6 +243,25 @@ if [ "$CHANGELOG_MODIFIED" = true ]; then
   fi
 else
   echo "ℹ️  changelog.md sin cambios: VERSION no se toca."
+fi
+
+# --- Sincronizar last-sync.md con el cierre de sprint (T-181) ---
+LAST_SYNC="$ROOT/.agents/context/last-sync.md"
+if [ -f "$LAST_SYNC" ]; then
+  SYNC_VER="${VERSION_TAG:-}"
+  if [ -z "$SYNC_VER" ] && [ -f "$ROOT/VERSION" ]; then
+    SYNC_VER="$(tr -d ' \r\n' < "$ROOT/VERSION" | sed 's/^v//')"
+  fi
+  [ -z "$SYNC_VER" ] && [ -f "$CHANGELOG" ] && SYNC_VER="$(agent_read_changelog_version "$CHANGELOG" || true)"
+
+  if [ -n "$SYNC_VER" ]; then
+    sed -i -E "s/^- \*\*Versión del core\*\*:.*$/- **Versión del core**: \`v${SYNC_VER}\` (\`changelog.md\` es la fuente de verdad; \`VERSION\` debe coincidir)/" "$LAST_SYNC"
+  fi
+  sed -i -E "s/^- \*\*Último sprint cerrado\*\*:.*$/- **Último sprint cerrado**: ${SPRINT_FULL} (archivado en \`docs\/sprints\/_archived\/\`)/" "$LAST_SYNC"
+  sed -i -E "s/^- \*\*Sprint activo\*\*:.*$/- **Sprint activo**: ninguno (planificar con \/sprint-planning)/" "$LAST_SYNC"
+
+  add_own "$LAST_SYNC"
+  echo "📑 .agents/context/last-sync.md sincronizado y añadido al stage."
 fi
 
 # --- Verificación determinista de higiene en staging (T-163) ---

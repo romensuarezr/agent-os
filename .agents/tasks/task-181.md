@@ -26,21 +26,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-181.md`
 
 ## Criterios de done
-- [ ] `.agents/context/last-sync.md` actualizado con metadatos de versión `v1.27.0` y estado de sprint actual.
-- [ ] `scripts/agent/close-sprint.sh` actualiza e incluye `last-sync.md` en el commit atómico de cierre de sprint de forma idempotente y determinista.
-- [ ] Check 19 de `tests/validate-control-plane.sh` valida la sincronización limpia de `last-sync.md`.
-- [ ] Suite de pruebas `tests/validate-control-plane.sh` 38/38 en verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] `.agents/context/last-sync.md` actualizado con metadatos de versión `v1.27.0` y estado de sprint actual.
+- [x] `scripts/agent/close-sprint.sh` actualiza e incluye `last-sync.md` en el commit atómico de cierre de sprint de forma idempotente y determinista.
+- [x] Check 19 de `tests/validate-control-plane.sh` valida la sincronización limpia de `last-sync.md`.
+- [x] Suite de pruebas `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10T19:15:25Z (Opción D - Desatendida, Aprobado en Planning Sprint 32)
+- [x] Rama creada: feat/T-181-sincronizacion-last-sync-close-sprint
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente

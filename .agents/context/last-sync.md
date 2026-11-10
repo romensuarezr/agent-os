@@ -7,10 +7,10 @@
 ## Estado actual
 
 - **Modo**: self-hosted (agent-os operando sobre sí mismo)
-- **Sprint activo**: sprint-19-core (planificado 2026-10-27; T-113, T-114, T-115, T-116)
-- **Último sprint cerrado**: sprint-18-core (publicado en `main` como `v1.14.0`)
+- **Sprint activo**: sprint-32-core (en curso)
+- **Último sprint cerrado**: sprint-31-core (archivado en `docs/sprints/_archived/`)
 - **Último bootstrap**: 2026-06-16
-- **Versión del core**: `v1.14.0` (`changelog.md` es la fuente de verdad; `VERSION` debe coincidir)
+- **Versión del core**: `v1.27.0` (`changelog.md` es la fuente de verdad; `VERSION` debe coincidir)
 
 ---
 
