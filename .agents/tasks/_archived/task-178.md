@@ -45,4 +45,4 @@ Archivos autorizados para modificación:
 - [x] APROBADO recibido — fecha/hora: 2026-11-10 18:56 UTC (camino limpio Opción D)
 - [x] Rama creada: feat/T-178-purga-residuos-bane-fleet-searxng
 - [x] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente

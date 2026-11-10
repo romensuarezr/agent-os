@@ -1,0 +1,17 @@
+{
+  "task_id": "T-178",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan t\u00e9cnico propuesto para T-178 satisface plenamente los principios de dise\u00f1o at\u00f3mico y no regresi\u00f3n de Agent OS. La caja de archivos se encuentra estrictamente acotada a los 4 archivos pertinentes (.agents/config/fleet.example.yaml, scripts/agent/lib/searxng-client.sh, tests/validate-control-plane.sh y .agents/tasks/task-178.md). La erradicaci\u00f3n de fallbacks heredados de Bane se realiza preservando de forma limpia la jerarqu\u00eda de resoluci\u00f3n soberana de SearXNG (SEARXNG_API_URL -> fleet.yaml/fleet.example.yaml -> localhost:8080).\n\nAsimismo, la extensi\u00f3n de la secci\u00f3n \u00a718 dentro del Check 34 existente garantiza el blindaje est\u00e1tico determinista contra regresiones de residuos Bane sin alterar el denominador can\u00f3nico inmutable de la suite (38/38 checks en verde). Cumple con el est\u00e1ndar de Opci\u00f3n D y est\u00e1 listo para ejecuci\u00f3n desatendida en camino limpio.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "El plan delimita adecuadamente la aplicaci\u00f3n de 'implementar-feature-dry' para la purga de ramas muertas de c\u00f3digo y configuraci\u00f3n sin duplicidades. No se invocan skills prohibidas por el rol auditor."
+  },
+  "inventory_scoped_bytes": 2109,
+  "plan_source": ".agents/context/plan-draft.md"
+}
