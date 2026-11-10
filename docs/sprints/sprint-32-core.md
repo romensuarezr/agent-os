@@ -31,7 +31,7 @@
   - Carril 2: [T-179 → T-180] (Soporte MCP remoto + DeepWiki en tooling-advisor)
   - Carril 3: [T-181] (Automatización last-sync.md)
   - Carril 4: [T-182] (Rotación FreeLLMAPI Hermes bajo gate HITL)
-- **Sellado en**: 2026-11-10 18:55 UTC
+- **Sellado en**: 2026-11-10 18:56 UTC
 
 ---
 
