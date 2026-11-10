@@ -1,6 +1,6 @@
 ---
 name: tooling-advisor
-description: Prospección pasiva y periódica de herramientas y CLIs de la flota (OpenCode, Hermes, Orca, Infisical, Glances) mediante check-tooling-updates.sh ($0 tokens) para formular propuestas técnicas estructuradas en docs/idea-inbox/ bajo el principio estricto de cero auto-ejecución.
+description: Prospección pasiva y periódica de herramientas y CLIs de la flota (OpenCode, Hermes, Orca, Infisical, Glances) mediante check-tooling-updates.sh ($0 tokens) y comprensión estructural complementaria de repositorios públicos vía DeepWiki MCP post-scout para formular propuestas técnicas estructuradas en docs/idea-inbox/ bajo el principio estricto de cero auto-ejecución.
 ---
 
 # 🔭 Tooling Advisor (Prospección Pasiva de Flota y Propuestas)
@@ -70,6 +70,20 @@ Si una o más herramientas presentan `update_available: true`:
      - Correcciones de seguridad o bugs críticos.
      - Breaking changes o cambios en flags CLI.
      - Impacto operativo estimado (alto, medio, bajo).
+
+### Paso 2.5: Comprensión Estructural Profunda con DeepWiki MCP (Fuente Secundaria Post-Scout)
+Cuando se requiera comprender cómo una herramienta de código abierto implementa un patrón técnico o subsistema complejo sin clonar su repositorio completo en disco local, el agente puede apoyarse de forma complementaria en **DeepWiki MCP** (`https://mcp.deepwiki.com/mcp`, declarado en `.agents/config/fleet.example.yaml`):
+
+1. **Gate Previo Scout-First**:
+   - DeepWiki consume tokens de contexto y opera sobre una wiki generada en el momento de indexación.
+   - Es estrictamente **posterior** al cribado determinista inicial con `scout.sh` o `check-tooling-updates.sh` ($0 tokens).
+2. **Tres Guardarraíles Vinculantes**:
+   - 🛡️ **Seguridad fail-closed (Repositorios Públicos Exclusivamente)**:
+     - Queda **TERMINANTEMENTE PROHIBIDO** indexar o consultar repositorios que contengan credenciales privadas, secretos o código propietario interno. Su uso está acotado con exclusividad a repositorios públicos de código abierto.
+   - 🔍 **Verdad Arquitectónica (HEAD First / Contraste Obligatorio)**:
+     - DeepWiki es una **fuente secundaria**. Como la wiki puede sufrir deriva temporal frente al código fuente vivo, **toda conclusión, interfaz o patrón inferido debe contrastarse obligatoriamente contra el árbol real (HEAD de Git o descarga de archivos fuente específicos)** antes de ser aceptado en una propuesta técnica o diseño de sprint.
+   - ⛔ **Cero Auto-Ejecución**:
+     - Las conclusiones derivadas de DeepWiki sirven exclusivamente como insumo de comprensión para enriquecer la propuesta en `docs/idea-inbox/`. Nunca habilitan cambios de configuración ni despliegues desatendidos.
 
 ### Paso 3: Redacción de la Propuesta en `docs/idea-inbox/`
 Crea un archivo nuevo siguiendo la convención de nomenclatura:
