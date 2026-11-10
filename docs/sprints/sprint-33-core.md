@@ -14,7 +14,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :--: | :--- | :--- |
-| T-188 | Endurecimiento del flujo desatendido (huérfanos agy, paso 6 SearXNG, compuerta proactiva) | Core / Gobernanza & Workflows | M | ⬜ Pendiente | — | [.agents/tasks/task-188.md](.agents/tasks/task-188.md) |
+| T-188 | Endurecimiento del flujo desatendido (huérfanos agy, paso 6 SearXNG, compuerta proactiva) | Core / Gobernanza & Workflows | M | 🟡 En curso | — | [.agents/tasks/task-188.md](.agents/tasks/task-188.md) |
 | T-183 | Estandarización de variables, endpoints y pre-flights en `coolify.sh` y `coolify-admin` | Core / Ops & Fleet | S | ⬜ Pendiente | — | [.agents/tasks/task-183.md](.agents/tasks/task-183.md) |
 | T-184 | Auditoría determinista de integridad y salud de scripts en satélites (`audit-satellites.sh`) | Core / Satélites | M | ⬜ Pendiente | — | [.agents/tasks/task-184.md](.agents/tasks/task-184.md) |
 | T-185 | Refinamiento y paridad de `session-close.md` con régimen Opción D y encadenamiento | Core / Workflows | S | ⬜ Pendiente | — | [.agents/tasks/task-185.md](.agents/tasks/task-185.md) |

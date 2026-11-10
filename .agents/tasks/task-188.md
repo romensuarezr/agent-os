@@ -37,19 +37,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-188.md`
 
 ## Criterios de done
-- [ ] `portable-timeout.sh` y `deliberate-plan.sh` matan todo el grupo de procesos ante timeout (0 procesos huérfanos residuales).
-- [ ] Paso 6 de `sprint-planning.md` condicional a SearXNG; fallback ruidoso si SearXNG falla.
-- [ ] Compuerta proactiva de `session-start.md` estandarizada para emitir invariablemente las opciones A/B y carriles.
-- [ ] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] `portable-timeout.sh` y `deliberate-plan.sh` matan todo el grupo de procesos ante timeout (0 procesos huérfanos residuales).
+- [x] Paso 6 de `sprint-planning.md` condicional a SearXNG; fallback ruidoso si SearXNG falla.
+- [x] Compuerta proactiva de `session-start.md` estandarizada para emitir invariablemente las opciones A/B y carriles.
+- [x] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
+  - **Rol del revisor**: Compuerta técnica determinista (qa-judge).
+- [x] Plan presentado al usuario (Fase 3.5 — Opción D sellada en planning)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10 21:19 UTC (camino limpio Opción D)
+- [x] Rama creada: feat/T-188-endurecimiento-flujo-desatendido
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente

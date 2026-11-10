@@ -2577,6 +2577,12 @@ grep -q "Protocolo Pre-Merge Refinado" "$SS" || T34_FAILS="$T34_FAILS session-st
 grep -q "única autorización habilitante" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-autorizacion-habilitante"
 grep -q "Opción D" "$ROOT/AGENTS.md" || T34_FAILS="$T34_FAILS agents-md-sin-opcion-d"
 
+# 22. Endurecimiento del flujo desatendido (T-188)
+grep -q "start_new_session=True" "$ROOT/scripts/agent/lib/portable-timeout.sh" || T34_FAILS="$T34_FAILS portable-timeout-sin-process-group"
+grep -q "os.killpg(proc.pid, signal.SIGKILL)" "$ROOT/scripts/agent/lib/portable-timeout.sh" || T34_FAILS="$T34_FAILS portable-timeout-sin-killpg"
+grep -q "Pausa asistida" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-pausa-asistida-condicional"
+grep -q "COMPUERTA OBLIGATORIA INFRANQUEABLE" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-compuerta-infranqueable"
+
 rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
 git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
 
