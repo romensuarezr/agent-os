@@ -12,20 +12,28 @@ Habilidad estándar de `agent-os` para interactuar programáticamente con la API
 - Automatizar despliegues continuos o actualizar variables de entorno y stacks Docker Compose.
 - Consultar recursos, UUIDs de aplicaciones o logs de ejecución en nodos gestionados por Coolify.
 
-## Prerrequisitos y Gestión de Credenciales
+## Prerrequisitos, Endpoints y Gestión de Credenciales
 
-La habilidad requiere acceso a la API de Coolify mediante token Bearer. Sigue el estándar de inyección efímera de secretos:
+La habilidad interactúa con la API de Coolify (v4+) de forma determinista y segura:
 
-1. **Prioridad 1 (Infisical / Env)**:
+1. **Resolución de Endpoint Base**:
+   - **Prioridad 1**: Variable de entorno `COOLIFY_BASE_URL`, `COOLIFY_API_URL` o `COOLIFY_URL` (ej: `http://127.0.0.1:8000/api/v1`).
+   - **Prioridad 2 (Fleet)**: Inspección determinista automática del nodo PaaS (`role: orchestration-and-paas` o servicio `coolify`) en `.agents/config/fleet.yaml`.
+   - **Fail-closed**: Si no está definido en el entorno ni en Fleet, el script aborta con error explicativo (sin URLs mockeadas ni hardcodeadas).
+
+2. **Gestión de Credenciales (Bearer Token)**:
+   - **Prioridad 1 (Infisical / Env)**:
+     ```bash
+     infisical run -- bash scripts/ops/coolify.sh <subcomando>
+     # O inyección efímera:
+     export COOLIFY_TOKEN="<token>"
+     ```
+   - **Fallback 2**: Archivo local `${COOLIFY_ENV_FILE:-$HOME/.config/agent-os/api_keys.env}`.
+
+3. **Ayuda Estándar**:
    ```bash
-   infisical run -- bash scripts/ops/coolify.sh <subcomando>
-   # O exportando directamente:
-   export COOLIFY_TOKEN="<token>"
+   bash scripts/ops/coolify.sh --help
    ```
-2. **Fallback Local**:
-   Si no se define en variables de entorno, el CLI buscará automáticamente en la ruta configurada en `${COOLIFY_ENV_FILE:-$HOME/.config/coolify/api_keys.env}` o en `.agents/config/fleet.yaml`.
-3. **Endpoint Base**:
-   Configurable mediante la variable de entorno `COOLIFY_BASE_URL` (por defecto `http://localhost:8000/api/v1` o endpoint público seguro con SSL).
 
 ---
 

@@ -27,20 +27,22 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-183.md`
 
 ## Criterios de done
-- [ ] `scripts/ops/coolify.sh` expone ayuda determinista mediante `lib/cli-help.sh`.
-- [ ] Eliminado el fallback hardcodeado `coolify.example.com`.
-- [ ] Resolución de endpoint vía variable de entorno o `fleet.yaml`.
-- [ ] `.agents/skills/coolify-admin/SKILL.md` sincronizado.
-- [ ] `locator-hygiene.sh` 100% limpio.
-- [ ] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `scripts/ops/coolify.sh` expone ayuda determinista mediante `lib/cli-help.sh`.
+- [x] Eliminado el fallback hardcodeado `coolify.example.com`.
+- [x] Resolución de endpoint vía variable de entorno o `fleet.yaml`.
+- [x] `.agents/skills/coolify-admin/SKILL.md` sincronizado.
+- [x] `locator-hygiene.sh` 100% limpio.
+- [x] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Lock activo: .agent-session.lock
-- [ ] Sesión cerrada correctamente
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
+  - **Rol del revisor**: Compuerta técnica determinista (qa-judge).
+- [x] Plan presentado al usuario (Fase 3.5 — Opción D sellada en planning)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10 21:19 UTC (camino limpio Opción D)
+- [x] Rama creada: feat/T-183-estandarizacion-coolify-ops-fleet
+- [x] Lock activo: .agent-session.lock
+- [x] Sesión cerrada correctamente
