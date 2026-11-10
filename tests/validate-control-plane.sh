@@ -2087,6 +2087,7 @@ grep -q 'APROBADO' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-aprobado"
 
 # 11. Reporte formal de trial de liveness (T-151): veredicto explícito y tabla de muestra declarada
 LIVENESS_REPORT="$ROOT/docs/sprints/sprint-27-liveness-trial-report.md"
+[ -f "$LIVENESS_REPORT" ] || LIVENESS_REPORT="$ROOT/docs/sprints/_archived/sprint-27-liveness-trial-report.md"
 if [ -f "$LIVENESS_REPORT" ]; then
   grep -q -E "LIVENESS_(VIABLE|DESCARTADO)" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-veredicto"
   grep -q "Tabla por Caso y Tamaño de Muestra Declarado" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-tabla-muestra"
@@ -2307,6 +2308,7 @@ fi
 
 # 14. Reporte formal de paridad y calibración Revisor-vs-Relé (T-154)
 PARITY_REPORT="$ROOT/docs/sprints/sprint-27-parity-report.md"
+[ -f "$PARITY_REPORT" ] || PARITY_REPORT="$ROOT/docs/sprints/_archived/sprint-27-parity-report.md"
 if [ ! -f "$PARITY_REPORT" ]; then
   T34_FAILS="$T34_FAILS parity-report-ausente"
 else
@@ -2485,6 +2487,7 @@ fi
 
 # 16. Reporte formal de enrutamiento por dificultad (T-156)
 ROUTING_REPORT="$ROOT/docs/sprints/sprint-28-difficulty-routing-report.md"
+[ -f "$ROUTING_REPORT" ] || ROUTING_REPORT="$ROOT/docs/sprints/_archived/sprint-28-difficulty-routing-report.md"
 if [ ! -f "$ROUTING_REPORT" ]; then
   T34_FAILS="$T34_FAILS difficulty-routing-report-ausente"
 else
@@ -2499,6 +2502,7 @@ fi
 
 # 17. Marco del piloto de autonomía Opción D y reporte (T-157)
 AUTONOMY_REPORT="$ROOT/docs/sprints/sprint-28-autonomy-pilot-report.md"
+[ -f "$AUTONOMY_REPORT" ] || AUTONOMY_REPORT="$ROOT/docs/sprints/_archived/sprint-28-autonomy-pilot-report.md"
 if [ ! -f "$AUTONOMY_REPORT" ]; then
   T34_FAILS="$T34_FAILS autonomy-pilot-report-ausente"
 else
