@@ -9,6 +9,29 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.27.0] — sprint-31 — 2026-11-10
+
+### ✨ Features
+
+- feat(T-175): saneamiento integral de Bane, migración a SearXNG y adaptación de suite de control plane (38/38)
+- feat(T-174): skill canónica tooling-advisor para prospección pasiva de flota y propuestas a idea-inbox
+- feat(T-173): sonda determinista CLI de actualización de herramientas multi-registro (check-tooling-updates.sh)
+- feat(T-176): informe de diagnóstico forense determinista de whatsapp-bridge en nodo de inferencia
+- feat(T-172): matriz de roles y capacidades de CLIs de la flota (OpenCode 2, Claude Code, Aider, Hermes, Antigravity) y perfiles declarativos
+
+### 🐛 Bug Fixes
+
+- fix(check-tooling-updates): añadir glances como herramienta PyPI real al catálogo
+
+### 📚 Documentación
+
+- docs(sprint-31): explicitar puerto :3000 como ejemplo en T-176 y actas de planning
+- docs(idea-inbox): capturar idea DeepWiki como complemento de scout.sh (comprensión profunda)
+
+### 🔧 Mantenimiento
+
+- chore(sprint-31): formalizar planning, research scout y contratos de tareas T-172 a T-176
+
 ## [1.26.0] — sprint-30 — 2026-11-07
 
 ### ✨ Features
