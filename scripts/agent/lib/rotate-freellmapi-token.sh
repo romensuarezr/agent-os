@@ -14,49 +14,76 @@
 # ==============================================================================
 set -euo pipefail
 
-TARGET_HOST="${SSH_TARGET:-${1:-}}"
-if [ -z "$TARGET_HOST" ] && [[ "${1:-}" != "--help" && "${1:-}" != "-h" ]]; then
-  # Fallback a hostname del entorno o solicitar argumento
-  TARGET_HOST="${INFERENCE_HOST:-}"
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=scripts/agent/lib/cli-help.sh
+source "$SCRIPT_DIR/cli-help.sh"
+
+TARGET_HOST="${SSH_TARGET:-${INFERENCE_HOST:-}}"
 MODE="check"
 APPLY=false
-
 SWITCH_MODEL=false
 SYNC_OPENCODE=false
 
-show_help() {
-  cat <<'EOF'
-Uso: rotate-freellmapi-token.sh [OPCIONES]
-
-Opciones:
-  --check           Verifica la coherencia entre freeapi.db y ~/.hermes/config.yaml (solo lectura).
-  --sync            Sincroniza la unified_api_key actual de FreeLLMAPI hacia Hermes.
-  --rotate          Regenera una nueva unified_api_key en FreeLLMAPI y la sincroniza a Hermes.
-  --switch-model    Conmuta el bloque raiz model: de Hermes hacia custom:freellmapi.
-  --sync-opencode   Sincroniza tambien la clave en la configuracion local de OpenCode.
-  --apply           Aplica las modificaciones en disco (requerido para --sync y --rotate).
-  --target          Host SSH de destino (por defecto: $INFERENCE_HOST o nodo de inferencia).
-  --help, -h        Muestra esta ayuda.
-
-Nota de seguridad:
-  Este script jamás imprime claves ni valores confidenciales en pantalla.
-EOF
-}
-
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -h|--help)
+      show_help "rotate-freellmapi-token.sh" \
+        "bash scripts/agent/lib/rotate-freellmapi-token.sh [OPCIONES]" \
+        "Rotación y sincronización determinista de la clave unified_api_key de FreeLLMAPI en Hermes y OpenCode. Cero exposición de secretos en pantalla ni logs." \
+        "--check                  Verifica la coherencia entre freeapi.db y ~/.hermes/config.yaml (solo lectura)" \
+        "--sync                   Sincroniza la unified_api_key actual de FreeLLMAPI hacia Hermes" \
+        "--rotate                 Regenera una nueva unified_api_key en FreeLLMAPI y la sincroniza a Hermes" \
+        "--switch-model           Conmuta el bloque raiz model: de Hermes hacia custom:freellmapi" \
+        "--sync-opencode          Sincroniza también la clave en la configuración local de OpenCode" \
+        "--apply                  Aplica las modificaciones en disco (requerido para --sync y --rotate)" \
+        "--target <host>          Host SSH de destino (por defecto: \$SSH_TARGET o \$INFERENCE_HOST)" \
+        "-h, --help               Muestra este mensaje de ayuda" \
+        "ejemplo: bash scripts/agent/lib/rotate-freellmapi-token.sh --check --target <nodo-inferencia>" \
+        "ejemplo: bash scripts/agent/lib/rotate-freellmapi-token.sh --target <nodo-inferencia> --rotate --apply"
+      ;;
     --check) MODE="check"; shift ;;
     --sync) MODE="sync"; shift ;;
     --rotate) MODE="rotate"; shift ;;
     --switch-model) SWITCH_MODEL=true; shift ;;
     --sync-opencode) SYNC_OPENCODE=true; shift ;;
     --apply) APPLY=true; shift ;;
-    --target) TARGET_HOST="$2"; shift 2 ;;
-    --help|-h) show_help; exit 0 ;;
-    *) echo "Opción no reconocida: $1" >&2; show_help; exit 1 ;;
+    --target)
+      if [ $# -lt 2 ]; then
+        echo "❌ ERROR: --target requiere un argumento." >&2
+        exit 2
+      fi
+      TARGET_HOST="$2"
+      shift 2
+      ;;
+    --target=*)
+      TARGET_HOST="${1#*=}"
+      shift
+      ;;
+    --)
+      shift
+      if [ $# -gt 0 ] && [ -z "$TARGET_HOST" ]; then
+        TARGET_HOST="$1"
+        shift
+      fi
+      ;;
+    -*)
+      echo "❌ ERROR: Opción no reconocida: $1" >&2
+      echo "   Usa --help para ver las opciones disponibles." >&2
+      exit 2
+      ;;
+    *)
+      if [ -z "$TARGET_HOST" ]; then
+        TARGET_HOST="$1"
+      fi
+      shift
+      ;;
   esac
 done
+
+if [ -z "$TARGET_HOST" ]; then
+  echo "❌ ERROR: Host destino no especificado. Usa --target <host> o exporta SSH_TARGET / INFERENCE_HOST." >&2
+  exit 1
+fi
 
 # Pre-flight de conectividad SSH
 if ! ssh -o BatchMode=yes -o ConnectTimeout=5 "$TARGET_HOST" "echo ping" >/dev/null 2>&1; then
