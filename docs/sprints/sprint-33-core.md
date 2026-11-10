@@ -18,7 +18,7 @@
 | T-183 | Estandarización de variables, endpoints y pre-flights en `coolify.sh` y `coolify-admin` | Core / Ops & Fleet | S | ✅ Hecho | — | [.agents/tasks/task-183.md](.agents/tasks/_archived/task-183.md) |
 | T-184 | Auditoría determinista de integridad y salud de scripts en satélites (`audit-satellites.sh`) | Core / Satélites | M | ✅ Hecho | — | [.agents/tasks/task-184.md](.agents/tasks/_archived/task-184.md) |
 | T-185 | Refinamiento y paridad de `session-close.md` con régimen Opción D y encadenamiento | Core / Workflows | S | ✅ Hecho | — | [.agents/tasks/task-185.md](.agents/tasks/_archived/task-185.md) |
-| T-186 | Cobertura de control plane y hardening determinista de `rotate-freellmapi-token.sh` | Core / Control Plane | S | ⬜ Pendiente | — | [.agents/tasks/task-186.md](.agents/tasks/task-186.md) |
+| T-186 | Cobertura de control plane y hardening determinista de `rotate-freellmapi-token.sh` | Core / Control Plane | S | ✅ Hecho | — | [.agents/tasks/task-186.md](.agents/tasks/_archived/task-186.md) |
 | T-187 | Formalización de skill `ui-critique` para auditoría y revisión de interfaces en satélites | Core / Skills | M | ⬜ Pendiente | — | [.agents/tasks/task-187.md](.agents/tasks/task-187.md) |
 
 ---
