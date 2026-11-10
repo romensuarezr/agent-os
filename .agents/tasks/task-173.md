@@ -8,6 +8,16 @@ El inventario de herramientas de la flota requiere seguimiento periódico de ver
 La sonda debe operar de forma ligera, determinista y fail-soft, mapeando la fuente primaria adecuada para cada componente.
 Esta tarea se ejecuta bajo el régimen estándar de **Opción D** y depende de **T-172**.
 
+### Integración de Research Scout (T-129)
+- **Alternativas detectadas y analizadas**:
+  - `new-releases.io` (SaaS externo): Descartado por violar la soberanía local y requerir suscripción.
+  - Renovate CLI / Dependabot: Descartados por pesadez y dependencia de configuración CI/CD.
+  - APIs públicas de registros oficiales (npm, GitHub releases, PyPI): Adoptadas con mapeo explícito de fuente verídica.
+- **Dictamen del Relé**:
+  - Sonda CLI determinista de coste $0 de tokens en `scripts/agent/check-tooling-updates.sh`.
+  - Mapeo de fuente verídica: npm para `@opencode/cli`; GitHub API para `NousResearch/hermes-agent`, `stablyai/orca` e `Infisical/infisical`.
+  - Normalización semver uniforme (omisión de prefijo `v`), soporte de flags `--json`, `--check`, `--tool` y timeout estricto (≤5s).
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
@@ -38,22 +48,22 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-173.md`
 
 ## Criterios de done
-- [ ] Script ejecutable y determinista `scripts/agent/check-tooling-updates.sh` implementado con soporte de `--help`, `--check` y `--json`.
-- [ ] Mapeo de fuente verídica implementado correctamente (npm para `@opencode/cli`, GitHub para repositorios y PyPI para paquetes python).
-- [ ] Normalización semver funcional que compare versiones sin fallos por prefijos `v`.
-- [ ] Tolerancia a fallos ante desconexión o rate limiting HTTP 429 con degradación limpia.
-- [ ] Validación integrada en la suite de control plane preservando denominador inmutable en **38/38** (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Script ejecutable y determinista `scripts/agent/check-tooling-updates.sh` implementado con soporte de `--help`, `--check` y `--json`.
+- [x] Mapeo de fuente verídica implementado correctamente (npm para `@opencode/cli`, GitHub para repositorios y PyPI para paquetes python).
+- [x] Normalización semver funcional que compare versiones sin fallos por prefijos `v`.
+- [x] Tolerancia a fallos ante desconexión o rate limiting HTTP 429 con degradación limpia.
+- [x] Validación integrada en la suite de control plane preservando denominador inmutable en **38/38** pasando limpia (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10T10:09:07Z (vía consenso determinista Opción D)
+- [x] Rama creada: `feat/T-173-tooling-updates-probe`
+- [x] Lock activo: `.agent-session.lock`
+- [x] Sesión cerrada correctamente
