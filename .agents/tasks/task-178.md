@@ -28,21 +28,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-178.md`
 
 ## Criterios de done
-- [ ] Bloque `bane:` purgado de `.agents/config/fleet.example.yaml`.
-- [ ] Fallbacks `BANE_API_URL` y `svcs['bane']` eliminados de `scripts/agent/lib/searxng-client.sh`.
-- [ ] Check 34 (§18) de `tests/validate-control-plane.sh` extiende la verificación cubriendo `fleet.example.yaml` y `searxng-client.sh`.
-- [ ] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde sin regresiones.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] Bloque `bane:` purgado de `.agents/config/fleet.example.yaml`.
+- [x] Fallbacks `BANE_API_URL` y `svcs['bane']` eliminados de `scripts/agent/lib/searxng-client.sh`.
+- [x] Check 34 (§18) de `tests/validate-control-plane.sh` extiende la verificación cubriendo `fleet.example.yaml` y `searxng-client.sh`.
+- [x] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde sin regresiones.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5 — Opción D sellada en planning)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10 18:56 UTC (camino limpio Opción D)
+- [x] Rama creada: feat/T-178-purga-residuos-bane-fleet-searxng
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente

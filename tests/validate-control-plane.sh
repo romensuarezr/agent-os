@@ -2514,7 +2514,7 @@ else
   grep -q "Batería Bane T-158..T-161" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-tabla-bane"
 fi
 
-# 18. Purga integral de residuos fantasma de Bane (T-175)
+# 18. Purga integral de residuos fantasma de Bane (T-175, T-178)
 if [ -d "$ROOT/templates/bane" ]; then
   T34_FAILS="$T34_FAILS templates-bane-remanente"
 fi
@@ -2523,6 +2523,12 @@ if [ -f "$ROOT/scripts/agent/lib/bane-client.sh" ]; then
 fi
 if [ -f "$ROOT/docs/runbooks/bane-deep-research-service.md" ]; then
   T34_FAILS="$T34_FAILS bane-runbook-remanente"
+fi
+if grep -qi "bane" "$ROOT/.agents/config/fleet.example.yaml"; then
+  T34_FAILS="$T34_FAILS fleet-example-bane-remanente"
+fi
+if grep -qi "bane" "$ROOT/scripts/agent/lib/searxng-client.sh"; then
+  T34_FAILS="$T34_FAILS searxng-client-bane-remanente"
 fi
 
 # 19. Cliente CLI determinista para SearXNG disponible en el core (T-169, T-175)
@@ -2577,7 +2583,7 @@ else
      batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
      reporte formal de enrutamiento por dificultad verificado (T-156);
      marco del piloto de autonomía Opción D verificado (T-157);
-     purga de residuos fantasma de Bane y cliente soberano SearXNG verificados (T-158, T-159, T-175);
+     purga de residuos fantasma de Bane y cliente soberano SearXNG verificados (T-158, T-159, T-175, T-178);
      workflow deep-research y bifurcación unificados sobre SearXNG verificados (T-160, T-175);
      formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
