@@ -249,24 +249,24 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
 - Ejecutar de nuevo `update-mvp-tracker.sh` para recalcular.
 - Añadir fila en `## Historial de actualizaciones` con fecha, sprint y % global.
 
-### 5. Investigación técnica: bifurcación autónoma (Bane) / manual (Perplexity)
+### 5. Investigación técnica: bifurcación autónoma (SearXNG) / manual (Perplexity)
 
-> Protocolo unificado de investigación técnica profunda. Si Bane está disponible en la flota,
+> Protocolo unificado de investigación técnica profunda. Si SearXNG está disponible en la flota,
 > ejecuta la investigación de forma 100% desatendida; si no, preserva el flujo asistido con Perplexity.
 
-1. **Comprobar disponibilidad de Bane:**
+1. **Comprobar disponibilidad de SearXNG:**
    ```bash
-   bash scripts/agent/lib/bane-client.sh --check
+   bash scripts/agent/lib/searxng-client.sh --check
    ```
 
 2. **Bifurcación:**
-   - **Si Bane está activo (`exit 0`):**
+   - **Si SearXNG está activo (`exit 0`):**
      Ejecutar desatendidamente el workflow especializado `@[.agents/workflows/deep-research.md]`:
      ```bash
-     bash scripts/agent/lib/bane-client.sh --query "[Consulta técnica con contexto, stack y tarea]" --output "docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md"
+     bash scripts/agent/lib/searxng-client.sh --query "[Consulta técnica con contexto, stack y tarea]" --output "docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md"
      ```
      La investigación se integra automáticamente en el research file. Pasar directamente al Paso 6 sin requerir intervención manual del usuario.
-   - **Si Bane está inactivo (`exit 2` o fallback):**
+   - **Si SearXNG está inactivo (`exit 2` o fallback):**
      Preservar íntegramente el comportamiento manual clásico:
      Antes de redactar, usar como fuente primaria el digest de `inventory-check.sh` si la señal de complejidad fue ≥2. Si fue baja, leer directamente los archivos más relevantes del código relacionado (máx. 3 archivos).
      Producir el bloque listo para pegar en Perplexity Pro:

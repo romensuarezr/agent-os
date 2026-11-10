@@ -40,6 +40,7 @@
 #  35. Gobernanza multi-agente, contratos de handover y despacho con deliberación (T-124, T-125, T-126).
 #  36. Ensayo End-to-End del bucle multi-agente: despacho, deliberación, rescate en merge, enforcement scout y cascada (T-128..T-131).
 #  37. Certificación E2E de Revisor Ejecutor (Orca ADE, spec declarativa, aislamiento env -i, timeout y cascada) (T-133..T-136).
+#  38. Integración soberana de SearXNG y Nango: Compose, cliente CLI determinista, sonda y runbooks (T-166, T-169, T-170, T-175).
 # ==============================================================================
 
 set -euo pipefail
@@ -2509,39 +2510,45 @@ else
   grep -q "Batería Bane T-158..T-161" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-tabla-bane"
 fi
 
-# 18. Plantillas Docker Compose y configuración de flota de Bane (T-158)
-BANE_COMPOSE="$ROOT/templates/bane/docker-compose.yml"
-if [ ! -f "$BANE_COMPOSE" ]; then
-  T34_FAILS="$T34_FAILS bane-compose-ausente"
-else
-  grep -q "ghcr.io/pythops/bane" "$BANE_COMPOSE" || T34_FAILS="$T34_FAILS bane-compose-sin-imagen"
-  grep -q "BANE_PORT" "$BANE_COMPOSE" || T34_FAILS="$T34_FAILS bane-compose-sin-port"
-  grep -q "BANE_INFERENCE_URL" "$BANE_COMPOSE" || T34_FAILS="$T34_FAILS bane-compose-sin-inference-url"
-  python3 -c "import yaml; d=yaml.safe_load(open('$ROOT/.agents/config/fleet.example.yaml')); assert 'bane' in d['nodes']['<nodo-inferencia>']['services']" 2>/dev/null || T34_FAILS="$T34_FAILS fleet-example-sin-bane"
+# 18. Purga integral de residuos fantasma de Bane (T-175)
+if [ -d "$ROOT/templates/bane" ]; then
+  T34_FAILS="$T34_FAILS templates-bane-remanente"
+fi
+if [ -f "$ROOT/scripts/agent/lib/bane-client.sh" ]; then
+  T34_FAILS="$T34_FAILS bane-client-remanente"
+fi
+if [ -f "$ROOT/docs/runbooks/bane-deep-research-service.md" ]; then
+  T34_FAILS="$T34_FAILS bane-runbook-remanente"
 fi
 
-# 19. Cliente CLI determinista para Bane (T-159)
-BANE_CLIENT="$ROOT/scripts/agent/lib/bane-client.sh"
-if [ ! -x "$BANE_CLIENT" ]; then
-  T34_FAILS="$T34_FAILS bane-client-no-ejecutable"
+# 19. Cliente CLI determinista para SearXNG disponible en el core (T-169, T-175)
+SX_CORE_CLIENT="$ROOT/scripts/agent/lib/searxng-client.sh"
+if [ ! -x "$SX_CORE_CLIENT" ]; then
+  T34_FAILS="$T34_FAILS searxng-client-no-ejecutable"
 else
-  bash "$BANE_CLIENT" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS bane-client-help-falla"
-  RC_NC=0; bash "$BANE_CLIENT" --check >/dev/null 2>&1 || RC_NC=$?
-  [ "$RC_NC" -eq 2 ] || T34_FAILS="$T34_FAILS bane-client-check-sin-config-no-sale-2"
-  OUT_JSON=$(bash "$BANE_CLIENT" --check --json 2>/dev/null || true)
-  echo "$OUT_JSON" | grep -q '"status": "inactive"' || T34_FAILS="$T34_FAILS bane-client-check-json-invalido"
+  bash "$SX_CORE_CLIENT" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS searxng-client-help-falla"
 fi
 
-# 20. Workflow deep-research y bifurcación en sprint-planning (T-160)
+# 20. Workflow deep-research y bifurcación en sprint-planning unificados sobre SearXNG (T-160, T-175)
 DEEP_WORKFLOW="$ROOT/.agents/workflows/deep-research.md"
 SP_WORKFLOW="$ROOT/.agents/workflows/sprint-planning.md"
 if [ ! -f "$DEEP_WORKFLOW" ]; then
   T34_FAILS="$T34_FAILS deep-research-workflow-ausente"
 else
-  grep -q "bane-client.sh --check" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-check"
+  grep -q "searxng-client.sh --check" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-searxng-check"
   grep -q "FASE 2A — Ruta Autónoma" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-ruta-autonoma"
   grep -q "FASE 2B — Ruta Manual" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-ruta-manual"
-  grep -q "bane-client.sh --check" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-bifurcacion-bane"
+  if grep -q "bane-client.sh" "$DEEP_WORKFLOW"; then
+    T34_FAILS="$T34_FAILS deep-workflow-con-bane-fantasma"
+  fi
+fi
+if [ ! -f "$SP_WORKFLOW" ]; then
+  T34_FAILS="$T34_FAILS sprint-planning-workflow-ausente"
+else
+  grep -q "searxng-client.sh --check" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-bifurcacion-searxng"
+  if grep -q "bane-client.sh" "$SP_WORKFLOW"; then
+    T34_FAILS="$T34_FAILS sprint-planning-con-bane-fantasma"
+  fi
 fi
 
 # 21. Formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164)
@@ -2566,9 +2573,8 @@ else
      batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
      reporte formal de enrutamiento por dificultad verificado (T-156);
      marco del piloto de autonomía Opción D verificado (T-157);
-     plantilla compose y flota de Bane verificadas (T-158);
-     cliente CLI determinista de Bane verificado (T-159);
-     workflow deep-research y bifurcación verificados (T-160);
+     purga de residuos fantasma de Bane y cliente soberano SearXNG verificados (T-158, T-159, T-175);
+     workflow deep-research y bifurcación unificados sobre SearXNG verificados (T-160, T-175);
      formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164);"
   echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
   echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
@@ -3155,44 +3161,16 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 38. Integración integral de Bane: plantillas, cliente determinista, sonda y runbook (T-158..T-161)
+# 38. Integración soberana de SearXNG y Nango: plantillas, cliente determinista, sonda y runbooks (T-166, T-169, T-170, T-175)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [38/38] Verificando integración integral de Bane (Docker Compose, cliente CLI, fleet-doctor y runbook)..."
+echo -e "🔍 [38/38] Verificando integración integral de SearXNG y Nango (Docker Compose, cliente CLI, fleet-doctor y runbooks)..."
 T38_FAILS=""
 
-# Sub-check 1: Plantilla Compose
-BANE_COMPOSE="$ROOT/templates/bane/docker-compose.yml"
-if [ ! -f "$BANE_COMPOSE" ]; then
-  T38_FAILS="$T38_FAILS bane-compose-ausente"
-else
-  python3 -c "import yaml; yaml.safe_load(open('$BANE_COMPOSE'))" 2>/dev/null || T38_FAILS="$T38_FAILS bane-compose-yaml-invalido"
-  grep -q "ghcr.io/pythops/bane" "$BANE_COMPOSE" || T38_FAILS="$T38_FAILS bane-compose-sin-imagen"
-fi
-
-# Sub-check 2: Cliente determinista CLI
-BANE_CLIENT="$ROOT/scripts/agent/lib/bane-client.sh"
-if [ ! -x "$BANE_CLIENT" ]; then
-  T38_FAILS="$T38_FAILS bane-client-no-ejecutable"
-else
-  bash "$BANE_CLIENT" --help >/dev/null 2>&1 || T38_FAILS="$T38_FAILS bane-client-help-falla"
-  BCHECK_RC=0; bash "$BANE_CLIENT" --check >/dev/null 2>&1 || BCHECK_RC=$?
-  [ "$BCHECK_RC" -eq 2 ] || T38_FAILS="$T38_FAILS bane-client-check-sin-config-no-sale-2"
-fi
-
-# Sub-check 3: Runbook operativo
-BANE_RUNBOOK="$ROOT/docs/runbooks/bane-deep-research-service.md"
-if [ ! -f "$BANE_RUNBOOK" ]; then
-  T38_FAILS="$T38_FAILS bane-runbook-ausente"
-else
-  grep -q "Bane Deep Research Service" "$BANE_RUNBOOK" || T38_FAILS="$T38_FAILS bane-runbook-sin-titulo"
-  grep -q "templates/bane/docker-compose.yml" "$BANE_RUNBOOK" || T38_FAILS="$T38_FAILS bane-runbook-sin-referencia-compose"
-fi
-
-# Sub-check 4: Sonda de flota en fleet-doctor.sh
+# Sub-check 1: Sonda de flota en fleet-doctor.sh (T-175)
 FDR_JSON=$(bash "$ROOT/scripts/agent/fleet-doctor.sh" --json 2>/dev/null || true)
-if ! echo "$FDR_JSON" | grep -q '"bane_probe"'; then
-  T38_FAILS="$T38_FAILS fleet-doctor-sin-sonda-bane"
+if ! echo "$FDR_JSON" | grep -q '"searxng_probe"'; then
+  T38_FAILS="$T38_FAILS fleet-doctor-sin-sonda-searxng"
 fi
 
 # Sub-check 5: Integración soberana de Nango (T-166)
@@ -3274,8 +3252,8 @@ if [ -n "$T38_FAILS" ]; then
   echo -e "  ❌ ERROR: Check 38 incumple:$T38_FAILS"
   ERRORS=$((ERRORS + 1))
 else
-  echo -e "  ✅ Integración de Bane y SearXNG certificada: Docker Compose válido, cliente CLI determinista (exit 2 fail-soft),"
-  echo -e "     runbook operativo libre de literales privados, sonda fleet-doctor activa y denominador 38/38 conforme."
+  echo -e "  ✅ Integración soberana de SearXNG y Nango certificada: Docker Compose válido, clientes CLI deterministas,"
+  echo -e "     runbooks operativos libres de literales privados, sonda fleet-doctor activa y denominador 38/38 conforme."
 fi
 
 # ------------------------------------------------------------------------------

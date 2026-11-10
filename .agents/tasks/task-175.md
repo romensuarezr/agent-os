@@ -46,22 +46,22 @@ Archivos autorizados para modificación / eliminación:
 - `.agents/tasks/task-175.md`
 
 ## Criterios de done
-- [ ] Artefactos de Bane (`bane-client.sh`, `templates/bane/`, `docs/runbooks/bane-deep-research-service.md`) eliminados del árbol de git.
-- [ ] Workflows `sprint-planning.md` y `deep-research.md` migrados para usar exclusivamente `searxng-client.sh`.
-- [ ] `fleet-doctor.sh` saneado con sonda de búsqueda profunda unificada sobre SearXNG.
-- [ ] Checks 34 y 38 de `tests/validate-control-plane.sh` adaptados a SearXNG sin rastro de dependencias de Bane.
-- [ ] Suite de control plane pasando limpia con denominador inmutable en **38/38** (0 errores).
-- [ ] Ejecutada y registrada bajo las reglas de Opción D.
+- [x] Artefactos de Bane (`bane-client.sh`, `templates/bane/`, `docs/runbooks/bane-deep-research-service.md`) eliminados del árbol de git.
+- [x] Workflows `sprint-planning.md` y `deep-research.md` migrados para usar exclusivamente `searxng-client.sh`.
+- [x] `fleet-doctor.sh` saneado con sonda de búsqueda profunda unificada sobre SearXNG.
+- [x] Checks 34 y 38 de `tests/validate-control-plane.sh` adaptados a SearXNG sin rastro de dependencias de Bane.
+- [x] Suite de control plane pasando limpia con denominador inmutable en **38/38** (0 errores).
+- [x] Ejecutada y registrada bajo las reglas de Opción D.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
-  - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
+  - **Rol del revisor**: qa-judge (Antigravity CLI Tier 1, $0 inferencia, 0 objeciones)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10T13:34:52Z (Piloto Camino B Aprobado por Humano en Planning)
+- [x] Rama creada: `feat/T-175-purge-bane-searxng-migration`
+- [x] Lock activo: `.agent-session.lock`
 - [ ] Sesión cerrada correctamente
