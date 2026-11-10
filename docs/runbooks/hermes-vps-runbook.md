@@ -191,6 +191,7 @@ PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes -z "ping"
 | `connection refused` en `127.0.0.1:9119` | Bind exclusivo a la interfaz Tailscale. | Conectar directamente a `http://<TAILSCALE_IP>:9119`. |
 | `HTTP 302 Found` al consultar `9119` | Comportamiento normal con autenticación web habilitada. | Abrir en navegador y completar login de sesión. |
 | `HTTP 403 / 402` en consultas LLM | Modelo comercial invocado sin saldo en OpenRouter. | Restringir el modelo al sufijo `:free` o conmutar a `custom:omniroute`. |
+| `HTTP 401 Invalid API Key` en inferencia | Proveedor conmutado a pasarela sin autenticar (ej. FreeLLMAPI). | Revertir bloque `model` a `custom:omniroute` y reiniciar `hermes-gateway`. Ver [Nota de Incidente](incident-hermes-401-remediation.md). |
 | `hermes: command not found` vía SSH no login | `~/.local/bin` o el virtualenv no están en el `PATH` no interactivo. | Invocar con `PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes`. |
 | Subdominio `trycloudflare.com` caído | Túnel efímero expirado. | Migrar la `base_url` a `http://<TAILSCALE_IP>:20128/v1` en Tailscale. |
 | Cron jobs en estado "config drifted" | `hermes-gateway` ejecutándose con configuración desfasada. | Ejecutar `systemctl --user restart hermes-gateway`. |
