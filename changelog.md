@@ -9,6 +9,29 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.29.0] — sprint-33 — 2026-11-10
+
+### ✨ Features
+
+- feat(T-187): cierre de tarea T-187
+- feat(skills): formalización de skill ui-critique y registro en manifiesto (T-187)
+- feat(T-186): cierre de tarea T-186
+- feat(control-plane): cobertura y hardening determinista de rotate-freellmapi-token.sh (T-186)
+- feat(T-185): cierre de tarea T-185
+- feat(workflows): refinamiento y paridad de session-close.md con Opción D (T-185)
+- feat(T-184): cierre de tarea T-184
+- feat(satellites): auditoría determinista de integridad y salud de scripts (T-184)
+- feat(T-183): cierre de tarea T-183
+- feat(ops): estandarizacion de coolify.sh y coolify-admin T-183
+- feat(T-188): cierre de tarea T-188
+- feat(governance): endurecimiento de flujo desatendido T-188
+
+### 🔧 Mantenimiento
+
+- chore(sprint-33): sellar regimen operativo Opción D y carriles en sprint-33-core
+- chore(sprint-33): enmienda al planning con T-188 (endurecimiento del flujo desatendido)
+- chore(sprint-33): planificar Sprint 33 (T-183 a T-187) y actualizar roadmap
+
 ## [1.28.0] — sprint-32 — 2026-11-10
 
 ### ✨ Features

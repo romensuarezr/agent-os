@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Flujo Desatendido & UI Critique (T-183 a T-188). Ver `docs/sprints/sprint-33-core.md`.
+- Ninguno (Sprint 33 completado; listo para planificación de Sprint 34).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Flujo Desatendido & UI Critique (T-183 a T-188). Formalizado como release `v1.29.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-33-core.md`.
 - **Sprint 32**: Saneamiento Final de Motores, Soporte MCP Remoto, Integración DeepWiki & Rotación Hermes FreeLLMAPI (T-178 a T-182). Formalizado como release `v1.28.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-32-core.md`.
 - **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Formalizado como release `v1.27.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-31-core.md`.
 - **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Formalizado como release `v1.26.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-30-core.md`.
@@ -46,11 +47,11 @@
   - `close-sprint.sh` hace staging acotado a sus propios ficheros y avisa de lo ajeno (antes commit `0 insertions / 0 deletions` en sprint-14).
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
 - ✅ Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (T-110, sprint-18).
-- Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
-- Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
+- ✅ Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (T-183, Sprint 33).
+- ✅ Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (T-187, Sprint 33).
 - ✅ [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S): resuelto y superado por `check-tooling-updates.sh` (T-174) y `tooling-advisor` (T-173, T-180).
-- Auditorías automáticas del estado de salud de los scripts en proyectos hijos.
-- Refinamiento de workflows globales y estandarización de logs de ejecución.
+- ✅ Auditorías automáticas del estado de salud de los scripts en proyectos hijos (T-184, Sprint 33).
+- ✅ Refinamiento de workflows globales y estandarización de logs de ejecución (T-185, T-188, Sprint 33).
 
 ## Backlog
 - Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/_archived/2026-06-18-gestion-automatica-manifest.md`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
