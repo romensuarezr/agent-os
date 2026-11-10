@@ -257,15 +257,17 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
 - Ejecutar de nuevo `update-mvp-tracker.sh` para recalcular.
 - Añadir fila en `## Historial de actualizaciones` con fecha, sprint y % global.
 
-### 5. Investigación técnica: bifurcación autónoma (SearXNG) / manual (Perplexity)
+### 5. Investigación técnica: bifurcación autónoma (SearXNG) / asistida (Perplexity)
 
 > Protocolo unificado de investigación técnica profunda. Si SearXNG está disponible en la flota,
-> ejecuta la investigación de forma 100% desatendida; si no, preserva el flujo asistido con Perplexity.
+> ejecuta la investigación de forma 100% desatendida; si no, activa el fallback asistido con Perplexity.
+> **Regla de oro: El fallback nunca es silencioso. Si se recurre a Perplexity, se declara explícitamente el motivo.**
 
 1. **Comprobar disponibilidad de SearXNG:**
    ```bash
    bash scripts/agent/lib/searxng-client.sh --check
    ```
+   Capturar el código de salida y la salida de diagnóstico (`exit 0` = activo; `exit 2` o error = inactivo/degradado).
 
 2. **Bifurcación:**
    - **Si SearXNG está activo (`exit 0`):**
@@ -273,10 +275,15 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
      ```bash
      bash scripts/agent/lib/searxng-client.sh --query "[Consulta técnica con contexto, stack y tarea]" --output "docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md"
      ```
-     La investigación se integra automáticamente en el research file. Pasar directamente al Paso 6 sin requerir intervención manual del usuario.
-   - **Si SearXNG está inactivo (`exit 2` o fallback):**
-     Preservar íntegramente el comportamiento manual clásico:
-     Antes de redactar, usar como fuente primaria el digest de `inventory-check.sh` si la señal de complejidad fue ≥2. Si fue baja, leer directamente los archivos más relevantes del código relacionado (máx. 3 archivos).
+     La investigación técnica se integra de forma 100% autónoma en el research file.
+     **Sin prompt de Perplexity ni bloqueo en pausa:** pasar directamente al **Paso 7 (Entrega y Aprobación del Sprint)**.
+   - **Si SearXNG está inactivo (`exit 2` o fallo de red/configuración):**
+     **Anuncio obligatorio y ruidoso**: El agente DEBE emitir en el chat el aviso explícito:
+     ```
+     ⚠️ AVISO DE FALLBACK: SearXNG inactivo o no disponible en la flota (código de salida: <RC>, diagnóstico: <salida de searxng-client.sh>).
+     El fallback a investigación asistida nunca es silencioso: activando preparación de prompt de Perplexity Pro.
+     ```
+     Usar como fuente primaria el digest de `inventory-check.sh` si la señal de complejidad fue ≥2. Si fue baja, leer directamente los archivos más relevantes del código relacionado (máx. 3 archivos).
      Producir el bloque listo para pegar en Perplexity Pro:
 
      ```
@@ -289,13 +296,17 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
      FORMATO DE RESPUESTA ESPERADO: [lo que necesitas: comparativa, ejemplo
      de código, decisión de arquitectura, etc.]
      ```
+     Continuar al Paso 6 (Pausa asistida).
 
-### 6. Pausa y handoff a /session-start
+### 6. Pausa asistida y handoff a /session-start (Solo si SearXNG estaba inactivo)
+
+> **Condición**: Este paso se ejecuta **ÚNICAMENTE** si SearXNG estaba inactivo y se recurrió al fallback de Perplexity en el Paso 5.
+> Si la investigación fue autónoma (SearXNG activo), este paso se omite por completo y el flujo avanza sin pausas.
 
 Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta**:
 
 ```
-✅ Sprint {{SPRINT_SIGUIENTE}} listo. Prompt de Perplexity generado.
+⚠️ Sprint {{SPRINT_SIGUIENTE}} preparado con fallback a Perplexity (SearXNG no disponible). Prompt generado.
 
 👉 Próximos pasos:
    1. Copia el prompt del paso anterior y pégalo en Perplexity.
@@ -303,12 +314,12 @@ Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta
       pegando los hallazgos — el agente los guardará en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md
       y los integrará en el task file antes de empezar a codear.
 
-⏸ Este workflow queda en pausa. Hasta luego.
+⏸ Este workflow queda en pausa asistida. Hasta luego.
 ```
 
-> **Nota para el agente:** No ejecutes `/session-start` automáticamente. El usuario necesita hacer la investigación en Perplexity antes de continuar.
+> **Nota para el agente:** No ejecutes `/session-start` automáticamente cuando estés en pausa asistida. El usuario necesita realizar la investigación en Perplexity antes de continuar.
 
-### 6b. Recepción de hallazgos de Perplexity (cuando el usuario vuelve)
+### 6b. Recepción de hallazgos de Perplexity (cuando el usuario vuelve de la pausa asistida)
 
 1. Recibir el output de Perplexity del usuario.
 2. Si `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` ya existe (creado por el paso 2e), **NO sobrescribirlo**: añadir las secciones de Perplexity (`## Hallazgos clave`, `## Decisiones tomadas`, `## Descartado`) sin tocar `## Descubrimientos Scout (por tarea)`. Si no existe, crearlo con esta estructura:
@@ -340,9 +351,9 @@ Si el research incluye URLs de repositorios GitHub:
 
 3. Confirmar: `"💾 Investigación guardada en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md. Listo para /session-start."`
 
-### 7. Entrega (resumen previo a la pausa)
+### 7. Entrega y Solicitud de Aprobación Macro del Sprint
 
-Justo antes del mensaje de pausa del paso 6:
+Justo al finalizar la planificación (antes de la pausa si hubo fallback, o como entrega final para aprobación si SearXNG fue autónomo):
 1. Resumen del estado del roadmap (3 líneas máximo).
 2. Decisiones tomadas sobre tareas incompletas del sprint anterior (si las hubo).
 3. Resultado de la verificación de código del paso 2c (tabla con evidencias).
@@ -355,7 +366,7 @@ Justo antes del mensaje de pausa del paso 6:
       Capacidad 2                  ████████░░  80%
       ...
    ```
-7. El prompt para Perplexity listo para copiar.
+7. El prompt para Perplexity listo para copiar (**exclusivamente si SearXNG estuvo inactivo**). Si SearXNG estuvo activo, indicar: `"✅ Investigación técnica completada autónomamente con SearXNG e integrada en el research file."`
 8. Ruta del sprint file creado.
 9. **Verificación de compuerta Scout-First (T-129):** Confirmar explícitamente la presencia de `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` con su sección `## Descubrimientos Scout (por tarea)` completa para todas las tareas del sprint. Si falta el research estructurado, detenerse inmediatamente: *"Sin research scout estructurado no hay plan de sprint admisible"*.
 

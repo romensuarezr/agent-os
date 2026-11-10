@@ -31,11 +31,11 @@ bash scripts/agent/check-session.sh
 
 ### FASE 1 — Lectura de contexto
 
-1. Leer sprint file más reciente en `docs/sprints/`.
+1. Leer sprint file más reciente en `docs/sprints/` (y ejecutar `bash scripts/agent/check-sprint.sh`).
 2. **Compuerta proactiva de arranque de sprint (Pregunta única de Régimen y Camino)**:
    Verificar la sección `## Régimen Operativo del Sprint` en el sprint file (`docs/sprints/sprint-XX.md`).
-   - Si la sección está ausente, sin sellar o contiene `[PENDIENTE]` / `[PENDIENTE_ARRANQUE]` (típicamente al abrir la primera sesión del sprint):
-     El flujo se detiene y formula **PROACTIVAMENTE** al usuario una única consulta antes de seleccionar tarea o abrir planes:
+   - **Condición de activación**: Si la sección está ausente, sin sellar o contiene `[PENDIENTE]` / `[PENDIENTE_ARRANQUE]` (o `check-sprint.sh` reporta `SPRINT_REGIMEN: PENDIENTE_ARRANQUE`):
+     🔒 **COMPUERTA OBLIGATORIA INFRANQUEABLE**: El flujo se detiene inmediatamente. El agente tiene **TERMINANTEMENTE PROHIBIDO** continuar a la Fase 2, leer task files, crear ramas o deliberar planes. DEBE emitir al usuario la siguiente consulta estructurada interactiva y finalizar su turno para esperar la respuesta:
      ```
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      🚀 ARRANQUE DE SPRINT {{SPRINT_ACTIVE}} — CONFIGURACIÓN OPERATIVA
@@ -65,7 +65,7 @@ bash scripts/agent/check-session.sh
        - Carril 2: [T-ZZZ]
      - **Sellado en**: YYYY-MM-DD HH:MM UTC
      ```
-   - **Invariante**: Una vez sellado, el régimen es vinculante e inmutable durante todo el sprint. Las siguientes invocaciones de `/session-start` detectan el sellado y proceden directamente sin volver a preguntar.
+   - **Invariante**: Una vez sellado, el régimen es vinculante e inmutable durante todo el sprint. Las siguientes sesiones de `/session-start` dentro del mismo sprint detectan el sellado y proceden directamente a la tarea activa sin volver a preguntar.
 3. **Comprobar tareas `🟡 En curso`:** si existe alguna, mostrar alerta y esperar confirmación:
    ```
    ⚠️ La tarea [T-XXX] quedó en estado 🟡 En curso en la sesión anterior.
