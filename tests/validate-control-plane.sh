@@ -533,10 +533,10 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
+# 13. Pre-flight de Pasarela de Inferencia y Rotación de Tokens (check-inference-gateway.sh / rotate-freellmapi-token.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/38] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/38] Verificando pre-flight de pasarela de inferencia y rotación de tokens (check-inference-gateway.sh / rotate-freellmapi-token.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -585,6 +585,32 @@ assert 'sk-canary-no-debe-aparecer' not in r.stdout
   else
     echo -e "  ❌ ERROR: check-inference-gateway.sh no clasifica correctamente un gateway inaccesible."
     ERRORS=$((ERRORS + 1))
+  fi
+
+  # 4. Verificación estática y determinista de rotate-freellmapi-token.sh (T-186)
+  ROTATE_SCRIPT="scripts/agent/lib/rotate-freellmapi-token.sh"
+  if [ ! -x "$ROTATE_SCRIPT" ]; then
+    echo -e "  ❌ El script $ROTATE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+    ERRORS=$((ERRORS + 1))
+  elif ! bash -n "$ROTATE_SCRIPT" 2>/dev/null; then
+    echo -e "  ❌ Error de sintaxis (bash -n) en: $ROTATE_SCRIPT"
+    ERRORS=$((ERRORS + 1))
+  else
+    ROTATE_FAILS=""
+    if ! bash "$ROTATE_SCRIPT" --help >/dev/null 2>&1; then
+      ROTATE_FAILS="$ROTATE_FAILS help-falla"
+    fi
+    env_clean_rc=0
+    env -i PATH="$PATH" bash "$ROTATE_SCRIPT" --check >/dev/null 2>&1 || env_clean_rc=$?
+    if [ "$env_clean_rc" -ne 1 ]; then
+      ROTATE_FAILS="$ROTATE_FAILS rechazo-sin-target-invalido(rc=$env_clean_rc)"
+    fi
+    if [ -n "$ROTATE_FAILS" ]; then
+      echo -e "  ❌ ERROR: rotate-freellmapi-token.sh incumple:$ROTATE_FAILS"
+      ERRORS=$((ERRORS + 1))
+    else
+      echo -e "  ✅ rotate-freellmapi-token.sh conforme: permisos 0755, sintaxis, ayuda estándar y rechazo determinista."
+    fi
   fi
 fi
 

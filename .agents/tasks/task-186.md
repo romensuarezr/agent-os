@@ -26,18 +26,20 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-186.md`
 
 ## Criterios de done
-- [ ] `rotate-freellmapi-token.sh` migrado a `lib/cli-help.sh`.
-- [ ] Test determinista añadido en `tests/validate-control-plane.sh`.
-- [ ] Suite `tests/validate-control-plane.sh` 38/38 verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] `rotate-freellmapi-token.sh` migrado a `lib/cli-help.sh`.
+- [x] Test determinista añadido en `tests/validate-control-plane.sh`.
+- [x] Suite `tests/validate-control-plane.sh` 38/38 verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Lock activo: .agent-session.lock
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
+  - **Rol del revisor**: Compuerta técnica determinista (qa-judge).
+- [x] Plan presentado al usuario (Fase 3.5 — Opción D sellada en planning)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10 21:19 UTC (camino limpio Opción D)
+- [x] Rama creada: feat/T-186-rotate-freellmapi-token-coverage
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
