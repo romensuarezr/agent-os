@@ -46,6 +46,7 @@ agent-os/
 │   ├── close-sprint.sh          ← cierra y archiva el sprint
 │   ├── close-task.sh            ← cierra una tarea individual
 │   ├── audit-repo.sh            ← detecta incompatibilidades en repos con vida previa
+│   ├── audit-satellites.sh      ← auditoría determinista de integridad de scripts en satélites
 │   ├── generate-digest.sh       ← genera resumen del estado del proyecto
 │   ├── inventory-check.sh       ← firewall anti-duplicación de código
 │   ├── scout.sh                 ← prospección OSS determinista (GitHub/npm/PyPI)
@@ -149,6 +150,7 @@ Tabla canónica de utilidades operativas y diagnóstico determinista:
 | `scripts/agent/inventory-check.sh` | Firewall anti-duplicación de código antes de nuevas implementaciones | $0 |
 | `scripts/agent/verify-goal.sh` | Validador desacoplado de metas de orquestación | $0 |
 | `scripts/agent/promote-to-main.sh` | Promoción controlada de ramas de trabajo hacia `main` | $0 |
+| `scripts/agent/audit-satellites.sh` | Auditoría determinista de integridad, permisos (+x) y desvíos en satélites | $0 |
 
 ---
 

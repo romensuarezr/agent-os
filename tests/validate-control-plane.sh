@@ -294,8 +294,8 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/38] Verificando sintaxis y permisos de scripts de metas, orquestación, promoción y tooling..."
-ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh" "scripts/agent/check-tooling-updates.sh")
+echo -e "🔍 [9/38] Verificando sintaxis y permisos de scripts de metas, orquestación, promoción, tooling y auditoría..."
+ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh" "scripts/agent/check-tooling-updates.sh" "scripts/agent/audit-satellites.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
   if [ ! -f "$s" ]; then
@@ -318,6 +318,35 @@ else
   echo -e "  ❌ check-tooling-updates.sh falló al invocar --help."
   ERRORS=$((ERRORS + 1))
 fi
+
+if bash scripts/agent/audit-satellites.sh --help >/dev/null 2>&1; then
+  echo -e "  ✅ audit-satellites.sh expone ayuda estándar (--help)."
+else
+  echo -e "  ❌ audit-satellites.sh falló al invocar --help."
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Prueba funcional determinista de audit-satellites.sh (T-184)
+AUDIT_TMP="$(mktemp -d)"
+mkdir -p "$AUDIT_TMP/sat_ok/scripts/agent/lib" "$AUDIT_TMP/sat_drift/scripts/agent/lib"
+cp scripts/agent/*.sh "$AUDIT_TMP/sat_ok/scripts/agent/" 2>/dev/null || true
+cp scripts/agent/lib/*.sh "$AUDIT_TMP/sat_ok/scripts/agent/lib/" 2>/dev/null || true
+cp -r "$AUDIT_TMP/sat_ok/scripts/agent" "$AUDIT_TMP/sat_drift/scripts/" 2>/dev/null || true
+echo "# drift" >> "$AUDIT_TMP/sat_drift/scripts/agent/check-session.sh"
+
+AUDIT_OK_RC=0
+bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_ok" --check >/dev/null 2>&1 || AUDIT_OK_RC=$?
+AUDIT_DRIFT_RC=0
+bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_drift" --check >/dev/null 2>&1 || AUDIT_DRIFT_RC=$?
+AUDIT_JSON="$(bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_ok" --json 2>/dev/null || true)"
+
+if [ "$AUDIT_OK_RC" -eq 0 ] && [ "$AUDIT_DRIFT_RC" -eq 1 ] && echo "$AUDIT_JSON" | grep -q '"clean": 1'; then
+  echo -e "  ✅ audit-satellites.sh valida satélites limpios (rc=0), desvíos (rc=1) y JSON determinista."
+else
+  echo -e "  ❌ audit-satellites.sh falló validación funcional (ok_rc=$AUDIT_OK_RC, drift_rc=$AUDIT_DRIFT_RC)."
+  ERRORS=$((ERRORS + 1))
+fi
+rm -rf "$AUDIT_TMP"
 
 # ------------------------------------------------------------------------------
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
