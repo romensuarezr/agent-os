@@ -25,19 +25,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-185.md`
 
 ## Criterios de done
-- [ ] `.agents/workflows/session-close.md` actualizado con protocolo Opción D y `close-task.sh`.
-- [ ] Documentada la compuerta de verificación del relé post-cierre y su fail-closed.
-- [ ] Protocolo de encadenamiento entre tareas del carril estandarizado.
-- [ ] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] `.agents/workflows/session-close.md` actualizado con protocolo Opción D y `close-task.sh`.
+- [x] Documentada la compuerta de verificación del relé post-cierre y su fail-closed.
+- [x] Protocolo de encadenamiento entre tareas del carril estandarizado.
+- [x] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Lock activo: .agent-session.lock
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
+  - **Rol del revisor**: Compuerta técnica determinista (qa-judge).
+- [x] Plan presentado al usuario (Fase 3.5 — Opción D sellada en planning)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10 21:19 UTC (camino limpio Opción D)
+- [x] Rama creada: feat/T-185-session-close-opcion-d
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
