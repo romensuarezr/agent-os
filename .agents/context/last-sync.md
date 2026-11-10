@@ -7,10 +7,10 @@
 ## Estado actual
 
 - **Modo**: self-hosted (agent-os operando sobre sí mismo)
-- **Sprint activo**: sprint-32-core (en curso)
-- **Último sprint cerrado**: sprint-31-core (archivado en `docs/sprints/_archived/`)
+- **Sprint activo**: ninguno (planificar con /sprint-planning)
+- **Último sprint cerrado**: sprint-32-core (archivado en `docs/sprints/_archived/`)
 - **Último bootstrap**: 2026-06-16
-- **Versión del core**: `v1.27.0` (`changelog.md` es la fuente de verdad; `VERSION` debe coincidir)
+- **Versión del core**: `v1.28.0` (`changelog.md` es la fuente de verdad; `VERSION` debe coincidir)
 
 ---
 

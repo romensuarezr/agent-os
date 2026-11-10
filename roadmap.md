@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 32**: Saneamiento Final de Motores, Soporte MCP Remoto, Integración DeepWiki & Rotación Hermes FreeLLMAPI (T-178 a T-182). Ver `docs/sprints/sprint-32-core.md`.
+- Ninguno activo (Sprint 32 completado; pendiente `sprint-planning` para Sprint 33).
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 32**: Saneamiento Final de Motores, Soporte MCP Remoto, Integración DeepWiki & Rotación Hermes FreeLLMAPI (T-178 a T-182). Formalizado como release `v1.28.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-32-core.md`.
 - **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Formalizado como release `v1.27.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-31-core.md`.
 - **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Formalizado como release `v1.26.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-30-core.md`.
 - **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Formalizado como release `v1.25.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-29-core.md`.
