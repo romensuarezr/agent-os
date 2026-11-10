@@ -30,22 +30,41 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-182.md`
 
 ## Criterios de done
-- [ ] Script determinista de rotación de token de FreeLLMAPI operativo sin fugas de secretos en salida estándar.
+- [x] Script determinista de rotación de token de FreeLLMAPI operativo sin fugas de secretos en salida estándar (`scripts/agent/lib/rotate-freellmapi-token.sh`).
 - [ ] Compuerta HITL ejecutada en el chat con solicitud de ventana y aprobación humana explícita antes de reiniciar el gateway.
 - [ ] Configuración de Hermes actualizada apuntando al proveedor verificado sin incidencias de autenticación 401.
 - [ ] Verificación de liveness (`hermes -z ping` y llamada real de inferencia) 100% exitosa.
 - [ ] Runbook `docs/runbooks/incident-hermes-401-remediation.md` actualizado con evidencia técnica y redacción determinista.
 - [ ] Suite `tests/validate-control-plane.sh` 38/38 en verde y `locator-hygiene.sh` limpio.
 
+## Diagnóstico determinista y mapeo de consumidores
+> Registro técnico verificado vía sonda determinista en `<nodo-inferencia>` (2026-11-10 19:30 UTC):
+
+1. **Estado de Claves**:
+   - `freeapi.db` (tabla `settings`): `unified_api_key` presente (longitud 59, prefijo `freellmapi-***`).
+   - `~/.hermes/config.yaml` (`custom_providers`): `api_key` presente con valor truncado de longitud 7 (`free***`), detonante directo del error HTTP 401 al invocar el proveedor.
+   - `~/.hermes/config.yaml` (`model` raíz): `provider: custom:omniroute`, `default: auto/best-coding` (estable, operativo).
+
+2. **Consumidores activos de la `unified_api_key`**:
+   - **OpenCode** (estación de trabajo local): Configurado con `model: freellmapi/auto` y `options.apiKey` vinculada a la clave activa de 59 caracteres en `~/.config/opencode/opencode.json`.
+   - **Hermes Agent** (`<nodo-inferencia>`): Declarado en `custom_providers.freellmapi`.
+   - **Bóveda Infisical**: Variable `FREELLMAPI_API_KEY` registrada en `/shared` (entorno dev).
+   - **Agent OS Fleet**: Inventariado formalmente en `.agents/config/fleet.yaml` con consumidores `[opencode, hermes-agent]`.
+
+3. **Estrategia acordada para la Ventana HITL**:
+   - Modalidad B: Generación de clave unificada nueva (`freellmapi-<hex48>`).
+   - Conexión y sincronización de `custom_providers.freellmapi` en Hermes sin conmutar la raíz `model:` (OmniRoute se mantiene por defecto).
+   - Puerta de control: Publicación de la rama `feat/T-182-rotacion-freellmapi-hermes-hitl` para auditoría previa del relé antes de otorgar el OK y abrir la ventana.
+
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10T19:22:59Z (Opción D - Desatendida, Aprobado en Planning Sprint 32 con condición de Gate HITL)
+- [x] Rama creada: feat/T-182-rotacion-freellmapi-hermes-hitl
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
