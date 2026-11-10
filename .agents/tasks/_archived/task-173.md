@@ -15,7 +15,7 @@ Esta tarea se ejecuta bajo el régimen estándar de **Opción D** y depende de *
   - APIs públicas de registros oficiales (npm, GitHub releases, PyPI): Adoptadas con mapeo explícito de fuente verídica.
 - **Dictamen del Relé**:
   - Sonda CLI determinista de coste $0 de tokens en `scripts/agent/check-tooling-updates.sh`.
-  - Mapeo de fuente verídica: npm para `@opencode/cli`; GitHub API para `NousResearch/hermes-agent`, `stablyai/orca` e `Infisical/infisical`.
+  - Mapeo de fuente verídica: npm para `@opencode/cli`; GitHub API para `NousResearch/hermes-agent`, `stablyai/orca` e `Infisical/infisical`; PyPI JSON API para paquetes Python de la flota (`glances`).
   - Normalización semver uniforme (omisión de prefijo `v`), soporte de flags `--json`, `--check`, `--tool` y timeout estricto (≤5s).
 
 ## Diseño macro aprobado en planning
@@ -49,7 +49,7 @@ Archivos autorizados para modificación:
 
 ## Criterios de done
 - [x] Script ejecutable y determinista `scripts/agent/check-tooling-updates.sh` implementado con soporte de `--help`, `--check` y `--json`.
-- [x] Mapeo de fuente verídica implementado correctamente (npm para `@opencode/cli`, GitHub para repositorios y PyPI para paquetes python).
+- [x] Mapeo de fuente verídica implementado y verificado en vivo (npm para `@opencode/cli`, GitHub para repositorios y PyPI para paquetes python como `glances`).
 - [x] Normalización semver funcional que compare versiones sin fallos por prefijos `v`.
 - [x] Tolerancia a fallos ante desconexión o rate limiting HTTP 429 con degradación limpia.
 - [x] Validación integrada en la suite de control plane preservando denominador inmutable en **38/38** pasando limpia (0 errores).

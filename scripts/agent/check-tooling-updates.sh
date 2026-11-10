@@ -32,7 +32,7 @@ if [ "$SHOW_HELP" = true ]; then
     show_help "check-tooling-updates.sh" \
       "bash scripts/agent/check-tooling-updates.sh [--tool <nombre>] [--check] [--json]" \
       "Inspecciona de forma determinista las versiones disponibles de las herramientas de la flota en registros oficiales (npm, GitHub, PyPI)." \
-      "--tool <nombre>   Filtra la inspección a una herramienta concreta (ej: opencode, hermes, orca, infisical)." \
+      "--tool <nombre>   Filtra la inspección a una herramienta concreta (ej: opencode, hermes, orca, infisical, glances)." \
       "--check           Modo auditoría: devuelve exit code 1 si hay actualizaciones disponibles, 2 ante error/rate limit, 0 si todo está al día." \
       "--json            Emite el informe estructurado en formato JSON." \
       "ejemplo: bash scripts/agent/check-tooling-updates.sh" \
@@ -116,6 +116,23 @@ except Exception:
         ver="$(extract_semver "$(infisical --version 2>/dev/null || true)")"
       fi
       [ -z "$ver" ] && ver="0.43.0"
+      ;;
+    glances)
+      if command -v glances >/dev/null 2>&1; then
+        ver="$(extract_semver "$(glances --version 2>/dev/null || true)")"
+      fi
+      if [ -z "$ver" ] && [ -f "$ROOT_DIR/.agents/config/fleet.example.yaml" ]; then
+        ver="$(python3 -c "
+import yaml
+try:
+    d = yaml.safe_load(open('$ROOT_DIR/.agents/config/fleet.example.yaml'))
+    v = d.get('nodes', {}).get('<nodo-inferencia>', {}).get('services', {}).get('glances', {}).get('version', '')
+    print(v)
+except Exception:
+    pass
+" 2>/dev/null || true)"
+      fi
+      [ -z "$ver" ] && ver="4.0.0"
       ;;
     *)
       ver="unknown"
@@ -201,6 +218,7 @@ declare -a CATALOG=(
   "hermes|Hermes Agent|github|https://api.github.com/repos/NousResearch/hermes-agent/releases/latest"
   "orca|Orca IDE|github|https://api.github.com/repos/stablyai/orca/releases/latest"
   "infisical|Infisical CLI|github|https://api.github.com/repos/Infisical/infisical/releases/latest"
+  "glances|Glances Daemon|pypi|https://pypi.org/pypi/glances/json"
 )
 
 TOTAL_INSPECTED=0
