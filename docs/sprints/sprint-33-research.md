@@ -67,6 +67,25 @@
 - **Alternativas rechazadas y motivos:**
   - Depender de librerías npm de linting visual en tiempo de ejecución: Excesivamente intrusivo en el build pipeline; la skill actúa como guía de auditoría para el agente sin forzar dependencias npm adicionales.
 
+### T-188 — Endurecimiento del flujo desatendido
+- **Alternativa detectada:**
+  1. Fuga de procesos huérfanos de `agy --conversation` detectada en producción durante timeouts de `deliberate-plan.sh` (ej. PID 814302, 38+ min activos) debido a que `portable-timeout.sh` señalizaba únicamente al proceso directo y no a todo el process group.
+  2. Paso 6 de `sprint-planning.md` rígido, que forzaba pausa y prompt de Perplexity incluso cuando SearXNG ejecutó la investigación técnica de forma 100% autónoma.
+  3. Compuerta de arranque de sprint en `session-start.md`: diagnóstico de activación ante estado `[PENDIENTE_ARRANQUE]` y estandarización del bloque interactivo proactivo de opciones (A/B + carriles).
+- **Recomendación del agente:** Implementar los tres arreglos de forma integral:
+  1. Asegurar en `portable-timeout.sh` y `deliberate-plan.sh` la terminación garantizada de todo el grupo de procesos (`PGID`) tras timeout (SIGTERM con escalado a SIGKILL).
+  2. Modificar el Paso 6 de `sprint-planning.md` para ser estrictamente condicional: si SearXNG está activo, no emitir prompt ni bloquear; si está inactivo, anunciar explícitamente el estado/código de error de SearXNG (fallback nunca silencioso) y emitir el prompt + pausa asistida.
+  3. Blindar el pre-flight de `session-start.md` para que ante `[PENDIENTE_ARRANQUE]` emita de forma consistente e invariable la consulta estructurada de Régimen (A/B) y orden de carriles derivados del DAG.
+- **Dictamen del Operador:** Aprobado en enmienda al planning de Sprint 33.
+- **Notas de integración:**
+  1. Actualizar `scripts/agent/lib/portable-timeout.sh` y `deliberate-plan.sh` con `kill -- -$PGID` / `killpg`.
+  2. Actualizar `.agents/workflows/sprint-planning.md` (Paso 5 y Paso 6).
+  3. Actualizar `.agents/workflows/session-start.md` (Fase 1, compuerta proactiva).
+  4. Validar en `tests/validate-control-plane.sh` Check 34.
+- **Alternativas rechazadas y motivos:**
+  - Dejar huérfanos sin matar o matanza individual por PID: Deja procesos de inferencia colgados consumiendo memoria y CPU.
+  - Fallback silencioso a Perplexity: Descartado por mandato explícito; el operador debe saber siempre por qué se recurre a la asistencia manual.
+
 ---
 
 ## Hallazgos de Investigación Soberana (SearXNG)

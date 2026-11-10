@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Gobernanza & UI Critique (T-183 a T-187). Ver `docs/sprints/sprint-33-core.md`.
+- **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Flujo Desatendido & UI Critique (T-183 a T-188). Ver `docs/sprints/sprint-33-core.md`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
