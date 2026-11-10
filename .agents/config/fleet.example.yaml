@@ -142,7 +142,8 @@ monitoring:
 # ------------------------------------------------------------------------------
 # 3. Model Context Protocol (MCP) Standard Server Definitions
 # ------------------------------------------------------------------------------
-# Aligned with the standard MCP client specification
+# Aligned with the standard MCP client specification.
+# Supports both local stdio servers (command, args, env) and remote HTTP/SSE servers (url, transport, headers).
 mcpServers:
   coolify:
     command: "npx"
@@ -183,6 +184,19 @@ mcpServers:
       - "-y"
       - "@modelcontextprotocol/server-memory"
     description: "Persistent knowledge graph memory across agent sessions"
+
+  # Remote HTTP/SSE MCP Servers
+  deepwiki:
+    url: "https://mcp.deepwiki.com/mcp"
+    transport: "http"
+    description: "Deep structural repository analysis and documentation ingestion"
+
+  remote_example:
+    url: "https://mcp.example.com/sse"
+    transport: "sse"
+    headers:
+      Authorization: "Bearer ${REMOTE_MCP_TOKEN}"
+    description: "Authenticated remote SSE MCP server example"
 
 # ------------------------------------------------------------------------------
 # 4. Web & Cloud AI Interfaces (Manual or API Access)
