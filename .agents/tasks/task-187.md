@@ -32,19 +32,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-187.md`
 
 ## Criterios de done
-- [ ] `.agents/skills/ui-critique/SKILL.md` creada siguiendo el estándar de skills.
-- [ ] Checklist heurístico de 5 dimensiones documentado con ejemplos.
-- [ ] Registrada en `.agents/config/skills-manifest.yaml`.
-- [ ] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] `.agents/skills/ui-critique/SKILL.md` creada siguiendo el estándar de skills.
+- [x] Checklist heurístico de 5 dimensiones documentado con ejemplos.
+- [x] Registrada en `.agents/config/skills-manifest.yaml`.
+- [x] Suite de validación `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario
-- [ ] APROBADO recibido
-- [ ] Rama creada
-- [ ] Lock activo: .agent-session.lock
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
+  - **Rol del revisor**: Compuerta técnica determinista (qa-judge).
+- [x] Plan presentado al usuario (Fase 3.5 — Opción D sellada en planning)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10 21:19 UTC (camino limpio Opción D)
+- [x] Rama creada: feat/T-187-ui-critique-skill
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente
