@@ -27,21 +27,21 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-179.md`
 
 ## Criterios de done
-- [ ] Esquema de `.agents/config/fleet.example.yaml` ampliado y documentado con soporte de servidores MCP remotos HTTP/SSE (`url`, `transport`, `headers`).
-- [ ] `scripts/agent/fleet-doctor.sh` incluye sonda determinista para verificar conectividad de servidores MCP remotos con fail-soft y sin fugar credenciales.
-- [ ] Servidores MCP `stdio` preexistentes continúan funcionando sin ninguna alteración.
-- [ ] Suite de pruebas `tests/validate-control-plane.sh` 38/38 en verde.
-- [ ] `locator-hygiene.sh` 100% limpio.
+- [x] Esquema de `.agents/config/fleet.example.yaml` ampliado y documentado con soporte de servidores MCP remotos HTTP/SSE (`url`, `transport`, `headers`).
+- [x] `scripts/agent/fleet-doctor.sh` incluye sonda determinista para verificar conectividad de servidores MCP remotos con fail-soft y sin fugar credenciales.
+- [x] Servidores MCP `stdio` preexistentes continúan funcionando sin ninguna alteración.
+- [x] Suite de pruebas `tests/validate-control-plane.sh` 38/38 en verde.
+- [x] `locator-hygiene.sh` 100% limpio.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-10T19:04:15Z (Opción D - Desatendida, Aprobado en Planning Sprint 32)
+- [x] Rama creada: feat/T-179-soporte-declarativo-mcp-remotos-fleet
+- [x] Lock activo: .agent-session.lock
 - [ ] Sesión cerrada correctamente

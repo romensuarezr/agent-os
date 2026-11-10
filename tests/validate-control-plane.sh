@@ -483,9 +483,9 @@ elif ! bash -n "$DOCTOR_SCRIPT" 2>/dev/null; then
   echo -e "  ❌ Error de sintaxis (bash -n) en: $DOCTOR_SCRIPT"
   ERRORS=$((ERRORS + 1))
 else
-  # 1. Comprobar que fleet-doctor valida sintaxis y procesa .agents/config/fleet.example.yaml en modo agnóstico
-  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DOCTOR_SCRIPT', '--fleet', '.agents/config/fleet.example.yaml', '--json']); data = json.loads(out); assert 'summary' in data and data['fleet']['mode'] == 'SKIPPED-NO-FLEET'" 2>/dev/null; then
-    echo -e "  ✅ fleet-doctor.sh valida sintaxis y procesa .agents/config/fleet.example.yaml deterministamente."
+  # 1. Comprobar que fleet-doctor valida sintaxis y procesa .agents/config/fleet.example.yaml en modo agnóstico (incluyendo MCP stdio y remotos)
+  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DOCTOR_SCRIPT', '--fleet', '.agents/config/fleet.example.yaml', '--json']); data = json.loads(out); assert 'summary' in data and data['fleet']['mode'] == 'SKIPPED-NO-FLEET' and 'mcpServers' in data['fleet'] and 'deepwiki' in data['fleet']['mcpServers'] and data['fleet']['mcpServers']['deepwiki']['type'] == 'remote_http'" 2>/dev/null; then
+    echo -e "  ✅ fleet-doctor.sh valida sintaxis y procesa .agents/config/fleet.example.yaml deterministamente (soporte MCP stdio y remotos HTTP/SSE)."
   else
     echo -e "  ❌ ERROR: fleet-doctor.sh falló al procesar .agents/config/fleet.example.yaml."
     ERRORS=$((ERRORS + 1))

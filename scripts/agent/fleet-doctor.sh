@@ -448,6 +448,74 @@ if searxng_endpoint:
                 searxng_status = "WARN"
                 searxng_note = "SearXNG inalcanzable (fallback manual disponible)"
 
+# 4. Sonda e inspección de MCP Servers (locales stdio y remotos HTTP/SSE, T-179)
+mcp_data = fleet_data.get("mcpServers", {}) if isinstance(fleet_data, dict) else {}
+mcp_result = {}
+mcp_up = 0
+mcp_down = 0
+
+if isinstance(mcp_data, dict):
+    for mcp_name, mcp_conf in mcp_data.items():
+        if not isinstance(mcp_conf, dict):
+            continue
+        desc = mcp_conf.get("description", "")
+        if "url" in mcp_conf:
+            raw_url = mcp_conf.get("url", "")
+            transport = mcp_conf.get("transport", "http")
+            headers = mcp_conf.get("headers", {})
+            has_auth = False
+            if isinstance(headers, dict):
+                has_auth = any("auth" in str(k).lower() for k in headers.keys())
+            mcp_type = f"remote_{transport}"
+
+            if doc_mode or "example.com" in raw_url or "<" in raw_url:
+                status_desc = "SKIPPED-DOC-MODE"
+                is_up = None
+            else:
+                try:
+                    probe_req = urllib.request.Request(
+                        raw_url,
+                        headers={"User-Agent": "agent-os-fleet-doctor/1.0"}
+                    )
+                    with urllib.request.urlopen(probe_req, timeout=min(timeout, 2.0)) as resp:
+                        status_desc = f"UP (HTTP {resp.getcode()})"
+                        is_up = True
+                        mcp_up += 1
+                except urllib.error.HTTPError as he:
+                    if he.code < 500:
+                        status_desc = f"UP (HTTP {he.code})"
+                        is_up = True
+                        mcp_up += 1
+                    else:
+                        status_desc = f"DOWN (HTTP {he.code})"
+                        is_up = False
+                        mcp_down += 1
+                except Exception:
+                    status_desc = "DOWN (UNREACHABLE)"
+                    is_up = False
+                    mcp_down += 1
+
+            mcp_result[mcp_name] = {
+                "type": mcp_type,
+                "transport": transport,
+                "status": status_desc,
+                "url_masked": mask_endpoint(raw_url),
+                "auth": "bearer_masked" if has_auth else "none",
+                "description": desc
+            }
+        elif "command" in mcp_conf:
+            cmd = mcp_conf.get("command", "")
+            bin_exists = shutil.which(cmd) is not None if cmd else False
+            status_desc = "LOCAL_AVAILABLE" if bin_exists else f"LOCAL_MISSING ({cmd})"
+            if bin_exists:
+                mcp_up += 1
+            mcp_result[mcp_name] = {
+                "type": "stdio",
+                "command": cmd,
+                "status": status_desc,
+                "description": desc
+            }
+
 # Estructurar resultado global
 cli_ok_count = sum(1 for c, data in auth_status.items() if data.get("ok"))
 total_clis = len(clis_to_check)
@@ -465,6 +533,11 @@ summary_data = {
     "services_checked": total_services,
     "services_up": services_up,
     "services_down": services_down,
+    "mcp_servers": {
+        "total": len(mcp_result),
+        "up": mcp_up,
+        "down": mcp_down
+    },
     "reviewer_probe": {
         "status": reviewer_status,
         "message": reviewer_note,
@@ -486,7 +559,8 @@ if json_mode:
         "fleet": {
             "source": ".agents/config/fleet.example.yaml" if doc_mode else (fleet_file if fleet_file else ".agents/config/fleet.yaml"),
             "mode": fleet_mode_status,
-            "nodes": nodes_result
+            "nodes": nodes_result,
+            "mcpServers": mcp_result
         }
     }
     print(json.dumps(output_obj, indent=2))
@@ -523,6 +597,14 @@ else:
             svc_parts.append(f"{sname}{port_label}:{st}{auth_note}")
         line_entry = f"• [{node_name}] ({role}): " + ", ".join(svc_parts)
         lines.append(line_entry)
+
+if mcp_result:
+    mcp_parts = []
+    for mname, mdata in mcp_result.items():
+        st = mdata.get("status", "UNKNOWN")
+        mtype = mdata.get("type", "mcp")
+        mcp_parts.append(f"{mname}({mtype}):{st}")
+    lines.append("MCP: " + " | ".join(mcp_parts[:5]) + ("..." if len(mcp_parts) > 5 else ""))
 
 lines.append(f"Reviewer: {reviewer_status} ({reviewer_note})")
 lines.append(f"SearXNG: {searxng_status} ({searxng_note})")
