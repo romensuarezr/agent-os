@@ -33,12 +33,12 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-34.md`
 
 ## Criterios de done
-- [ ] Frontmatter y cabecera de `sprint-planning.md` incluyen directiva imperativa que ordena ejecutar pasos 1 al 7 de inmediato.
-- [ ] Se implementa el Paso 3c determinista: síntesis autónoma de 3–5 tareas candidatas (S/M/L) previo al Paso 5.
-- [ ] Se incorpora regla de repositorio Core vs. Satélite para no buscar `MVP-TRACKER.md` en el Core.
-- [ ] Paso 5 define queries técnicas acotadas para `searxng-client.sh` o declara explícitamente "Investigación web no requerida" si son cambios puramente internos.
-- [ ] Se renombra «Opción D» a «Desatendida» en los workflows y `AGENTS.md`, con la compuerta limpia A/B y nota de alias histórico.
-- [ ] La suite de validación `tests/validate-control-plane.sh` pasa las comprobaciones pertinentes sin regresiones.
+- [x] Frontmatter y cabecera de `sprint-planning.md` incluyen directiva imperativa que ordena ejecutar pasos 1 al 7 de inmediato.
+- [x] Se implementa el Paso 3c determinista: síntesis autónoma de 3–5 tareas candidatas (S/M/L) previo al Paso 5.
+- [x] Se incorpora regla de repositorio Core vs. Satélite para no buscar `MVP-TRACKER.md` en el Core.
+- [x] Paso 5 define queries técnicas acotadas para `searxng-client.sh` o declara explícitamente "Investigación web no requerida" si son cambios puramente internos.
+- [x] Se renombra «Opción D» a «Desatendida» en los workflows y `AGENTS.md`, con la compuerta limpia A/B y nota de alias histórico.
+- [x] La suite de validación `tests/validate-control-plane.sh` pasa las comprobaciones pertinentes sin regresiones.
 
 ## Estado de aprobación y deliberación
 - [x] Deliberación técnica completada (`deliberate-plan.sh`)
@@ -47,5 +47,5 @@ Archivos autorizados para modificación:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido — fecha/hora: 2026-11-11 09:55 UTC
 - [x] Rama creada: `sprint-34`
-- [ ] Lock activo: —
-- [ ] Sesión cerrada correctamente
+- [x] Lock activo: —
+- [x] Sesión cerrada correctamente

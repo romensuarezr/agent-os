@@ -14,7 +14,7 @@
 
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 | :--- | :--- | :--- | :---: | :--: | :--- | :--- |
-| T-189 | Hardening determinista de `sprint-planning.md` y unificación del régimen Desatendida | Core / Workflows & Gobernanza | M | ⬜ Pendiente | — | [.agents/tasks/task-189.md](.agents/tasks/task-189.md) |
+| T-189 | Hardening determinista de `sprint-planning.md` y unificación del régimen Desatendida | Core / Workflows & Gobernanza | M | ✅ Hecho | — | [.agents/tasks/task-189.md](.agents/tasks/task-189.md) |
 | T-190 | Adaptadores estáticos multi-harness con proyección determinista en `install.sh`/`sync.sh` y check fail-closed | Core / Multi-Harness | S | ⬜ Pendiente | T-189 | [.agents/tasks/task-190.md](.agents/tasks/task-190.md) |
 | T-191 | Sonda de automejora determinista ($0 tokens) en ritual de planning con canalización a `idea-inbox/` | Core / Automejora | M | ⬜ Pendiente | T-189, T-190 | [.agents/tasks/task-191.md](.agents/tasks/task-191.md) |
 
