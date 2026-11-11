@@ -28,16 +28,16 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-35.md`
 
 ## Criterios de done
-- [ ] Alcance de `CLOUDFLARE_API_TOKEN` delimitado formalmente en el catálogo y documentación.
-- [ ] Catálogo `.agents/config/secrets-catalog.yaml` actualizado reflejando el estado de rotación de credenciales.
-- [ ] Verificación determinista de secretos (`secret-locate.sh --search` y `verify-secrets.py`) ejecutada sin fugas de valores en salida ni git.
-- [ ] Ítem del roadmap desbloqueado y marcado en progreso o resuelto.
-- [ ] Suite `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
+- [x] Alcance de `CLOUDFLARE_API_TOKEN` delimitado formalmente en el catálogo y documentación (Opción 1: transversal en `/shared` con override local por proyecto).
+- [x] Catálogo `.agents/config/secrets-catalog.yaml` actualizado y verificado con `--check`.
+- [x] Verificación determinista de secretos (`secret-locate.sh --search` y `verify-secrets.py`) ejecutada sin fugas de valores en salida ni git.
+- [x] Ítem del roadmap desbloqueado y formalizado.
+- [x] Suite `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
 
 ## Estado de aprobación y deliberación
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido en planning
-- [ ] Rama de trabajo activa
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido en planning
+- [x] Rama de trabajo activa
 - [ ] Lock activo: —
-- [ ] Tarea cerrada y verificada
+- [x] Tarea cerrada y verificada
