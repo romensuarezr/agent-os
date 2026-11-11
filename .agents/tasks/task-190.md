@@ -32,11 +32,11 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-34.md`
 
 ## Criterios de done
-- [ ] `scripts/agent/install.sh` y `scripts/agent/sync.sh` proyectan automáticamente shims en `.opencode/commands/` para cada flujo de `.agents/workflows/`.
-- [ ] En modo `--self` de `install.sh`, la proyección de shims se ejecuta correctamente.
-- [ ] Todos los flujos actuales de `.agents/workflows/` (8 flujos) tienen su correspondiente shim en `.opencode/commands/`.
-- [ ] `tests/validate-control-plane.sh` incorpora un check determinista fail-closed que valida la presencia y contenido de los shims.
-- [ ] La suite pasa sin errores.
+- [x] `scripts/agent/install.sh` y `scripts/agent/sync.sh` proyectan automáticamente shims en `.opencode/commands/` para cada flujo de `.agents/workflows/`.
+- [x] En modo `--self` de `install.sh`, la proyección de shims se ejecuta correctamente.
+- [x] Todos los flujos actuales de `.agents/workflows/` (8 flujos) tienen su correspondiente shim en `.opencode/commands/`.
+- [x] `tests/validate-control-plane.sh` incorpora un check determinista fail-closed que valida la presencia y contenido de los shims.
+- [x] La suite pasa sin errores.
 
 ## Estado de aprobación y deliberación
 - [x] Deliberación técnica completada (`deliberate-plan.sh`)
@@ -45,5 +45,5 @@ Archivos autorizados para modificación:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido — fecha/hora: 2026-11-11 09:55 UTC
 - [x] Rama creada: `sprint-34`
-- [ ] Lock activo: —
-- [ ] Sesión cerrada correctamente
+- [x] Lock activo: —
+- [x] Sesión cerrada correctamente
