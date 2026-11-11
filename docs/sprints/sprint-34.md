@@ -6,7 +6,7 @@
 ---
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ---
 
@@ -37,3 +37,7 @@
 2. **Nomenclatura Canónica**: Se reemplaza «Opción D» por «Desatendida» en la compuerta y flujos vivos: `A) Desatendida` / `B) Tarea a tarea (Clásico)`. «Opción D» permanece únicamente como nota de alias histórico para compatibilidad y documentación.
 3. **Proyección Generalizada de Shims**: T-190 asegura que tanto `install.sh` como `sync.sh` creen/actualicen un archivo en `.opencode/commands/<nombre>.md` por cada workflow en `.agents/workflows/`, permitiendo invocación activa `/comando` en OpenCode sin lecturas pasivas. Se añade un check determinista en `validate-control-plane.sh`.
 4. **Cierre de Ciclo de Automejora**: En T-191 se conecta `check-tooling-updates.sh` en el Paso 1 para redactar borradores automáticos en `docs/idea-inbox/` sin consumo de tokens de LLM, consolidando el bucle cerrado con la revisión humana en el Paso 3.
+5. **Forzado de Agente Build en Adaptadores Multi-Harness (Hardening T-190)**: Para evitar que entornos gráficos multi-harness (como OpenCode 2) caigan en modo Chat sin herramientas de shell, los adaptadores en `.opencode/commands/*.md` proyectan `agent: build` en su frontmatter y ordenan imperativamente la ejecución vía bash, evitando que el agente simplemente imprima el contenido del workflow.
+6. **Desambiguación de Sintaxis de Plantillas en Workflows (Hardening T-189)**: Se eliminaron los placeholders con formato mustache (`{{PROJECT_NAME}}`, `{{SPRINT_SIGUIENTE}}`) de los workflows vivos para evitar que los LLMs interpreten el archivo como una plantilla sin renderizar y se atasquen.
+7. **Cálculo Determinista de Siguiente Tarea (Hardening T-189)**: Se integró en `scripts/agent/check-sprint.sh` la extracción determinista de `ULTIMA_TAREA_ID` y `TAREA_SIGUIENTE_ID` ($0 tokens) analizando `.agents/tasks/` y `docs/sprints/`, y se formalizó en `sprint-planning.md` la regla contractual que obliga a correlacionar estrictamente las tareas propuestas a partir de dicho ID (evitando saltos a números redondos como T-200). Validado con subcheck fail-closed en Check 9 de `validate-control-plane.sh`.
+8. **Prueba de Fuego Superada**: Validación de extremo a extremo completada con éxito en OpenCode sobre régimen Desatendido, confirmando ejecución autónoma de Pasos 1 al 7 sin atascos, bypass determinista de SearXNG para tareas core y ventana estructurada de decisión A/B.
