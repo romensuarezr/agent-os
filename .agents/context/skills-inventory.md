@@ -32,6 +32,7 @@
 | 22 | **testing-flows** | Diseño e implementación de pirámide de pruebas (unitarias, integración, E2E) según el framework detectado. | `.agents/skills/testing-flows/` |
 | 23 | **tool-inventory** | Descubrimiento e inspección del inventario de herramientas vivas en la flota (nodos, endpoints de inferencia y MCPs). | `.agents/skills/tool-inventory/` |
 | 24 | **workflow-designer** | Creación y refactorización de flujos de trabajo estructurados en `.agents/workflows/` siguiendo el estándar oficial. | `.agents/skills/workflow-designer/` |
+| 25 | **security-audit** | Escáner estático determinista para satélites: autorización de rutas, firma JWT e IDOR con digest de severidad `archivo:línea`, sin red ni exploits. | `.agents/skills/security-audit/` |
 
 > ℹ️ **Nota de desambiguación**:
 > - `sprint-planning`: Es un **workflow** (`.agents/workflows/sprint-planning.md`), no una skill.
