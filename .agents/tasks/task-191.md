@@ -32,11 +32,11 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-34.md`
 
 ## Criterios de done
-- [ ] El Paso 1 de `sprint-planning.md` incluye la ejecución de la sonda de automejora `check-tooling-updates.sh`.
-- [ ] La sonda genera fichas estructuradas en `docs/idea-inbox/` cuando detecta versiones upstream desactualizadas.
-- [ ] El Paso 3 de `sprint-planning.md` clasifica y presenta estas fichas como candidatas potenciales para aprobación humana.
-- [ ] Se verifica determinismo y $0 tokens en la generación del RFC.
-- [ ] Validación en `validate-control-plane.sh` pasa sin errores.
+- [x] El Paso 1 de `sprint-planning.md` incluye la ejecución de la sonda de automejora `check-tooling-updates.sh`.
+- [x] La sonda genera fichas estructuradas en `docs/idea-inbox/` cuando detecta versiones upstream desactualizadas.
+- [x] El Paso 3 de `sprint-planning.md` clasifica y presenta estas fichas como candidatas potenciales para aprobación humana.
+- [x] Se verifica determinismo y $0 tokens en la generación del RFC.
+- [x] Validación en `validate-control-plane.sh` pasa sin errores.
 
 ## Estado de aprobación y deliberación
 - [x] Deliberación técnica completada (`deliberate-plan.sh`)
@@ -45,5 +45,5 @@ Archivos autorizados para modificación:
 - [x] Plan presentado al usuario (Fase 3.5)
 - [x] APROBADO recibido — fecha/hora: 2026-11-11 09:55 UTC
 - [x] Rama creada: `sprint-34`
-- [ ] Lock activo: —
-- [ ] Sesión cerrada correctamente
+- [x] Lock activo: —
+- [x] Sesión cerrada correctamente
