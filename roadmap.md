@@ -1,10 +1,11 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 34**: Hardening Determinista de Planning, Proyección Multi-Harness y Automejora (T-189 a T-191). En ejecución bajo régimen Desatendido en rama `sprint-34`.
+- **Sprint 35**: Tooling Homologation, Actualización Asistida de Satélites, Estandarización de Releases & Gobernanza de Credenciales (T-192 a T-195). En ejecución bajo régimen Desatendido en rama `sprint-35`.
 
 ## Próximo
-- Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 34**: Hardening Determinista de Planning, Proyección Multi-Harness y Automejora (T-189 a T-191). Formalizado como release `v1.30.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-34.md`.
+- Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona (desbloqueado en Sprint 35 bajo T-195).
 - **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Flujo Desatendido & UI Critique (T-183 a T-188). Formalizado como release `v1.29.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-33-core.md`.
 - **Sprint 32**: Saneamiento Final de Motores, Soporte MCP Remoto, Integración DeepWiki & Rotación Hermes FreeLLMAPI (T-178 a T-182). Formalizado como release `v1.28.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-32-core.md`.
 - **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Formalizado como release `v1.27.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-31-core.md`.
