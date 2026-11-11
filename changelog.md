@@ -9,6 +9,33 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.30.0] — sprint-34 — 2026-11-11
+
+### ✨ Features
+
+- feat(T-191): cierre de tarea T-191
+- feat(T-191): sonda determinista de automejora en planning con canalización a idea-inbox
+- feat(T-190): cierre de tarea T-190
+- feat(T-190): adaptadores estáticos multi-harness con proyección determinista y test fail-closed
+- feat(T-189): cierre de tarea T-189
+- feat(T-189): hardening determinista de sprint-planning y unificación de régimen Desatendida
+
+### 🐛 Bug Fixes
+
+- fix(sprint): cálculo determinista de TAREA_SIGUIENTE_ID en check-sprint.sh e invariante en planning
+- fix(harness): proyección de agent build en adaptadores opencode y desambiguación de placeholders en planning
+- fix(planning): discriminación determinista de core vs satélite en check-sprint y salvaguarda en sync.sh
+- fix(planning): ventana de decisión A/B en Paso 7 y eliminación de restricción read-only en adaptadores OpenCode
+
+### 📚 Documentación
+
+- docs(sprint-34): cierre formal de sprint-34 y registro de hardening empírico T-189/T-190
+- docs(sprint-34): formalización de sprint 34 y contratos de tarea T-189, T-190 y T-191
+
+### 📦 Otros
+
+- test(control-plane): fix pipefail SIGPIPE al capturar help de check-tooling-updates.sh
+
 ## [1.29.0] — sprint-33 — 2026-11-10
 
 ### ✨ Features
