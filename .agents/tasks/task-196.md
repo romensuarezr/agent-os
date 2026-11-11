@@ -8,6 +8,12 @@ Crear dos reglas globales agnósticas que separen canónicamente las directrices
 - La prosa corporativa inflada (*AI slop*) incrementa el consumo de tokens y reduce la precisión operativa.
 - Las reglas del core residen en `.agents/rules/global/` como ficheros `.md` independientes, cargados por convención (sin manifiesto central), sin frontmatter obligatorio ni dependencias de stack.
 
+### Research integrado (`## Descubrimientos Scout` → `### T-196`)
+- **Consulta scout**: `knowledge hierarchy rules human operator directives vs synthetic AI generated context governance`.
+- **Alternativas detectadas**: sin repos ni paquetes OSS maduros relevantes en GitHub/NPM/PyPI para gobernanza de jerarquía de conocimiento.
+- **Recomendación**: `Desarrollo a medida justificado` — reglas agnósticas propias del core en `.agents/rules/global/`, sin dependencias externas, cumpliendo portabilidad y coste $0.
+- **Investigación web externa**: no requerida (tarea de alcance puramente interno/core; bypass declarado en `docs/sprints/sprint-36-research.md`).
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
