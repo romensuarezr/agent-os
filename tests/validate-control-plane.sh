@@ -312,9 +312,9 @@ for s in "${ORCH_SCRIPTS[@]}"; do
   fi
 done
 
-if bash scripts/agent/check-tooling-updates.sh --help >/dev/null 2>&1; then
+if CTU_HELP="$(bash scripts/agent/check-tooling-updates.sh --help 2>&1)"; then
   echo -e "  ✅ check-tooling-updates.sh expone ayuda estándar (--help)."
-  if bash scripts/agent/check-tooling-updates.sh --help | grep -q -- "--generate-inbox"; then
+  if echo "$CTU_HELP" | grep -q -- "--generate-inbox"; then
     echo -e "  ✅ check-tooling-updates.sh expone el flag determinista --generate-inbox (T-191)."
   else
     echo -e "  ❌ check-tooling-updates.sh no expone --generate-inbox."
