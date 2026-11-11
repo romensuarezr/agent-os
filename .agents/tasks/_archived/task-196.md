@@ -32,21 +32,21 @@ Archivos autorizados para modificación:
 - `.agents/rules/global/anti-ai-slop.md` (nuevo)
 
 ## Criterios de done
-- [ ] Ambos ficheros creados con la convención de formato de `.agents/rules/global/` (título + contenido denso, sin relleno).
-- [ ] `knowledge-hierarchy.md` define la jerarquía de procedencia con ejemplos de aplicación a digests de diseño.
-- [ ] `anti-ai-slop.md` impone lenguaje denso/conciso/técnico con ejemplos de transformación.
-- [ ] Cero literales de hostnames/infraestructura; cero dependencias de stack.
-- [ ] Suite `tests/validate-control-plane.sh` en verde sin regresiones.
+- [x] Ambos ficheros creados con la convención de formato de `.agents/rules/global/` (título + contenido denso, sin relleno).
+- [x] `knowledge-hierarchy.md` define la jerarquía de procedencia con ejemplos de aplicación a digests de diseño.
+- [x] `anti-ai-slop.md` impone lenguaje denso/conciso/técnico con ejemplos de transformación.
+- [x] Cero literales de hostnames/infraestructura; cero dependencias de stack.
+- [x] Suite `tests/validate-control-plane.sh` en verde sin regresiones (38/38, 0 errores).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `[CONSENSO]` — recibo `.agents/context/deliberation-T-196.json` (0 objeciones, 0 correcciones, skills clause verified); fallback manual `SIN_REVISOR` resuelto con aprobación explícita del operador.
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5) — Caso B (fallback plan clásico)
+- [x] APROBADO recibido — fecha/hora: 2026-11-11 («aprobado»)
+- [x] Rama creada: `feat/T-196-knowledge-hierarchy-rules` (merge `8b1276b` en `multi-agent`)
+- [x] Lock activo: `.agent-session.lock` (eliminado por `close-task.sh`)
+- [x] Sesión cerrada correctamente
