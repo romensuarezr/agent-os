@@ -2794,6 +2794,26 @@ grep -q 'deliberate-plan.sh' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-s
 grep -q 'dispatched.jsonl' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-dispatched-jsonl"
 grep -i -q 'FASE 2.*deliberaci' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-fase-2-deliberacion"
 
+# Subcheck D: Proyección determinista de adaptadores multi-harness (T-190)
+# Cada flujo en .agents/workflows/*.md DEBE tener su shim en .opencode/commands/<name>.md
+HARNESS_HELPER="$ROOT/scripts/agent/lib/project-harness.sh"
+if [ ! -x "$HARNESS_HELPER" ]; then
+  T35_FAILS="$T35_FAILS project-harness-no-ejecutable"
+fi
+
+for wf in "$ROOT/.agents/workflows"/*.md; do
+  [ -f "$wf" ] || continue
+  wname="$(basename "$wf" .md)"
+  shim="$ROOT/.opencode/commands/${wname}.md"
+  if [ ! -f "$shim" ]; then
+    T35_FAILS="$T35_FAILS workflow-sin-shim-opencode($wname)"
+  elif [ ! -s "$shim" ]; then
+    T35_FAILS="$T35_FAILS shim-opencode-vacio($wname)"
+  elif ! grep -q "\.agents/workflows/${wname}\.md" "$shim"; then
+    T35_FAILS="$T35_FAILS shim-opencode-sin-referencia($wname)"
+  fi
+done
+
 rm -rf "$T35_DIR" 2>/dev/null || true
 
 if [ -n "$T35_FAILS" ]; then
@@ -2802,7 +2822,8 @@ if [ -n "$T35_FAILS" ]; then
 else
   echo -e "  ✅ Persistencia de deliberación multi-sesión validada (T-124);"
   echo -e "     contratos de handover y perfiles declarativos consistentes (T-125);"
-  echo -e "     despacho con aislamiento, deliberación y trazabilidad en dispatched.jsonl (T-126)."
+  echo -e "     despacho con aislamiento, deliberación y trazabilidad en dispatched.jsonl (T-126);"
+  echo -e "     proyección determinista de adaptadores multi-harness verificada (T-190)."
 fi
 
 # ------------------------------------------------------------------------------

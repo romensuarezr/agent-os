@@ -555,6 +555,10 @@ mkdir -p "$TARGET_PROJECT/docs/idea-inbox"
 mkdir -p "$TARGET_PROJECT/docs/external-inbox"
 
 if [[ "$SELF_MODE" == true ]]; then
+    if [ -f "$AGENT_OS_PATH/scripts/agent/lib/project-harness.sh" ]; then
+        source "$AGENT_OS_PATH/scripts/agent/lib/project-harness.sh"
+        project_opencode_commands "$TARGET_PROJECT"
+    fi
     echo "✅ Estructura de carpetas operativas creada (modo self: scripts omitidos)."
     echo "✨ Bootstrapping del core completado."
     echo "💡 Puedes verificar el estado con: bash scripts/agent/check-sprint.sh"
@@ -579,6 +583,12 @@ if [ -d "$AGENT_OS_WORKFLOWS" ]; then
 track_installed "$TARGET_WORKFLOWS/$(basename "$wf")"
     done
     echo "✅ Workflows instalados (sin sobreescribir)."
+fi
+
+# 4b. Proyectar adaptadores estáticos multi-harness (OpenCode commands)
+if [ -f "$AGENT_OS_PATH/scripts/agent/lib/project-harness.sh" ]; then
+    source "$AGENT_OS_PATH/scripts/agent/lib/project-harness.sh"
+    project_opencode_commands "$TARGET_PROJECT"
 fi
 
 # 5. Copiar skills (instalación selectiva según manifiesto)

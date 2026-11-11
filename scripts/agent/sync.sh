@@ -338,6 +338,13 @@ if [ -d "$TARGET_PROJECT/.agents/workflows" ]; then
             wname=$(basename "$wf")
             sync_file "$wf" "$TARGET_WORKFLOWS/$wname" "workflow: $wname"
         done
+        # Proyectar adaptadores estáticos multi-harness (OpenCode commands)
+        if [ -f "$AGENT_OS_PATH/scripts/agent/lib/project-harness.sh" ]; then
+            source "$AGENT_OS_PATH/scripts/agent/lib/project-harness.sh"
+            if [ "$DRY_RUN" = false ]; then
+                project_opencode_commands "$TARGET_PROJECT"
+            fi
+        fi
     fi
 fi
 
