@@ -196,8 +196,8 @@ mv "$TMP" "$CHANGELOG"
 ORIGIN_URL=$(git -C "$ROOT" config --get remote.origin.url 2>/dev/null || true)
 REPO_HTTP_URL=""
 if [ -n "$ORIGIN_URL" ]; then
-  # Normalizar ssh (git@github.com:owner/repo.git) o https (https://github.com/owner/repo.git)
-  REPO_HTTP_URL=$(echo "$ORIGIN_URL" | sed -E 's|git@github.com:|https://github.com/|; s|\.git$||')
+  # Normalizar ssh (git@github.com:owner/repo.git o alias git@github.com-alias:...) o https (https://github.com/owner/repo.git)
+  REPO_HTTP_URL=$(echo "$ORIGIN_URL" | sed -E 's|git@github\.com(-[a-zA-Z0-9_.-]+)?:|https://github.com/|; s|\.git$||')
 fi
 
 if [ -n "$REPO_HTTP_URL" ] && [[ "$REPO_HTTP_URL" =~ ^https://github.com/ ]]; then
