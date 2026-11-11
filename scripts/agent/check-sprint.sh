@@ -84,9 +84,33 @@ for f in "$LAST_SPRINT" "$LAST_ARCHIVED"; do
 done
 NEXT_NUM=$(printf "%02d" $((HIGHEST_NUM + 1)))
 
+# Cálculo determinista del identificador de tarea más alto y siguiente ($0 tokens)
+HIGHEST_TASK_NUM=0
+if [ -d "$ROOT/.agents/tasks" ]; then
+  while IFS= read -r n; do
+    [ -n "$n" ] && [ "$((10#$n))" -gt "$HIGHEST_TASK_NUM" ] && HIGHEST_TASK_NUM=$((10#$n))
+  done < <(find "$ROOT/.agents/tasks" -name "task-[0-9]*.md" 2>/dev/null | grep -oE '[0-9]+' || true)
+fi
+
+if [ -d "$SPRINTS_DIR" ]; then
+  while IFS= read -r n; do
+    [ -n "$n" ] && [ "$((10#$n))" -gt "$HIGHEST_TASK_NUM" ] && HIGHEST_TASK_NUM=$((10#$n))
+  done < <(grep -rhoE "^\|[[:space:]]*T-[0-9]+" "$SPRINTS_DIR"/sprint-[0-9]*.md "$SPRINTS_DIR"/_archived/sprint-[0-9]*.md 2>/dev/null | grep -oE '[0-9]+' || true)
+fi
+
+if [ "$HIGHEST_TASK_NUM" -gt 0 ]; then
+  ULTIMA_TAREA_ID=$(printf "T-%03d" "$HIGHEST_TASK_NUM")
+  TAREA_SIGUIENTE_ID=$(printf "T-%03d" $((HIGHEST_TASK_NUM + 1)))
+else
+  ULTIMA_TAREA_ID="ninguna"
+  TAREA_SIGUIENTE_ID="T-001"
+fi
+
 if [ -z "$LAST_SPRINT" ]; then
   echo "SPRINT_ACTUAL: ninguno"
   echo "SPRINT_SIGUIENTE: sprint-$NEXT_NUM"
+  echo "ULTIMA_TAREA_ID: $ULTIMA_TAREA_ID"
+  echo "TAREA_SIGUIENTE_ID: $TAREA_SIGUIENTE_ID"
   if [ "$HIGHEST_NUM" -gt 0 ]; then
     echo "SPRINT_MODE: CONTINUACIÓN (último cerrado: sprint-$(printf "%02d" "$HIGHEST_NUM"), ignorado sin mirar _archived/)"
   else
@@ -98,6 +122,8 @@ else
 
   echo "SPRINT_ACTUAL: $LAST_SPRINT"
   echo "SPRINT_SIGUIENTE: sprint-$NEXT_NUM"
+  echo "ULTIMA_TAREA_ID: $ULTIMA_TAREA_ID"
+  echo "TAREA_SIGUIENTE_ID: $TAREA_SIGUIENTE_ID"
 
   # Conteo real de tareas completadas vs total
   TOTAL=$(grep -cE "^\| T-|^-[[:space:]]*\[[ x/]\]" "$LAST_SPRINT" 2>/dev/null || true)

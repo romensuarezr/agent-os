@@ -332,6 +332,18 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
+if SPRINT_OUT="$(bash scripts/agent/check-sprint.sh 2>&1)"; then
+  if echo "$SPRINT_OUT" | grep -qE "TAREA_SIGUIENTE_ID: T-[0-9]+"; then
+    echo -e "  ✅ check-sprint.sh reporta TAREA_SIGUIENTE_ID determinista."
+  else
+    echo -e "  ❌ check-sprint.sh no reporta TAREA_SIGUIENTE_ID determinista."
+    ERRORS=$((ERRORS + 1))
+  fi
+else
+  echo -e "  ❌ check-sprint.sh falló al ejecutarse."
+  ERRORS=$((ERRORS + 1))
+fi
+
 # Prueba funcional determinista de audit-satellites.sh (T-184)
 AUDIT_TMP="$(mktemp -d)"
 mkdir -p "$AUDIT_TMP/sat_ok/scripts/agent/lib" "$AUDIT_TMP/sat_drift/scripts/agent/lib"

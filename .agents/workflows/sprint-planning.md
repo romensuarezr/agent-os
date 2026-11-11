@@ -86,6 +86,7 @@ bash scripts/agent/check-sprint.sh
 
 **Usar exclusivamente el output de este script como fuente de verdad.** No ejecutar `find`, `ls` ni leer sprint files manualmente.
 
+- Capturar `SPRINT_SIGUIENTE` y la clave determinista `TAREA_SIGUIENTE_ID` (ej. `T-192`).
 - `❌ CRÍTICO` en ROADMAP → detenerse e informar al usuario.
 - **Alerta "SPRINT COMPLETADO SIN MARCAR"** → actualizar estado del sprint anterior a `✅ Completado` antes de continuar. Obligatorio.
 - Entradas en `SPILLOVER` → ir al paso 2b.
@@ -156,6 +157,8 @@ El agente selecciona entre 3 y 5 tareas respetando este orden de prelación:
 2. **Prioridad 2**: Manifiestos de alta prioridad de inboxes (Paso 3a/3b).
 3. **Prioridad 3**: Siguiente hito o temas del `roadmap.md` (`## Próximo`).
    - *Desglose autónomo*: Si el roadmap no tiene tareas desglosadas con ID, el agente toma el siguiente tema prioritario del roadmap y lo descompone autónomamente en tareas atómicas con tamaño S, M o L.
+4. **Numeración determinista de IDs (Invariante)**:
+   Los IDs de las 3 a 5 tareas propuestas **DEBEN** asignarse en estricto orden correlativo comenzando por el valor `TAREA_SIGUIENTE_ID` reportado por `check-sprint.sh` (ej. si reporta `T-192`, se asignan `T-192`, `T-193`, `T-194`, etc.). Queda estrictamente prohibido alterar, redondear o saltar números.
 
 #### 2. Firewall Anti-Duplicación (Inventory Check)
 Para cada candidata seleccionada que plantee nueva lógica o scripts:
@@ -397,6 +400,7 @@ Una vez que el operador responde aprobando el sprint (ej: "A, aprobado" o "Opci�
 
 ### Selección de Tareas (Regla de Oro: El agente propone, el usuario confirma)
 - El agente **propone siempre una lista cerrada** de 3 a 5 tareas derivadas autónomamente de spillover, inboxes y roadmap.
+- **Numeración determinista**: Los IDs se asignan de forma estrictamente secuencial a partir de `TAREA_SIGUIENTE_ID` reportado por `check-sprint.sh`. Prohibido saltar o inventar numeración.
 - Prohibido hacer preguntas abiertas al operador sobre qué tareas incluir.
 - Equilibrio de tamaños: no más de 1 tarea L por sprint.
 - Prioridad: tareas arrastradas primero, luego bloqueantes, luego por orden del roadmap.
