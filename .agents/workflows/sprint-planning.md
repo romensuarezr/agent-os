@@ -9,7 +9,7 @@ description: Workflow ejecutable de planificación de sprint. Si este archivo es
 > el agente **debe comenzar a ejecutar de inmediato el protocolo en orden estricto (Paso 1 → 7)**.
 > **PROHIBIDO** responder preguntando «¿qué deseas hacer con este archivo?» o quedarse esperando instrucciones. La invocación ES la orden de ejecución.
 
-> Duración estimada: 15 min. Ejecutar los lunes antes de abrir cualquier sesión de desarrollo en {{PROJECT_NAME}}.
+> Duración estimada: 15 min. Ejecutar los lunes antes de abrir cualquier sesión de desarrollo en [PROJECT_NAME] (donde [PROJECT_NAME] es el proyecto actual y [SPRINT_SIGUIENTE] es el número del sprint entrante derivado de check-sprint.sh).
 
 ## Objetivo
 
@@ -174,7 +174,7 @@ Para cada candidata técnica o de nuevas herramientas:
    ```
 2. Si detecta librerías maduras (≥500⭐, licencias permisivas MIT/Apache), recomendar su integración en vez de desarrollo a medida.
 3. **Persistencia obligatoria en research (Gate Scout-First, T-129)**:
-   Escribir o inicializar `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` con la sección `## Descubrimientos Scout (por tarea)`, incluyendo una subsección `### T-XXX` para cada tarea planificada (declarando alternativa o `Desarrollo a medida justificado`).
+   Escribir o inicializar `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md` con la sección `## Descubrimientos Scout (por tarea)`, incluyendo una subsección `### T-XXX` para cada tarea planificada (declarando alternativa o `Desarrollo a medida justificado`).
 
 #### 4. Salida del Paso 3c
 Tabla consolidada de las 3–5 tareas candidatas definitivas con sus dependencias preliminares y tamaños.
@@ -183,10 +183,10 @@ Tabla consolidada de las 3–5 tareas candidatas definitivas con sus dependencia
 - Archivar procesados de `docs/external-inbox/` en `docs/external-inbox/_archived/`.
 
 ### 4. Generación del sprint file
-Crear `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` con esta estructura:
+Crear `docs/sprints/sprint-[SPRINT_SIGUIENTE].md` con esta estructura:
 
 ```markdown
-# Sprint {{SPRINT_SIGUIENTE}} — [fecha lunes] → [fecha viernes]
+# Sprint [SPRINT_SIGUIENTE] — [fecha lunes] → [fecha viernes]
 
 ## Estado
 🟡 En curso
@@ -254,10 +254,10 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
    - **Si SearXNG está activo (`exit 0`):**
      - **Formulación de queries deterministas**: Para cada tarea del sprint que presente incertidumbre arquitectónica, integración de nueva librería o protocolo externo:
        ```bash
-       bash scripts/agent/lib/searxng-client.sh --query "<stack> <tecnología/librería> <problema concreto>" --output "docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md"
+       bash scripts/agent/lib/searxng-client.sh --query "<stack> <tecnología/librería> <problema concreto>" --output "docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md"
        ```
      - **Bypass determinista para tareas puramente internas**: Si **todas** las tareas del sprint son de alcance interno (refactorización de scripts locales, workflows, reglas o documentación, con cero incertidumbre externa o de red):
-       Declarar explícitamente en `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md`:
+       Declarar explícitamente en `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md`:
        > *Investigación web externa no requerida: tareas de alcance puramente interno/core.*
        y avanzar directamente al Paso 7 sin llamadas superfluas a la red.
      - **Sin prompt de Perplexity ni bloqueo en pausa:** pasar directamente al **Paso 7 (Entrega y Aprobación del Sprint)**.
@@ -271,7 +271,7 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
      Producir el bloque listo para pegar en Perplexity Pro:
 
      ```
-     CONTEXTO: Estoy desarrollando [descripción de {{PROJECT_NAME}} en 2 líneas].
+     CONTEXTO: Estoy desarrollando [descripción de [PROJECT_NAME] en 2 líneas].
      STACK: [Describe el stack tecnológico principal].
      SITUACIÓN ACTUAL: [qué ya existe en el código relacionado con la tarea:
      helpers implementados, patrones ya en uso, deuda técnica conocida].
@@ -290,12 +290,12 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
 Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta**:
 
 ```
-⚠️ Sprint {{SPRINT_SIGUIENTE}} preparado con fallback a Perplexity (SearXNG no disponible). Prompt generado.
+⚠️ Sprint [SPRINT_SIGUIENTE] preparado con fallback a Perplexity (SearXNG no disponible). Prompt generado.
 
 👉 Próximos pasos:
    1. Copia el prompt del paso anterior y pégalo en Perplexity.
    2. Cuando tengas los hallazgos, vuelve con la investigación, cambia el selector de modelo a Gemini Flash y ejecuta /session-start
-      pegando los hallazgos — el agente los guardará en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md
+      pegando los hallazgos — el agente los guardará en docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md
       y los integrará en el task file antes de empezar a codear.
 
 ⏸ Este workflow queda en pausa asistida. Hasta luego.
@@ -306,10 +306,10 @@ Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta
 ### 6b. Recepción de hallazgos de Perplexity (cuando el usuario vuelve de la pausa asistida)
 
 1. Recibir el output de Perplexity del usuario.
-2. Si `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` ya existe (creado por el paso 2e), **NO sobrescribirlo**: añadir las secciones de Perplexity (`## Hallazgos clave`, `## Decisiones tomadas`, `## Descartado`) sin tocar `## Descubrimientos Scout (por tarea)`. Si no existe, crearlo con esta estructura:
+2. Si `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md` ya existe (creado por el paso 2e), **NO sobrescribirlo**: añadir las secciones de Perplexity (`## Hallazgos clave`, `## Decisiones tomadas`, `## Descartado`) sin tocar `## Descubrimientos Scout (por tarea)`. Si no existe, crearlo con esta estructura:
 
 ```markdown
-# Research Sprint {{SPRINT_SIGUIENTE}}
+# Research Sprint [SPRINT_SIGUIENTE]
 > Fuente: Perplexity — [fecha]
 > Tarea principal: [descripción de la tarea del sprint]
 
@@ -333,9 +333,7 @@ Si el research incluye URLs de repositorios GitHub:
 - El resultado enriquece el research.md añadiendo una sección `## Patrones de repos analizados`.
 - Listar los repos detectados e indicar los hallazgos analizados.
 
-3. Confirmar: `"💾 Investigación guardada en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md. Listo para /session-start."`
-
-### 7. Entrega y Solicitud de Aprobación Macro del Sprint
+3. Confirmar: `"💾 Investigación guardada en docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md. Listo para /session-start."`
 
 ### 7. Entrega y Ventana de Decisión del Sprint (Aprobación Macro)
 
@@ -343,7 +341,7 @@ El agente presenta el informe consolidado y emite **OBLIGATORIAMENTE** la siguie
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 PROPUESTA DE SPRINT {{SPRINT_SIGUIENTE}} — APROBACIÓN MACRO
+📋 PROPUESTA DE SPRINT [SPRINT_SIGUIENTE] — APROBACIÓN MACRO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📊 Resumen del estado:
@@ -361,7 +359,7 @@ El agente presenta el informe consolidado y emite **OBLIGATORIAMENTE** la siguie
 - Carril 2: [T-ZZZ]
 
 🔬 Estado de Research y Prospección:
-- Scout OSS: Completado en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md (Gate Scout-First T-129 verificado)
+- Scout OSS: Completado en docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md (Gate Scout-First T-129 verificado)
 - Investigación técnica: [Autónoma con SearXNG / Bypass interno / Fallback Perplexity]
 - Prompt Perplexity: [Incluir bloque solo si SearXNG estuvo inactivo; omitir si fue autónomo]
 [Si el proyecto es satélite con MVP-TRACKER.md: incluir barra de progreso MVP]
@@ -380,11 +378,11 @@ Esperando tu respuesta (ej: "A, aprobado" o enmiendas concretas al plan).
 
 #### Protocolo de Materialización tras Aprobación del Operador:
 Una vez que el operador responde aprobando el sprint (ej: "A, aprobado" o "Opción A"):
-1. **Sellar el Sprint File**: Escribir `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` sellando el régimen y carriles según la respuesta recibida (ej. `- **Régimen**: Desatendida`).
+1. **Sellar el Sprint File**: Escribir `docs/sprints/sprint-[SPRINT_SIGUIENTE].md` sellando el régimen y carriles según la respuesta recibida (ej. `- **Régimen**: Desatendida`).
 2. **Instanciar Task Files**: Crear cada contrato de tarea en `.agents/tasks/task-XXX.md` con su sección `## Diseño macro aprobado en planning` rellenada y veredicto `[APROBADO_EN_PLANNING]`.
 3. **Actualizar Roadmap**: Registrar las nuevas tareas como `🟡 En curso` en `roadmap.md`.
 4. **Archivar Inboxes**: Mover procesados de `docs/idea-inbox/` y `docs/external-inbox/` a sus respectivas subcarpetas `_archived/`.
-5. Confirmar al usuario: `"✅ Sprint {{SPRINT_SIGUIENTE}} formalizado y sellado en régimen Desatendido. Listo para /session-start."`
+5. Confirmar al usuario: `"✅ Sprint [SPRINT_SIGUIENTE] formalizado y sellado en régimen Desatendido. Listo para /session-start."`
 
 ## Reglas
 
@@ -409,7 +407,7 @@ Una vez que el operador responde aprobando el sprint (ej: "A, aprobado" o "Opci�
 - **Obligatorio para tareas técnicas y nuevas herramientas**: Toda tarea candidata que introduzca conectores, integraciones, agentes, scrapers o utilidades debe evaluarse previamente con `scout.sh`.
 - Si existe una alternativa consolidada (≥500⭐, licencia permisiva MIT/Apache), la recomendación por defecto es la integración/adopción frente al desarrollo a medida.
 - **Coste cero**: El agente solo consume el digest estructurado producido por el script CLI, garantizando 0 tokens en la fase de búsqueda.
-- **Compuerta estricta de completitud (T-129)**: *"Sin research scout estructurado no hay plan de sprint admisible"*. El documento `sprint-{{SPRINT_SIGUIENTE}}-research.md` es condición de entrega previa a la pausa o solicitud de aprobación humana. Debe incluir subsecciones para cada tarea planificada, documentando alternativas detectadas, recomendaciones, decisiones y opciones rechazadas con su motivo explícito.
+- **Compuerta estricta de completitud (T-129)**: *"Sin research scout estructurado no hay plan de sprint admisible"*. El documento `sprint-[SPRINT_SIGUIENTE]-research.md` es condición de entrega previa a la pausa o solicitud de aprobación humana. Debe incluir subsecciones para cada tarea planificada, documentando alternativas detectadas, recomendaciones, decisiones y opciones rechazadas con su motivo explícito.
 
 ### Escala de Progreso del MVP
 - **0%**: Sin implementación.
