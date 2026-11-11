@@ -1,0 +1,17 @@
+{
+  "task_id": "T-181",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan t\u00e9cnico para T-181 resuelve con rigor determinista la sincronizaci\u00f3n de last-sync.md en el ciclo de vida de close-sprint.sh. La inclusi\u00f3n expl\u00edcita del archivo en add_own y en el filtro de FOREIGN_BEFORE, combinada con la comprobaci\u00f3n de existencia segura ([ -f \"$LAST_SYNC\" ] || return 0), garantiza idempotencia y working tree 100% limpio sin fallos colaterales en repositorios hijos o fixtures m\u00ednimos.\n\nLa extensi\u00f3n del Check 19 en tests/validate-control-plane.sh cierra el ciclo de verificaci\u00f3n asegurando la preservaci\u00f3n del invariante de 38/38 checks en verde sin riesgo de regresiones arquitect\u00f3nicas ni fugas de estado.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "El plan respeta la caja de archivos estrictamente acotada (.agents/context/last-sync.md, scripts/agent/close-sprint.sh, tests/validate-control-plane.sh, .agents/tasks/task-181.md). Las herramientas y convenciones invocadas por el plan son pertinentes y respetan el principio DRY y las normas de gobernanza; el revisor opera en aislamiento estricto de solo lectura sin mutaci\u00f3n de c\u00f3digo ni invocaci\u00f3n de skills prohibidas."
+  },
+  "inventory_scoped_bytes": 2098,
+  "plan_source": ".agents/context/plan-draft.md"
+}

@@ -107,6 +107,7 @@ if [[ "$FLEET_FILE" == *"fleet.example.yaml"* ]]; then
 fi
 
 export FLEET_FILE
+export REPO_ROOT
 export JSON_OUTPUT
 export TIMEOUT
 export STRICT
@@ -132,6 +133,7 @@ except ImportError:
     HAS_YAML = False
 
 fleet_file = os.environ.get("FLEET_FILE", "")
+repo_root = os.environ.get("REPO_ROOT", "")
 json_mode = os.environ.get("JSON_OUTPUT") == "true"
 timeout = float(os.environ.get("TIMEOUT", "2.0"))
 strict = os.environ.get("STRICT") == "true"
@@ -353,6 +355,167 @@ for node_alias, node_info in nodes_data.items():
 
     nodes_result[node_alias] = node_res
 
+# Sonda config-driven warn-only del revisor de inferencia (Sprint 20)
+reviewer_endpoint = os.environ.get("INFERENCE_BASE_URL", os.environ.get("OPENAI_BASE_URL", ""))
+if not reviewer_endpoint and HAS_YAML and os.path.isfile(os.path.join(repo_root, ".agents/config/routing-policy.yaml")):
+    try:
+        with open(os.path.join(repo_root, ".agents/config/routing-policy.yaml"), "r", encoding="utf-8") as f:
+            rp_data = yaml.safe_load(f)
+        reviewer_endpoint = rp_data.get("reviewer", {}).get("endpoint", "")
+    except Exception:
+        pass
+
+if not reviewer_endpoint and isinstance(nodes_data, dict):
+    for nname, ninfo in nodes_data.items():
+        svcs = ninfo.get("services", {})
+        if isinstance(svcs, dict):
+            for sname in ["freellmapi", "omniroute", "openai-gateway"]:
+                if sname in svcs:
+                    sconf = svcs[sname]
+                    if isinstance(sconf, dict):
+                        reviewer_endpoint = sconf.get("endpoint", sconf.get("url", ""))
+                    elif isinstance(sconf, str):
+                        reviewer_endpoint = sconf
+                    break
+        if reviewer_endpoint:
+            break
+
+reviewer_status = "WARN"
+reviewer_note = "Revisor no configurado (fallback SIN_REVISOR disponible)"
+if reviewer_endpoint and not doc_mode and "100.x.y.z" not in reviewer_endpoint and "example.com" not in reviewer_endpoint:
+    probe_url = reviewer_endpoint
+    if probe_url.startswith("http"):
+        test_url = probe_url.rstrip("/") + "/models" if not probe_url.endswith("/models") else probe_url
+        try:
+            req = urllib.request.Request(test_url, headers={"User-Agent": "agent-os-fleet-doctor/1.0"})
+            with urllib.request.urlopen(req, timeout=min(timeout, 2)) as resp:
+                if resp.getcode() < 500:
+                    reviewer_status = "OK"
+                    reviewer_note = "Revisor accesible"
+        except urllib.error.HTTPError as he:
+            if he.code in [401, 403, 404]:
+                reviewer_status = "OK"
+                reviewer_note = f"Revisor vivo (HTTP {he.code})"
+            else:
+                reviewer_status = "WARN"
+                reviewer_note = f"Revisor HTTP {he.code} (fallback SIN_REVISOR disponible)"
+        except Exception:
+            reviewer_status = "WARN"
+            reviewer_note = "Revisor offline o no alcanzable (fallback SIN_REVISOR disponible)"
+
+# Sonda config-driven warn-only de SearXNG (Deep Research, T-175)
+searxng_endpoint = os.environ.get("SEARXNG_API_URL", "")
+if not searxng_endpoint and isinstance(nodes_data, dict):
+    for nname, ninfo in nodes_data.items():
+        svcs = ninfo.get("services", {})
+        if isinstance(svcs, dict) and "searxng" in svcs:
+            sconf = svcs["searxng"]
+            if isinstance(sconf, dict):
+                searxng_endpoint = sconf.get("endpoint", sconf.get("url", ""))
+            elif isinstance(sconf, str):
+                searxng_endpoint = sconf
+            break
+
+searxng_status = "WARN"
+searxng_note = "SearXNG no configurado (fallback manual Perplexity disponible)"
+if searxng_endpoint:
+    if doc_mode or "100.x.y.z" in searxng_endpoint or "example.com" in searxng_endpoint or "192.0.2." in searxng_endpoint or "<nodo" in searxng_endpoint:
+        searxng_status = "OK"
+        searxng_note = "SearXNG configurado (declarativo)"
+    else:
+        probe_url = searxng_endpoint.rstrip("/")
+        try:
+            req = urllib.request.Request(probe_url + "/healthz", headers={"User-Agent": "agent-os-fleet-doctor/1.0"})
+            with urllib.request.urlopen(req, timeout=min(timeout, 2.0)) as resp:
+                if resp.getcode() < 500:
+                    searxng_status = "OK"
+                    searxng_note = f"SearXNG activo (HTTP {resp.getcode()})"
+        except urllib.error.HTTPError as he:
+            if he.code < 500:
+                searxng_status = "OK"
+                searxng_note = f"SearXNG vivo (HTTP {he.code})"
+            else:
+                searxng_status = "WARN"
+                searxng_note = f"SearXNG HTTP {he.code}"
+        except Exception:
+            try:
+                req = urllib.request.Request(probe_url + "/", headers={"User-Agent": "agent-os-fleet-doctor/1.0"})
+                with urllib.request.urlopen(req, timeout=min(timeout, 2.0)) as resp:
+                    if resp.getcode() < 500:
+                        searxng_status = "OK"
+                        searxng_note = f"SearXNG activo (HTTP {resp.getcode()})"
+            except Exception:
+                searxng_status = "WARN"
+                searxng_note = "SearXNG inalcanzable (fallback manual disponible)"
+
+# 4. Sonda e inspección de MCP Servers (locales stdio y remotos HTTP/SSE, T-179)
+mcp_data = fleet_data.get("mcpServers", {}) if isinstance(fleet_data, dict) else {}
+mcp_result = {}
+mcp_up = 0
+mcp_down = 0
+
+if isinstance(mcp_data, dict):
+    for mcp_name, mcp_conf in mcp_data.items():
+        if not isinstance(mcp_conf, dict):
+            continue
+        desc = mcp_conf.get("description", "")
+        if "url" in mcp_conf:
+            raw_url = mcp_conf.get("url", "")
+            transport = mcp_conf.get("transport", "http")
+            headers = mcp_conf.get("headers", {})
+            has_auth = False
+            if isinstance(headers, dict):
+                has_auth = any("auth" in str(k).lower() for k in headers.keys())
+            mcp_type = f"remote_{transport}"
+
+            if doc_mode or "example.com" in raw_url or "<" in raw_url:
+                status_desc = "SKIPPED-DOC-MODE"
+                is_up = None
+            else:
+                try:
+                    probe_req = urllib.request.Request(
+                        raw_url,
+                        headers={"User-Agent": "agent-os-fleet-doctor/1.0"}
+                    )
+                    with urllib.request.urlopen(probe_req, timeout=min(timeout, 2.0)) as resp:
+                        status_desc = f"UP (HTTP {resp.getcode()})"
+                        is_up = True
+                        mcp_up += 1
+                except urllib.error.HTTPError as he:
+                    if he.code < 500:
+                        status_desc = f"UP (HTTP {he.code})"
+                        is_up = True
+                        mcp_up += 1
+                    else:
+                        status_desc = f"DOWN (HTTP {he.code})"
+                        is_up = False
+                        mcp_down += 1
+                except Exception:
+                    status_desc = "DOWN (UNREACHABLE)"
+                    is_up = False
+                    mcp_down += 1
+
+            mcp_result[mcp_name] = {
+                "type": mcp_type,
+                "transport": transport,
+                "status": status_desc,
+                "url_masked": mask_endpoint(raw_url),
+                "auth": "bearer_masked" if has_auth else "none",
+                "description": desc
+            }
+        elif "command" in mcp_conf:
+            cmd = mcp_conf.get("command", "")
+            bin_exists = shutil.which(cmd) is not None if cmd else False
+            status_desc = "LOCAL_AVAILABLE" if bin_exists else f"LOCAL_MISSING ({cmd})"
+            if bin_exists:
+                mcp_up += 1
+            mcp_result[mcp_name] = {
+                "type": "stdio",
+                "command": cmd,
+                "status": status_desc,
+                "description": desc
+            }
+
 # Estructurar resultado global
 cli_ok_count = sum(1 for c, data in auth_status.items() if data.get("ok"))
 total_clis = len(clis_to_check)
@@ -369,7 +532,22 @@ summary_data = {
     "clis_ok": cli_ok_count,
     "services_checked": total_services,
     "services_up": services_up,
-    "services_down": services_down
+    "services_down": services_down,
+    "mcp_servers": {
+        "total": len(mcp_result),
+        "up": mcp_up,
+        "down": mcp_down
+    },
+    "reviewer_probe": {
+        "status": reviewer_status,
+        "message": reviewer_note,
+        "endpoint_masked": mask_endpoint(reviewer_endpoint) if reviewer_endpoint else None
+    },
+    "searxng_probe": {
+        "status": searxng_status,
+        "message": searxng_note,
+        "endpoint_masked": mask_endpoint(searxng_endpoint) if searxng_endpoint else None
+    }
 }
 
 if json_mode:
@@ -381,7 +559,8 @@ if json_mode:
         "fleet": {
             "source": ".agents/config/fleet.example.yaml" if doc_mode else (fleet_file if fleet_file else ".agents/config/fleet.yaml"),
             "mode": fleet_mode_status,
-            "nodes": nodes_result
+            "nodes": nodes_result,
+            "mcpServers": mcp_result
         }
     }
     print(json.dumps(output_obj, indent=2))
@@ -419,6 +598,16 @@ else:
         line_entry = f"• [{node_name}] ({role}): " + ", ".join(svc_parts)
         lines.append(line_entry)
 
+if mcp_result:
+    mcp_parts = []
+    for mname, mdata in mcp_result.items():
+        st = mdata.get("status", "UNKNOWN")
+        mtype = mdata.get("type", "mcp")
+        mcp_parts.append(f"{mname}({mtype}):{st}")
+    lines.append("MCP: " + " | ".join(mcp_parts[:5]) + ("..." if len(mcp_parts) > 5 else ""))
+
+lines.append(f"Reviewer: {reviewer_status} ({reviewer_note})")
+lines.append(f"SearXNG: {searxng_status} ({searxng_note})")
 lines.append(f"Summary: CLIs {cli_ok_count}/{total_clis} OK | Services: {services_up} UP, {services_down} DOWN, {total_services - services_up - services_down} SKIPPED")
 lines.append("=== FIN FLEET DOCTOR (0 tokens inferidos, infraestructura enmascarada) ===")
 

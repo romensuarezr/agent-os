@@ -1,0 +1,145 @@
+{
+  "benchmark": {
+    "runs": 10,
+    "concurrency": 2,
+    "method": "nearest-rank",
+    "percentile_formula": "ceil((P / 100) * N)"
+  },
+  "census": {
+    "active_before": 0,
+    "active_after": 0,
+    "new_orphaned": 0,
+    "historical_preexisting": {
+      "retained": 9,
+      "reclaimable": 1,
+      "released": 36
+    },
+    "historical_post": {
+      "retained": 9,
+      "reclaimable": 1,
+      "released": 46
+    }
+  },
+  "metrics": {
+    "min_seconds": 62.0979,
+    "max_seconds": 63.2791,
+    "p50_seconds": 62.7634,
+    "p90_seconds": 63.2503,
+    "p95_seconds": 63.2791,
+    "tier_1_orca_count": 0,
+    "tier_1_ratio_percent": 0.0
+  },
+  "gate_evaluation": {
+    "gate_contract": "T-140 (sprint-24-observation-report.md)",
+    "verdict": "NO-GO",
+    "causal": "P95 (63.28s) >= 45.0s; Latencia m\u00e1xima individual (63.28s) >= 60.0s; Disponibilidad Tier 1 (0.0%) < 95.0%",
+    "checks": {
+      "p95_under_45s": false,
+      "max_under_60s": false,
+      "tier_1_gte_95_percent": false,
+      "zero_orphaned_terminals": true
+    }
+  },
+  "runs": [
+    {
+      "task_id": "T-BENCH-01",
+      "batch": 1,
+      "start_epoch": 1793396573.8267,
+      "end_epoch": 1793396636.2314,
+      "duration_seconds": 62.4047,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-02",
+      "batch": 1,
+      "start_epoch": 1793396573.8278,
+      "end_epoch": 1793396636.2311,
+      "duration_seconds": 62.4033,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-03",
+      "batch": 2,
+      "start_epoch": 1793396636.2869,
+      "end_epoch": 1793396699.3668,
+      "duration_seconds": 63.0799,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-04",
+      "batch": 2,
+      "start_epoch": 1793396636.2879,
+      "end_epoch": 1793396699.4901,
+      "duration_seconds": 63.2022,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-05",
+      "batch": 3,
+      "start_epoch": 1793396699.545,
+      "end_epoch": 1793396762.7953,
+      "duration_seconds": 63.2503,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-06",
+      "batch": 3,
+      "start_epoch": 1793396699.5464,
+      "end_epoch": 1793396762.8255,
+      "duration_seconds": 63.2791,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-07",
+      "batch": 4,
+      "start_epoch": 1793396762.8827,
+      "end_epoch": 1793396826.0611,
+      "duration_seconds": 63.1784,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-08",
+      "batch": 4,
+      "start_epoch": 1793396762.8836,
+      "end_epoch": 1793396825.647,
+      "duration_seconds": 62.7634,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-09",
+      "batch": 5,
+      "start_epoch": 1793396826.122,
+      "end_epoch": 1793396888.2754,
+      "duration_seconds": 62.1534,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    },
+    {
+      "task_id": "T-BENCH-10",
+      "batch": 5,
+      "start_epoch": 1793396826.1236,
+      "end_epoch": 1793396888.2215,
+      "duration_seconds": 62.0979,
+      "evaluator_tier": "fallback_safe",
+      "verdict": "SIN_REVISOR",
+      "rounds_executed": 1
+    }
+  ]
+}

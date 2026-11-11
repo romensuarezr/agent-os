@@ -34,6 +34,8 @@ agent-os/
 │   ├── install.sh               ← instalación en proyectos hijos (--self para bootstrapping)
 │   ├── sync.sh                  ← sincroniza assets globales → proyectos hijos
 │   ├── contribute.sh            ← promueve mejoras de hijos → core
+│   ├── deliberate-plan.sh       ← motor determinista de arbitraje Coder-Reviewer ($0)
+│   ├── design-digest.sh         ← generador de registro histórico de diseño con redacción
 │   ├── check-sprint.sh          ← verifica estado del sprint activo
 │   ├── check-session.sh         ← contexto de sesión para el agente
 │   ├── check-inbox.sh           ← auditoría y lectura de inboxes
@@ -44,6 +46,7 @@ agent-os/
 │   ├── close-sprint.sh          ← cierra y archiva el sprint
 │   ├── close-task.sh            ← cierra una tarea individual
 │   ├── audit-repo.sh            ← detecta incompatibilidades en repos con vida previa
+│   ├── audit-satellites.sh      ← auditoría determinista de integridad de scripts en satélites
 │   ├── generate-digest.sh       ← genera resumen del estado del proyecto
 │   ├── inventory-check.sh       ← firewall anti-duplicación de código
 │   ├── scout.sh                 ← prospección OSS determinista (GitHub/npm/PyPI)
@@ -78,6 +81,7 @@ agent-os/
 4. **Global pequeño, local fino** — skills y rules globales son agnósticas. Lo específico vive en el proyecto hijo.
 5. **Trazabilidad** — operaciones importantes generan marcas (`last-sync.md`, commits atómicos).
 6. **Determinismo y coste 0 de tokens** — si una acción, consulta o auditoría es determinista, se resuelve mediante un script CLI/Bash local que devuelva un digest compacto, no quemando tokens de contexto o inferencia del LLM.
+7. **Autonomía acotada por diseño (Opción D)** — El estándar operativo desacopla la gobernanza en dos niveles: Nivel Macro (aprobación humana sellada en sprint planning como única autorización habilitante) y Nivel Micro (deliberación técnica determinista con `deliberate-plan.sh`). En camino limpio (`CONSENSO` estricto, suite verde, diff en caja, fidelidad macro y centinelas intactos), el avance hacia el merge y cierre es 100% desatendido; ante cualquier anomalía técnica, el sistema aborta de inmediato a fail-closed escalando al operador en el chat.
 
 ---
 
@@ -99,7 +103,7 @@ agent-os (core)
 
 ## Trabajar sobre el propio core
 
-Para operar agent-os sobre sí mismo, el agente usa el mismo flujo que en cualquier proyecto hijo:
+Para operar agent-os sobre sí mismo, el agente usa el mismo flujo que en cualquier proyecto hijo, rigiéndose por el estándar operativo de **Opción D** (avance desatendido en camino limpio tras aprobación del macro en planning, mediado por deliberación determinista y cierre atómico):
 
 ```bash
 # Ver estado del sprint activo
@@ -125,6 +129,28 @@ bash scripts/agent/install.sh . --self
 ```
 
 El flag `--self` omite la copia de scripts (ya están) y solo crea las carpetas operativas que faltan.
+
+---
+
+## Herramientas CLI del Core
+
+Tabla canónica de utilidades operativas y diagnóstico determinista:
+
+| Script CLI | Responsabilidad principal | Coste de Tokens |
+|---|---|:--:|
+| `scripts/agent/deliberate-plan.sh` | Motor determinista de arbitraje Coder-Reviewer con timeout 5s y degradación offline a `SIN_REVISOR` | $0 |
+| `scripts/agent/design-digest.sh` | Generador de registro histórico de diseño con redacción obligatoria (`lib/redact.sh`) y fail-closed | $0 |
+| `scripts/agent/check-session.sh` | Diagnóstico de contexto y pre-flight determinista de sesión de desarrollo | $0 |
+| `scripts/agent/check-sprint.sh` | Verificación de estado de tareas del sprint activo | $0 |
+| `scripts/agent/close-task.sh` | Cierre atómico de tarea, archivado de task file y digest de diseño | $0 |
+| `scripts/agent/close-sprint.sh` | Cierre y empaquetado del sprint con actualización de histórico | $0 |
+| `scripts/agent/fleet-doctor.sh` | Diagnóstico de herramientas locales, sondas de pasarela y conectividad de flota | $0 |
+| `scripts/agent/check-inference-gateway.sh` | Pre-flight y validación de conectividad con pasarelas de inferencia | $0 |
+| `scripts/agent/secret-locate.sh` | Localizador y auditoría de referencias a secretos sin filtrar valores | $0 |
+| `scripts/agent/inventory-check.sh` | Firewall anti-duplicación de código antes de nuevas implementaciones | $0 |
+| `scripts/agent/verify-goal.sh` | Validador desacoplado de metas de orquestación | $0 |
+| `scripts/agent/promote-to-main.sh` | Promoción controlada de ramas de trabajo hacia `main` | $0 |
+| `scripts/agent/audit-satellites.sh` | Auditoría determinista de integridad, permisos (+x) y desvíos en satélites | $0 |
 
 ---
 

@@ -1,0 +1,15 @@
+{
+  "task_id": "T-128",
+  "verdict": "SIN_REVISOR",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "Revisor de inferencia no disponible (timeout 5s o conexi\u00f3n rehusada). Se activa fallback seguro a aprobaci\u00f3n manual cl\u00e1sica.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "skipped",
+    "reason": "sin_revisor"
+  },
+  "inventory_scoped_bytes": 1990,
+  "plan_source": ".agents/context/plan-draft.md"
+}

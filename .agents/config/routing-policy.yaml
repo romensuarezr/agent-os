@@ -41,7 +41,7 @@ endpoints:
 
   ollama-local:
     description: "Backend local en VPS <nodo-inferencia> para inferencia 100% privada y offline"
-    base_url: "http://127.0.0.1:11434/v1"
+    base_url: "${OLLAMA_URL:-http://127.0.0.1:11434/v1}"
     cost_tier: "zero_cost_local_compute"
     verified_models:
       - "llama3.1:8b"
@@ -72,6 +72,24 @@ task_routing_matrix:
     secondary: "ollama-local"
     fallback: "primary-reliable"
     preferred_local_model: "llama3.1:8b"
+
+  deliberation_and_review:
+    description: "Auditoría cruzada de planes, verificación de pre-existencias en git y red-teaming (rol reviewer)"
+    primary: "freellmapi"
+    secondary: "omniroute"
+    fallback: "ollama-local"
+    timeout_seconds: 5
+    max_automatic_rounds: 1
+    preferred_model: "auto"
+    orca_revisor:
+      enabled: true
+      agent: "opencode"
+      role: "qa-judge"
+      timeout_seconds: 60
+    fallback_cascade:
+      - "freellmapi"
+      - "omniroute"
+      - "ollama-local"
 
   marketing_and_seo:
     description: "Generación de copys, changelogs públicos, documentación y metadatos SEO"

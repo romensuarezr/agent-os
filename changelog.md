@@ -9,6 +9,1190 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.29.0] — sprint-33 — 2026-11-10
+
+### ✨ Features
+
+- feat(T-187): cierre de tarea T-187
+- feat(skills): formalización de skill ui-critique y registro en manifiesto (T-187)
+- feat(T-186): cierre de tarea T-186
+- feat(control-plane): cobertura y hardening determinista de rotate-freellmapi-token.sh (T-186)
+- feat(T-185): cierre de tarea T-185
+- feat(workflows): refinamiento y paridad de session-close.md con Opción D (T-185)
+- feat(T-184): cierre de tarea T-184
+- feat(satellites): auditoría determinista de integridad y salud de scripts (T-184)
+- feat(T-183): cierre de tarea T-183
+- feat(ops): estandarizacion de coolify.sh y coolify-admin T-183
+- feat(T-188): cierre de tarea T-188
+- feat(governance): endurecimiento de flujo desatendido T-188
+
+### 🔧 Mantenimiento
+
+- chore(sprint-33): sellar regimen operativo Opción D y carriles en sprint-33-core
+- chore(sprint-33): enmienda al planning con T-188 (endurecimiento del flujo desatendido)
+- chore(sprint-33): planificar Sprint 33 (T-183 a T-187) y actualizar roadmap
+
+## [1.28.0] — sprint-32 — 2026-11-10
+
+### ✨ Features
+
+- feat(T-182): remediacion planificada y rotacion FreeLLMAPI en Hermes
+- feat(hermes): script determinista de rotacion de token FreeLLMAPI y diagnostico T-182
+- feat(T-181): sincronización y automatización de last-sync.md en el cierre de sprint
+- feat(core): sincronización y automatización de last-sync.md en el cierre de sprint
+- feat(T-180): DeepWiki MCP como fuente secundaria post-scout en tooling-advisor
+- feat(skills): formalizar DeepWiki MCP como fuente secundaria post-scout en tooling-advisor
+- feat(T-179): soporte declarativo de servidores MCP remotos HTTP/SSE en Fleet
+- feat(fleet): soporte declarativo de servidores MCP remotos HTTP/SSE en Fleet
+- feat(T-178): cierre de tarea T-178
+- feat(T-178): purga definitiva de residuos Bane en fleet y searxng-client y blindaje en check 34
+- feat(T-177): cierre de tarea T-177
+- feat(workflows): formalizar flujo inteligente de arranque de sprint y encadenamiento Opción D (T-177)
+- feat(T-175): saneamiento integral de Bane y unificacion en SearXNG
+- feat(T-175): purga de residuos Bane, unificacion en SearXNG y adaptacion del control plane
+- feat(T-174): cierre de tarea T-174
+- feat(T-174): skill canonica tooling-advisor para prospeccion pasiva de flota
+- feat(T-173): cierre de tarea T-173
+- feat(T-173): sonda determinista de actualizacion de herramientas multi-registro
+- feat(T-176): cierre de tarea T-176
+- feat(T-176): informe de diagnostico forense determinista de whatsapp-bridge
+- feat(T-172): cierre de tarea T-172
+- feat(T-172): matriz de roles y capacidades de CLIs de la flota y perfiles declarativos
+- feat(T-171): cierre de tarea T-171
+- feat(T-170): cierre de tarea T-170
+- feat(T-170): primera integracion real de Nango con Cloudflare DNS en solo lectura
+- feat(T-169): cierre de tarea T-169
+- feat(T-169): motor de busqueda soberano SearXNG y ensayo fail-closed de Vane
+- feat(T-168): cierre de tarea T-168
+- feat(T-168): arreglo en vivo de Homepage, ping granular y descubrimiento portable multi-repo
+- feat(T-167): cierre de tarea T-167
+- feat(T-167): remediacion determinista de compatibilidad en generate-homepage-config.sh y puesta a punto en vivo de homepage dashboard
+- feat(T-166): cierre de tarea T-166
+- feat(T-166): plantilla de despliegue soberano de nango en vps, despliegue en vivo y runbook de integracion
+- feat(T-164): formalizar opcion d como regimen operativo por defecto
+- feat(T-164): formalizar opcion d como regimen operativo por defecto
+- feat(T-163): cierre de tarea T-163
+- feat(T-163): blindaje generalizado de rutas personales y compuerta de higiene en cierre
+- feat(T-162): cierre de tarea T-162
+- feat(T-162): limites de recursos en docker-compose y plantilla .env.example para bane
+- feat(T-161): cierre de tarea T-161
+- feat(T-161): diagnostico de flota, runbook de bane y suite de control plane 38/38
+- feat(T-160): cierre de tarea T-160
+- feat(T-160): workflow deep-research con bifurcacion autonomo bane y manual perplexity
+- feat(T-159): cierre de tarea T-159
+- feat(T-159): cliente cli determinista para bane con salida stdout y sonda
+- feat(T-158): cierre de tarea T-158
+- feat(T-158): plantillas docker compose y configuracion de flota de bane con frontera portable
+- feat(T-157): cierre de tarea T-157
+- feat(T-157): marco del piloto de autonomia opcion d, arnes de compuertas e informe
+- feat(T-156): cierre de tarea T-156
+- feat(T-156): evaluacion empirica enrutado por dificultad y reporte formal
+- feat(T-155): bateria de tests de hueco del revisor dual en check 34
+- feat(T-154): cierre de tarea T-154
+- feat(T-154): bateria de calibracion y reporte de paridad revisor-vs-rele
+- feat(T-153): cierre de tarea T-153
+- feat(T-153): guardas de seguridad, aislamiento read-only y certificacion git-limpio para agy
+- feat(T-152): cierre de tarea T-152
+- feat(T-152): cableado de antigravity cli (agy) como tier 1 en deliberate-plan.sh
+- feat(T-151): cierre de tarea T-151
+- feat(T-151): trial de liveness del worker de inferencia en deliberacion (LIVENESS_DESCARTADO)
+- feat(T-150): cierre de tarea T-150
+- feat(T-150): fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+- feat(T-149): cierre de tarea
+- feat(T-149): gate mecanico fail-closed de skills declaradas en plan
+- feat(T-148): cierre de tarea
+- feat(T-147): cierre de tarea
+- feat(governance): formalizacion del flujo de dos niveles y compuertas desacopladas (T-147)
+- feat(T-146): cierre de tarea
+- feat(orchestrator): cierre de sprint en invocación única concatenada y determinista (T-146)
+- feat(T-145): cierre de tarea
+- feat(T-144): cierre de tarea
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recoleccion de basura (T-144)
+- feat(T-143): cierre de tarea
+- feat(orchestrator): aislamiento concurrente de variables y archivos de contexto (T-143)
+- feat(T-142): cierre de tarea
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+- feat(T-138): cierre de tarea
+- feat(T-137): cierre de tarea
+- feat(deliberate): actualizar cabecera y ayuda de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+- feat(T-136): cierre de tarea
+- feat(tests): Check 37 certificacion E2E revisor ejecutor y denominador 36->37
+- feat(T-135): cierre de tarea
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s
+- feat(orchestration): refactor jerarquico de deliberate-plan.sh con orca prioritario (T-135)
+- feat(T-134): cierre de tarea
+- feat(orchestration): emision de skills.forbidden en seccion 1 de generate-reviewer-spec.sh (T-134)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT (T-134)
+- feat(T-133): cierre de tarea
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolucion portable (T-133)
+- feat(T-132): cierre de tarea
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(T-129): cierre de tarea
+- feat(planning): compuerta estricta scout-first y verificacion en design-digest (T-129)
+- feat(T-128): cierre de tarea
+- feat(worktree-merge): puente de rescate de deliberacion previo al desmontaje de worktree (T-128)
+- feat(T-127): cierre de tarea
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(T-126): cierre de tarea
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(T-125): cierre de tarea
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(T-124): cierre de tarea
+- feat(deliberation): persistencia nombrada deliberation-TASK_ID para handover multi-sesión (T-124)
+- feat(T-123): cierre de tarea
+- feat(hardening): robustecer derivación de claves, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(T-122): cierre de tarea
+- feat(tests): implementar check 34 y actualizar denominador a 34 en suite (T-122)
+- feat(T-121): cierre de tarea
+- feat(digest): implementar design-digest.sh integrado en close-task (T-121)
+- feat(T-120): cierre de tarea
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(T-119): cierre de tarea
+- feat(deliberation): implementar motor determinista deliberate-plan.sh (T-119)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(tests): admitir reportes de sprint archivados en check 34 de control plane
+- fix(check-tooling-updates): anadir glances como herramienta PyPI real al catalogo
+- fix(digest): sanear enlace relativo en T-159 y blindar rutas absolutas en design-digest.sh
+- fix(audit-repo): correccion de literal changelog.md en propuesta y test de regresion (T-148)
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+- fix: revertear IPs reales de Tailscale (frontera portable, check 22)
+- fix: actualizar IPs y descripciones del equipo
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(hygiene): no afirmar 'limpio' sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(hermes): evidencia de rotacion FreeLLMAPI liveness e Infisical T-182
+- docs(roadmap): actualizar cierre de Sprint 31 formalizado en v1.27.0
+- docs(runbooks): registrar remediacion de incidente HTTP 401 en Hermes y reversion a OmniRoute
+- docs(sprint-31): explicitar puerto :3000 como ejemplo en T-176 y actas de planning
+- docs(idea-inbox): capturar idea DeepWiki como complemento de scout.sh
+- docs(T-170): registrar declaraciones de gobernanza y reconciliar ruta canonica de nango
+- docs(T-171): registrar evidencia empirica del re-ensayo de Vane y resolucion fail-closed
+- docs(inbox): registrar idea tooling-advisor roles y capacidades
+- docs(T-168): certificar pase visual de usuario y sanitizar ruta de volumen
+- docs(inbox): registrar idea de ejecucion autonoma sobre trabajo real
+- docs(pilot): registrar telemetria e intervencion por aborto de T-160
+- docs(pilot): registrar telemetria de T-159 en informe de autonomia
+- docs(pilot): registrar telemetria de T-158 en informe de autonomia
+- docs(T-153): documentar uso, limites y advertencia de seguridad de AGY_ALLOW_DIRTY
+- docs(T-145): precisiones de causalidad, trafico cli medido y reapertura formal
+- docs(orchestrator): informe final y dictamen no-go del piloto paralelo (T-145)
+- docs(T-144): marcar criterios completados con evidencia en task-144.md
+- docs(tasks): precisar honestidad en criterios de deliberación y medición de T-142
+- docs(orchestrator): cerrar tarea T-141 pre-flight del gate y batería de calibración concurrente
+- docs(orchestrator): cerrar tarea T-140 informe de observación del ciclo
+- docs(orchestrator): informe de observación del ciclo con criterio de paso al paralelo (T-140)
+- docs(orchestrator): cerrar tarea T-139 verificación recolector eventos Orca
+- docs(orchestrator): verificar empíricamente recolector de eventos Orca en host (T-139)
+- docs(orchestration): delta T-138 alineacion whitelist orca-client, evidencia help y deduplicacion
+- docs(orchestration): documentacion canónica del ciclo de vida Orca y decisión de backlog (T-138)
+- docs(inbox): registrar idea de front-door, orca y kb soberana
+- docs(orchestration): documentacion de semantica de rondas y evaluacion estatica (T-135)
+- docs(sprint-22): registrar captura de videos e incorporar ajustes obligatorios de research
+- docs(sprint-22): propuesta de planning, contratos y research scout
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+- docs(sprint-21): plan de sprint y contratos T-124..T-127 (arquitectura multi-agente)
+- docs(task): registrar contrato T-123 y ampliar Sprint 20 (4/5)
+- docs(task): registrar contrato T-122 (Check 34 suite deliberación y digests)
+- docs(task): registrar contrato T-121 (generador de digest de diseño en close-task)
+- docs(task): registrar contrato T-120 (workflow session-start con deliberación)
+- docs(planning): preparar sprint 20 y contrato T-119 (deliberación autónoma)
+- docs(inbox): capturar idea Bane (deep research self-hosted) para evaluación
+- docs(sprint-19): ampliar con pack de secretos (T-117, T-118) y decisiones de T-116/T-115
+- docs(sprint-19): planning — tema versiones, 3 ideas archivadas, contratos T-113..T-116
+
+### 🔧 Mantenimiento
+
+- chore(sprint-32): sellar regimen Opcion D y orden de carriles
+- chore(sprint-32): sellar regimen operativo Opcion D y orden de carriles
+- chore(sprint-32): planificar Sprint 32 (T-178 a T-182) y archivar idea DeepWiki
+- chore(task): crear contrato de tarea T-177
+- chore: archive sprint-31-core [v1.27.0]
+- chore(sprint-31): formalizar planning, research scout y contratos de tareas T-172 a T-176
+- chore: archive sprint-30-core [v1.26.0]
+- chore(T-165): cierre formal de tarea descartada tras resolucion de motor
+- chore(sprint-30): enmienda de tarea T-171 (re-ensayo de Vane) y ampliacion de periodo hasta 2026-11-19
+- chore(sprint-30): enmienda de tareas T-168 a T-170 y ampliacion de periodo
+- chore(sprint-30): enmienda de reorden macro (T-166 -> T-167 -> T-165 pausada)
+- chore(sprint-30): incorporar enmienda vinculante de planning del rele (T-165, T-166, T-167)
+- chore(sprint-30): planificacion de sprint 30 (T-165 a T-167)
+- chore: archive sprint-29-core [v1.25.0]
+- chore(sprint-29): incorporar precisiones vinculantes del rele (T-162 memoria <250M y T-164 regla pre-merge)
+- chore(sprint-29): planificacion de sprint 29 (T-162 a T-164)
+- chore: archive sprint-28-core [v1.24.0]
+- chore(T-155): cierre de tarea T-155
+- chore(sprint-28): enmienda de planning con piloto opcion D y mini-sprint bane (T-155 a T-161)
+- chore(sprint-28): planificacion de sprint 28 (T-155 a T-157)
+- chore: archive sprint-27-core [v1.23.0]
+- chore(T-151): marcar autorizacion de cierre y merge por el rele
+- chore(sprint-27): planificacion de sprint 27 (T-151 a T-154)
+- chore: archive sprint-26-core [v1.22.0]
+- chore(sprint-26): enmienda de planning con T-149 y T-150
+- chore(sprint-26): triage del inbox de planning, adopcion de T-148 y archivado de capturas
+- chore(sprint-26): enmienda al planning con contrato T-147 y disposicion de candidatas
+- chore(sprint-26): planificacion inicial y contrato de gobernanza T-146
+- chore: archive sprint-25-core [v1.21.0]
+- chore(sprint-25): planificacion formal de despacho paralelo controlado y piloto del gate de t-140
+- chore: archive sprint-24-core [v1.20.0]
+- chore(sprint-24): planificacion formal de deliberacion en produccion y ciclo de vida orca
+- chore: archive sprint-23-core [v1.19.0]
+- chore(sprint-23): planificacion formal de revisor ejecutor con orca ade
+- chore: archive sprint-22-core [v1.18.0]
+- chore: archive sprint-21 [v1.17.0]
+- chore: archive sprint-20 [v1.16.0]
+- chore: archive sprint-19 [v1.15.0]
+- chore: archive sprint-19-core
+
+### 📦 Otros
+
+- docs archivados
+
+## [1.27.0] — sprint-31 — 2026-11-10
+
+### ✨ Features
+
+- feat(T-175): saneamiento integral de Bane, migración a SearXNG y adaptación de suite de control plane (38/38)
+- feat(T-174): skill canónica tooling-advisor para prospección pasiva de flota y propuestas a idea-inbox
+- feat(T-173): sonda determinista CLI de actualización de herramientas multi-registro (check-tooling-updates.sh)
+- feat(T-176): informe de diagnóstico forense determinista de whatsapp-bridge en nodo de inferencia
+- feat(T-172): matriz de roles y capacidades de CLIs de la flota (OpenCode 2, Claude Code, Aider, Hermes, Antigravity) y perfiles declarativos
+
+### 🐛 Bug Fixes
+
+- fix(check-tooling-updates): añadir glances como herramienta PyPI real al catálogo
+
+### 📚 Documentación
+
+- docs(sprint-31): explicitar puerto :3000 como ejemplo en T-176 y actas de planning
+- docs(idea-inbox): capturar idea DeepWiki como complemento de scout.sh (comprensión profunda)
+
+### 🔧 Mantenimiento
+
+- chore(sprint-31): formalizar planning, research scout y contratos de tareas T-172 a T-176
+
+## [1.26.0] — sprint-30 — 2026-11-07
+
+### ✨ Features
+
+- feat(T-171): cierre de tarea T-171
+- feat(T-170): cierre de tarea T-170
+- feat(T-170): primera integracion real de Nango con Cloudflare DNS en solo lectura
+- feat(T-169): cierre de tarea T-169
+- feat(T-169): motor de busqueda soberano SearXNG y ensayo fail-closed de Vane
+- feat(T-168): cierre de tarea T-168
+- feat(T-168): arreglo en vivo de Homepage, ping granular y descubrimiento portable multi-repo
+- feat(T-167): cierre de tarea T-167
+- feat(T-167): remediacion determinista de compatibilidad en generate-homepage-config.sh y puesta a punto en vivo de homepage dashboard
+- feat(T-166): cierre de tarea T-166
+- feat(T-166): plantilla de despliegue soberano de nango en vps, despliegue en vivo y runbook de integracion
+- feat(T-164): formalizar opcion d como regimen operativo por defecto
+- feat(T-164): formalizar opcion d como regimen operativo por defecto
+- feat(T-163): cierre de tarea T-163
+- feat(T-163): blindaje generalizado de rutas personales y compuerta de higiene en cierre
+- feat(T-162): cierre de tarea T-162
+- feat(T-162): limites de recursos en docker-compose y plantilla .env.example para bane
+- feat(T-161): cierre de tarea T-161
+- feat(T-161): diagnostico de flota, runbook de bane y suite de control plane 38/38
+- feat(T-160): cierre de tarea T-160
+- feat(T-160): workflow deep-research con bifurcacion autonomo bane y manual perplexity
+- feat(T-159): cierre de tarea T-159
+- feat(T-159): cliente cli determinista para bane con salida stdout y sonda
+- feat(T-158): cierre de tarea T-158
+- feat(T-158): plantillas docker compose y configuracion de flota de bane con frontera portable
+- feat(T-157): cierre de tarea T-157
+- feat(T-157): marco del piloto de autonomia opcion d, arnes de compuertas e informe
+- feat(T-156): cierre de tarea T-156
+- feat(T-156): evaluacion empirica enrutado por dificultad y reporte formal
+- feat(T-155): bateria de tests de hueco del revisor dual en check 34
+- feat(T-154): cierre de tarea T-154
+- feat(T-154): bateria de calibracion y reporte de paridad revisor-vs-rele
+- feat(T-153): cierre de tarea T-153
+- feat(T-153): guardas de seguridad, aislamiento read-only y certificacion git-limpio para agy
+- feat(T-152): cierre de tarea T-152
+- feat(T-152): cableado de antigravity cli (agy) como tier 1 en deliberate-plan.sh
+- feat(T-151): cierre de tarea T-151
+- feat(T-151): trial de liveness del worker de inferencia en deliberacion (LIVENESS_DESCARTADO)
+- feat(T-150): cierre de tarea T-150
+- feat(T-150): fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+- feat(T-149): cierre de tarea
+- feat(T-149): gate mecanico fail-closed de skills declaradas en plan
+- feat(T-148): cierre de tarea
+- feat(T-147): cierre de tarea
+- feat(governance): formalizacion del flujo de dos niveles y compuertas desacopladas (T-147)
+- feat(T-146): cierre de tarea
+- feat(orchestrator): cierre de sprint en invocación única concatenada y determinista (T-146)
+- feat(T-145): cierre de tarea
+- feat(T-144): cierre de tarea
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recoleccion de basura (T-144)
+- feat(T-143): cierre de tarea
+- feat(orchestrator): aislamiento concurrente de variables y archivos de contexto (T-143)
+- feat(T-142): cierre de tarea
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+- feat(T-138): cierre de tarea
+- feat(T-137): cierre de tarea
+- feat(deliberate): actualizar cabecera y ayuda de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+- feat(T-136): cierre de tarea
+- feat(tests): Check 37 certificacion E2E revisor ejecutor y denominador 36->37
+- feat(T-135): cierre de tarea
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s
+- feat(orchestration): refactor jerarquico de deliberate-plan.sh con orca prioritario (T-135)
+- feat(T-134): cierre de tarea
+- feat(orchestration): emision de skills.forbidden en seccion 1 de generate-reviewer-spec.sh (T-134)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT (T-134)
+- feat(T-133): cierre de tarea
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolucion portable (T-133)
+- feat(T-132): cierre de tarea
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(T-129): cierre de tarea
+- feat(planning): compuerta estricta scout-first y verificacion en design-digest (T-129)
+- feat(T-128): cierre de tarea
+- feat(worktree-merge): puente de rescate de deliberacion previo al desmontaje de worktree (T-128)
+- feat(T-127): cierre de tarea
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(T-126): cierre de tarea
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(T-125): cierre de tarea
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(T-124): cierre de tarea
+- feat(deliberation): persistencia nombrada deliberation-TASK_ID para handover multi-sesión (T-124)
+- feat(T-123): cierre de tarea
+- feat(hardening): robustecer derivación de claves, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(T-122): cierre de tarea
+- feat(tests): implementar check 34 y actualizar denominador a 34 en suite (T-122)
+- feat(T-121): cierre de tarea
+- feat(digest): implementar design-digest.sh integrado en close-task (T-121)
+- feat(T-120): cierre de tarea
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(T-119): cierre de tarea
+- feat(deliberation): implementar motor determinista deliberate-plan.sh (T-119)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(digest): sanear enlace relativo en T-159 y blindar rutas absolutas en design-digest.sh
+- fix(audit-repo): correccion de literal changelog.md en propuesta y test de regresion (T-148)
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+- fix: revertear IPs reales de Tailscale (frontera portable, check 22)
+- fix: actualizar IPs y descripciones del equipo
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(hygiene): no afirmar 'limpio' sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(T-171): registrar evidencia empirica del re-ensayo de Vane y resolucion fail-closed
+- docs(inbox): registrar idea tooling-advisor roles y capacidades
+- docs(T-168): certificar pase visual de usuario y sanitizar ruta de volumen
+- docs(inbox): registrar idea de ejecucion autonoma sobre trabajo real
+- docs(pilot): registrar telemetria e intervencion por aborto de T-160
+- docs(pilot): registrar telemetria de T-159 en informe de autonomia
+- docs(pilot): registrar telemetria de T-158 en informe de autonomia
+- docs(T-153): documentar uso, limites y advertencia de seguridad de AGY_ALLOW_DIRTY
+- docs(T-145): precisiones de causalidad, trafico cli medido y reapertura formal
+- docs(orchestrator): informe final y dictamen no-go del piloto paralelo (T-145)
+- docs(T-144): marcar criterios completados con evidencia en task-144.md
+- docs(tasks): precisar honestidad en criterios de deliberación y medición de T-142
+- docs(orchestrator): cerrar tarea T-141 pre-flight del gate y batería de calibración concurrente
+- docs(orchestrator): cerrar tarea T-140 informe de observación del ciclo
+- docs(orchestrator): informe de observación del ciclo con criterio de paso al paralelo (T-140)
+- docs(orchestrator): cerrar tarea T-139 verificación recolector eventos Orca
+- docs(orchestrator): verificar empíricamente recolector de eventos Orca en host (T-139)
+- docs(orchestration): delta T-138 alineacion whitelist orca-client, evidencia help y deduplicacion
+- docs(orchestration): documentacion canónica del ciclo de vida Orca y decisión de backlog (T-138)
+- docs(inbox): registrar idea de front-door, orca y kb soberana
+- docs(orchestration): documentacion de semantica de rondas y evaluacion estatica (T-135)
+- docs(sprint-22): registrar captura de videos e incorporar ajustes obligatorios de research
+- docs(sprint-22): propuesta de planning, contratos y research scout
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+- docs(sprint-21): plan de sprint y contratos T-124..T-127 (arquitectura multi-agente)
+- docs(task): registrar contrato T-123 y ampliar Sprint 20 (4/5)
+- docs(task): registrar contrato T-122 (Check 34 suite deliberación y digests)
+- docs(task): registrar contrato T-121 (generador de digest de diseño en close-task)
+- docs(task): registrar contrato T-120 (workflow session-start con deliberación)
+- docs(planning): preparar sprint 20 y contrato T-119 (deliberación autónoma)
+- docs(inbox): capturar idea Bane (deep research self-hosted) para evaluación
+- docs(sprint-19): ampliar con pack de secretos (T-117, T-118) y decisiones de T-116/T-115
+- docs(sprint-19): planning — tema versiones, 3 ideas archivadas, contratos T-113..T-116
+
+### 🔧 Mantenimiento
+
+- chore(T-165): cierre formal de tarea descartada tras resolucion de motor
+- chore(sprint-30): enmienda de tarea T-171 (re-ensayo de Vane) y ampliacion de periodo hasta 2026-11-19
+- chore(sprint-30): enmienda de tareas T-168 a T-170 y ampliacion de periodo
+- chore(sprint-30): enmienda de reorden macro (T-166 -> T-167 -> T-165 pausada)
+- chore(sprint-30): incorporar enmienda vinculante de planning del rele (T-165, T-166, T-167)
+- chore(sprint-30): planificacion de sprint 30 (T-165 a T-167)
+- chore: archive sprint-29-core [v1.25.0]
+- chore(sprint-29): incorporar precisiones vinculantes del rele (T-162 memoria <250M y T-164 regla pre-merge)
+- chore(sprint-29): planificacion de sprint 29 (T-162 a T-164)
+- chore: archive sprint-28-core [v1.24.0]
+- chore(T-155): cierre de tarea T-155
+- chore(sprint-28): enmienda de planning con piloto opcion D y mini-sprint bane (T-155 a T-161)
+- chore(sprint-28): planificacion de sprint 28 (T-155 a T-157)
+- chore: archive sprint-27-core [v1.23.0]
+- chore(T-151): marcar autorizacion de cierre y merge por el rele
+- chore(sprint-27): planificacion de sprint 27 (T-151 a T-154)
+- chore: archive sprint-26-core [v1.22.0]
+- chore(sprint-26): enmienda de planning con T-149 y T-150
+- chore(sprint-26): triage del inbox de planning, adopcion de T-148 y archivado de capturas
+- chore(sprint-26): enmienda al planning con contrato T-147 y disposicion de candidatas
+- chore(sprint-26): planificacion inicial y contrato de gobernanza T-146
+- chore: archive sprint-25-core [v1.21.0]
+- chore(sprint-25): planificacion formal de despacho paralelo controlado y piloto del gate de t-140
+- chore: archive sprint-24-core [v1.20.0]
+- chore(sprint-24): planificacion formal de deliberacion en produccion y ciclo de vida orca
+- chore: archive sprint-23-core [v1.19.0]
+- chore(sprint-23): planificacion formal de revisor ejecutor con orca ade
+- chore: archive sprint-22-core [v1.18.0]
+- chore: archive sprint-21 [v1.17.0]
+- chore: archive sprint-20 [v1.16.0]
+- chore: archive sprint-19 [v1.15.0]
+- chore: archive sprint-19-core
+
+## [1.25.0] — sprint-29 — 2026-11-02
+
+### ✨ Features
+
+- feat(T-164): formalizar opcion d como regimen operativo por defecto
+- feat(T-164): formalizar opcion d como regimen operativo por defecto
+- feat(T-163): cierre de tarea T-163
+- feat(T-163): blindaje generalizado de rutas personales y compuerta de higiene en cierre
+- feat(T-162): cierre de tarea T-162
+- feat(T-162): limites de recursos en docker-compose y plantilla .env.example para bane
+- feat(T-161): cierre de tarea T-161
+- feat(T-161): diagnostico de flota, runbook de bane y suite de control plane 38/38
+- feat(T-160): cierre de tarea T-160
+- feat(T-160): workflow deep-research con bifurcacion autonomo bane y manual perplexity
+- feat(T-159): cierre de tarea T-159
+- feat(T-159): cliente cli determinista para bane con salida stdout y sonda
+- feat(T-158): cierre de tarea T-158
+- feat(T-158): plantillas docker compose y configuracion de flota de bane con frontera portable
+- feat(T-157): cierre de tarea T-157
+- feat(T-157): marco del piloto de autonomia opcion d, arnes de compuertas e informe
+- feat(T-156): cierre de tarea T-156
+- feat(T-156): evaluacion empirica enrutado por dificultad y reporte formal
+- feat(T-155): bateria de tests de hueco del revisor dual en check 34
+- feat(T-154): cierre de tarea T-154
+- feat(T-154): bateria de calibracion y reporte de paridad revisor-vs-rele
+- feat(T-153): cierre de tarea T-153
+- feat(T-153): guardas de seguridad, aislamiento read-only y certificacion git-limpio para agy
+- feat(T-152): cierre de tarea T-152
+- feat(T-152): cableado de antigravity cli (agy) como tier 1 en deliberate-plan.sh
+- feat(T-151): cierre de tarea T-151
+- feat(T-151): trial de liveness del worker de inferencia en deliberacion (LIVENESS_DESCARTADO)
+- feat(T-150): cierre de tarea T-150
+- feat(T-150): fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+- feat(T-149): cierre de tarea
+- feat(T-149): gate mecanico fail-closed de skills declaradas en plan
+- feat(T-148): cierre de tarea
+- feat(T-147): cierre de tarea
+- feat(governance): formalizacion del flujo de dos niveles y compuertas desacopladas (T-147)
+- feat(T-146): cierre de tarea
+- feat(orchestrator): cierre de sprint en invocación única concatenada y determinista (T-146)
+- feat(T-145): cierre de tarea
+- feat(T-144): cierre de tarea
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recoleccion de basura (T-144)
+- feat(T-143): cierre de tarea
+- feat(orchestrator): aislamiento concurrente de variables y archivos de contexto (T-143)
+- feat(T-142): cierre de tarea
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+- feat(T-138): cierre de tarea
+- feat(T-137): cierre de tarea
+- feat(deliberate): actualizar cabecera y ayuda de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+- feat(T-136): cierre de tarea
+- feat(tests): Check 37 certificacion E2E revisor ejecutor y denominador 36->37
+- feat(T-135): cierre de tarea
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s
+- feat(orchestration): refactor jerarquico de deliberate-plan.sh con orca prioritario (T-135)
+- feat(T-134): cierre de tarea
+- feat(orchestration): emision de skills.forbidden en seccion 1 de generate-reviewer-spec.sh (T-134)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT (T-134)
+- feat(T-133): cierre de tarea
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolucion portable (T-133)
+- feat(T-132): cierre de tarea
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(T-129): cierre de tarea
+- feat(planning): compuerta estricta scout-first y verificacion en design-digest (T-129)
+- feat(T-128): cierre de tarea
+- feat(worktree-merge): puente de rescate de deliberacion previo al desmontaje de worktree (T-128)
+- feat(T-127): cierre de tarea
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(T-126): cierre de tarea
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(T-125): cierre de tarea
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(T-124): cierre de tarea
+- feat(deliberation): persistencia nombrada deliberation-TASK_ID para handover multi-sesión (T-124)
+- feat(T-123): cierre de tarea
+- feat(hardening): robustecer derivación de claves, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(T-122): cierre de tarea
+- feat(tests): implementar check 34 y actualizar denominador a 34 en suite (T-122)
+- feat(T-121): cierre de tarea
+- feat(digest): implementar design-digest.sh integrado en close-task (T-121)
+- feat(T-120): cierre de tarea
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(T-119): cierre de tarea
+- feat(deliberation): implementar motor determinista deliberate-plan.sh (T-119)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(digest): sanear enlace relativo en T-159 y blindar rutas absolutas en design-digest.sh
+- fix(audit-repo): correccion de literal changelog.md en propuesta y test de regresion (T-148)
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+- fix: revertear IPs reales de Tailscale (frontera portable, check 22)
+- fix: actualizar IPs y descripciones del equipo
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(hygiene): no afirmar 'limpio' sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(pilot): registrar telemetria e intervencion por aborto de T-160
+- docs(pilot): registrar telemetria de T-159 en informe de autonomia
+- docs(pilot): registrar telemetria de T-158 en informe de autonomia
+- docs(T-153): documentar uso, limites y advertencia de seguridad de AGY_ALLOW_DIRTY
+- docs(T-145): precisiones de causalidad, trafico cli medido y reapertura formal
+- docs(orchestrator): informe final y dictamen no-go del piloto paralelo (T-145)
+- docs(T-144): marcar criterios completados con evidencia en task-144.md
+- docs(tasks): precisar honestidad en criterios de deliberación y medición de T-142
+- docs(orchestrator): cerrar tarea T-141 pre-flight del gate y batería de calibración concurrente
+- docs(orchestrator): cerrar tarea T-140 informe de observación del ciclo
+- docs(orchestrator): informe de observación del ciclo con criterio de paso al paralelo (T-140)
+- docs(orchestrator): cerrar tarea T-139 verificación recolector eventos Orca
+- docs(orchestrator): verificar empíricamente recolector de eventos Orca en host (T-139)
+- docs(orchestration): delta T-138 alineacion whitelist orca-client, evidencia help y deduplicacion
+- docs(orchestration): documentacion canónica del ciclo de vida Orca y decisión de backlog (T-138)
+- docs(inbox): registrar idea de front-door, orca y kb soberana
+- docs(orchestration): documentacion de semantica de rondas y evaluacion estatica (T-135)
+- docs(sprint-22): registrar captura de videos e incorporar ajustes obligatorios de research
+- docs(sprint-22): propuesta de planning, contratos y research scout
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+- docs(sprint-21): plan de sprint y contratos T-124..T-127 (arquitectura multi-agente)
+- docs(task): registrar contrato T-123 y ampliar Sprint 20 (4/5)
+- docs(task): registrar contrato T-122 (Check 34 suite deliberación y digests)
+- docs(task): registrar contrato T-121 (generador de digest de diseño en close-task)
+- docs(task): registrar contrato T-120 (workflow session-start con deliberación)
+- docs(planning): preparar sprint 20 y contrato T-119 (deliberación autónoma)
+- docs(inbox): capturar idea Bane (deep research self-hosted) para evaluación
+- docs(sprint-19): ampliar con pack de secretos (T-117, T-118) y decisiones de T-116/T-115
+- docs(sprint-19): planning — tema versiones, 3 ideas archivadas, contratos T-113..T-116
+
+### 🔧 Mantenimiento
+
+- chore(sprint-29): incorporar precisiones vinculantes del rele (T-162 memoria <250M y T-164 regla pre-merge)
+- chore(sprint-29): planificacion de sprint 29 (T-162 a T-164)
+- chore: archive sprint-28-core [v1.24.0]
+- chore(T-155): cierre de tarea T-155
+- chore(sprint-28): enmienda de planning con piloto opcion D y mini-sprint bane (T-155 a T-161)
+- chore(sprint-28): planificacion de sprint 28 (T-155 a T-157)
+- chore: archive sprint-27-core [v1.23.0]
+- chore(T-151): marcar autorizacion de cierre y merge por el rele
+- chore(sprint-27): planificacion de sprint 27 (T-151 a T-154)
+- chore: archive sprint-26-core [v1.22.0]
+- chore(sprint-26): enmienda de planning con T-149 y T-150
+- chore(sprint-26): triage del inbox de planning, adopcion de T-148 y archivado de capturas
+- chore(sprint-26): enmienda al planning con contrato T-147 y disposicion de candidatas
+- chore(sprint-26): planificacion inicial y contrato de gobernanza T-146
+- chore: archive sprint-25-core [v1.21.0]
+- chore(sprint-25): planificacion formal de despacho paralelo controlado y piloto del gate de t-140
+- chore: archive sprint-24-core [v1.20.0]
+- chore(sprint-24): planificacion formal de deliberacion en produccion y ciclo de vida orca
+- chore: archive sprint-23-core [v1.19.0]
+- chore(sprint-23): planificacion formal de revisor ejecutor con orca ade
+- chore: archive sprint-22-core [v1.18.0]
+- chore: archive sprint-21 [v1.17.0]
+- chore: archive sprint-20 [v1.16.0]
+- chore: archive sprint-19 [v1.15.0]
+- chore: archive sprint-19-core
+
+## [1.24.0] — sprint-28 — 2026-11-02
+
+### ✨ Features
+
+- feat(T-161): cierre de tarea T-161
+- feat(T-161): diagnostico de flota, runbook de bane y suite de control plane 38/38
+- feat(T-160): cierre de tarea T-160
+- feat(T-160): workflow deep-research con bifurcacion autonomo bane y manual perplexity
+- feat(T-159): cierre de tarea T-159
+- feat(T-159): cliente cli determinista para bane con salida stdout y sonda
+- feat(T-158): cierre de tarea T-158
+- feat(T-158): plantillas docker compose y configuracion de flota de bane con frontera portable
+- feat(T-157): cierre de tarea T-157
+- feat(T-157): marco del piloto de autonomia opcion d, arnes de compuertas e informe
+- feat(T-156): cierre de tarea T-156
+- feat(T-156): evaluacion empirica enrutado por dificultad y reporte formal
+- feat(T-155): bateria de tests de hueco del revisor dual en check 34
+- feat(T-154): cierre de tarea T-154
+- feat(T-154): bateria de calibracion y reporte de paridad revisor-vs-rele
+- feat(T-153): cierre de tarea T-153
+- feat(T-153): guardas de seguridad, aislamiento read-only y certificacion git-limpio para agy
+- feat(T-152): cierre de tarea T-152
+- feat(T-152): cableado de antigravity cli (agy) como tier 1 en deliberate-plan.sh
+- feat(T-151): cierre de tarea T-151
+- feat(T-151): trial de liveness del worker de inferencia en deliberacion (LIVENESS_DESCARTADO)
+- feat(T-150): cierre de tarea T-150
+- feat(T-150): fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+- feat(T-149): cierre de tarea
+- feat(T-149): gate mecanico fail-closed de skills declaradas en plan
+- feat(T-148): cierre de tarea
+- feat(T-147): cierre de tarea
+- feat(governance): formalizacion del flujo de dos niveles y compuertas desacopladas (T-147)
+- feat(T-146): cierre de tarea
+- feat(orchestrator): cierre de sprint en invocación única concatenada y determinista (T-146)
+- feat(T-145): cierre de tarea
+- feat(T-144): cierre de tarea
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recoleccion de basura (T-144)
+- feat(T-143): cierre de tarea
+- feat(orchestrator): aislamiento concurrente de variables y archivos de contexto (T-143)
+- feat(T-142): cierre de tarea
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+- feat(T-138): cierre de tarea
+- feat(T-137): cierre de tarea
+- feat(deliberate): actualizar cabecera y ayuda de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+- feat(T-136): cierre de tarea
+- feat(tests): Check 37 certificacion E2E revisor ejecutor y denominador 36->37
+- feat(T-135): cierre de tarea
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s
+- feat(orchestration): refactor jerarquico de deliberate-plan.sh con orca prioritario (T-135)
+- feat(T-134): cierre de tarea
+- feat(orchestration): emision de skills.forbidden en seccion 1 de generate-reviewer-spec.sh (T-134)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT (T-134)
+- feat(T-133): cierre de tarea
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolucion portable (T-133)
+- feat(T-132): cierre de tarea
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(T-129): cierre de tarea
+- feat(planning): compuerta estricta scout-first y verificacion en design-digest (T-129)
+- feat(T-128): cierre de tarea
+- feat(worktree-merge): puente de rescate de deliberacion previo al desmontaje de worktree (T-128)
+- feat(T-127): cierre de tarea
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(T-126): cierre de tarea
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(T-125): cierre de tarea
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(T-124): cierre de tarea
+- feat(deliberation): persistencia nombrada deliberation-TASK_ID para handover multi-sesión (T-124)
+- feat(T-123): cierre de tarea
+- feat(hardening): robustecer derivación de claves, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(T-122): cierre de tarea
+- feat(tests): implementar check 34 y actualizar denominador a 34 en suite (T-122)
+- feat(T-121): cierre de tarea
+- feat(digest): implementar design-digest.sh integrado en close-task (T-121)
+- feat(T-120): cierre de tarea
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(T-119): cierre de tarea
+- feat(deliberation): implementar motor determinista deliberate-plan.sh (T-119)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(digest): sanear enlace relativo en T-159 y blindar rutas absolutas en design-digest.sh
+- fix(audit-repo): correccion de literal changelog.md en propuesta y test de regresion (T-148)
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+- fix: revertear IPs reales de Tailscale (frontera portable, check 22)
+- fix: actualizar IPs y descripciones del equipo
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(hygiene): no afirmar 'limpio' sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(pilot): registrar telemetria e intervencion por aborto de T-160
+- docs(pilot): registrar telemetria de T-159 en informe de autonomia
+- docs(pilot): registrar telemetria de T-158 en informe de autonomia
+- docs(T-153): documentar uso, limites y advertencia de seguridad de AGY_ALLOW_DIRTY
+- docs(T-145): precisiones de causalidad, trafico cli medido y reapertura formal
+- docs(orchestrator): informe final y dictamen no-go del piloto paralelo (T-145)
+- docs(T-144): marcar criterios completados con evidencia en task-144.md
+- docs(tasks): precisar honestidad en criterios de deliberación y medición de T-142
+- docs(orchestrator): cerrar tarea T-141 pre-flight del gate y batería de calibración concurrente
+- docs(orchestrator): cerrar tarea T-140 informe de observación del ciclo
+- docs(orchestrator): informe de observación del ciclo con criterio de paso al paralelo (T-140)
+- docs(orchestrator): cerrar tarea T-139 verificación recolector eventos Orca
+- docs(orchestrator): verificar empíricamente recolector de eventos Orca en host (T-139)
+- docs(orchestration): delta T-138 alineacion whitelist orca-client, evidencia help y deduplicacion
+- docs(orchestration): documentacion canónica del ciclo de vida Orca y decisión de backlog (T-138)
+- docs(inbox): registrar idea de front-door, orca y kb soberana
+- docs(orchestration): documentacion de semantica de rondas y evaluacion estatica (T-135)
+- docs(sprint-22): registrar captura de videos e incorporar ajustes obligatorios de research
+- docs(sprint-22): propuesta de planning, contratos y research scout
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+- docs(sprint-21): plan de sprint y contratos T-124..T-127 (arquitectura multi-agente)
+- docs(task): registrar contrato T-123 y ampliar Sprint 20 (4/5)
+- docs(task): registrar contrato T-122 (Check 34 suite deliberación y digests)
+- docs(task): registrar contrato T-121 (generador de digest de diseño en close-task)
+- docs(task): registrar contrato T-120 (workflow session-start con deliberación)
+- docs(planning): preparar sprint 20 y contrato T-119 (deliberación autónoma)
+- docs(inbox): capturar idea Bane (deep research self-hosted) para evaluación
+- docs(sprint-19): ampliar con pack de secretos (T-117, T-118) y decisiones de T-116/T-115
+- docs(sprint-19): planning — tema versiones, 3 ideas archivadas, contratos T-113..T-116
+
+### 🔧 Mantenimiento
+
+- chore(T-155): cierre de tarea T-155
+- chore(sprint-28): enmienda de planning con piloto opcion D y mini-sprint bane (T-155 a T-161)
+- chore(sprint-28): planificacion de sprint 28 (T-155 a T-157)
+- chore: archive sprint-27-core [v1.23.0]
+- chore(T-151): marcar autorizacion de cierre y merge por el rele
+- chore(sprint-27): planificacion de sprint 27 (T-151 a T-154)
+- chore: archive sprint-26-core [v1.22.0]
+- chore(sprint-26): enmienda de planning con T-149 y T-150
+- chore(sprint-26): triage del inbox de planning, adopcion de T-148 y archivado de capturas
+- chore(sprint-26): enmienda al planning con contrato T-147 y disposicion de candidatas
+- chore(sprint-26): planificacion inicial y contrato de gobernanza T-146
+- chore: archive sprint-25-core [v1.21.0]
+- chore(sprint-25): planificacion formal de despacho paralelo controlado y piloto del gate de t-140
+- chore: archive sprint-24-core [v1.20.0]
+- chore(sprint-24): planificacion formal de deliberacion en produccion y ciclo de vida orca
+- chore: archive sprint-23-core [v1.19.0]
+- chore(sprint-23): planificacion formal de revisor ejecutor con orca ade
+- chore: archive sprint-22-core [v1.18.0]
+- chore: archive sprint-21 [v1.17.0]
+- chore: archive sprint-20 [v1.16.0]
+- chore: archive sprint-19 [v1.15.0]
+- chore: archive sprint-19-core
+
+## [1.23.0] — sprint-27 — 2026-11-01
+
+### ✨ Features
+
+- feat(T-154): cierre de tarea T-154
+- feat(T-154): bateria de calibracion y reporte de paridad revisor-vs-rele
+- feat(T-153): cierre de tarea T-153
+- feat(T-153): guardas de seguridad, aislamiento read-only y certificacion git-limpio para agy
+- feat(T-152): cierre de tarea T-152
+- feat(T-152): cableado de antigravity cli (agy) como tier 1 en deliberate-plan.sh
+- feat(T-151): cierre de tarea T-151
+- feat(T-151): trial de liveness del worker de inferencia en deliberacion (LIVENESS_DESCARTADO)
+- feat(T-150): cierre de tarea T-150
+- feat(T-150): fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+- feat(T-149): cierre de tarea
+- feat(T-149): gate mecanico fail-closed de skills declaradas en plan
+- feat(T-148): cierre de tarea
+- feat(T-147): cierre de tarea
+- feat(governance): formalizacion del flujo de dos niveles y compuertas desacopladas (T-147)
+- feat(T-146): cierre de tarea
+- feat(orchestrator): cierre de sprint en invocación única concatenada y determinista (T-146)
+- feat(T-145): cierre de tarea
+- feat(T-144): cierre de tarea
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recoleccion de basura (T-144)
+- feat(T-143): cierre de tarea
+- feat(orchestrator): aislamiento concurrente de variables y archivos de contexto (T-143)
+- feat(T-142): cierre de tarea
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+- feat(T-138): cierre de tarea
+- feat(T-137): cierre de tarea
+- feat(deliberate): actualizar cabecera y ayuda de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+- feat(T-136): cierre de tarea
+- feat(tests): Check 37 certificacion E2E revisor ejecutor y denominador 36->37
+- feat(T-135): cierre de tarea
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s
+- feat(orchestration): refactor jerarquico de deliberate-plan.sh con orca prioritario (T-135)
+- feat(T-134): cierre de tarea
+- feat(orchestration): emision de skills.forbidden en seccion 1 de generate-reviewer-spec.sh (T-134)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT (T-134)
+- feat(T-133): cierre de tarea
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolucion portable (T-133)
+- feat(T-132): cierre de tarea
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(T-129): cierre de tarea
+- feat(planning): compuerta estricta scout-first y verificacion en design-digest (T-129)
+- feat(T-128): cierre de tarea
+- feat(worktree-merge): puente de rescate de deliberacion previo al desmontaje de worktree (T-128)
+- feat(T-127): cierre de tarea
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(T-126): cierre de tarea
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(T-125): cierre de tarea
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(T-124): cierre de tarea
+- feat(deliberation): persistencia nombrada deliberation-TASK_ID para handover multi-sesión (T-124)
+- feat(T-123): cierre de tarea
+- feat(hardening): robustecer derivación de claves, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(T-122): cierre de tarea
+- feat(tests): implementar check 34 y actualizar denominador a 34 en suite (T-122)
+- feat(T-121): cierre de tarea
+- feat(digest): implementar design-digest.sh integrado en close-task (T-121)
+- feat(T-120): cierre de tarea
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(T-119): cierre de tarea
+- feat(deliberation): implementar motor determinista deliberate-plan.sh (T-119)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(audit-repo): correccion de literal changelog.md en propuesta y test de regresion (T-148)
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+- fix: revertear IPs reales de Tailscale (frontera portable, check 22)
+- fix: actualizar IPs y descripciones del equipo
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(hygiene): no afirmar 'limpio' sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(T-153): documentar uso, limites y advertencia de seguridad de AGY_ALLOW_DIRTY
+- docs(T-145): precisiones de causalidad, trafico cli medido y reapertura formal
+- docs(orchestrator): informe final y dictamen no-go del piloto paralelo (T-145)
+- docs(T-144): marcar criterios completados con evidencia en task-144.md
+- docs(tasks): precisar honestidad en criterios de deliberación y medición de T-142
+- docs(orchestrator): cerrar tarea T-141 pre-flight del gate y batería de calibración concurrente
+- docs(orchestrator): cerrar tarea T-140 informe de observación del ciclo
+- docs(orchestrator): informe de observación del ciclo con criterio de paso al paralelo (T-140)
+- docs(orchestrator): cerrar tarea T-139 verificación recolector eventos Orca
+- docs(orchestrator): verificar empíricamente recolector de eventos Orca en host (T-139)
+- docs(orchestration): delta T-138 alineacion whitelist orca-client, evidencia help y deduplicacion
+- docs(orchestration): documentacion canónica del ciclo de vida Orca y decisión de backlog (T-138)
+- docs(inbox): registrar idea de front-door, orca y kb soberana
+- docs(orchestration): documentacion de semantica de rondas y evaluacion estatica (T-135)
+- docs(sprint-22): registrar captura de videos e incorporar ajustes obligatorios de research
+- docs(sprint-22): propuesta de planning, contratos y research scout
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+- docs(sprint-21): plan de sprint y contratos T-124..T-127 (arquitectura multi-agente)
+- docs(task): registrar contrato T-123 y ampliar Sprint 20 (4/5)
+- docs(task): registrar contrato T-122 (Check 34 suite deliberación y digests)
+- docs(task): registrar contrato T-121 (generador de digest de diseño en close-task)
+- docs(task): registrar contrato T-120 (workflow session-start con deliberación)
+- docs(planning): preparar sprint 20 y contrato T-119 (deliberación autónoma)
+- docs(inbox): capturar idea Bane (deep research self-hosted) para evaluación
+- docs(sprint-19): ampliar con pack de secretos (T-117, T-118) y decisiones de T-116/T-115
+- docs(sprint-19): planning — tema versiones, 3 ideas archivadas, contratos T-113..T-116
+
+### 🔧 Mantenimiento
+
+- chore(T-151): marcar autorizacion de cierre y merge por el rele
+- chore(sprint-27): planificacion de sprint 27 (T-151 a T-154)
+- chore: archive sprint-26-core [v1.22.0]
+- chore(sprint-26): enmienda de planning con T-149 y T-150
+- chore(sprint-26): triage del inbox de planning, adopcion de T-148 y archivado de capturas
+- chore(sprint-26): enmienda al planning con contrato T-147 y disposicion de candidatas
+- chore(sprint-26): planificacion inicial y contrato de gobernanza T-146
+- chore: archive sprint-25-core [v1.21.0]
+- chore(sprint-25): planificacion formal de despacho paralelo controlado y piloto del gate de t-140
+- chore: archive sprint-24-core [v1.20.0]
+- chore(sprint-24): planificacion formal de deliberacion en produccion y ciclo de vida orca
+- chore: archive sprint-23-core [v1.19.0]
+- chore(sprint-23): planificacion formal de revisor ejecutor con orca ade
+- chore: archive sprint-22-core [v1.18.0]
+- chore: archive sprint-21 [v1.17.0]
+- chore: archive sprint-20 [v1.16.0]
+- chore: archive sprint-19 [v1.15.0]
+- chore: archive sprint-19-core
+
+## [1.22.0] — sprint-26 — 2026-10-31
+
+### ✨ Features
+
+- feat(T-150): cierre de tarea T-150
+- feat(T-150): fallback determinista de mensaje de commit en close-task.sh en ramas no-feat
+- feat(T-149): cierre de tarea
+- feat(T-149): gate mecanico fail-closed de skills declaradas en plan
+- feat(T-148): cierre de tarea
+- feat(T-147): cierre de tarea
+- feat(governance): formalizacion del flujo de dos niveles y compuertas desacopladas (T-147)
+- feat(T-146): cierre de tarea
+- feat(orchestrator): cierre de sprint en invocación única concatenada y determinista (T-146)
+- feat(T-145): cierre de tarea
+- feat(T-144): cierre de tarea
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recoleccion de basura (T-144)
+- feat(T-143): cierre de tarea
+- feat(orchestrator): aislamiento concurrente de variables y archivos de contexto (T-143)
+- feat(T-142): cierre de tarea
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+- feat(T-138): cierre de tarea
+- feat(T-137): cierre de tarea
+- feat(deliberate): actualizar cabecera y ayuda de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+- feat(T-136): cierre de tarea
+- feat(tests): Check 37 certificacion E2E revisor ejecutor y denominador 36->37
+- feat(T-135): cierre de tarea
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s
+- feat(orchestration): refactor jerarquico de deliberate-plan.sh con orca prioritario (T-135)
+- feat(T-134): cierre de tarea
+- feat(orchestration): emision de skills.forbidden en seccion 1 de generate-reviewer-spec.sh (T-134)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT (T-134)
+- feat(T-133): cierre de tarea
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolucion portable (T-133)
+- feat(T-132): cierre de tarea
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto global (T-130)
+- feat(T-129): cierre de tarea
+- feat(planning): compuerta estricta scout-first y verificacion en design-digest (T-129)
+- feat(T-128): cierre de tarea
+- feat(worktree-merge): puente de rescate de deliberacion previo al desmontaje de worktree (T-128)
+- feat(T-127): cierre de tarea
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(T-126): cierre de tarea
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(T-125): cierre de tarea
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(T-124): cierre de tarea
+- feat(deliberation): persistencia nombrada deliberation-TASK_ID para handover multi-sesión (T-124)
+- feat(T-123): cierre de tarea
+- feat(hardening): robustecer derivación de claves, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(T-122): cierre de tarea
+- feat(tests): implementar check 34 y actualizar denominador a 34 en suite (T-122)
+- feat(T-121): cierre de tarea
+- feat(digest): implementar design-digest.sh integrado en close-task (T-121)
+- feat(T-120): cierre de tarea
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(T-119): cierre de tarea
+- feat(deliberation): implementar motor determinista deliberate-plan.sh (T-119)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(fleet): vista agregada del desfase de versión (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(audit-repo): correccion de literal changelog.md en propuesta y test de regresion (T-148)
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+- fix: revertear IPs reales de Tailscale (frontera portable, check 22)
+- fix: actualizar IPs y descripciones del equipo
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(hygiene): no afirmar 'limpio' sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(T-145): precisiones de causalidad, trafico cli medido y reapertura formal
+- docs(orchestrator): informe final y dictamen no-go del piloto paralelo (T-145)
+- docs(T-144): marcar criterios completados con evidencia en task-144.md
+- docs(tasks): precisar honestidad en criterios de deliberación y medición de T-142
+- docs(orchestrator): cerrar tarea T-141 pre-flight del gate y batería de calibración concurrente
+- docs(orchestrator): cerrar tarea T-140 informe de observación del ciclo
+- docs(orchestrator): informe de observación del ciclo con criterio de paso al paralelo (T-140)
+- docs(orchestrator): cerrar tarea T-139 verificación recolector eventos Orca
+- docs(orchestrator): verificar empíricamente recolector de eventos Orca en host (T-139)
+- docs(orchestration): delta T-138 alineacion whitelist orca-client, evidencia help y deduplicacion
+- docs(orchestration): documentacion canónica del ciclo de vida Orca y decisión de backlog (T-138)
+- docs(inbox): registrar idea de front-door, orca y kb soberana
+- docs(orchestration): documentacion de semantica de rondas y evaluacion estatica (T-135)
+- docs(sprint-22): registrar captura de videos e incorporar ajustes obligatorios de research
+- docs(sprint-22): propuesta de planning, contratos y research scout
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+- docs(sprint-21): plan de sprint y contratos T-124..T-127 (arquitectura multi-agente)
+- docs(task): registrar contrato T-123 y ampliar Sprint 20 (4/5)
+- docs(task): registrar contrato T-122 (Check 34 suite deliberación y digests)
+- docs(task): registrar contrato T-121 (generador de digest de diseño en close-task)
+- docs(task): registrar contrato T-120 (workflow session-start con deliberación)
+- docs(planning): preparar sprint 20 y contrato T-119 (deliberación autónoma)
+- docs(inbox): capturar idea Bane (deep research self-hosted) para evaluación
+- docs(sprint-19): ampliar con pack de secretos (T-117, T-118) y decisiones de T-116/T-115
+- docs(sprint-19): planning — tema versiones, 3 ideas archivadas, contratos T-113..T-116
+
+### 🔧 Mantenimiento
+
+- chore(sprint-26): enmienda de planning con T-149 y T-150
+- chore(sprint-26): triage del inbox de planning, adopcion de T-148 y archivado de capturas
+- chore(sprint-26): enmienda al planning con contrato T-147 y disposicion de candidatas
+- chore(sprint-26): planificacion inicial y contrato de gobernanza T-146
+- chore: archive sprint-25-core [v1.21.0]
+- chore(sprint-25): planificacion formal de despacho paralelo controlado y piloto del gate de t-140
+- chore: archive sprint-24-core [v1.20.0]
+- chore(sprint-24): planificacion formal de deliberacion en produccion y ciclo de vida orca
+- chore: archive sprint-23-core [v1.19.0]
+- chore(sprint-23): planificacion formal de revisor ejecutor con orca ade
+- chore: archive sprint-22-core [v1.18.0]
+- chore: archive sprint-21 [v1.17.0]
+- chore: archive sprint-20 [v1.16.0]
+- chore: archive sprint-19 [v1.15.0]
+- chore: archive sprint-19-core
+
+## [1.21.0] — sprint-25 — 2026-10-31
+
+### ✨ Features / Orquestación y Resiliencia
+
+- feat(orchestrator): informe final y evaluación de compuerta GO/NO-GO del piloto paralelo (T-145)
+- feat(orchestrator): estabilidad de terminales, censo worker-list y recolección de basura con terminal-reaper.sh (T-144)
+- feat(orchestrator): aislamiento concurrente de variables de entorno y archivos de contexto (T-143)
+- feat(lib): adaptador reactivo Orca ADE con matching de dispatch y acuse FIFO (T-142)
+- feat(benchmarks): arnés determinista de calibración concurrente y telemetría de gate (T-141)
+
+### 📚 Documentación
+
+- docs(sprint-25): Despacho paralelo controlado, validación del gate de paralelismo y dictamen formal NO-GO (T-141 a T-145)
+
+## [1.20.0] — sprint-24 — 2026-10-30
+
+### ✨ Features / Gobernanza
+
+- feat(orchestrator): informe de observación del ciclo con telemetría real y criterio de paso al paralelo (T-140)
+- feat(orchestrator): verificación empírica del recolector de eventos reactivo de Orca en host (T-139)
+- feat(orchestration): runbook canónico del ciclo de vida Orca, aislamiento env -i y alineación de docs (T-138)
+- feat(deliberate): alineación de ayuda y cabecera de deliberate-plan.sh con precedencia y timeout 60s (T-137)
+
+### 📚 Documentación
+
+- docs(sprint-24): Deliberación en producción durante un ciclo completo con el revisor vivo (T-137 a T-140)
+
+## [1.19.0] — sprint-23 — 2026-10-30
+
+### ✨ Features
+
+- feat(tests): Check 37 certificación E2E revisor ejecutor y denominador 36->37 (T-136)
+- feat(deliberate): timeout Orca a 60s, robustez en extracción JSON de terminal y peor caso ~66s (T-135)
+- feat(orchestration): refactor jerárquico de deliberate-plan.sh con orca prioritario y degradación segura (T-135)
+- feat(orchestration): generador determinista lib/generate-reviewer-spec.sh desde perfiles SSOT y emisión de skills prohibidas (T-134)
+- feat(orchestration): cliente unificado lib/orca-client.sh y resolución portable de runtime (T-133)
+
+### 📚 Documentación
+
+- docs(sprint-23): Revisor Ejecutor con Orca ADE, arbitraje multi-nivel y verificación autónoma
+
+## [1.18.0] — sprint-22 — 2026-10-29
+
+### ✨ Features
+
+- feat(design-digest): resolucion de research archivado en compuerta scout e historico (T-132)
+- feat(tests): ensayo E2E del bucle multi-agente con Check 36 y denominador 36 (T-131)
+- feat(routing): cascada de inferencia y fallback resiliente con presupuesto temporal global (T-130)
+- feat(workflow): compuerta obligatoria de prospeccion scout y auditoria en planning (T-129)
+- feat(orchestration): puente de deliberacion worktree -> checkout principal antes de purga (T-128)
+
+### 📚 Documentación
+
+- docs(sprint-22): prospección tecnológica scout a $0 tokens y contratos de resiliencia multi-agente
+
+## [1.17.0] — sprint-21 — 2026-10-29
+
+### ✨ Features
+
+- feat(tests): extender suite con Check 35 y actualizar denominador 34->35 (T-127)
+- feat(orchestration): integrar bucle de deliberacion en worktree-dispatch y parallel-orchestration (T-126)
+- feat(profiles): formalizar contratos de handover y deliberación en perfiles declarativos (T-125)
+- feat(deliberation): persistencia y handover de deliberación multi-sesión vía deliberation-${TASK_ID}.json (T-124)
+
+### 🐛 Bug Fixes
+
+- fix(tests): corregir locale en grep de Fase 2, purgar residuo del indice y sincronizar cabecera (T-127)
+
+### 📚 Documentación
+
+- docs(sprint-21): registro de research scout y alternativas de arquitectura multi-agente
+
+## [1.16.0] — sprint-20 — 2026-10-28
+
+### ✨ Features
+
+- feat(hardening): derivación determinista de claves sin catálogo, higiene AGENTS.md/gitignore y sonda fleet-doctor (T-123)
+- feat(tests): extensión de suite con check 34 y denominador 34/34 autocontenido (T-122)
+- feat(digest): generador histórico design-digest.sh integrado fail-closed en close-task (T-121)
+- feat(workflow): integrar deliberación autónoma y executive design digest en session-start (T-120)
+- feat(deliberation): motor determinista de arbitraje Coder-Reviewer a coste $0 con timeout 5s y degradación SIN_REVISOR (T-119)
+
+### 🐛 Bug Fixes
+
+- fix(tests): hacer autocontenida la prueba de redacción en check 34 vía catálogo fixture (T-122)
+
+### 📚 Documentación
+
+- docs(sprint-20): arquitectura de deliberación cruzada, contratos T-119..T-123 y Executive Design Digests
+
+## [1.15.0] — sprint-19 — 2026-10-28
+
+### ✨ Features
+
+- feat(secrets): redact.sh obligatorio y normas de secretos coherentes (T-118)
+- feat(secrets): secrets.sh como único punto que escribe valores (T-117)
+- feat(fleet): vista agregada del desfase de versión de la flota (T-115)
+- feat(release): sincronizar VERSION al cerrar el sprint (T-113)
+
+### 🐛 Bug Fixes
+
+- fix(hygiene): no afirmar limpio sin repo y escanear untracked (T-116)
+- fix(changelog): elegir PREV_TAG por orden de versión (T-114)
+
+### 📚 Documentación
+
+- docs(sprint-19): formalización y cierre del sprint de versiones y seguridad de secretos (T-113 a T-118)
+
 ## [1.14.0] — sprint-18 — 2026-10-23
 
 ### ✨ Features

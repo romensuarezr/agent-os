@@ -1,3 +1,6 @@
-# Configuration for Docker integration via isolated socket proxy (ADR 004)
-my-docker:
-  host: tcp://docker-socket-proxy:2375
+# Docker integration disabled (T-168)
+# Fleet discovery is driven deterministically via private overlay (fleet.yaml)
+# to avoid 403 Forbidden / ECONNREFUSED from restricted socket proxies (SERVICES: '0').
+# my-docker:
+#   host: tcp://docker-socket-proxy:2375
+

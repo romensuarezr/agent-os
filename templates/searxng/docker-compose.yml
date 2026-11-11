@@ -1,0 +1,54 @@
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "${SEARXNG_PORT:-8080}:8080"
+    environment:
+      - "SEARXNG_BASE_URL=${SEARXNG_BASE_URL:-http://localhost:8080}"
+      - "SEARXNG_BIND_ADDRESS=0.0.0.0"
+      - "SEARXNG_SECRET=${SEARXNG_SECRET:-change_me_to_a_random_secret_string}"
+      - "SEARXNG_REDIS_URL=redis://redis:6379/0"
+      - "INSTANCE_NAME=${INSTANCE_NAME:-agent-os-search}"
+    volumes:
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+      - ./limiter.toml:/etc/searxng/limiter.toml:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "${SEARXNG_CPU_LIMIT:-1.0}"
+          memory: "${SEARXNG_MEMORY_LIMIT:-512M}"
+        reservations:
+          memory: "${SEARXNG_MEMORY_RESERVE:-128M}"
+
+  redis:
+    image: redis:7-alpine
+    container_name: searxng-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "${REDIS_CPU_LIMIT:-0.5}"
+          memory: "${REDIS_MEMORY_LIMIT:-256M}"
+        reservations:
+          memory: "${REDIS_MEMORY_RESERVE:-64M}"
+
+volumes:
+  redis-data:

@@ -7,7 +7,7 @@
 # 3. Desmantela el worktree de forma atómica (remove --force + prune) según ADR 004.
 #
 # Salida JSON compatible con orquestadores:
-#   {"task_id": "...", "status": "MERGED|REJECTED", "merged": bool, "worktree_removed": bool, "exit_code": int}
+#   {"task_id": "...", "status": "MERGED|REJECTED", "merged": bool, "worktree_removed": bool, "deliberation_rescued": bool, "exit_code": int}
 # ==============================================================================
 
 set -uo pipefail
@@ -251,7 +251,27 @@ fi
 log "✅ Merge completado satisfactoriamente."
 
 # ------------------------------------------------------------------------------
-# 4. Desmantelamiento Atómico del Worktree (ADR 004 — Sin Fugas de Inodes)
+# 4. Rescate de Contexto de Deliberación (Puente Worktree → Principal, T-128)
+# ------------------------------------------------------------------------------
+DELIBERATION_RESCUED=false
+WT_DELIB_FILE="$WORKTREE_PATH/.agents/context/deliberation-${TASK_ID}.json"
+DEST_DELIB_DIR="$ROOT_DIR/.agents/context"
+
+# Fallback opcional a plan-deliberation.json si la deliberación nombrada no existe en el worktree
+if [ ! -f "$WT_DELIB_FILE" ] && [ -f "$WORKTREE_PATH/.agents/context/plan-deliberation.json" ]; then
+  WT_DELIB_FILE="$WORKTREE_PATH/.agents/context/plan-deliberation.json"
+fi
+
+if [ -f "$WT_DELIB_FILE" ]; then
+  mkdir -p "$DEST_DELIB_DIR"
+  if cp -f "$WT_DELIB_FILE" "$DEST_DELIB_DIR/deliberation-${TASK_ID}.json" 2>/dev/null; then
+    DELIBERATION_RESCUED=true
+    log "📋 Rescatado artefacto de deliberación: .agents/context/deliberation-${TASK_ID}.json"
+  fi
+fi
+
+# ------------------------------------------------------------------------------
+# 5. Desmantelamiento Atómico del Worktree (ADR 004 — Sin Fugas de Inodes)
 # ------------------------------------------------------------------------------
 WORKTREE_REMOVED=false
 
@@ -269,7 +289,7 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 5. Reporte de Éxito
+# 6. Reporte de Éxito
 # ------------------------------------------------------------------------------
 if [ "$JSON_MODE" = true ]; then
   python3 -c "
@@ -281,9 +301,10 @@ print(json.dumps({
     'worktree_removed': sys.argv[2] == 'true',
     'branch': sys.argv[3],
     'target': sys.argv[4],
+    'deliberation_rescued': sys.argv[5] == 'true',
     'exit_code': 0
 }))
-" "$TASK_ID" "$WORKTREE_REMOVED" "$WORKTREE_BRANCH" "$TARGET_BRANCH"
+" "$TASK_ID" "$WORKTREE_REMOVED" "$WORKTREE_BRANCH" "$TARGET_BRANCH" "$DELIBERATION_RESCUED"
 else
   echo ""
   echo "======================================================"
@@ -293,6 +314,7 @@ else
   echo "  Rama integrada:   $WORKTREE_BRANCH"
   echo "  Rama destino:     $TARGET_BRANCH"
   echo "  Worktree purgado: $WORKTREE_REMOVED"
+  echo "  Deliberación:     $( [ "$DELIBERATION_RESCUED" = true ] && echo "RESCATADA (.agents/context/deliberation-${TASK_ID}.json)" || echo "NO ENCONTRADA (omitida)" )"
   echo "======================================================"
 fi
 

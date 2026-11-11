@@ -1,0 +1,93 @@
+# ==============================================================================
+# Nango — Docker Compose Template (Agent OS)
+# Tool: Sovereign Unified API & OAuth Integration Platform
+# Specification: Official Nango Self-Hosted Architecture (server + db + redis)
+# ==============================================================================
+
+services:
+  nango-db:
+    image: postgres:16.0-alpine
+    container_name: nango-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${NANGO_DB_USER:-nango}
+      POSTGRES_PASSWORD: ${NANGO_DB_PASSWORD:-nango}
+      POSTGRES_DB: ${NANGO_DB_NAME:-nango}
+    volumes:
+      - nango-db-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: "${NANGO_DB_CPU_LIMIT:-1.0}"
+          memory: "${NANGO_DB_MEMORY_LIMIT:-512M}"
+        reservations:
+          cpus: "${NANGO_DB_CPU_RESERVATION:-0.1}"
+          memory: "${NANGO_DB_MEMORY_RESERVATION:-128M}"
+    networks:
+      - nango-network
+
+  nango-redis:
+    image: redis:7.2.4
+    container_name: nango-redis
+    restart: unless-stopped
+    volumes:
+      - nango-redis-data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: "${NANGO_REDIS_CPU_LIMIT:-0.5}"
+          memory: "${NANGO_REDIS_MEMORY_LIMIT:-256M}"
+        reservations:
+          cpus: "${NANGO_REDIS_CPU_RESERVATION:-0.05}"
+          memory: "${NANGO_REDIS_MEMORY_RESERVATION:-64M}"
+    networks:
+      - nango-network
+
+  nango-server:
+    image: nangohq/nango-server:hosted
+    container_name: nango-server
+    restart: unless-stopped
+    depends_on:
+      - nango-db
+      - nango-redis
+    ports:
+      - "${HOST_BIND_IP:-127.0.0.1}:${NANGO_SERVER_PORT:-3003}:3003"
+      - "${HOST_BIND_IP:-127.0.0.1}:${NANGO_CONNECT_UI_PORT:-3009}:3009"
+    environment:
+      - NANGO_ENCRYPTION_KEY=${NANGO_ENCRYPTION_KEY}
+      - NANGO_DB_USER=${NANGO_DB_USER:-nango}
+      - NANGO_DB_PASSWORD=${NANGO_DB_PASSWORD:-nango}
+      - NANGO_DB_HOST=nango-db
+      - NANGO_DB_NAME=${NANGO_DB_NAME:-nango}
+      - RECORDS_DATABASE_URL=postgresql://${NANGO_DB_USER:-nango}:${NANGO_DB_PASSWORD:-nango}@nango-db:5432/${NANGO_DB_NAME:-nango}
+      - SERVER_PORT=3003
+      - CONNECT_UI_PORT=3009
+      - NANGO_SERVER_URL=${NANGO_SERVER_URL:-http://localhost:3003}
+      - NANGO_PUBLIC_SERVER_URL=${NANGO_PUBLIC_SERVER_URL:-http://localhost:3003}
+      - FLAG_SERVE_CONNECT_UI=true
+      - LOG_LEVEL=${NANGO_LOG_LEVEL:-info}
+      - REDIS_URL=redis://nango-redis:6379
+    volumes:
+      - nango-server-data:/app/nango/packages/providers
+    deploy:
+      resources:
+        limits:
+          cpus: "${NANGO_SERVER_CPU_LIMIT:-1.5}"
+          memory: "${NANGO_SERVER_MEMORY_LIMIT:-1024M}"
+        reservations:
+          cpus: "${NANGO_SERVER_CPU_RESERVATION:-0.2}"
+          memory: "${NANGO_SERVER_MEMORY_RESERVATION:-256M}"
+    networks:
+      - nango-network
+
+networks:
+  nango-network:
+    driver: bridge
+
+volumes:
+  nango-db-data:
+    driver: local
+  nango-redis-data:
+    driver: local
+  nango-server-data:
+    driver: local

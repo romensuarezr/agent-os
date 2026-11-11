@@ -47,7 +47,7 @@ cp .agents/skills/coolify-nextjs-deploy/templates/dockerignore.template .dockeri
 ---
 
 ### Paso 3: Aprovisionamiento DNS en Cloudflare
-Ejecuta el script determinista de Cloudflare para crear/actualizar los registros `A` y `CNAME` (`www`). El script buscará automáticamente las credenciales (`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_DNS_API_TOKEN`) en `.env.local`, `.env.production`, `.env.dev` o `.env`:
+Ejecuta el script determinista de Cloudflare para crear/actualizar los registros `A` y `CNAME` (`www`). El script buscará automáticamente las credenciales (`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_DNS_API_TOKEN`) en `.env.local`, `.env.production`, `.env.dev` o `.env`, o de forma delegada a través de Nango (`nango-client.sh`):
 
 ```bash
 # Modo estándar con Proxy activado (Nube Naranja)
@@ -55,6 +55,9 @@ Ejecuta el script determinista de Cloudflare para crear/actualizar los registros
 
 # Modo Nube Gris (recomendado durante el primer despliegue si Traefik en Coolify requiere validación ACME SSL HTTP-01)
 ./.agents/skills/coolify-nextjs-deploy/scripts/cloudflare-dns.sh tudominio.com [IP_VPS] --unproxied
+
+# Verificación previa de registros existentes mediante Nango (solo lectura, cero tokens en repo)
+bash scripts/agent/lib/nango-client.sh --proxy "/v4/zones?name=tudominio.com" --provider cloudflare-dns --connection <id-conexion>
 ```
 
 ---

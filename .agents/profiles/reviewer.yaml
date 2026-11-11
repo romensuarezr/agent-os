@@ -1,6 +1,6 @@
 id: reviewer
 name: "Code Reviewer & Quality Gate"
-purpose: "Revisión estricta de diffs, estándares de código, seguridad, cobertura de pruebas y cumplimiento de arquitectura antes del merge."
+purpose: "Auditoría estricta de diffs, estándares, seguridad y arbitraje determinista en el bucle Coder-Reviewer ($0 tokens, timeout 5s, degradación offline a SIN_REVISOR) antes del merge."
 version: "1.0.0"
 
 allowed_tools:
@@ -9,6 +9,8 @@ allowed_tools:
   - structure-guardian
   - git-gardener
   - doc-maintainer
+  - scripts/agent/deliberate-plan.sh
+  - scripts/agent/design-digest.sh
 
 allowed_hosts:
   - local

@@ -32,7 +32,7 @@ if [[ ! -f "$FLEET_FILE" ]]; then
   fi
 fi
 
-OUT_DIR="$REPO_ROOT/templates/homepage/config"
+OUT_DIR=""
 CHECK_ONLY=false
 REMOTE_HOST=""
 
@@ -80,6 +80,16 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+TEMP_OUT_DIR=""
+if [[ -z "$OUT_DIR" ]]; then
+  if [[ -n "$REMOTE_HOST" ]]; then
+    TEMP_OUT_DIR=$(mktemp -d)
+    OUT_DIR="$TEMP_OUT_DIR"
+  else
+    OUT_DIR="$REPO_ROOT/templates/homepage/config"
+  fi
+fi
+
 if [[ ! -f "$FLEET_FILE" ]]; then
   echo "Error: Archivo de flota '$FLEET_FILE' no encontrado." >&2
   exit 1
@@ -108,15 +118,41 @@ local_env = fleet.get("local_environment", {})
 mcp_servers = fleet.get("mcpServers", {})
 monitoring = fleet.get("monitoring", {})
 
+# Normalizar nodos y servicios al inicio (soporte transparente para ip como host y servicios como int/str)
+normalized_nodes = {}
+for n_name, n_data in nodes.items():
+    if not isinstance(n_data, dict):
+        continue
+    h = n_data.get("host") or n_data.get("ip", "")
+    s_raw = n_data.get("services", {})
+    s_norm = {}
+    if isinstance(s_raw, dict):
+        for sk, sv in s_raw.items():
+            if isinstance(sv, (int, str)):
+                p = str(sv).strip()
+                ep = p if "://" in p else (f"http://{h}:{p}" if h else f"http://localhost:{p}")
+                s_norm[sk] = {"endpoint": ep, "url": ep, "port": p}
+            elif isinstance(sv, dict):
+                s_norm[sk] = dict(sv)
+            elif sv is True:
+                s_norm[sk] = {}
+    n_copy = dict(n_data)
+    n_copy["host"] = h
+    n_copy["services"] = s_norm
+    normalized_nodes[n_name] = n_copy
+nodes = normalized_nodes
+
 def is_placeholder_url(url):
     if not url or not isinstance(url, str):
         return True
     u = url.lower().strip()
-    return "example.com" in u or "example.org" in u or "example.net" in u
+    return "example.com" in u or "example.org" in u or "example.net" in u or "localhost:8000" in u or "127.0.0.1:8000" in u
 
 def is_service_enabled(s_conf):
-    if not s_conf:
+    if s_conf is None or s_conf is False:
         return False
+    if isinstance(s_conf, (int, str)):
+        return True
     if isinstance(s_conf, dict):
         if s_conf.get("enabled") is False:
             return False
@@ -127,7 +163,7 @@ def is_service_enabled(s_conf):
     return True
 
 def check_socket_open(host, port, timeout=1.0):
-    if not host or "100.x.y.z" in host or "example.com" in host or "203.0.113." in host:
+    if not host or "100.x.y.z" in host or "example.com" in host or "192.0.2." in host or "198.51.100." in host or "203.0.113." in host:
         return False
     try:
         s = socket.create_connection((host, int(port)), timeout=timeout)
@@ -144,8 +180,21 @@ group_paas = []
 
 # Procesar nodos
 for node_name, node_data in nodes.items():
-    services = node_data.get("services", {})
-    host = node_data.get("host", "")
+    if not isinstance(node_data, dict):
+        continue
+    host = node_data.get("host") or node_data.get("ip", "")
+    services_raw = node_data.get("services", {})
+    services = {}
+    if isinstance(services_raw, dict):
+        for sk, sv in services_raw.items():
+            if isinstance(sv, (int, str)):
+                p = str(sv).strip()
+                ep = p if "://" in p else (f"http://{host}:{p}" if host else f"http://localhost:{p}")
+                services[sk] = {"endpoint": ep, "url": ep, "port": p}
+            elif isinstance(sv, dict):
+                services[sk] = sv
+            elif sv is True:
+                services[sk] = {}
     
     # 1. AI Services
     if "freellmapi" in services and is_service_enabled(services["freellmapi"]):
@@ -177,14 +226,41 @@ for node_name, node_data in nodes.items():
         s = services["omniroute"]
         endpoint = s.get("endpoint", f"http://{host}:20128/v1")
         base_url = endpoint.replace("/v1", "").rstrip("/")
+        # T-168: Soportar ping granular (OmniRoute no expone /health, devuelve 404; su raíz / devuelve 200)
+        ping_url = s.get("ping")
+        if not ping_url:
+            ping_path = s.get("ping_path")
+            if ping_path is not None:
+                ping_url = f"{base_url}{ping_path}" if ping_path.startswith("/") else f"{base_url}/{ping_path}"
+            elif s.get("ping_health") is True:
+                ping_url = f"{base_url}/health"
+            else:
+                ping_url = f"{base_url}/"
         group_ai.append({
             "OmniRoute AI Gateway": {
                 "icon": "si-probot",
                 "href": base_url,
                 "description": s.get("description", "Multi-provider AI gateway with RTK compression"),
-                "ping": f"{base_url}/health" if s.get("ping_health", True) else f"{endpoint}/models"
+                "ping": ping_url
             }
         })
+
+    ow_svc = services.get("open-webui") or services.get("open_webui")
+    if ow_svc and is_service_enabled(ow_svc):
+        endpoint = ow_svc.get("endpoint") or ow_svc.get("url", f"http://{host}:3005")
+        if not is_placeholder_url(endpoint):
+            ping_url = ow_svc.get("ping") or ow_svc.get("ping_url")
+            if not ping_url:
+                ping_path = ow_svc.get("ping_path")
+                ping_url = f"{endpoint.rstrip('/')}{ping_path}" if ping_path else endpoint
+            group_ai.append({
+                "Open-WebUI (AI Chat Interface)": {
+                    "icon": "si-openai",
+                    "href": endpoint,
+                    "description": ow_svc.get("description", "Web UI chat interface for local & gateway models"),
+                    "ping": ping_url
+                }
+            })
         
     if "ollama" in services and is_service_enabled(services["ollama"]):
         s = services["ollama"]
@@ -308,6 +384,20 @@ for node_name, node_data in nodes.items():
                 }
             })
 
+    if "nango" in services and is_service_enabled(services["nango"]):
+        s = services["nango"]
+        endpoint = s.get("endpoint") or s.get("url", f"http://{host}:3003")
+        connect_ui = s.get("connect_ui_url", f"http://{host}:3009")
+        if not is_placeholder_url(endpoint):
+            group_paas.append({
+                "Nango Unified OAuth": {
+                    "icon": "si-auth0",
+                    "href": connect_ui if not is_placeholder_url(connect_ui) else endpoint,
+                    "description": s.get("description", "Unified OAuth & API integration platform"),
+                    "ping": f"{endpoint}/health"
+                }
+            })
+
 # Agregar GitHub widget en group_dev si está habilitado en monitoring
 github_cfg = monitoring.get("github", {})
 if github_cfg.get("enabled", True):
@@ -412,24 +502,45 @@ widgets_yaml.append({
 
 # C. Bloque Glances Multi-Host detectado dinámicamente en nodes
 for node_name, node_data in nodes.items():
+    if not isinstance(node_data, dict):
+        continue
     services = node_data.get("services", {})
-    host = node_data.get("host", "")
-    if "glances" in services:
+    host = node_data.get("host") or node_data.get("ip", "")
+    if "glances" in services and is_service_enabled(services["glances"]):
         g = services["glances"]
-        endpoint = g.get("endpoint", f"http://{host}:61208")
-        label = g.get("label", f"{node_name.title()} (Glances)")
-        version = g.get("version", 4)
-        widgets_yaml.append({
-            "glances": {
-                "label": label,
-                "url": endpoint,
-                "version": version,
-                "cpu": True,
-                "mem": True,
-                "expanded": True,
-                "disk": ["/"]
-            }
-        })
+        if isinstance(g, (int, str)):
+            endpoint = f"http://{host}:{g}"
+            label = f"{node_name.title()} (Glances)"
+            version = 4
+        elif isinstance(g, dict):
+            endpoint = g.get("endpoint", f"http://{host}:61208")
+            label = g.get("label", f"{node_name.title()} (Glances)")
+            version = g.get("version", 4)
+        else:
+            endpoint = f"http://{host}:61208"
+            label = f"{node_name.title()} (Glances)"
+            version = 4
+
+        if not is_placeholder_url(endpoint):
+            # T-168: Glances solo se reactiva si el servicio responde; en hosts reales comprobamos socket
+            port = 61208
+            pm = re.search(r':(\d{2,5})', endpoint)
+            if pm:
+                port = int(pm.group(1))
+            is_doc = "100.x.y.z" in host or "example.com" in host or "192.0.2." in host or "198.51.100." in host or "203.0.113." in host
+            is_live = check_socket_open(host, port)
+            if is_live or is_doc:
+                widgets_yaml.append({
+                    "glances": {
+                        "label": label,
+                        "url": endpoint,
+                        "version": version,
+                        "cpu": True,
+                        "mem": True,
+                        "expanded": True,
+                        "disk": ["/"]
+                    }
+                })
 
 total_services = sum(len(g) for g in [group_ai, group_control, group_dev, group_paas])
 print(f"✅ Parser completado: {total_services} servicios mapeados en 4 grupos de Homepage.")
@@ -462,8 +573,35 @@ chmod +x "$REPO_ROOT/scripts/agent/generate-homepage-config.sh"
 
 if [[ -n "$REMOTE_HOST" ]]; then
   echo "--> Sincronizando configuración generada con nodo remoto $REMOTE_HOST..."
-  ssh "$REMOTE_HOST" "sudo mkdir -p /var/lib/docker/volumes/homepage-config/_data"
+  # Localizar el montaje activo de Homepage si el contenedor está en ejecución, o fallback a volumen Coolify
+  REMOTE_DATA_DIR=$(ssh "$REMOTE_HOST" "docker inspect \$(docker ps -q --filter 'name=homepage' 2>/dev/null | head -n 1) --format '{{range .Mounts}}{{if eq .Destination \"/app/config\"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true")
+  if [[ -z "$REMOTE_DATA_DIR" ]]; then
+    REMOTE_VOL_DIR=$(ssh "$REMOTE_HOST" "sudo find /var/lib/docker/volumes/ -maxdepth 1 -name '*homepage-config' -type d 2>/dev/null | grep -E '_homepage-config' | head -n 1 || true")
+    if [[ -n "$REMOTE_VOL_DIR" ]]; then
+      REMOTE_DATA_DIR="$REMOTE_VOL_DIR/_data"
+    else
+      REMOTE_DATA_DIR="/var/lib/docker/volumes/homepage-config/_data"
+    fi
+  fi
+
+  # T-168: Backup fechado mandatorio antes de sobrescribir volumen en vivo
+  BACKUP_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+  echo "--> Creando backup previo fechado de $REMOTE_DATA_DIR en $REMOTE_HOST..."
+  ssh "$REMOTE_HOST" "sudo bash -c 'if [ -d \"$REMOTE_DATA_DIR\" ]; then cp -a \"$REMOTE_DATA_DIR\" \"${REMOTE_DATA_DIR}.bak.${BACKUP_TIMESTAMP}\"; echo \"✅ Backup creado en: ${REMOTE_DATA_DIR}.bak.${BACKUP_TIMESTAMP}\"; fi'"
+
+  # T-168: Eliminar integración Swarm residual (docker.yaml) para evitar 403 / ECONNREFUSED
+  echo "--> Eliminando integración Swarm (docker.yaml) en $REMOTE_HOST..."
+  ssh "$REMOTE_HOST" "sudo rm -f '$REMOTE_DATA_DIR/docker.yaml'"
+
+  ssh "$REMOTE_HOST" "sudo mkdir -p '$REMOTE_DATA_DIR' && mkdir -p /tmp/homepage-config"
   scp -r "$OUT_DIR"/* "$REMOTE_HOST:/tmp/homepage-config/"
-  ssh "$REMOTE_HOST" "sudo cp -r /tmp/homepage-config/* /var/lib/docker/volumes/homepage-config/_data/ && rm -rf /tmp/homepage-config"
-  echo "✅ Sincronización remota completada."
+  ssh "$REMOTE_HOST" "rm -f /tmp/homepage-config/docker.yaml && sudo cp -r /tmp/homepage-config/* '$REMOTE_DATA_DIR/' && sudo rm -f '$REMOTE_DATA_DIR/docker.yaml' && rm -rf /tmp/homepage-config"
+  echo "✅ Sincronización remota completada en $REMOTE_DATA_DIR."
+
+  echo "--> Reiniciando contenedor de Homepage para aplicar la nueva configuración..."
+  ssh "$REMOTE_HOST" "HP_ID=\$(docker ps -q --filter 'name=homepage' | head -n 1); if [ -n \"\$HP_ID\" ]; then docker restart \"\$HP_ID\" >/dev/null; echo \"✅ Contenedor Homepage (\$HP_ID) reiniciado exitosamente.\"; fi"
+fi
+
+if [[ -n "$TEMP_OUT_DIR" && -d "$TEMP_OUT_DIR" ]]; then
+  rm -rf "$TEMP_OUT_DIR"
 fi

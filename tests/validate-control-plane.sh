@@ -33,6 +33,14 @@
 #  28. Copias no destructivas portables: agent_cp_n sin warnings ni sobrescritura (T-110).
 #  29. Informe de lote read-only: report no muta estado y degrada sin runtime (T-112).
 #  30. VERSION alineado con la release del changelog (lectura semver, idempotencia) (T-113).
+#  31. fleet-version.sh: estados y sincronización de versiones (T-115).
+#  32. secrets.sh: inyección segura y rotación determinista (T-117).
+#  33. redact.sh: redacción determinista sin red y normas de secretos (T-118).
+#  34. Deliberación de planes, workflows de sesión y digests de diseño (T-119, T-120, T-121).
+#  35. Gobernanza multi-agente, contratos de handover y despacho con deliberación (T-124, T-125, T-126).
+#  36. Ensayo End-to-End del bucle multi-agente: despacho, deliberación, rescate en merge, enforcement scout y cascada (T-128..T-131).
+#  37. Certificación E2E de Revisor Ejecutor (Orca ADE, spec declarativa, aislamiento env -i, timeout y cascada) (T-133..T-136).
+#  38. Integración soberana de SearXNG y Nango: Compose, cliente CLI determinista, sonda y runbooks (T-166, T-169, T-170, T-175).
 # ==============================================================================
 
 set -euo pipefail
@@ -74,7 +82,7 @@ fi
 # ------------------------------------------------------------------------------
 # 1. Validación de Sintaxis YAML
 # ------------------------------------------------------------------------------
-echo -e "🔍 [1/33] Validando sintaxis YAML de perfiles y configuraciones..."
+echo -e "🔍 [1/38] Validando sintaxis YAML de perfiles y configuraciones..."
 YAML_FILES=$(find .agents/profiles .agents/config -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true)
 
 if [ "$HAS_PYYAML" = true ]; then
@@ -94,7 +102,7 @@ fi
 # 2. Comprobación de Perfiles Obligatorios y Esquema
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [2/33] Comprobando perfiles obligatorios y campos mínimos..."
+echo -e "🔍 [2/38] Comprobando perfiles obligatorios y campos mínimos..."
 REQUIRED_PROFILES=("coordinator" "ops-auditor" "developer" "reviewer" "marketing" "seo" "researcher")
 
 for p in "${REQUIRED_PROFILES[@]}"; do
@@ -131,7 +139,7 @@ done
 # 3. Detección de Secretos o Credenciales Trackeadas
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [3/33] Escaneando archivos rastreados en busca de posibles secretos..."
+echo -e "🔍 [3/38] Escaneando archivos rastreados en busca de posibles secretos..."
 
 # Comprobar si hay archivos .env trackeados
 TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.(local|production|prod|dev)$' | grep -v '\.env\.example$' || true)
@@ -166,7 +174,7 @@ fi
 # 4. Comprobación de Referencias a Hosts y Model Tiers
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [4/33] Verificando consistencia de hosts y routing tiers..."
+echo -e "🔍 [4/38] Verificando consistencia de hosts y routing tiers..."
 
 if [ "$HAS_PYYAML" = true ]; then
   HOST_VALIDATION=$(python3 -c "
@@ -201,7 +209,7 @@ fi
 # 5. Integridad de Skills Universales (Integración Hermes)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [5/33] Verificando integridad de skills existentes para Hermes..."
+echo -e "🔍 [5/38] Verificando integridad de skills existentes para Hermes..."
 SKILLS_DIR=".agents/skills"
 TOTAL_SKILLS=0
 VALID_SKILLS=0
@@ -225,7 +233,7 @@ echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> ga
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [6/33] Verificando script determinista discover-fleet.sh..."
+echo -e "🔍 [6/38] Verificando script determinista discover-fleet.sh..."
 DISCOVER_SCRIPT="scripts/agent/discover-fleet.sh"
 if [ ! -x "$DISCOVER_SCRIPT" ]; then
   echo -e "  ❌ El script $DISCOVER_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -244,7 +252,7 @@ fi
 # 7. Verificación de Orquestación Multi-Agente en Orca (orca-orchestrate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [7/33] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
+echo -e "🔍 [7/38] Verificando script de orquestación Orca (orca-orchestrate.sh)..."
 ORCA_SCRIPT="scripts/agent/orca-orchestrate.sh"
 if [ ! -x "$ORCA_SCRIPT" ]; then
   echo -e "  ❌ El script $ORCA_SCRIPT no existe o no tiene permisos de ejecución (+x)."
@@ -263,7 +271,7 @@ fi
 # 8. Verificación de Migración de Secretos (import-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [8/33] Verificando herramienta determinista import-secrets.sh..."
+echo -e "🔍 [8/38] Verificando herramienta determinista import-secrets.sh..."
 IMPORT_SCRIPT="scripts/agent/import-secrets.sh"
 PYTHON_ENGINE="scripts/agent/lib/verify-secrets.py"
 
@@ -286,8 +294,8 @@ fi
 # 9. Integridad y Permisos de Scripts de Metas, Orquestación Paralela y Promoción
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [9/33] Verificando sintaxis y permisos de scripts de metas, orquestación y promoción..."
-ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh")
+echo -e "🔍 [9/38] Verificando sintaxis y permisos de scripts de metas, orquestación, promoción, tooling y auditoría..."
+ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh" "scripts/agent/check-tooling-updates.sh" "scripts/agent/audit-satellites.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
   if [ ! -f "$s" ]; then
@@ -304,11 +312,47 @@ for s in "${ORCH_SCRIPTS[@]}"; do
   fi
 done
 
+if bash scripts/agent/check-tooling-updates.sh --help >/dev/null 2>&1; then
+  echo -e "  ✅ check-tooling-updates.sh expone ayuda estándar (--help)."
+else
+  echo -e "  ❌ check-tooling-updates.sh falló al invocar --help."
+  ERRORS=$((ERRORS + 1))
+fi
+
+if bash scripts/agent/audit-satellites.sh --help >/dev/null 2>&1; then
+  echo -e "  ✅ audit-satellites.sh expone ayuda estándar (--help)."
+else
+  echo -e "  ❌ audit-satellites.sh falló al invocar --help."
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Prueba funcional determinista de audit-satellites.sh (T-184)
+AUDIT_TMP="$(mktemp -d)"
+mkdir -p "$AUDIT_TMP/sat_ok/scripts/agent/lib" "$AUDIT_TMP/sat_drift/scripts/agent/lib"
+cp scripts/agent/*.sh "$AUDIT_TMP/sat_ok/scripts/agent/" 2>/dev/null || true
+cp scripts/agent/lib/*.sh "$AUDIT_TMP/sat_ok/scripts/agent/lib/" 2>/dev/null || true
+cp -r "$AUDIT_TMP/sat_ok/scripts/agent" "$AUDIT_TMP/sat_drift/scripts/" 2>/dev/null || true
+echo "# drift" >> "$AUDIT_TMP/sat_drift/scripts/agent/check-session.sh"
+
+AUDIT_OK_RC=0
+bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_ok" --check >/dev/null 2>&1 || AUDIT_OK_RC=$?
+AUDIT_DRIFT_RC=0
+bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_drift" --check >/dev/null 2>&1 || AUDIT_DRIFT_RC=$?
+AUDIT_JSON="$(bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_ok" --json 2>/dev/null || true)"
+
+if [ "$AUDIT_OK_RC" -eq 0 ] && [ "$AUDIT_DRIFT_RC" -eq 1 ] && echo "$AUDIT_JSON" | grep -q '"clean": 1'; then
+  echo -e "  ✅ audit-satellites.sh valida satélites limpios (rc=0), desvíos (rc=1) y JSON determinista."
+else
+  echo -e "  ❌ audit-satellites.sh falló validación funcional (ok_rc=$AUDIT_OK_RC, drift_rc=$AUDIT_DRIFT_RC)."
+  ERRORS=$((ERRORS + 1))
+fi
+rm -rf "$AUDIT_TMP"
+
 # ------------------------------------------------------------------------------
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [10/33] Validando frontmatter YAML de perfiles declarativos (.md)..."
+echo -e "🔍 [10/38] Validando frontmatter YAML de perfiles declarativos (.md)..."
 MD_PROFILES=("coordinator.md" "coder.md" "qa-judge.md" "docs-researcher.md")
 
 for p in "${MD_PROFILES[@]}"; do
@@ -374,17 +418,83 @@ done
 # 11. Validación Determinista del Generador Homepage (generate-homepage-config.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [11/33] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
+echo -e "🔍 [11/38] Verificando generador declarativo de Homepage (generate-homepage-config.sh)..."
 HOMEPAGE_SCRIPT="scripts/agent/generate-homepage-config.sh"
 if [ ! -x "$HOMEPAGE_SCRIPT" ]; then
   echo -e "  ❌ El script $HOMEPAGE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
   ERRORS=$((ERRORS + 1))
 else
-  if bash "$HOMEPAGE_SCRIPT" --fleet .agents/config/fleet.example.yaml --check >/dev/null 2>&1; then
-    echo -e "  ✅ generate-homepage-config.sh genera configuraciones válidas a partir de fleet.example.yaml en modo agnóstico."
-  else
-    echo -e "  ❌ ERROR: generate-homepage-config.sh falló al procesar fleet.example.yaml en modo --check."
+  HP_FAILS=""
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet .agents/config/fleet.example.yaml --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fleet-example-check-falla"
+  fi
+
+  # Sub-checks: Validación determinista contra fixtures (estándar, abreviado y mixto)
+  HP_TMP="$(mktemp -d)"
+  cat <<'EOF' > "$HP_TMP/std.yaml"
+nodes:
+  infra:
+    host: "192.0.2.10"
+    services:
+      freellmapi:
+        endpoint: "http://192.0.2.10:3001/v1"
+        description: "Unified AI inference proxy"
+      nango:
+        endpoint: "http://192.0.2.10:3003"
+        connect_ui_url: "http://192.0.2.10:3009"
+        description: "Unified OAuth & API integration platform"
+EOF
+
+  cat <<'EOF' > "$HP_TMP/abb.yaml"
+nodes:
+  worker:
+    ip: "198.51.100.5"
+    services:
+      freellmapi: 3001
+      omniroute: 20128
+      nango: 3003
+EOF
+
+  cat <<'EOF' > "$HP_TMP/mix.yaml"
+nodes:
+  node_a:
+    host: "198.51.100.1"
+    services:
+      freellmapi:
+        endpoint: "http://198.51.100.1:3001/v1"
+      ollama: 11434
+  node_b:
+    ip: "198.51.100.2"
+    services:
+      nango: 3003
+      coolify:
+        url: "http://coolify.example.com"
+EOF
+
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/std.yaml" --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fixture-standard-falla"
+  fi
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/abb.yaml" --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fixture-abbreviated-falla"
+  fi
+  ABB_OUT=$(bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/abb.yaml" --check 2>/dev/null)
+  if echo "$ABB_OUT" | grep -q "20128/health"; then
+    HP_FAILS="$HP_FAILS omniroute-ping-health-invalido"
+  fi
+  if grep -E "^[[:space:]]*host:[[:space:]]*tcp://" templates/homepage/config/docker.yaml >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS docker-socket-proxy-activo"
+  fi
+  if ! bash "$HOMEPAGE_SCRIPT" --fleet "$HP_TMP/mix.yaml" --check >/dev/null 2>&1; then
+    HP_FAILS="$HP_FAILS fixture-mixed-falla"
+  fi
+
+  rm -rf "$HP_TMP"
+
+  if [ -n "$HP_FAILS" ]; then
+    echo -e "  ❌ ERROR: Check 11 incumple:$HP_FAILS"
     ERRORS=$((ERRORS + 1))
+  else
+    echo -e "  ✅ generate-homepage-config.sh genera configuraciones válidas (fleet.example.yaml, estándar, abreviado y mixto)."
   fi
 fi
 
@@ -392,7 +502,7 @@ fi
 # 12. Diagnóstico y Salud Determinista de Flota (fleet-doctor.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [12/33] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
+echo -e "🔍 [12/38] Verificando diagnóstico determinista de flota (fleet-doctor.sh)..."
 DOCTOR_SCRIPT="scripts/agent/fleet-doctor.sh"
 
 if [ ! -x "$DOCTOR_SCRIPT" ]; then
@@ -402,9 +512,9 @@ elif ! bash -n "$DOCTOR_SCRIPT" 2>/dev/null; then
   echo -e "  ❌ Error de sintaxis (bash -n) en: $DOCTOR_SCRIPT"
   ERRORS=$((ERRORS + 1))
 else
-  # 1. Comprobar que fleet-doctor valida sintaxis y procesa .agents/config/fleet.example.yaml en modo agnóstico
-  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DOCTOR_SCRIPT', '--fleet', '.agents/config/fleet.example.yaml', '--json']); data = json.loads(out); assert 'summary' in data and data['fleet']['mode'] == 'SKIPPED-NO-FLEET'" 2>/dev/null; then
-    echo -e "  ✅ fleet-doctor.sh valida sintaxis y procesa .agents/config/fleet.example.yaml deterministamente."
+  # 1. Comprobar que fleet-doctor valida sintaxis y procesa .agents/config/fleet.example.yaml en modo agnóstico (incluyendo MCP stdio y remotos)
+  if python3 -c "import json, subprocess; out = subprocess.check_output(['bash', '$DOCTOR_SCRIPT', '--fleet', '.agents/config/fleet.example.yaml', '--json']); data = json.loads(out); assert 'summary' in data and data['fleet']['mode'] == 'SKIPPED-NO-FLEET' and 'mcpServers' in data['fleet'] and 'deepwiki' in data['fleet']['mcpServers'] and data['fleet']['mcpServers']['deepwiki']['type'] == 'remote_http'" 2>/dev/null; then
+    echo -e "  ✅ fleet-doctor.sh valida sintaxis y procesa .agents/config/fleet.example.yaml deterministamente (soporte MCP stdio y remotos HTTP/SSE)."
   else
     echo -e "  ❌ ERROR: fleet-doctor.sh falló al procesar .agents/config/fleet.example.yaml."
     ERRORS=$((ERRORS + 1))
@@ -423,10 +533,10 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 13. Pre-flight de Pasarela de Inferencia (check-inference-gateway.sh)
+# 13. Pre-flight de Pasarela de Inferencia y Rotación de Tokens (check-inference-gateway.sh / rotate-freellmapi-token.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [13/33] Verificando pre-flight de pasarela de inferencia (check-inference-gateway.sh)..."
+echo -e "🔍 [13/38] Verificando pre-flight de pasarela de inferencia y rotación de tokens (check-inference-gateway.sh / rotate-freellmapi-token.sh)..."
 GATEWAY_SCRIPT="scripts/agent/check-inference-gateway.sh"
 
 if [ ! -x "$GATEWAY_SCRIPT" ]; then
@@ -476,13 +586,39 @@ assert 'sk-canary-no-debe-aparecer' not in r.stdout
     echo -e "  ❌ ERROR: check-inference-gateway.sh no clasifica correctamente un gateway inaccesible."
     ERRORS=$((ERRORS + 1))
   fi
+
+  # 4. Verificación estática y determinista de rotate-freellmapi-token.sh (T-186)
+  ROTATE_SCRIPT="scripts/agent/lib/rotate-freellmapi-token.sh"
+  if [ ! -x "$ROTATE_SCRIPT" ]; then
+    echo -e "  ❌ El script $ROTATE_SCRIPT no existe o no tiene permisos de ejecución (+x)."
+    ERRORS=$((ERRORS + 1))
+  elif ! bash -n "$ROTATE_SCRIPT" 2>/dev/null; then
+    echo -e "  ❌ Error de sintaxis (bash -n) en: $ROTATE_SCRIPT"
+    ERRORS=$((ERRORS + 1))
+  else
+    ROTATE_FAILS=""
+    if ! bash "$ROTATE_SCRIPT" --help >/dev/null 2>&1; then
+      ROTATE_FAILS="$ROTATE_FAILS help-falla"
+    fi
+    env_clean_rc=0
+    env -i PATH="$PATH" bash "$ROTATE_SCRIPT" --check >/dev/null 2>&1 || env_clean_rc=$?
+    if [ "$env_clean_rc" -ne 1 ]; then
+      ROTATE_FAILS="$ROTATE_FAILS rechazo-sin-target-invalido(rc=$env_clean_rc)"
+    fi
+    if [ -n "$ROTATE_FAILS" ]; then
+      echo -e "  ❌ ERROR: rotate-freellmapi-token.sh incumple:$ROTATE_FAILS"
+      ERRORS=$((ERRORS + 1))
+    else
+      echo -e "  ✅ rotate-freellmapi-token.sh conforme: permisos 0755, sintaxis, ayuda estándar y rechazo determinista."
+    fi
+  fi
 fi
 
 # ------------------------------------------------------------------------------
 # 14. Localizador determinista de secretos (secret-locate.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [14/33] Verificando localizador de secretos (secret-locate.sh)..."
+echo -e "🔍 [14/38] Verificando localizador de secretos (secret-locate.sh)..."
 SECRET_SCRIPT="scripts/agent/secret-locate.sh"
 
 if [ ! -x "$SECRET_SCRIPT" ]; then
@@ -547,7 +683,7 @@ fi
 # 15. Catálogo de secretos generado (generate-secrets-catalog.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [15/33] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
+echo -e "🔍 [15/38] Verificando generador del catálogo de secretos (generate-secrets-catalog.sh)..."
 CATALOG_SCRIPT="scripts/agent/generate-secrets-catalog.sh"
 
 if [ ! -x "$CATALOG_SCRIPT" ]; then
@@ -634,7 +770,7 @@ fi
 # 16. Materialización de secretos al .env (materialize-secrets.sh)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [16/33] Verificando materialización de secretos (materialize-secrets.sh)..."
+echo -e "🔍 [16/38] Verificando materialización de secretos (materialize-secrets.sh)..."
 MAT_SCRIPT="scripts/agent/materialize-secrets.sh"
 
 if [ ! -x "$MAT_SCRIPT" ]; then
@@ -685,7 +821,7 @@ fi
 # 17. Gates de la auditoría de secretos (verify-secrets.py)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [17/33] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
+echo -e "🔍 [17/38] Verificando gates de la auditoría de secretos (--strict / --min-coverage)..."
 VERIFY_LIB="scripts/agent/lib/verify-secrets.py"
 
 if [ ! -f "$VERIFY_LIB" ]; then
@@ -755,7 +891,7 @@ fi
 # 18-19. Honestidad de los scripts de cierre (T-100)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [18/33] Verificando honestidad de close-task.sh (enlace del sprint)..."
+echo -e "🔍 [18/38] Verificando honestidad de close-task.sh (enlace del sprint)..."
 TASK_FIXTURE="$(mktemp -d)"
 (
     cd "$TASK_FIXTURE" || exit 1
@@ -775,28 +911,41 @@ TASK_FIXTURE="$(mktemp -d)"
     git add -A && git commit -qm init
     printf '\n- [x] Sesion cerrada correctamente\n' >> .agents/tasks/task-100.md
     bash "$ROOT/scripts/agent/close-task.sh" T-100 "test regresion" >/dev/null 2>&1 || true
+
+    # Test fallback de mensaje en rama no-feat sin mensaje personalizado (T-150)
+    git checkout -q -b multi-agent
+    echo "| T-101 | x | S | ✅ Completada | [.agents/tasks/task-101.md](.agents/tasks/task-101.md) |" >> docs/sprints/sprint-99-core.md
+    echo "# Task-101" > .agents/tasks/task-101.md
+    git add -A && git commit -qm "feat: add task 101"
+    printf '\n- [x] T-101 completada\n' >> .agents/tasks/task-101.md
+    bash "$ROOT/scripts/agent/close-task.sh" T-101 >/dev/null 2>&1 || true
 ) 2>/dev/null
 if python3 -c "
-import pathlib, sys
+import pathlib, subprocess, sys
 d = pathlib.Path('$TASK_FIXTURE')
 sprint = (d / 'docs/sprints/sprint-99-core.md').read_text()
 assert '(.agents/tasks/_archived/task-100.md)' in sprint, 'el enlace no se actualizo a _archived/'
 assert (d / '.agents/tasks/_archived/task-100.md').exists(), 'el task file no se archivo'
-" 2>/dev/null; then
+assert (d / '.agents/tasks/_archived/task-101.md').exists(), 'el task-101 no se archivo'
+last_msg = subprocess.check_output(['git', 'log', '-1', '--pretty=%B'], cwd=str(d)).decode().strip()
+assert last_msg == 'feat(T-101): cierre de tarea T-101', f'mensaje inesperado en rama no-feat: {last_msg}'
+" 2>/dev/null && grep -q 'locator-hygiene.sh' "$ROOT/scripts/agent/close-task.sh"; then
     echo -e "  ✅ close-task.sh actualiza el enlace de la fila al archivar y el enlace resuelve."
+    echo -e "     fallback de commit en rama no-feat genera feat(T-XXX): cierre de tarea T-XXX (T-150)."
+    echo -e "     compuerta de higiene determinista integrada en staging y re-chequeo (T-163)."
 else
-    echo -e "  ❌ ERROR: close-task.sh deja el enlace del sprint apuntando al directorio activo."
+    echo -e "  ❌ ERROR: close-task.sh deja el enlace del sprint apuntando al directorio activo o falla fallback de mensaje."
     ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$TASK_FIXTURE"
 
 echo ""
-echo -e "🔍 [19/33] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
+echo -e "🔍 [19/38] Verificando honestidad de close-sprint.sh (staging y validación previa)..."
 SPRINT_FIXTURE="$(mktemp -d)"
 (
     cd "$SPRINT_FIXTURE" || exit 1
     git init -q . && git config user.email t@t.t && git config user.name t
-    mkdir -p docs/sprints
+    mkdir -p docs/sprints .agents/context
     {
         echo "# Sprint 98 - regresion"
         echo ""
@@ -807,6 +956,12 @@ SPRINT_FIXTURE="$(mktemp -d)"
         echo "| ID | D | T | E |"
         echo "| T-098 | x | S | ✅ Completada |"
     } > docs/sprints/sprint-98-core.md
+    {
+        echo "# last-sync.md"
+        echo "- **Sprint activo**: sprint-98-core"
+        echo "- **Último sprint cerrado**: sprint-97-core"
+        echo "- **Versión del core**: \`v1.0.0\`"
+    } > .agents/context/last-sync.md
     git add -A && git commit -qm init
     printf '\n## Notas\n- Marcado antes de cerrar.\n' >> docs/sprints/sprint-98-core.md
     bash "$ROOT/scripts/agent/close-sprint.sh" sprint-98-core >/dev/null 2>&1 || true
@@ -817,12 +972,21 @@ d = pathlib.Path('$SPRINT_FIXTURE')
 arch = d / 'docs/sprints/_archived/sprint-98-core.md'
 assert arch.exists(), 'el sprint no se archivo'
 assert 'Marcado antes de cerrar' in arch.read_text(), 'la modificacion sin stagear quedo fuera del commit'
+cl = d / 'changelog.md'
+assert cl.exists(), 'changelog.md no fue generado automaticamente'
+assert 'sprint-98' in cl.read_text(), 'entrada de changelog no contiene sprint-98'
+ver = d / 'VERSION'
+assert ver.exists(), 'VERSION no fue sincronizado'
+ls = d / '.agents/context/last-sync.md'
+assert ls.exists(), 'last-sync.md no existe'
+assert 'sprint-98-core' in ls.read_text(), 'last-sync.md no contiene sprint-98-core'
 st = subprocess.check_output(['git','status','--porcelain'], cwd=str(d)).decode().strip()
 assert st == '', 'el working tree quedo sucio: ' + st
-" 2>/dev/null; then
-    echo -e "  ✅ close-sprint.sh incluye el working tree en el commit y no deja el árbol sucio."
+" 2>/dev/null && grep -q 'locator-hygiene.sh' "$ROOT/scripts/agent/close-sprint.sh"; then
+    echo -e "  ✅ close-sprint.sh auto-genera changelog, sincroniza VERSION y last-sync.md, archiva sprint y deja árbol limpio."
+    echo -e "     compuerta de higiene determinista integrada en staging y re-chequeo (T-163, T-181)."
 else
-    echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear o cuelga el árbol de trabajo."
+    echo -e "  ❌ ERROR: close-sprint.sh deja cambios sin commitear, no genera changelog o cuelga el árbol."
     ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$SPRINT_FIXTURE"
@@ -831,7 +995,7 @@ rm -rf "$SPRINT_FIXTURE"
 # 20. promote-to-main.sh (T-101)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [20/33] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
+echo -e "🔍 [20/38] Verificando promote-to-main.sh (merge, publicación de origen, fallo limpio)..."
 PROMOTE="$ROOT/scripts/agent/promote-to-main.sh"
 P1="$(mktemp -d)"; P2="$(mktemp -d)"; P3="$(mktemp -d)"
 # NINGÚN fichero de salida puede vivir dentro del fixture: la redirección lo crea
@@ -901,7 +1065,7 @@ rm -rf "$P1" "$P2" "$P3" "$OUT1" "$HELP1" "$OUT2" "$ERR3" "$P3_BEFORE" "$P3_AFTE
 # 21. Mapa de flujos generado (T-102)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [21/33] Verificando que el mapa de flujos está sincronizado con su fuente..."
+echo -e "🔍 [21/38] Verificando que el mapa de flujos está sincronizado con su fuente..."
 if python3 -c "
 import pathlib, subprocess, sys
 root = pathlib.Path('$ROOT')
@@ -952,7 +1116,7 @@ fi
 # 22. Higiene de localizadores / frontera portable (T-103)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [22/33] Verificando la frontera portable (cero literales de infraestructura)..."
+echo -e "🔍 [22/38] Verificando la frontera portable (cero literales de infraestructura)..."
 if bash "$ROOT/scripts/agent/lib/locator-hygiene.sh" --quiet; then
     echo -e "  ✅ Sin rutas personales, IPs de infraestructura, hostnames de nodo ni credenciales en el core."
 else
@@ -1017,7 +1181,7 @@ fi
 # 23. Despacho multi-repo portable (T-104)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [23/33] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
+echo -e "🔍 [23/38] Verificando dispatch-satellite.sh (ruta Git, ruta Orca simulada, idempotencia)..."
 DISPATCH="$ROOT/scripts/agent/dispatch-satellite.sh"
 DSAT="$(mktemp -d)"; DREG="$(mktemp)"; DSATS="$(mktemp)"
 DOUT1="$(mktemp)"; DOUT2="$(mktemp)"; DOUT3="$(mktemp)"; DOUT4="$(mktemp)"
@@ -1072,7 +1236,7 @@ rm -rf "$DSIB"
 # 24. Integración y purga de worktrees (T-107)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [24/33] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
+echo -e "🔍 [24/38] Verificando worktree-merge.sh (ff, squash, REJECT conserva) y worktree-gc.sh..."
 MWT="$(mktemp -d)"; MOUT1="$(mktemp)"; MOUT2="$(mktemp)"; MOUT3="$(mktemp)"; MOUT4="$(mktemp)"; MOUT5="$(mktemp)"
 MDISPATCH="$ROOT/scripts/agent/worktree-dispatch.sh"
 MMERGE="$ROOT/scripts/agent/worktree-merge.sh"
@@ -1131,7 +1295,7 @@ rm -rf "$MWT" "$MOUT1" "$MOUT2" "$MOUT3" "$MOUT4" "$MOUT5"
 # 25. Punto de entrada del coordinador (T-105)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [25/33] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
+echo -e "🔍 [25/38] Verificando run-flow (para en el gate, nunca lo resuelve, cae al fallback)..."
 OFLOW="$ROOT/scripts/agent/orca-orchestrate.sh"
 FWT="$(mktemp -d)"; FSAT="$FWT/sat"; FSATS="$FWT/sats.yaml"; FREG="$FWT/reg.jsonl"; FSPEC="$FWT/spec.json"
 FTOOLS="$(mktemp -d)"; FSTUB="$(mktemp -d)"; FDEAF="$(mktemp -d)"
@@ -1198,7 +1362,7 @@ rm -rf "$FWT" "$FTOOLS" "$FSTUB" "$FDEAF" "$FOUT1" "$FOUT2"
 # 26. Semver del changelog con ## [Unreleased] delante (T-108)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [26/33] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
+echo -e "🔍 [26/38] Verificando semver de update-changelog.sh (ignora Unreleased, cae al tag)..."
 UCHG="$ROOT/scripts/agent/update-changelog.sh"
 FCH="$(mktemp -d)"
 mkdir -p "$FCH/scripts/agent/lib"
@@ -1307,11 +1471,27 @@ rm -rf "$FCH"
     echo -e "  ℹ️  Caso real omitido: el tag $VEXPECT aún no existe (ventana cierre→tag)."
   fi
 
+  # Regresión T-148: propuesta de audit-repo.sh para Sprint 00 debe usar changelog.md (no CHANGELOG.md)
+  # Acotado específicamente a la línea que contiene 'hitos históricos identificados en el Sprint 00'
+  SPRINT00_PROP="$(grep 'hitos históricos identificados en el Sprint 00' "$ROOT/scripts/agent/audit-repo.sh" 2>/dev/null || true)"
+  if [ -z "$SPRINT00_PROP" ]; then
+    echo -e "  ❌ ERROR: no se encontró la propuesta de Sprint 00 en scripts/agent/audit-repo.sh."
+    ERRORS=$((ERRORS + 1))
+  elif echo "$SPRINT00_PROP" | grep -q "CHANGELOG.md"; then
+    echo -e "  ❌ ERROR: la propuesta de Sprint 00 en audit-repo.sh usa mayúsculas 'CHANGELOG.md'."
+    ERRORS=$((ERRORS + 1))
+  elif echo "$SPRINT00_PROP" | grep -q "changelog.md"; then
+    echo -e "  ✅ Propuesta de Sprint 00 en audit-repo.sh usa minúsculas 'changelog.md' (T-148)."
+  else
+    echo -e "  ❌ ERROR: la propuesta de Sprint 00 no referencia changelog.md."
+    ERRORS=$((ERRORS + 1))
+  fi
+
 # ------------------------------------------------------------------------------
 # 27. locator-hygiene.sh --path honra las excepciones del repo escaneado (T-106)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [27/33] Verificando que --path aplica las excepciones del repo destino..."
+echo -e "🔍 [27/38] Verificando que --path aplica las excepciones del repo destino..."
 FIX="$(mktemp -d)"
 git init -q -b main "$FIX" && git -C "$FIX" config user.email t@t.t && git -C "$FIX" config user.name t || true
 # Guardia anti-incidente: sin repo, ls-files falla y el escáner podría mirar el core.
@@ -1344,7 +1524,7 @@ rm -rf "$FIX"
 # 28. Copias no destructivas portables: agent_cp_n (T-110)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [28/33] Verificando agent_cp_n: no sobrescribe, sin warnings ni cp -n directos..."
+echo -e "🔍 [28/38] Verificando agent_cp_n: no sobrescribe, sin warnings ni cp -n directos..."
 FCP="$(mktemp -d)"
 mkdir -p "$FCP/src" "$FCP/dst" "$FCP/rsrc" "$FCP/rdst"
 printf 'nuevo\n' > "$FCP/src/a"
@@ -1375,7 +1555,7 @@ rm -rf "$FCP"
 # 29. Informe de lote read-only: report (T-112)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [29/33] Verificando 'report': bloque sin mutaciones, agregación y degradación..."
+echo -e "🔍 [29/38] Verificando 'report': bloque sin mutaciones, agregación y degradación..."
 FREP="$(mktemp -d)"
 STUB="$FREP/bin"
 mkdir -p "$STUB"
@@ -1445,7 +1625,7 @@ rm -rf "$FREP"
 # 30. VERSION alineado con la release del changelog (T-113)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [30/33] Verificando VERSION (lectura semver, idempotencia y repo real)..."
+echo -e "🔍 [30/38] Verificando VERSION (lectura semver, idempotencia y repo real)..."
 VLIB="$ROOT/scripts/agent/lib/release-version.sh"
 VTMP="$(mktemp -d)"
 mkdir -p "$VTMP/repo"
@@ -1493,7 +1673,7 @@ fi
 # 31. Desfase de versión de la flota: fleet-version.sh (T-115)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [31/33] Verificando fleet-version.sh (5 estados, JSON estable y solo lectura)..."
+echo -e "🔍 [31/38] Verificando fleet-version.sh (5 estados, JSON estable y solo lectura)..."
 FVS="$ROOT/scripts/agent/fleet-version.sh"
 FV="$(mktemp -d)"
 mkdir -p "$FV/core/scripts/agent/lib" "$FV/ok/.agents/context" "$FV/drift/.agents/context" \
@@ -1580,7 +1760,7 @@ fi
 # 32. secrets.sh sin valor por argv + --search + barrido único (T-117)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [32/33] Verificando secrets.sh (valor solo por stdin) y secret-locate (--search, 1 export/carpeta)..."
+echo -e "🔍 [32/38] Verificando secrets.sh (valor solo por stdin) y secret-locate (--search, 1 export/carpeta)..."
 SEC="$ROOT/scripts/agent/secrets.sh"
 SLOC="$ROOT/scripts/agent/secret-locate.sh"
 T117="$(mktemp -d)"
@@ -1717,7 +1897,7 @@ fi
 # 33. redact.sh + coherencia de normas de secretos (T-118)
 # ------------------------------------------------------------------------------
 echo ""
-echo -e "🔍 [33/33] Verificando redact.sh (determinista, sin red) y coherencia de las normas de secretos..."
+echo -e "🔍 [33/38] Verificando redact.sh (determinista, sin red) y coherencia de las normas de secretos..."
 RED="$ROOT/scripts/agent/lib/redact.sh"
 SKILL="$ROOT/.agents/skills/infisical-secrets/SKILL.md"
 PERMS="$ROOT/.agents/rules/global/agent-permissions.md"
@@ -1805,6 +1985,1355 @@ if [ -n "$T118_FAILS" ]; then
 else
   echo -e "  ✅ redact.sh redacta env/JSON/YAML/catálogo sin romper estructura y es determinista;"
   echo -e "     skill y normas sin recetas de valor en argv ni listas abiertas."
+fi
+
+# ------------------------------------------------------------------------------
+# 34. Verificación de deliberación (T-119), workflow de sesión (T-120) y design digest (T-121)
+# ------------------------------------------------------------------------------
+echo -e "🔍 [34/38] Verificando deliberación de planes (T-119), workflow de sesión (T-120) y design digest (T-121)..."
+
+T34_FAILS=""
+DP="$ROOT/scripts/agent/deliberate-plan.sh"
+DD="$ROOT/scripts/agent/design-digest.sh"
+CT="$ROOT/scripts/agent/close-task.sh"
+SS="$ROOT/.agents/workflows/session-start.md"
+RP="$ROOT/.agents/config/routing-policy.yaml"
+
+# 1. deliberate-plan.sh: ejecutable y expone ayuda estándar
+if [ ! -f "$DP" ] || [ ! -x "$DP" ]; then
+  T34_FAILS="$T34_FAILS deliberate-plan-no-ejecutable"
+else
+  bash "$DP" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS deliberate-plan-help-falla"
+fi
+
+# 2. Invocación offline / pasarela inalcanzable con INFERENCE_BASE_URL (degrada a SIN_REVISOR en <1s)
+T34_DIR="$(mktemp -d /tmp/test-t34-XXXXXX)"
+cat << 'FIXTURE_PLAN_T34' > "$T34_DIR/plan-draft.md"
+# Plan Borrador de Prueba
+Probando deliberacion determinista en modo offline con pasarela caida.
+FIXTURE_PLAN_T34
+
+cat << 'FIXTURE_TASK_T34' > "$ROOT/.agents/tasks/task-999.md"
+# Task-999: Tarea de prueba
+## Objetivo
+Probar deliberacion determinista y fallback offline.
+## Skills relevantes
+- agent-os-scripts
+FIXTURE_TASK_T34
+
+OUT_OFFLINE="$(INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DP" --plan "$T34_DIR/plan-draft.md" --task-id T-999 --output "$T34_DIR/delib.json" 2>&1 || true)"
+rm -f "$ROOT/.agents/tasks/task-999.md" 2>/dev/null || true
+
+if [ ! -f "$T34_DIR/delib.json" ]; then
+  T34_FAILS="$T34_FAILS offline-no-genera-json"
+else
+  VERDICT="$(python3 -c 'import json; print(json.load(open("'"$T34_DIR"'/delib.json")).get("verdict", ""))' 2>/dev/null || true)"
+  [ "$VERDICT" = "SIN_REVISOR" ] || T34_FAILS="$T34_FAILS verdict-no-es-sin-revisor($VERDICT)"
+  
+  # Verificar que el inventario no supera 4KB (4096 bytes)
+  INV_BYTES="$(python3 -c 'import json; print(json.load(open("'"$T34_DIR"'/delib.json")).get("inventory_scoped_bytes", 0))' 2>/dev/null || echo 0)"
+  if [ "$INV_BYTES" -gt 4096 ] || [ "$INV_BYTES" -le 0 ]; then
+    T34_FAILS="$T34_FAILS inventario-fuera-de-rango($INV_BYTES)"
+  fi
+fi
+
+# 2b. Gate mecánico fail-closed de skills declaradas en plan contra .agents/skills/ (T-149)
+cat << 'FIXTURE_PLAN_BAD_SKILL' > "$T34_DIR/plan-bad-skill.md"
+# Plan Borrador con Skill Fantasma
+## Cláusula de Skills
+- `modern-web-guidance`: Activa para desarrollo web
+- `rule-creator`: No aplica
+FIXTURE_PLAN_BAD_SKILL
+
+RC_BAD_SKILL=0
+OUT_BAD_SKILL="$(bash "$DP" --plan "$T34_DIR/plan-bad-skill.md" --task-id T-999 2>&1)" || RC_BAD_SKILL=$?
+if [ "$RC_BAD_SKILL" -ne 1 ]; then
+  T34_FAILS="$T34_FAILS gate-skills-no-aborta-rc1($RC_BAD_SKILL)"
+fi
+if ! printf '%s\n' "$OUT_BAD_SKILL" | grep -q "❌ ERROR: Skill declarada no existe en .agents/skills/: modern-web-guidance"; then
+  T34_FAILS="$T34_FAILS gate-skills-mensaje-error-ausente"
+fi
+
+cat << 'FIXTURE_PLAN_VALID_SKILL' > "$T34_DIR/plan-valid-skill.md"
+# Plan Borrador con Skills Válidas
+## Cláusula de Skills
+- `agent-os-scripts`: Regla aplicada
+- `rule-creator`: No aplica
+FIXTURE_PLAN_VALID_SKILL
+
+OUT_VALID_SKILL="$(INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-999 --output "$T34_DIR/delib-valid.json" 2>&1 || true)"
+if printf '%s\n' "$OUT_VALID_SKILL" | grep -q "❌ ERROR: Skill declarada no existe"; then
+  T34_FAILS="$T34_FAILS gate-skills-falso-positivo"
+fi
+
+# 3. Assertar routing-policy.yaml: timeout_seconds: 5 y max_automatic_rounds: 1
+if [ -f "$RP" ]; then
+  grep -q 'timeout_seconds: 5' "$RP" || T34_FAILS="$T34_FAILS routing-sin-timeout_seconds-5"
+  grep -q 'max_automatic_rounds: 1' "$RP" || T34_FAILS="$T34_FAILS routing-sin-max_automatic_rounds-1"
+else
+  T34_FAILS="$T34_FAILS routing-policy-ausente"
+fi
+
+# 4. design-digest.sh: ejecutable y expone ayuda estándar
+if [ ! -f "$DD" ] || [ ! -x "$DD" ]; then
+  T34_FAILS="$T34_FAILS design-digest-no-ejecutable"
+else
+  bash "$DD" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-help-falla"
+fi
+
+# 5. design-digest.sh: estructura de 5 bloques canónicos y redacción derivada SIN catálogo ambiental y SIN fixture
+FAKE_USER_PATH="/$(printf '%s' home)/devuser/code/foo.py"
+cat << FIXTURE_TASK_DERIVED_T34 > "$ROOT/.agents/tasks/task-997.md"
+# Task-997: Tarea con secreto derivado y ruta personal
+## Objetivo
+Probar redaccion determinista de contenido con CUSTOM_DERIVED_KEY=valor_secreto_derivado_777 y ruta file://${FAKE_USER_PATH}.
+## Skills relevantes
+- infisical-secrets
+FIXTURE_TASK_DERIVED_T34
+
+# Invocamos forzando ausencia total de catalogo ambiental para probar derivacion pura del contenido
+AGENT_OS_SECRETS_CATALOG="/dev/null" bash "$DD" --task-id T-997 --output "$T34_DIR/digest_derived.md" >/dev/null 2>&1 || T34_FAILS="$T34_FAILS design-digest-derived-falla"
+rm -f "$ROOT/.agents/tasks/task-997.md" 2>/dev/null || true
+
+if [ -f "$T34_DIR/digest_derived.md" ]; then
+  grep -q "## 🎯 Objetivo" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-objetivo"
+  grep -q "## 🏛️ Decisiones de Arquitectura" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-decisiones"
+  grep -q "## 🛠️ Ajustes y Arbitraje" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-ajustes"
+  grep -q "## 📁 Ficheros Modificados" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-ficheros"
+  grep -q "## 🧠 Skills Declaradas" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-skills"
+
+  if grep -q "valor_secreto_derivado_777" "$T34_DIR/digest_derived.md"; then
+    T34_FAILS="$T34_FAILS digest-derived-fuga-secreto"
+  fi
+  grep -q "<redacted:CUSTOM_DERIVED_KEY>" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-derived-no-redacta"
+  if grep -q -E "/(h""ome|Users)/" "$T34_DIR/digest_derived.md"; then
+    T34_FAILS="$T34_FAILS digest-fuga-ruta-personal"
+  fi
+  grep -q "<home>/code/foo.py" "$T34_DIR/digest_derived.md" || T34_FAILS="$T34_FAILS digest-sin-saneamiento-personal"
+else
+  T34_FAILS="$T34_FAILS digest-derived-no-generado"
+fi
+
+# Fallback fail-closed en design-digest.sh (código 64 ante argumento desconocido)
+RC_DD_BAD=0
+bash "$DD" --bad-flag >/dev/null 2>&1 || RC_DD_BAD=$?
+[ "$RC_DD_BAD" -eq 64 ] || T34_FAILS="$T34_FAILS design-digest-bad-arg-rc=$RC_DD_BAD"
+
+# 6. fleet-doctor.sh: sonda config-driven del revisor en modo warn-only (exit code 0 sin romper)
+DOCTOR="$ROOT/scripts/agent/fleet-doctor.sh"
+if [ -f "$DOCTOR" ]; then
+  OUT_DOC="$(INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DOCTOR" --json 2>/dev/null || true)"
+  printf '%s' "$OUT_DOC" | grep -q '"reviewer_probe"' || T34_FAILS="$T34_FAILS doctor-sin-reviewer-probe"
+  printf '%s' "$OUT_DOC" | grep -qE '"status": "(OK|WARN)"' || T34_FAILS="$T34_FAILS doctor-reviewer-status-invalido"
+else
+  T34_FAILS="$T34_FAILS fleet-doctor-no-encontrado"
+fi
+
+# 7. Higiene en .gitignore: contexto efímero de sesión ignorado
+GITIGNORE="$ROOT/.gitignore"
+grep -q '\.agents/context/plan-draft\.md' "$GITIGNORE" || T34_FAILS="$T34_FAILS gitignore-sin-plan-draft"
+grep -q '\.agents/context/plan-deliberation\.json' "$GITIGNORE" || T34_FAILS="$T34_FAILS gitignore-sin-plan-deliberation"
+
+# 8. Higiene en AGENTS.md: estructura y tabla de herramientas CLI
+AGENTS_MD="$ROOT/AGENTS.md"
+grep -q 'deliberate-plan.sh' "$AGENTS_MD" || T34_FAILS="$T34_FAILS agents-md-sin-deliberate-plan"
+grep -q 'design-digest.sh' "$AGENTS_MD" || T34_FAILS="$T34_FAILS agents-md-sin-design-digest"
+grep -q 'Herramientas CLI del Core' "$AGENTS_MD" || T34_FAILS="$T34_FAILS agents-md-sin-tabla-cli"
+
+# 9. close-task.sh contiene invocación a design-digest.sh y staging del digest
+grep -q 'design-digest.sh' "$CT" || T34_FAILS="$T34_FAILS close-task-sin-design-digest"
+grep -q 'docs/sprints/design-decisions' "$CT" || T34_FAILS="$T34_FAILS close-task-sin-staging-digest"
+
+# 10. session-start.md contiene deliberación y preserva autorización humana obligatoria
+grep -q 'deliberate-plan.sh' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-deliberate-plan"
+grep -q 'Executive Design Digest' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-executive-digest"
+grep -q 'APROBADO' "$SS" || T34_FAILS="$T34_FAILS session-start-sin-aprobado"
+
+# 11. Reporte formal de trial de liveness (T-151): veredicto explícito y tabla de muestra declarada
+LIVENESS_REPORT="$ROOT/docs/sprints/sprint-27-liveness-trial-report.md"
+[ -f "$LIVENESS_REPORT" ] || LIVENESS_REPORT="$ROOT/docs/sprints/_archived/sprint-27-liveness-trial-report.md"
+if [ -f "$LIVENESS_REPORT" ]; then
+  grep -q -E "LIVENESS_(VIABLE|DESCARTADO)" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-veredicto"
+  grep -q "Tabla por Caso y Tamaño de Muestra Declarado" "$LIVENESS_REPORT" || T34_FAILS="$T34_FAILS liveness-report-sin-tabla-muestra"
+fi
+
+# 12. Cableado de Antigravity CLI (agy) como Tier 1 en deliberate-plan.sh (T-152)
+# 12a. Mock agy exitoso con delimitadores y 5 campos canónicos -> evaluator_tier=agy
+MOCK_AGY_VALID="$T34_DIR/agy_mock_valid.sh"
+cat << 'EOF_AGY_V' > "$MOCK_AGY_VALID"
+#!/usr/bin/env bash
+if [ "${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+cat << 'JSON_OUT'
+<!-- VERDICT_JSON_START -->
+{
+  "verdict": "CONSENSO",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Alineado con directivas"
+  },
+  "design_summary": "Plan validado correctamente por Revisor Antigravity CLI."
+}
+<!-- VERDICT_JSON_END -->
+JSON_OUT
+exit 0
+EOF_AGY_V
+chmod +x "$MOCK_AGY_VALID"
+
+OUT_AGY_OK="$T34_DIR/delib_agy_ok.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" \
+AGY_CERT_MODE=1 \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_OK" --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_AGY_OK" ]; then
+  T34_FAILS="$T34_FAILS agy-tier1-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_AGY_OK'))
+assert d.get('evaluator_tier') == 'agy', f'Tier esperado agy, obtenido {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'CONSENSO', f'Veredicto esperado CONSENSO, obtenido {d.get(\"verdict\")}'
+assert d.get('role') in ['qa-judge', 'reviewer'], f'Rol inesperado: {d.get(\"role\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-tier1-contrato-invalido"
+fi
+
+# 12b. Mock agy con salida truncada/corrupta con exit 0 -> degradación fail-closed a SIN_REVISOR
+MOCK_AGY_CORRUPT="$T34_DIR/agy_mock_corrupt.sh"
+cat << 'EOF_AGY_C' > "$MOCK_AGY_CORRUPT"
+#!/usr/bin/env bash
+if [ "${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+echo "<!-- VERDICT_JSON_START -->"
+echo '{"verdict": "CONSENSO", "design_summary": "salida truncada...'
+exit 0
+EOF_AGY_C
+chmod +x "$MOCK_AGY_CORRUPT"
+
+OUT_AGY_FAIL="$T34_DIR/delib_agy_fail.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_CORRUPT" \
+AGY_CERT_MODE=1 \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_FAIL" --timeout 1 --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_AGY_FAIL" ]; then
+  T34_FAILS="$T34_FAILS agy-corrupto-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_AGY_FAIL'))
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto esperado SIN_REVISOR, obtenido {d.get(\"verdict\")}'
+assert d.get('evaluator_tier') == 'fallback_safe', f'Tier esperado fallback_safe, obtenido {d.get(\"evaluator_tier\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-exit0-corrupto-no-degrada"
+fi
+
+# 13. Guardas de seguridad, aislamiento read-only y certificación git-limpio para agy (T-153)
+# 13a. Centinela PRE fail-closed ante working tree sucio
+DIRTY_FILE="$ROOT/dirty_test_pre_sentinel.txt"
+touch "$DIRTY_FILE"
+RC_PRE_SENTINEL=0
+OUT_PRE_SENTINEL="$(AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" AGY_CERT_MODE=1 INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 2>&1)" || RC_PRE_SENTINEL=$?
+rm -f "$DIRTY_FILE"
+
+if [ "$RC_PRE_SENTINEL" -ne 1 ]; then
+  T34_FAILS="$T34_FAILS pre-sentinela-no-aborta-rc1($RC_PRE_SENTINEL)"
+fi
+if ! printf '%s\n' "$OUT_PRE_SENTINEL" | grep -q "Centinela PRE"; then
+  T34_FAILS="$T34_FAILS pre-sentinela-mensaje-error-ausente"
+fi
+
+# 13b. Degradación determinista a siguiente tier si falta portable_timeout (Nit T-152/T-153)
+OUT_NO_TIMEOUT="$T34_DIR/delib_no_timeout.json"
+AGY_ALLOW_DIRTY=1 \
+AGENT_OS_NO_PORTABLE_TIMEOUT=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_VALID" \
+AGY_CERT_MODE=1 \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_NO_TIMEOUT" --timeout 1 --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_NO_TIMEOUT" ]; then
+  T34_FAILS="$T34_FAILS no-timeout-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_NO_TIMEOUT'))
+assert d.get('evaluator_tier') != 'agy', f'Tier inesperado: no debe ser agy sin timeout, obtenido {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto esperado SIN_REVISOR, obtenido {d.get(\"verdict\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS no-timeout-degradacion-invalida"
+fi
+
+# 13c. Centinela POST: detección de mutación espuria, reversión acotada y ESCALADO_A_HUMANO
+MOCK_AGY_MUTATOR="$T34_DIR/agy_mock_mutator.sh"
+MUTATION_FILE="$ROOT/spurious_mutation_test.txt"
+cat << EOF_AGY_M > "$MOCK_AGY_MUTATOR"
+#!/usr/bin/env bash
+if [ "\${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+touch "$MUTATION_FILE"
+cat << 'JSON_OUT'
+<!-- VERDICT_JSON_START -->
+{
+  "verdict": "CONSENSO",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Alineado con directivas"
+  },
+  "design_summary": "Plan validado pero con mutación en el árbol."
+}
+<!-- VERDICT_JSON_END -->
+JSON_OUT
+exit 0
+EOF_AGY_M
+chmod +x "$MOCK_AGY_MUTATOR"
+
+OUT_AGY_MUT="$T34_DIR/delib_agy_mut.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_MUTATOR" \
+AGY_CERT_MODE=1 \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_MUT" --json >/dev/null 2>&1 || true
+
+if [ -f "$MUTATION_FILE" ]; then
+  rm -f "$MUTATION_FILE"
+  T34_FAILS="$T34_FAILS post-sentinela-no-revertio-mutacion"
+fi
+
+if [ ! -f "$OUT_AGY_MUT" ]; then
+  T34_FAILS="$T34_FAILS agy-mutacion-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_AGY_MUT'))
+assert d.get('evaluator_tier') == 'agy', f'Tier esperado agy, obtenido {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'ESCALADO_A_HUMANO', f'Veredicto esperado ESCALADO_A_HUMANO tras mutación, obtenido {d.get(\"verdict\")}'
+assert any('Violación de seguridad' in obj for obj in d.get('objections', [])), 'Objeción de seguridad ausente'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-post-sentinela-contrato-invalido"
+fi
+
+# 13d. Aislamiento env -i: verificar que secretos ambientales no se propagan a agy
+MOCK_AGY_ENV="$T34_DIR/agy_mock_env.sh"
+cat << 'EOF_AGY_ENV' > "$MOCK_AGY_ENV"
+#!/usr/bin/env bash
+if [ "${1:-}" = "--help" ]; then
+  echo "agy mock help"
+  exit 0
+fi
+env > "$(dirname "$0")/agy_captured_env.log"
+cat << 'JSON_OUT'
+<!-- VERDICT_JSON_START -->
+{
+  "verdict": "CONSENSO",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Alineado con directivas"
+  },
+  "design_summary": "Plan auditado con entorno capturado."
+}
+<!-- VERDICT_JSON_END -->
+JSON_OUT
+exit 0
+EOF_AGY_ENV
+chmod +x "$MOCK_AGY_ENV"
+
+OUT_AGY_ENV="$T34_DIR/delib_agy_env.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_SECRET_TRAP="token_super_secreto_agy_99999" \
+AGY_BIN_OVERRIDE="$MOCK_AGY_ENV" \
+AGY_CERT_MODE=1 \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_AGY_ENV" --json >/dev/null 2>&1 || true
+
+if [ -f "$T34_DIR/agy_captured_env.log" ]; then
+  if grep -q "AGY_SECRET_TRAP" "$T34_DIR/agy_captured_env.log"; then
+    T34_FAILS="$T34_FAILS agy-secreto-filtrado-en-worker"
+  fi
+  if ! grep -q "PATH=" "$T34_DIR/agy_captured_env.log" || ! grep -q "HOME=" "$T34_DIR/agy_captured_env.log"; then
+    T34_FAILS="$T34_FAILS agy-env-vars-esenciales-ausentes"
+  fi
+else
+  T34_FAILS="$T34_FAILS agy-env-log-no-capturado"
+fi
+
+# 14. Reporte formal de paridad y calibración Revisor-vs-Relé (T-154)
+PARITY_REPORT="$ROOT/docs/sprints/sprint-27-parity-report.md"
+[ -f "$PARITY_REPORT" ] || PARITY_REPORT="$ROOT/docs/sprints/_archived/sprint-27-parity-report.md"
+if [ ! -f "$PARITY_REPORT" ]; then
+  T34_FAILS="$T34_FAILS parity-report-ausente"
+else
+  grep -q -E "PARIDAD_(CONDICIONADA|OBSERVACIONAL|TOTAL)" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-veredicto"
+  grep -q "Batería de 10 Casos y Concordancia" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-tabla-casos"
+  grep -q "C-09" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-caso-c09"
+  grep -q "C-10" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-caso-c10"
+  grep -q "gate_t149" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-gate-t149"
+  grep -q "revisor_skills" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-revisor-skills"
+  grep -q "Consumo de Tokens y Coste" "$PARITY_REPORT" || T34_FAILS="$T34_FAILS parity-report-sin-metricas-coste"
+fi
+
+# 15. Batería de tests de hueco del Revisor Dual (T-155)
+# 15a. Sub-test 1: Sonda determinista ante binario agy ausente o no ejecutable
+# Caso 1a: PATH sin agy y sin override (salto <1s, tier != agy)
+OUT_NO_AGY="$T34_DIR/delib_no_agy.json"
+T_START_1A=$(python3 -c "import time; print(time.time())")
+PATH="/usr/bin:/bin" \
+AGY_BIN_OVERRIDE="" \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_NO_AGY" --timeout 1 --json >/dev/null 2>&1 || true
+T_END_1A=$(python3 -c "import time; print(time.time())")
+
+if [ ! -f "$OUT_NO_AGY" ]; then
+  T34_FAILS="$T34_FAILS agy-ausente-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_NO_AGY'))
+assert d.get('evaluator_tier') != 'agy', f'Tier indebido agy: {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto inesperado: {d.get(\"verdict\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-ausente-tier-indebido"
+  python3 -c "
+elapsed = $T_END_1A - $T_START_1A
+assert elapsed < 2.0, f'Salto de agy ausente demasiado lento: {elapsed:.2f}s'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-ausente-demasiado-lento"
+fi
+
+# Caso 1b: AGY_BIN_OVERRIDE a fichero inexistente/no ejecutable (fail-fast sin fallback a agy en sistema)
+OUT_BAD_OVERRIDE="$T34_DIR/delib_bad_override.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$T34_DIR/nonexistent_bin_155" \
+AGY_CERT_MODE=1 \
+NO_ORCA=true \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_BAD_OVERRIDE" --timeout 1 --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_BAD_OVERRIDE" ]; then
+  T34_FAILS="$T34_FAILS agy-bad-override-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_BAD_OVERRIDE'))
+assert d.get('evaluator_tier') != 'agy', f'Tier indebido agy tras bad override: {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'SIN_REVISOR', f'Veredicto inesperado: {d.get(\"verdict\")}'
+" 2>/dev/null || T34_FAILS="$T34_FAILS agy-bad-override-fallback-indebido"
+fi
+
+# 15b. Sub-test 2: Escalado SIGKILL (TERM -> gracia -> KILL) certificando muerte dentro de timeout+gracia y 0 huérfanos
+source "$ROOT/scripts/agent/lib/portable-timeout.sh"
+MOCK_HANG="$T34_DIR/agy_mock_hang.sh"
+cat << 'EOF_HANG' > "$MOCK_HANG"
+#!/usr/bin/env bash
+trap '' TERM
+sleep 10 &
+wait $!
+EOF_HANG
+chmod +x "$MOCK_HANG"
+
+T_START_KILL=$(python3 -c "import time; print(time.time())")
+RC_KILL=0
+PORTABLE_TIMEOUT_KILL_GRACE=1s portable_timeout 1 "$MOCK_HANG" >/dev/null 2>&1 || RC_KILL=$?
+T_END_KILL=$(python3 -c "import time; print(time.time())")
+
+if [ "$RC_KILL" -ne 137 ]; then
+  T34_FAILS="$T34_FAILS portable-timeout-sigkill-rc=$RC_KILL"
+fi
+python3 -c "
+elapsed = $T_END_KILL - $T_START_KILL
+assert elapsed < 3.5, f'Timeout kill excedió tiempo límite: {elapsed:.2f}s'
+" 2>/dev/null || T34_FAILS="$T34_FAILS portable-timeout-sigkill-demasiado-lento"
+
+# Certificar 0 huérfanos del mock rebelde
+if ps -ef | grep "$MOCK_HANG" | grep -v grep >/dev/null 2>&1; then
+  T34_FAILS="$T34_FAILS procesos-huerfanos-detectados-tras-sigkill"
+fi
+
+# 15c. Sub-test 3: Handoff agy -> Orca con veredicto spec completo
+MOCK_ORCA="$T34_DIR/mock_orca_handoff.sh"
+cat << 'EOF_ORCA' > "$MOCK_ORCA"
+#!/usr/bin/env bash
+cmd="${1:-}"
+case "$cmd" in
+  status)
+    echo '{"status": "ready"}'
+    exit 0
+    ;;
+  orchestration)
+    sub="${2:-}"
+    case "$sub" in
+      run-current)
+        echo '{"result": {"run": {"id": "run-test-155"}}}'
+        exit 0
+        ;;
+      worker-start)
+        echo '{"result": {"dispatchId": "disp-test-155"}}'
+        exit 0
+        ;;
+      worker-read)
+        python3 -c '
+import json
+payload = {
+    "verdict": "CONSENSO",
+    "role": "qa-judge",
+    "design_summary": "Plan aprobado por Orca ADE mock en handoff.",
+    "objections": [],
+    "corrections": [],
+    "skills_evaluation": {
+        "status": "verified",
+        "details": "Skills verificadas en Orca."
+    }
+}
+res = {
+    "ok": True,
+    "result": {
+        "terminal": {
+            "tail": [
+                "<!-- VERDICT_JSON_START -->",
+                json.dumps(payload),
+                "<!-- VERDICT_JSON_END -->"
+            ]
+        }
+    }
+}
+print(json.dumps(res))
+'
+        exit 0
+        ;;
+      worker-release|worker-stop)
+        echo '{"ok": true}'
+        exit 0
+        ;;
+    esac
+    ;;
+esac
+echo '{"ok": true}'
+exit 0
+EOF_ORCA
+chmod +x "$MOCK_ORCA"
+
+OUT_HANDOFF="$T34_DIR/delib_handoff.json"
+AGY_ALLOW_DIRTY=1 \
+AGY_BIN_OVERRIDE="$MOCK_AGY_CORRUPT" \
+AGY_CERT_MODE=1 \
+ORCA_BIN_OVERRIDE="$MOCK_ORCA" \
+INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+bash "$DP" --plan "$T34_DIR/plan-valid-skill.md" --task-id T-995 --output "$OUT_HANDOFF" --json >/dev/null 2>&1 || true
+
+if [ ! -f "$OUT_HANDOFF" ]; then
+  T34_FAILS="$T34_FAILS handoff-orca-no-genero-json"
+else
+  python3 -c "
+import json
+d = json.load(open('$OUT_HANDOFF'))
+assert d.get('evaluator_tier') == 'orca', f'Tier esperado orca, obtenido: {d.get(\"evaluator_tier\")}'
+assert d.get('verdict') == 'CONSENSO', f'Veredicto esperado CONSENSO, obtenido: {d.get(\"verdict\")}'
+assert d.get('role') == 'qa-judge', f'Rol esperado qa-judge, obtenido: {d.get(\"role\")}'
+assert 'design_summary' in d and len(d['design_summary']) > 0, 'design_summary ausente o vacio'
+assert isinstance(d.get('objections'), list), 'objections no es lista'
+assert isinstance(d.get('corrections'), list), 'corrections no es lista'
+assert isinstance(d.get('skills_evaluation'), dict), 'skills_evaluation no es dict'
+assert d['skills_evaluation'].get('status') == 'verified', 'skills_evaluation status no verified'
+" 2>/dev/null || T34_FAILS="$T34_FAILS handoff-orca-contrato-invalido"
+fi
+
+# 16. Reporte formal de enrutamiento por dificultad (T-156)
+ROUTING_REPORT="$ROOT/docs/sprints/sprint-28-difficulty-routing-report.md"
+[ -f "$ROUTING_REPORT" ] || ROUTING_REPORT="$ROOT/docs/sprints/_archived/sprint-28-difficulty-routing-report.md"
+if [ ! -f "$ROUTING_REPORT" ]; then
+  T34_FAILS="$T34_FAILS difficulty-routing-report-ausente"
+else
+  grep -q -E "ENRUTADO_DIFICIL_(VIABLE|DESCARTADO)" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-dictamen"
+  grep -q "Tabla Comparativa Empírica" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-tabla"
+  grep -q "C-04" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-caso-c04"
+  grep -q "C-06" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-caso-c06"
+  grep -q "C-07" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-caso-c07"
+  grep -q "Presupuesto 60s" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-presupuesto-60s"
+  grep -q "Presupuesto 120s" "$ROUTING_REPORT" || T34_FAILS="$T34_FAILS difficulty-routing-sin-presupuesto-120s"
+fi
+
+# 17. Marco del piloto de autonomía Opción D y reporte (T-157)
+AUTONOMY_REPORT="$ROOT/docs/sprints/sprint-28-autonomy-pilot-report.md"
+[ -f "$AUTONOMY_REPORT" ] || AUTONOMY_REPORT="$ROOT/docs/sprints/_archived/sprint-28-autonomy-pilot-report.md"
+if [ ! -f "$AUTONOMY_REPORT" ]; then
+  T34_FAILS="$T34_FAILS autonomy-pilot-report-ausente"
+else
+  grep -q "Modelo Opción D" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-modelo-d"
+  grep -q "exactamente igual a \`CONSENSO\`" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-consenso-estricto"
+  grep -q "Condición Pre-Merge Inviolable" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-condicion-pre-merge"
+  grep -q "Compuertas de Aborto Inmediato (Fail-Closed)" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-aborto-fail-closed"
+  grep -q -E "(PENDIENTE DE EVALUACIÓN|PILOTO_OPCION_D_EXITOSO)" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-evaluacion"
+  grep -q "Batería Bane T-158..T-161" "$AUTONOMY_REPORT" || T34_FAILS="$T34_FAILS autonomy-report-sin-tabla-bane"
+fi
+
+# 18. Purga integral de residuos fantasma de Bane (T-175, T-178)
+if [ -d "$ROOT/templates/bane" ]; then
+  T34_FAILS="$T34_FAILS templates-bane-remanente"
+fi
+if [ -f "$ROOT/scripts/agent/lib/bane-client.sh" ]; then
+  T34_FAILS="$T34_FAILS bane-client-remanente"
+fi
+if [ -f "$ROOT/docs/runbooks/bane-deep-research-service.md" ]; then
+  T34_FAILS="$T34_FAILS bane-runbook-remanente"
+fi
+if grep -qi "bane" "$ROOT/.agents/config/fleet.example.yaml"; then
+  T34_FAILS="$T34_FAILS fleet-example-bane-remanente"
+fi
+if grep -qi "bane" "$ROOT/scripts/agent/lib/searxng-client.sh"; then
+  T34_FAILS="$T34_FAILS searxng-client-bane-remanente"
+fi
+
+# 19. Cliente CLI determinista para SearXNG disponible en el core (T-169, T-175)
+SX_CORE_CLIENT="$ROOT/scripts/agent/lib/searxng-client.sh"
+if [ ! -x "$SX_CORE_CLIENT" ]; then
+  T34_FAILS="$T34_FAILS searxng-client-no-ejecutable"
+else
+  bash "$SX_CORE_CLIENT" --help >/dev/null 2>&1 || T34_FAILS="$T34_FAILS searxng-client-help-falla"
+fi
+
+# 20. Workflow deep-research y bifurcación en sprint-planning unificados sobre SearXNG (T-160, T-175)
+DEEP_WORKFLOW="$ROOT/.agents/workflows/deep-research.md"
+SP_WORKFLOW="$ROOT/.agents/workflows/sprint-planning.md"
+if [ ! -f "$DEEP_WORKFLOW" ]; then
+  T34_FAILS="$T34_FAILS deep-research-workflow-ausente"
+else
+  grep -q "searxng-client.sh --check" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-searxng-check"
+  grep -q "FASE 2A — Ruta Autónoma" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-ruta-autonoma"
+  grep -q "FASE 2B — Ruta Manual" "$DEEP_WORKFLOW" || T34_FAILS="$T34_FAILS deep-workflow-sin-ruta-manual"
+  if grep -q "bane-client.sh" "$DEEP_WORKFLOW"; then
+    T34_FAILS="$T34_FAILS deep-workflow-con-bane-fantasma"
+  fi
+fi
+if [ ! -f "$SP_WORKFLOW" ]; then
+  T34_FAILS="$T34_FAILS sprint-planning-workflow-ausente"
+else
+  grep -q "searxng-client.sh --check" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-bifurcacion-searxng"
+  if grep -q "bane-client.sh" "$SP_WORKFLOW"; then
+    T34_FAILS="$T34_FAILS sprint-planning-con-bane-fantasma"
+  fi
+fi
+
+# 21. Formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164)
+grep -q "Opción D" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-opcion-d"
+grep -q "Camino Limpio Desatendido" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-camino-limpio"
+grep -q "Protocolo Pre-Merge Refinado" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-protocolo-pre-merge"
+grep -q "única autorización habilitante" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-autorizacion-habilitante"
+grep -q "Opción D" "$ROOT/AGENTS.md" || T34_FAILS="$T34_FAILS agents-md-sin-opcion-d"
+
+# 22. Endurecimiento del flujo desatendido (T-188)
+grep -q "start_new_session=True" "$ROOT/scripts/agent/lib/portable-timeout.sh" || T34_FAILS="$T34_FAILS portable-timeout-sin-process-group"
+grep -q "os.killpg(proc.pid, signal.SIGKILL)" "$ROOT/scripts/agent/lib/portable-timeout.sh" || T34_FAILS="$T34_FAILS portable-timeout-sin-killpg"
+grep -q "Pausa asistida" "$SP_WORKFLOW" || T34_FAILS="$T34_FAILS sprint-planning-sin-pausa-asistida-condicional"
+grep -q "COMPUERTA OBLIGATORIA INFRANQUEABLE" "$SS" || T34_FAILS="$T34_FAILS session-start-sin-compuerta-infranqueable"
+
+rm -rf "$T34_DIR" "$ROOT/docs/sprints/design-decisions/T-997-raw.json" "$ROOT/.agents/context/deliberation-T-995.json" 2>/dev/null || true
+git rm -q --cached "$ROOT/docs/sprints/design-decisions/T-997-raw.json" 2>/dev/null || true
+
+if [ -n "$T34_FAILS" ]; then
+  echo -e "  ❌ ERROR: Sprint 20 incumple:$T34_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ deliberate-plan.sh degrada limpiamente a SIN_REVISOR sin pasarela (<1s);"
+  echo -e "     gate fail-closed de skills declaradas verificado (T-149);"
+  echo -e "     cableado agy como Tier 1 y degradación ante exit-0 corrupto verificados (T-152);"
+  echo -e "     guardas de seguridad de agy certificadas (centinelas PRE/POST, env -i, no-timeout) (T-153);"
+  echo -e "     reporte de paridad y calibración Revisor-vs-Relé verificado (T-154);
+     batería de tests de hueco del Revisor Dual verificada (binario ausente, kill y handoff) (T-155);
+     reporte formal de enrutamiento por dificultad verificado (T-156);
+     marco del piloto de autonomía Opción D verificado (T-157);
+     purga de residuos fantasma de Bane y cliente soberano SearXNG verificados (T-158, T-159, T-175, T-178);
+     workflow deep-research y bifurcación unificados sobre SearXNG verificados (T-160, T-175);
+     formalización de Opción D como régimen por defecto en workflows y AGENTS.md (T-164);"
+  echo -e "     routing-policy tiene timeout_seconds: 5 y max_automatic_rounds: 1;"
+  echo -e "     design-digest.sh redacta secretos derivados de contenido sin catálogo ambiental;"
+  echo -e "     reporte de liveness trial formal verificado (T-151);"
+  echo -e "     fleet-doctor.sh incluye sonda config-driven warn-only del revisor;"
+  echo -e "     .gitignore y AGENTS.md mantienen higiene de deliberación y herramientas CLI;"
+  echo -e "     close-task.sh y session-start.md integran deliberación y preservan autorización humana."
+fi
+
+# ------------------------------------------------------------------------------
+# 35. Verificación de gobernanza multi-agente, contratos de handover y deliberación (T-124, T-125, T-126)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [35/38] Verificando gobernanza multi-agente, contratos de handover (T-125) y despacho con deliberación (T-124, T-126)..."
+
+T35_FAILS=""
+T35_DIR="$(mktemp -d /tmp/test-t35-XXXXXX)"
+
+# Subcheck A: Persistencia y Handover de Deliberación Multi-Sesión (T-124)
+# 1. deliberate-plan.sh persiste .agents/context/deliberation-${TASK_ID}.json
+cat << 'FIXTURE_PLAN_T35' > "$T35_DIR/plan-draft.md"
+# Plan T-35
+Plan de prueba para verificar persistencia de deliberacion nombrada.
+FIXTURE_PLAN_T35
+
+(
+  cd "$ROOT"
+  INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash scripts/agent/deliberate-plan.sh \
+    --plan "$T35_DIR/plan-draft.md" --task-id T-996 --output "$T35_DIR/delib-output.json" >/dev/null 2>&1 || true
+)
+
+NAMED_DELIB="$ROOT/.agents/context/deliberation-T-996.json"
+if [ ! -f "$NAMED_DELIB" ]; then
+  T35_FAILS="$T35_FAILS deliberacion-nombrada-no-generada"
+else
+  V_NAMED="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('verdict',''))" "$NAMED_DELIB" 2>/dev/null || true)"
+  [ "$V_NAMED" = "SIN_REVISOR" ] || T35_FAILS="$T35_FAILS verdict-nombrado-incorrecto($V_NAMED)"
+fi
+
+# 2. design-digest.sh prioriza el archivo nombrado sobre el generico
+cat << 'FIXTURE_TASK_T35' > "$ROOT/.agents/tasks/task-996.md"
+# Task-996: Tarea para digest nombrado
+## Objetivo
+Probar prioridad del fichero de deliberacion nombrado.
+## Skills relevantes
+- agent-os-scripts
+FIXTURE_TASK_T35
+
+bash scripts/agent/design-digest.sh --task-id T-996 --output "$T35_DIR/digest_named.md" >/dev/null 2>&1 || T35_FAILS="$T35_FAILS design-digest-named-falla"
+rm -f "$ROOT/.agents/tasks/task-996.md" "$NAMED_DELIB" 2>/dev/null || true
+
+RAW_JSON="$ROOT/docs/sprints/design-decisions/T-996-raw.json"
+if [ -f "$RAW_JSON" ]; then
+  RAW_TASK="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('task_id',''))" "$RAW_JSON" 2>/dev/null || true)"
+  [ "$RAW_TASK" = "T-996" ] || T35_FAILS="$T35_FAILS raw-json-task-id-invalido($RAW_TASK)"
+  rm -f "$RAW_JSON" 2>/dev/null || true
+  git rm -q --cached "$RAW_JSON" 2>/dev/null || true
+else
+  T35_FAILS="$T35_FAILS raw-json-no-archivado"
+fi
+
+# 3. .gitignore contiene deliberation-*.json
+grep -q '\.agents/context/deliberation-\*\.json' "$ROOT/.gitignore" || T35_FAILS="$T35_FAILS gitignore-sin-deliberation-wildcard"
+
+# Subcheck B: Contratos de Handover y Perfiles Declarativos (T-125)
+COORDINATOR_MD="$ROOT/.agents/profiles/coordinator.md"
+CODER_MD="$ROOT/.agents/profiles/coder.md"
+QA_JUDGE_MD="$ROOT/.agents/profiles/qa-judge.md"
+REVIEWER_YAML="$ROOT/.agents/profiles/reviewer.yaml"
+
+for state in DISPATCHED DELIBERATING REVIEWED EVALUATED MERGED; do
+  grep -q "$state" "$COORDINATOR_MD" || T35_FAILS="$T35_FAILS coordinator-sin-estado-$state"
+done
+
+for state in DELIBERATING EVALUATED; do
+  grep -q "$state" "$CODER_MD" || T35_FAILS="$T35_FAILS coder-sin-estado-$state"
+done
+
+for state in EVALUATED MERGED; do
+  grep -q "$state" "$QA_JUDGE_MD" || T35_FAILS="$T35_FAILS qa-judge-sin-estado-$state"
+done
+
+grep -q 'scripts/agent/deliberate-plan.sh' "$COORDINATOR_MD" || T35_FAILS="$T35_FAILS coordinator-sin-deliberate-tool"
+grep -q 'scripts/agent/deliberate-plan.sh' "$CODER_MD" || T35_FAILS="$T35_FAILS coder-sin-deliberate-tool"
+grep -q 'scripts/agent/deliberate-plan.sh' "$REVIEWER_YAML" || T35_FAILS="$T35_FAILS reviewer-sin-deliberate-tool"
+grep -q 'scripts/agent/design-digest.sh' "$QA_JUDGE_MD" || T35_FAILS="$T35_FAILS qa-judge-sin-design-digest-tool"
+
+# Subcheck C: Despacho y Deliberación en Worktrees (T-126)
+# Cambio obligatorio: fijar WORKTREE_MIN_FREE_GB=0 para no depender del tamaño de /tmp
+WT_REPO="$T35_DIR/repo"
+WT_REGISTRY="$T35_DIR/dispatched.jsonl"
+(
+  git init -q -b main "$WT_REPO"
+  git -C "$WT_REPO" config user.email t@t.t
+  git -C "$WT_REPO" config user.name "Tester"
+  echo "test" > "$WT_REPO/file.txt"
+  git -C "$WT_REPO" add -A && git -C "$WT_REPO" commit -qm "init"
+  cd "$WT_REPO" || exit 1
+  WORKTREE_MIN_FREE_GB=0 bash "$ROOT/scripts/agent/worktree-dispatch.sh" \
+    --task-id T-35W --registry "$WT_REGISTRY" --json > "$T35_DIR/dispatch.json" 2>"$T35_DIR/dispatch.err" || true
+)
+
+if [ ! -f "$T35_DIR/dispatch.json" ]; then
+  T35_FAILS="$T35_FAILS dispatch-sin-salida-json"
+else
+  python3 -c "
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d.get('status') == 'CREATED', 'status no es CREATED'
+assert d.get('deliberation') == 'PENDING', 'deliberation no es PENDING'
+assert d.get('task_id') == 'T-35W', 'task_id incorrecto'
+assert 'worktree_path' in d, 'falta worktree_path'
+" "$T35_DIR/dispatch.json" 2>/dev/null || T35_FAILS="$T35_FAILS dispatch-json-contrato-invalido"
+
+  WT_PATH="$T35_DIR/repo-T-35W"
+  if [ -f "$WT_PATH/.agents/context/worktree.env" ]; then
+    grep -q 'AGENT_OS_DELIBERATION_FILE=' "$WT_PATH/.agents/context/worktree.env" || T35_FAILS="$T35_FAILS worktree-env-sin-deliberation-file"
+  else
+    T35_FAILS="$T35_FAILS worktree-env-no-creado"
+  fi
+
+  if [ -f "$WT_REGISTRY" ]; then
+    python3 -c "
+import json, sys
+lines = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+assert any(l.get('task_id') == 'T-35W' and l.get('status') == 'CREATED' and l.get('deliberation') == 'PENDING' for l in lines)
+" "$WT_REGISTRY" 2>/dev/null || T35_FAILS="$T35_FAILS dispatched-jsonl-sin-registro-valido"
+  else
+    T35_FAILS="$T35_FAILS dispatched-jsonl-no-creado"
+  fi
+
+  git -C "$WT_REPO" worktree remove --force "$WT_PATH" 2>/dev/null || true
+fi
+
+ORCH_MD="$ROOT/.agents/workflows/parallel-orchestration.md"
+grep -q 'deliberate-plan.sh' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-deliberate-plan"
+grep -q 'dispatched.jsonl' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-dispatched-jsonl"
+grep -i -q 'FASE 2.*deliberaci' "$ORCH_MD" || T35_FAILS="$T35_FAILS orchestration-sin-fase-2-deliberacion"
+
+rm -rf "$T35_DIR" 2>/dev/null || true
+
+if [ -n "$T35_FAILS" ]; then
+  echo -e "  ❌ ERROR: Sprint 21 incumple:$T35_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Persistencia de deliberación multi-sesión validada (T-124);"
+  echo -e "     contratos de handover y perfiles declarativos consistentes (T-125);"
+  echo -e "     despacho con aislamiento, deliberación y trazabilidad en dispatched.jsonl (T-126)."
+fi
+
+# ------------------------------------------------------------------------------
+# 36. Ensayo End-to-End del Bucle Multi-Agente (T-128, T-129, T-130, T-131)
+# ------------------------------------------------------------------------------
+echo -e "🔍 [36/38] Verificando ensayo End-to-End del bucle multi-agente y compuertas del core..."
+T36_FAILS=""
+T36_DIR="$(mktemp -d /tmp/test-t36-XXXXXX)"
+T36_REPO="$T36_DIR/repo"
+
+cleanup_t36() {
+  if [ -d "${T36_REPO:-}" ]; then
+    git -C "$T36_REPO" worktree list --porcelain 2>/dev/null | grep "^worktree " | cut -d' ' -f2 | while read -r wt; do
+      if [ -n "$wt" ] && [ "$wt" != "$T36_REPO" ]; then
+        git -C "$T36_REPO" worktree remove --force "$wt" 2>/dev/null || true
+      fi
+    done
+  fi
+  rm -rf "${T36_DIR:-}" 2>/dev/null || true
+}
+trap cleanup_t36 EXIT INT TERM
+
+# Exportar para todo el harness del Check 36
+export WORKTREE_MIN_FREE_GB=0
+
+# Subcheck A: Fixture clonado con scripts del repo bajo test
+git clone -s -q "$ROOT" "$T36_REPO"
+git -C "$T36_REPO" checkout -q -B main
+git -C "$T36_REPO" config user.email "test@agent-os.local"
+git -C "$T36_REPO" config user.name "E2E Tester"
+
+# Despacho en worktree hermano con dummy numérico T-995
+WT_REGISTRY="$T36_DIR/dispatched.jsonl"
+(
+  cd "$T36_REPO" || exit 1
+  bash scripts/agent/worktree-dispatch.sh --task-id T-995 --registry "$WT_REGISTRY" --json > "$T36_DIR/dispatch.json" 2>"$T36_DIR/dispatch.err" || true
+)
+
+WT_PATH="$T36_DIR/repo-T-995"
+if [ ! -d "$WT_PATH" ]; then
+  T36_FAILS="$T36_FAILS worktree-dispatch-fallo"
+else
+  # Preparar task file y plan draft en el worktree
+  mkdir -p "$WT_PATH/.agents/tasks" "$WT_PATH/.agents/context"
+  cat << 'TASK_EOF' > "$WT_PATH/.agents/tasks/task-995.md"
+# Task-995: Tarea E2E de prueba
+## Objetivo
+Verificar ciclo E2E completo.
+## Skills relevantes
+- agent-os-scripts
+TASK_EOF
+
+  cat << 'PLAN_EOF' > "$WT_PATH/.agents/context/plan-draft.md"
+# Plan Borrador T-995
+Plan de prueba E2E determinista.
+PLAN_EOF
+
+  # Deliberación autónoma en el worktree (offline con puerto 9999 para coste $0)
+  (
+    cd "$WT_PATH" || exit 1
+    INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" bash scripts/agent/deliberate-plan.sh \
+      --plan .agents/context/plan-draft.md --task-id T-995 \
+      --output .agents/context/deliberation-T-995.json >/dev/null 2>&1 || true
+  )
+
+  # Trabajo de código y commit en rama de la tarea en worktree
+  (
+    cd "$WT_PATH" || exit 1
+    echo "e2e feature code" > e2e_feat.txt
+    git add -A && git commit -qm "feat(e2e): work on T-995"
+  )
+
+  # Integración en repo principal con rescate de deliberación (T-128)
+  (
+    cd "$T36_REPO" || exit 1
+    bash scripts/agent/worktree-merge.sh --task-id T-995 --target main --skip-verify --json > "$T36_DIR/merge.json" 2>"$T36_DIR/merge.err" || true
+  )
+
+  if [ ! -f "$T36_DIR/merge.json" ]; then
+    T36_FAILS="$T36_FAILS merge-sin-salida-json"
+  else
+    python3 -c "
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d.get('status') == 'MERGED', 'status no es MERGED'
+assert d.get('deliberation_rescued') is True, 'deliberation_rescued no es True'
+assert d.get('worktree_removed') is True, 'worktree_removed no es True'
+" "$T36_DIR/merge.json" 2>/dev/null || T36_FAILS="$T36_FAILS merge-json-contrato-invalido"
+
+    # Verificar existencia y contenido íntegro de la deliberación rescatada
+    RESCUED_DELIB="$T36_REPO/.agents/context/deliberation-T-995.json"
+    if [ ! -f "$RESCUED_DELIB" ]; then
+      T36_FAILS="$T36_FAILS deliberacion-rescatada-ausente"
+    else
+      V_DELIB=$(python3 -c "import json; print(json.load(open('$RESCUED_DELIB')).get('verdict', ''))" 2>/dev/null || true)
+      [ "$V_DELIB" = "SIN_REVISOR" ] || T36_FAILS="$T36_FAILS veredicto-rescatado-invalido($V_DELIB)"
+    fi
+
+    # Verificar desmonte efectivo del worktree
+    if [ -d "$WT_PATH" ]; then
+      T36_FAILS="$T36_FAILS worktree-no-desmontado"
+    fi
+  fi
+
+  # Generación del digest histórico en repo principal
+  (
+    cd "$T36_REPO" || exit 1
+    bash scripts/agent/design-digest.sh --task-id T-995 --output "$T36_DIR/T-995-digest.md" >/dev/null 2>&1 || true
+  )
+
+  if [ ! -f "$T36_DIR/T-995-digest.md" ]; then
+    T36_FAILS="$T36_FAILS design-digest-no-generado"
+  else
+    # Veredicto real rescatado del worker (no N/A ni degradado)
+    grep -q 'Veredicto de Deliberación\*\*: `SIN_REVISOR`' "$T36_DIR/T-995-digest.md" || T36_FAILS="$T36_FAILS digest-sin-veredicto-worker"
+  fi
+fi
+
+# Subcheck B: Red de seguridad Scout de T-129 (observable)
+if [ -f "$T36_DIR/T-995-digest.md" ]; then
+  grep -q -E '\- \*\*Prospección Scout\*\*: `?OMITIDO' "$T36_DIR/T-995-digest.md" || T36_FAILS="$T36_FAILS digest-sin-scout-omitido"
+fi
+
+# --check-scout 22 debe salir 0 (sprint con research conforme)
+if ! ( cd "$T36_REPO" && bash scripts/agent/design-digest.sh --check-scout --task-id 22 >/dev/null 2>&1 ); then
+  T36_FAILS="$T36_FAILS check-scout-22-fallo"
+fi
+
+# --check-scout 99 debe salir 1 (sprint sin research registrado)
+if ( cd "$T36_REPO" && bash scripts/agent/design-digest.sh --check-scout --task-id 99 >/dev/null 2>&1 ); then
+  T36_FAILS="$T36_FAILS check-scout-99-debio-fallar"
+fi
+
+# Subcheck C: Cascada de Inferencia T-130
+RP_FILE="$T36_REPO/.agents/config/routing-policy.yaml"
+if [ ! -f "$RP_FILE" ]; then
+  T36_FAILS="$T36_FAILS routing-policy-inexistente"
+else
+  python3 -c "
+import yaml, sys
+data = yaml.safe_load(open(sys.argv[1]))
+delib = data.get('task_routing_matrix', {}).get('deliberation_and_review', {})
+cascade = delib.get('fallback_cascade', [])
+assert cascade == ['freellmapi', 'omniroute', 'ollama-local'], f'cascada incorrecta: {cascade}'
+assert delib.get('timeout_seconds') == 5, 'timeout_seconds != 5'
+assert delib.get('max_automatic_rounds') == 1, 'max_automatic_rounds != 1'
+" "$RP_FILE" 2>/dev/null || T36_FAILS="$T36_FAILS routing-policy-cascada-invalida"
+fi
+
+# Subcheck D: Limpieza y verificación de working tree en repo real
+cleanup_t36
+trap - EXIT INT TERM
+
+UNTRACKED_REAL="$(git -C "$ROOT" status --porcelain | grep '^??' || true)"
+if [ -n "$UNTRACKED_REAL" ]; then
+  T36_FAILS="$T36_FAILS residuos-untracked-en-repo-real($UNTRACKED_REAL)"
+fi
+
+if [ -n "$T36_FAILS" ]; then
+  echo -e "  ❌ ERROR: Check 36 incumple:$T36_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Ciclo E2E validado: despacho a worktree, deliberación, merge con rescate (T-128);"
+  echo -e "     digest no degradado con veredicto del worker y red de seguridad scout conforme (T-129);"
+  echo -e "     cascada resiliente de inferencia certificada (T-130) y working tree 100% limpio."
+fi
+
+# ------------------------------------------------------------------------------
+# 37. Certificación E2E de Revisor Ejecutor (Orca ADE, aislamiento env -i, timeout y cascada) (T-133..T-136)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [37/38] Certificando bucle del Revisor Ejecutor (Orca ADE, spec declarativa, aislamiento env -i, cascada y contratos)..."
+
+T37_FAILS=""
+T37_DIR="$(mktemp -d /tmp/test-t37-XXXXXX)"
+T37_MOCK_BIN="$T37_DIR/orca-ide"
+T37_PLAN="$T37_DIR/plan-draft.md"
+T37_OUT="$T37_DIR/delib_out.json"
+T37_FALLBACK_OUT="$T37_DIR/delib_fallback.json"
+DP="$ROOT/scripts/agent/deliberate-plan.sh"
+
+cleanup_t37() {
+  rm -f "$ROOT/.agents/context/deliberation-T-997.json" 2>/dev/null || true
+  rm -rf "${T37_DIR:-}" 2>/dev/null || true
+}
+trap cleanup_t37 EXIT INT TERM
+
+# Plan temporal para la tarea de prueba T-997
+cat << 'PLAN_T37' > "$T37_PLAN"
+# Plan de Prueba T-997: Certificación Revisor Ejecutor
+## 1. Objetivo
+Certificar estáticamente el arbitraje en Orca ADE con aislamiento estricto y sin mutaciones de código.
+## 2. Caja de archivos
+- scripts/agent/deliberate-plan.sh
+- tests/validate-control-plane.sh
+## 3. Skills relevantes
+- agent-os-scripts
+- orchestrator
+PLAN_T37
+
+# Mock genérico offline de Orca CLI (sin PIDs, sin versiones ni rutas del host)
+# 1. status --json top-level exit 0 (sonda real de orca_is_ready)
+# 2. orchestration run-create de respaldo y run-current
+# 3. orchestration worker-start registra env -i y spec en logs resueltos desde dirname $0
+# 4. orchestration worker-read emite terminal.tail = [delimitador, JSON, delimitador]
+# 5. orchestration worker-stop y worker-release
+cat << 'MOCK_SCRIPT' > "$T37_MOCK_BIN"
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 2. Logs resueltos desde dirname $0 (evita depender de T37_DIR que env -i no propaga)
+MOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# 1. Sonda real orca_is_ready ejecuta `"$bin" status --json`
+if [ "${1:-}" = "status" ]; then
+  echo '{"status": "ok", "ok": true}'
+  exit 0
+fi
+
+if [ "${1:-}" = "orchestration" ]; then
+  SUBCMD="${2:-}"
+  case "$SUBCMD" in
+    is-ready)
+      echo '{"ok": true, "result": {"ready": true, "status": "active"}}'
+      exit 0
+      ;;
+    run-current)
+      echo '{"ok": true, "result": {"run": {"id": "run_mock_37"}}}'
+      exit 0
+      ;;
+    run-create)
+      echo '{"ok": true, "result": {"run": {"id": "run_mock_37_created"}}}'
+      exit 0
+      ;;
+    worker-start)
+      # Captura de entorno bajo env -i para auditoría de whitelist
+      env > "$MOCK_DIR/worker_env.log"
+      
+      # Captura de spec y argumentos
+      echo "$*" > "$MOCK_DIR/worker_args.log"
+      while [[ $# -gt 0 ]]; do
+        if [ "$1" = "--spec" ]; then
+          echo "$2" > "$MOCK_DIR/worker_spec.log"
+          shift 2
+        else
+          shift
+        fi
+      done
+      
+      echo '{"ok": true, "result": {"dispatchId": "ctx_mock_37"}}'
+      exit 0
+      ;;
+    worker-read)
+      # 3. worker-read con result.terminal.tail = [delimitador, JSON, delimitador]
+      if [ -f "$MOCK_DIR/simulate_worker_hang" ]; then
+        echo '{"id": "read_mock_hang", "ok": true, "result": {"terminal": {"tail": []}}}'
+      else
+        python3 -c '
+import json
+start_d = "<!-- VERDICT_JSON_START -->"
+end_d = "<!-- VERDICT_JSON_END -->"
+payload = {
+    "verdict": "CONSENSO",
+    "role": "qa-judge",
+    "design_summary": "Plan de prueba certificado estáticamente por Revisor Ejecutor.",
+    "objections": [],
+    "corrections": [],
+    "skills_evaluation": {
+        "status": "verified",
+        "details": "Cumple guardarraíles y cláusula de skills."
+    }
+}
+res = {
+    "id": "read_mock_37",
+    "ok": True,
+    "result": {
+        "terminal": {
+            "tail": [
+                start_d,
+                json.dumps(payload),
+                end_d
+            ]
+        }
+    }
+}
+print(json.dumps(res))
+'
+      fi
+      exit 0
+      ;;
+    worker-stop)
+      echo "stopped" >> "$MOCK_DIR/worker_stop.log"
+      echo '{"id": "stop_mock_37", "ok": true, "result": {"state": "stopped"}}'
+      exit 0
+      ;;
+    worker-release)
+      echo "released" >> "$MOCK_DIR/worker_release.log"
+      echo '{"id": "release_mock_37", "ok": true, "result": {"state": "released"}}'
+      exit 0
+      ;;
+    *)
+      echo '{"ok": true}'
+      exit 0
+      ;;
+  esac
+fi
+
+echo '{"ok": true}'
+exit 0
+MOCK_SCRIPT
+chmod +x "$T37_MOCK_BIN"
+
+# Wrapper python3 para neutralizar bypass de Orca en deliberate-plan.sh cuando INFERENCE_BASE_URL está en env
+mkdir -p "$T37_DIR/bin"
+cat << 'PYWRAP' > "$T37_DIR/bin/python3"
+#!/bin/sh
+if [ "${ORCA_CERT_MODE:-0}" = "1" ]; then
+  exec env -u INFERENCE_BASE_URL /usr/bin/python3 "$@"
+fi
+exec /usr/bin/python3 "$@"
+PYWRAP
+chmod +x "$T37_DIR/bin/python3"
+
+# Variables trampa para certificar aislamiento env -i y ausencia de secretos en el worker
+export COORDINATOR_SECRET_TRAP="token_super_secreto_coordinador_12345"
+export ORCA_UNAUTHORIZED_LEAK="leak_attempt_variable"
+
+# Invocación especificada Nivel 1:
+# plan temporal, task-id T-997, --output en T37_DIR, INFERENCE_BASE_URL offline siempre
+OUT_N1=$(
+  PATH="$T37_DIR/bin:$PATH" \
+  ORCA_BIN_OVERRIDE="$T37_MOCK_BIN" \
+  ORCA_CERT_MODE=1 \
+  INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+  bash "$DP" --plan "$T37_PLAN" --task-id T-997 --output "$T37_OUT" --json 2>/dev/null || true
+)
+
+unset COORDINATOR_SECRET_TRAP ORCA_UNAUTHORIZED_LEAK
+
+if [ ! -f "$T37_OUT" ]; then
+  T37_FAILS="$T37_FAILS out-json-no-generado"
+else
+  # Aserción: Veredicto, clave role (no profile), tier orca y rondas
+  python3 -c "
+import json
+data = json.load(open('$T37_OUT'))
+assert data.get('verdict') == 'CONSENSO', f'Veredicto inesperado: {data.get(\"verdict\")}'
+assert data.get('role') == 'qa-judge', f'Clave role inesperada o ausente: {data.get(\"role\")}'
+assert 'profile' not in data, 'Clave profile indebida en veredicto'
+assert data.get('evaluator_tier') == 'orca', f'Tier inesperado: {data.get(\"evaluator_tier\")}'
+assert data.get('rounds_executed') == 1, f'Rondas inesperadas: {data.get(\"rounds_executed\")}'
+" 2>/dev/null || T37_FAILS="$T37_FAILS contrato-salida-invalido"
+
+  # Aserción: Liberación de worker (worker-stop y worker-release ejecutados)
+  [ -f "$T37_DIR/worker_stop.log" ] || T37_FAILS="$T37_FAILS worker-stop-no-invocado"
+  [ -f "$T37_DIR/worker_release.log" ] || T37_FAILS="$T37_FAILS worker-release-no-invocado"
+
+  # Aserción 6: worker_spec.log con PRESUPUESTO 60s y sin PRESUPUESTO 15s
+  if [ -f "$T37_DIR/worker_spec.log" ]; then
+    grep -q "PRESUPUESTO 60s" "$T37_DIR/worker_spec.log" || T37_FAILS="$T37_FAILS spec-sin-presupuesto-60s"
+    if grep -q "PRESUPUESTO 15s" "$T37_DIR/worker_spec.log"; then
+      T37_FAILS="$T37_FAILS spec-con-presupuesto-15s-obsoleto"
+    fi
+  else
+    T37_FAILS="$T37_FAILS worker-spec-log-ausente"
+  fi
+
+  # Aserción 7: Whitelist completa de 10 variables, trampa ausente
+  if [ -f "$T37_DIR/worker_env.log" ]; then
+    if grep -q "COORDINATOR_SECRET_TRAP" "$T37_DIR/worker_env.log"; then
+      T37_FAILS="$T37_FAILS trampa-secreto-filtrada-en-worker"
+    fi
+    if grep -q "ORCA_UNAUTHORIZED_LEAK" "$T37_DIR/worker_env.log"; then
+      T37_FAILS="$T37_FAILS variable-no-autorizada-en-worker"
+    fi
+    python3 -c "
+whitelist = {'HOME', 'PATH', 'USER', 'SHELL', 'LANG', 'LC_ALL', 'TMPDIR', 'ORCA_USER_DATA_PATH', 'ORCA_TERMINAL_HANDLE', 'ORCA_CALLS_LOG'}
+bash_internal = {'PWD', 'SHLVL', '_'}
+with open('$T37_DIR/worker_env.log') as f:
+    worker_vars = {line.split('=')[0] for line in f if '=' in line}
+leaked = worker_vars - whitelist - bash_internal
+assert not leaked, f'Variables filtradas fuera de whitelist: {leaked}'
+assert 'HOME' in worker_vars and 'PATH' in worker_vars, 'Variables esenciales de whitelist ausentes'
+assert 'COORDINATOR_SECRET_TRAP' not in worker_vars, 'Trampa de secreto presente en worker'
+assert 'ORCA_UNAUTHORIZED_LEAK' not in worker_vars, 'Variable no autorizada presente en worker'
+" 2>/dev/null || T37_FAILS="$T37_FAILS violacion-whitelist-env-i"
+  else
+    T37_FAILS="$T37_FAILS worker-env-log-ausente"
+  fi
+fi
+
+# Aserción 5: Fallback con --orca-timeout 2, SIN_REVISOR/fallback_safe/none en <~10s
+touch "$T37_DIR/simulate_worker_hang"
+T_FB_START=$(date +%s)
+OUT_FB=$(
+  PATH="$T37_DIR/bin:$PATH" \
+  ORCA_BIN_OVERRIDE="$T37_MOCK_BIN" \
+  ORCA_CERT_MODE=1 \
+  INFERENCE_BASE_URL="http://127.0.0.1:9999/v1" \
+  bash "$DP" --plan "$T37_PLAN" --task-id T-997 --output "$T37_FALLBACK_OUT" --orca-timeout 2 --timeout 1 --json 2>/dev/null || true
+)
+T_FB_END=$(date +%s)
+T_FB_ELAPSED=$(( T_FB_END - T_FB_START ))
+
+if [ "$T_FB_ELAPSED" -gt 10 ]; then
+  T37_FAILS="$T37_FAILS fallback-demasiado-lento(${T_FB_ELAPSED}s)"
+fi
+
+if [ ! -f "$T37_FALLBACK_OUT" ]; then
+  T37_FAILS="$T37_FAILS fallback-sin-salida-json"
+else
+  python3 -c "
+import json
+data = json.load(open('$T37_FALLBACK_OUT'))
+assert data.get('verdict') == 'SIN_REVISOR', f'Veredicto fallback inesperado: {data.get(\"verdict\")}'
+assert data.get('evaluator_tier') == 'fallback_safe', f'Tier fallback inesperado: {data.get(\"evaluator_tier\")}'
+assert data.get('role') == 'none', f'Rol fallback inesperado: {data.get(\"role\")}'
+" 2>/dev/null || T37_FAILS="$T37_FAILS contrato-fallback-invalido"
+fi
+
+# Limpieza y verificación de árbol limpio
+cleanup_t37
+trap - EXIT INT TERM
+
+UNTRACKED_POST_37="$(git -C "$ROOT" status --porcelain | grep '^??' || true)"
+if [ -n "$UNTRACKED_POST_37" ]; then
+  T37_FAILS="$T37_FAILS residuos-untracked-post-check37($UNTRACKED_POST_37)"
+fi
+
+if [ -n "$T37_FAILS" ]; then
+  echo -e "  ❌ ERROR: Check 37 incumple:$T37_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Bucle de Revisor Ejecutor certificado: mock offline conforme, spec inyectada con presupuesto 60s,"
+  echo -e "     aislamiento env -i estricto (10 vars), veredicto con clave role, y fallback seguro <10s sin residuos."
+fi
+
+# ------------------------------------------------------------------------------
+# 38. Integración soberana de SearXNG y Nango: plantillas, cliente determinista, sonda y runbooks (T-166, T-169, T-170, T-175)
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "🔍 [38/38] Verificando integración integral de SearXNG y Nango (Docker Compose, cliente CLI, fleet-doctor y runbooks)..."
+T38_FAILS=""
+
+# Sub-check 1: Sonda de flota en fleet-doctor.sh (T-175)
+FDR_JSON=$(bash "$ROOT/scripts/agent/fleet-doctor.sh" --json 2>/dev/null || true)
+if ! echo "$FDR_JSON" | grep -q '"searxng_probe"'; then
+  T38_FAILS="$T38_FAILS fleet-doctor-sin-sonda-searxng"
+fi
+
+# Sub-check 5: Integración soberana de Nango (T-166)
+NANGO_COMPOSE="$ROOT/templates/nango/docker-compose.yml"
+NANGO_ENV="$ROOT/templates/nango/.env.example"
+NANGO_RUNBOOK="$ROOT/docs/runbooks/nango-oauth-service.md"
+if [ ! -f "$NANGO_COMPOSE" ]; then
+  T38_FAILS="$T38_FAILS nango-compose-ausente"
+else
+  python3 -c "import yaml; yaml.safe_load(open('$NANGO_COMPOSE'))" 2>/dev/null || T38_FAILS="$T38_FAILS nango-compose-yaml-invalido"
+  grep -q "nangohq/nango-server" "$NANGO_COMPOSE" || T38_FAILS="$T38_FAILS nango-compose-sin-imagen"
+  grep -q "nango-db" "$NANGO_COMPOSE" || T38_FAILS="$T38_FAILS nango-compose-sin-db"
+  grep -q "nango-redis" "$NANGO_COMPOSE" || T38_FAILS="$T38_FAILS nango-compose-sin-redis"
+fi
+if [ ! -f "$NANGO_ENV" ]; then
+  T38_FAILS="$T38_FAILS nango-env-ausente"
+else
+  grep -q "NANGO_ENCRYPTION_KEY=" "$NANGO_ENV" || T38_FAILS="$T38_FAILS nango-env-sin-encryption-key"
+fi
+if [ ! -f "$NANGO_RUNBOOK" ]; then
+  T38_FAILS="$T38_FAILS nango-runbook-ausente"
+else
+  grep -q "templates/nango/docker-compose.yml" "$NANGO_RUNBOOK" || T38_FAILS="$T38_FAILS nango-runbook-sin-referencia-compose"
+fi
+if ! grep -q "nango:" "$ROOT/.agents/config/fleet.example.yaml"; then
+  T38_FAILS="$T38_FAILS fleet-example-sin-nango"
+fi
+
+# Sub-check 5b: Cliente determinista CLI para Nango (T-170)
+NANGO_CLIENT="$ROOT/scripts/agent/lib/nango-client.sh"
+if [ ! -x "$NANGO_CLIENT" ]; then
+  T38_FAILS="$T38_FAILS nango-client-no-ejecutable"
+else
+  bash "$NANGO_CLIENT" --help >/dev/null 2>&1 || T38_FAILS="$T38_FAILS nango-client-help-falla"
+  NC_RC=0; FLEET_FILE="/dev/null" NANGO_SERVER_URL="" NANGO_API_URL="" bash "$NANGO_CLIENT" --check >/dev/null 2>&1 || NC_RC=$?
+  [ "$NC_RC" -eq 2 ] || T38_FAILS="$T38_FAILS nango-client-check-sin-config-no-sale-2"
+fi
+
+# Sub-check 6: Integración soberana de SearXNG (T-169)
+SEARXNG_COMPOSE="$ROOT/templates/searxng/docker-compose.yml"
+SEARXNG_ENV="$ROOT/templates/searxng/.env.example"
+SEARXNG_CLIENT="$ROOT/scripts/agent/lib/searxng-client.sh"
+SEARXNG_RUNBOOK="$ROOT/docs/runbooks/searxng-deep-research-service.md"
+if [ ! -f "$SEARXNG_COMPOSE" ]; then
+  T38_FAILS="$T38_FAILS searxng-compose-ausente"
+else
+  python3 -c "import yaml; yaml.safe_load(open('$SEARXNG_COMPOSE'))" 2>/dev/null || T38_FAILS="$T38_FAILS searxng-compose-yaml-invalido"
+  grep -q "searxng/searxng" "$SEARXNG_COMPOSE" || T38_FAILS="$T38_FAILS searxng-compose-sin-imagen"
+fi
+if [ ! -f "$SEARXNG_ENV" ]; then
+  T38_FAILS="$T38_FAILS searxng-env-ausente"
+fi
+if [ ! -x "$SEARXNG_CLIENT" ]; then
+  T38_FAILS="$T38_FAILS searxng-client-no-ejecutable"
+else
+  bash "$SEARXNG_CLIENT" --help >/dev/null 2>&1 || T38_FAILS="$T38_FAILS searxng-client-help-falla"
+  SX_RC=0; FLEET_FILE="/dev/null" SEARXNG_API_URL="" bash "$SEARXNG_CLIENT" --check >/dev/null 2>&1 || SX_RC=$?
+  [ "$SX_RC" -eq 2 ] || T38_FAILS="$T38_FAILS searxng-client-check-sin-config-no-sale-2"
+fi
+if [ ! -f "$SEARXNG_RUNBOOK" ]; then
+  T38_FAILS="$T38_FAILS searxng-runbook-ausente"
+else
+  grep -q "templates/searxng" "$SEARXNG_RUNBOOK" || T38_FAILS="$T38_FAILS searxng-runbook-sin-referencia-compose"
+fi
+
+# Sub-check 7: Aserción de denominador exhaustivo (0 remanentes de 37 y 38 activos)
+D_37="/3"$(printf "7]")
+D_38="/3"$(printf "8]")
+NUM_37=$(grep -F -c "$D_37" "$ROOT/tests/validate-control-plane.sh" || true)
+NUM_38=$(grep -F -c "$D_38" "$ROOT/tests/validate-control-plane.sh" || true)
+if [ "$NUM_37" -ne 0 ]; then
+  T38_FAILS="$T38_FAILS denominador-37-remanente($NUM_37)"
+fi
+if [ "$NUM_38" -ne 38 ]; then
+  T38_FAILS="$T38_FAILS denominador-38-incompleto($NUM_38)"
+fi
+
+if [ -n "$T38_FAILS" ]; then
+  echo -e "  ❌ ERROR: Check 38 incumple:$T38_FAILS"
+  ERRORS=$((ERRORS + 1))
+else
+  echo -e "  ✅ Integración soberana de SearXNG y Nango certificada: Docker Compose válido, clientes CLI deterministas,"
+  echo -e "     runbooks operativos libres de literales privados, sonda fleet-doctor activa y denominador 38/38 conforme."
 fi
 
 # ------------------------------------------------------------------------------

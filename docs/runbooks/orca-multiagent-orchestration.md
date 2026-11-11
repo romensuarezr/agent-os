@@ -103,18 +103,58 @@ satélite, registro en `dispatched.jsonl`). El JSON final lo dice explícitament
 ## 4. Patrones de Trabajo Multi-Agente
 
 ### Patrón A: Paralelismo Autónomo por Handoff (Features Independientes)
-Útil cuando deseas delegar dos o tres tareas que no tienen dependencia mutua directa:
+Útil cuando deseas delegar dos o tres tareas que no tienen dependencia mutua directa.
+
+#### A1. Modo Interactivo en GUI / App
+Para aprovisionar un worktree y vincular un agente interactivo en la aplicación Orca:
 
 ```bash
-# Despachar Agente 1 (OpenCode en rama feat-auth)
-orca worktree create --repo name:<repo> --name feat-auth --no-parent --agent opencode --prompt "Implementar validador de tokens JWT en auth.ts"
+# Aprovisionar worktree y lanzar agente interactivo (OpenCode en rama feat-auth)
+orca worktree create --repo name:<repo> --name feat-auth --no-parent --agent opencode
 
-# Despachar Agente 2 en paralelo (OpenCode en rama feat-docs)
-orca worktree create --repo name:<repo> --name feat-docs --no-parent --agent opencode --prompt "Documentar endpoints en docs/api.md"
+# Aprovisionar segundo worktree en paralelo (OpenCode en rama feat-docs)
+orca worktree create --repo name:<repo> --name feat-docs --no-parent --agent opencode
 
-# Consultar el estado de todos los worktrees activos
+# Resumen de orquestación compacto a través de worktrees (o 'orca worktree list' para listado por repositorio)
 orca worktree ps
 ```
+
+> [!NOTE]
+> **Evidencia de `orca worktree create --help` y Desacoplamiento del Core**:
+> Aunque la CLI de Orca expone `--prompt <text>` (*"Prompt text for agent-backed commands"*) para inyectar instrucciones iniciales en lanzamientos interactivos de GUI, el core de Agent OS descarta su uso para la orquestación programática autónoma. En su lugar, el core reemplaza el paso de prompts informales por la secuencia canónica desacoplada (`worktree-dispatch.sh` + `orca orchestration worker-start` con especificación declarativa estructurada).
+
+#### A2. Modo Desacoplado Programático / Ralph Loop (Core de Agent OS)
+Para flujos automatizados de arbitraje, deliberación y verificación de metas (`deliberate-plan.sh`, `verify-goal.sh`), se utiliza el ciclo de vida canónico del worker:
+
+1. **Sonda determinista de presencia (<1s)**:
+   ```bash
+   orca status --json # verifica que .result.runtime.state == "ready"
+   ```
+2. **Aislamiento estricto de entorno (`env -i`)**:
+   Todo worker se ejecuta aislando el entorno con la whitelist canónica exacta de 10 variables de `orca-client.sh` (`HOME`, `PATH`, `USER`, `SHELL`, `LANG`, `LC_ALL`, `TMPDIR`, `ORCA_USER_DATA_PATH`, `ORCA_TERMINAL_HANDLE`, `ORCA_CALLS_LOG`), impidiendo que credenciales, variables de inferencia o tokens de la sesión coordinadora se filtren al worker.
+3. **Inicio de Worker**:
+   ```bash
+   orca orchestration worker-start \
+     --run "<run_id>" \
+     --task-title "deliberate-plan <task-id>" \
+     --spec "<directiva_ejecucion>" \
+     --agent opencode \
+     --worktree current \
+     --json
+   ```
+4. **Monitoreo y Lectura**:
+   - Vía sondeo periódico: `orca orchestration worker-read --dispatch "<dispatch_id>" --json`
+   - Vía escucha reactiva: `orca orchestration check --run "<run_id>" --wait --types worker_done --json`
+5. **Detención y Liberación Canónica (Máquina de Estados)**:
+   - Si el worker continúa en ejecución (`running`), detenerlo primero con:
+     ```bash
+     orca orchestration worker-stop --dispatch "<dispatch_id>" --json
+     ```
+   - Liberar inmediatamente terminales y recursos asociados:
+     ```bash
+     orca orchestration worker-release --dispatch "<dispatch_id>" --json
+     ```
+   - *Invariante del Core*: La invocación de `worker-release` está garantizada en todos los caminos (éxito, error o timeout) mediante manejadores `trap EXIT INT TERM` en los scripts de control.
 
 ### Patrón B: Orquestación Supervisada con Coordinador (DAG y Decision Gates)
 Es `run-flow` (§3). El diagrama del flujo:
@@ -199,10 +239,13 @@ El worker en Orca permanece en pausa hasta que la compuerta cambia a `status: re
 
 | Necesidad | Comando | Notas |
 |---|---|---|
+| Sonda primaria de presencia | `orca status --json` | Verifica `.result.runtime.state == "ready"` fail-fast (<1s) |
 | Flujo completo supervisado | `run-flow --objective … --spec-file …` | Para en el gate; cae al fallback sin runtime |
-| Diagnóstico del runtime | `… status` | Se degrada con gracia sin runtime |
+| Diagnóstico del runtime | `orca-orchestrate.sh status` | Se degrada con gracia sin runtime |
 | Informe de un lote | `… report <run-id> [--json]` | Read-only: tareas, workers, gates y veredicto en una pantalla |
 | Despachar una tarea suelta | `… dispatch-worker --run …` + `create-gate` manual | Componer a mano = asumir tú la parada en el gate |
+| Resumen de worktrees | `orca worktree ps` / `orca worktree list` | `ps` muestra resumen de orquestación; `list` lista por repo |
+| Detener y liberar worker | `worker-stop` + `worker-release` | Secuencia obligatoria en workers activos (garantizado con trap) |
 | Lote rápido sin gates | `… batch …` | **Legado**: no para en gates ni cae al fallback; usa `run-flow` |
 | Sin Orca en absoluto | `dispatch-satellite.sh --satellite …` (T-104) | Ruta Git-nativa directa |
 | Limpiar restos | `worktree-gc.sh --apply` | Nunca toca principal, bloqueados ni sucios |
@@ -248,9 +291,12 @@ Garantías:
 
 | Acción | Comando |
 | :--- | :--- |
+| **Sonda Primaria de Presencia** | `orca status --json` (evaluar `.result.runtime.state == "ready"`) |
 | **Secuencia supervisada** | `bash scripts/agent/orca-orchestrate.sh run-flow --objective "<obj>" --spec-file <plan.json>` |
 | **Diagnóstico del Runtime** | `bash scripts/agent/orca-orchestrate.sh status` |
 | **Listar Runs Activos** | `bash scripts/agent/orca-orchestrate.sh list-runs` |
 | **Informe de Lote** | `bash scripts/agent/orca-orchestrate.sh report <run-id> [--json]` |
 | **Comprobar Eventos** | `bash scripts/agent/orca-orchestrate.sh check-events --run <id>` |
 | **Listar Decision Gates** | `bash scripts/agent/orca-orchestrate.sh list-gates --run <id>` |
+| **Detener Worker Activo** | `orca orchestration worker-stop --dispatch <dispatch_id> --json` |
+| **Liberar Terminal de Worker** | `orca orchestration worker-release --dispatch <dispatch_id> --json` |

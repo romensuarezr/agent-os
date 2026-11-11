@@ -15,6 +15,7 @@ skills:
 tooling:
   allowed:
     - scripts/agent/verify-goal.sh
+    - scripts/agent/design-digest.sh
     - tests/validate-control-plane.sh
     - "git diff"
     - "git status"
@@ -57,7 +58,9 @@ El **QA-Judge** actúa como compuerta técnica imparcial dentro del enjambre mul
 
 ```mermaid
 flowchart TD
-    WorkerNotification["Notificación de Worker: Entrega lista"] --> ExecGate["scripts/agent/verify-goal.sh --json"]
+    WorkerNotification["Notificación de Worker: Entrega lista"] --> CheckDelib{"¿Deliberación persistida en .agents/context/?"}
+    CheckDelib -- NO --> RejectDelib["Veredicto: REJECTED (Falta deliberación de plan)"]
+    CheckDelib -- SÍ --> ExecGate["scripts/agent/verify-goal.sh --json"]
     ExecGate --> GateDecision{"¿Compuertas técnicas superadas?"}
     
     GateDecision -- SÍ (PASS) --> DiffAudit["Auditoría estática de git diff --stat"]
@@ -68,13 +71,37 @@ flowchart TD
     RetryCount -- NO (Intento 3) --> Escalate["Veredicto: ESCALATED_TO_HUMAN (Decision Gate activada)"]
 ```
 
-1. **Ejecución Determinista**:
+1. **Pre-condición de Deliberación**:
+   - Comprueba la existencia del artefacto `.agents/context/deliberation-${TASK_ID}.json` o digest previo. No evalúa código cuya planificación no haya sido deliberada.
+2. **Ejecución Determinista**:
    ```bash
    bash scripts/agent/verify-goal.sh --task-id <TASK_ID> --base <TARGET_BRANCH> --json
    ```
-2. **Evaluación de Respuestas**:
+3. **Evaluación de Respuestas**:
    - `status: PASS`: Revisa el diff contra el End State Contract y emite `VERIFIED` al Coordinator.
    - `status: FAIL`: Extrae el array `violations` y el log de tests rotos.
-3. **Control del Circuit Breaker**:
+4. **Control del Circuit Breaker**:
    - Intentos 1 y 2: Emite `REJECTED` devolviendo al `coder` las causas precisas de fallo para su corrección.
    - Intento 3: Emite `ESCALATED_TO_HUMAN`, notificando al Coordinator y deteniendo el trabajo desatendido hasta intervención manual.
+
+---
+
+## 4. Protocolo de Handover Inter-Agente y Criterios de Aceptación
+
+El QA-Judge actúa como árbitro final entre el desarrollo técnico y la integración al tronco:
+
+### A. Handover de Entrada (Coder → QA-Judge): Estado `EVALUATED`
+- **Artefactos recibidos**:
+  - Rama aislada `feat/<task-id>-<profile>`.
+  - Contrato de deliberación `.agents/context/deliberation-${TASK_ID}.json`.
+  - Resumen preliminar emitido por el worker.
+- **Validaciones obligatorias**:
+  - Caja estricta: `git diff --name-only <base>...HEAD` debe ser subconjunto de los archivos autorizados.
+  - Cero secretos o credenciales detectadas mediante escáner determinista.
+  - Cobertura y aserciones reales en suites de pruebas (sin mocks que falseen la lógica).
+
+### B. Handover de Salida (QA-Judge → Coordinator): Estado `MERGED`
+- **Artefactos emitidos**:
+  - Dictamen formal estructurado con veredicto binario (`VERIFIED` o `REJECTED`).
+  - Informe de diffs, tests ejecutados y verificación de no-regresión.
+- **Acción resultante**: Si el dictamen es `VERIFIED`, transfiere la autorización al `coordinator` para ejecutar `scripts/agent/worktree-merge.sh` y formalizar el cierre mediante `scripts/agent/close-task.sh`.

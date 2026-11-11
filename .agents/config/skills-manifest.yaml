@@ -129,6 +129,16 @@ skills:
     scope: universal
     description: "Descubrimiento y consulta del catálogo de herramientas vivas en la flota (nodos, pasarelas y MCPs)."
 
+  ui-critique:
+    scope: stack
+    stacks:
+      - react
+      - tailwindcss
+      - nextjs
+      - typescript
+      - javascript
+    description: "Auditoría heurística y revisión estética, técnica y de accesibilidad de interfaces frontend en satélites."
+
   workflow-designer:
     scope: universal
     description: "Diseño, creación y refactorización de flujos de trabajo estructurados en .agents/workflows/."

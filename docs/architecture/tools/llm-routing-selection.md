@@ -112,21 +112,36 @@ De la prospección técnica (`scout.sh`), adoptamos dos principios de diseño:
 Al invocar trabajadores desde el Coordinador en Orca:
 
 ```bash
-# 1. Crear el Run global de orquestación
+# 1. Sonda previa determinista de disponibilidad fail-fast (<1s)
+orca status --json # verifica que .result.runtime.state == "ready"
+
+# 2. Crear el Run global de orquestación
 orca orchestration run-create --objective "Implementar módulo de facturación" --json
 
-# 2. Despachar Worker Developer sobre Worktree aislado con OpenCode ($0 inferencia)
-orca worktree create --name feat-billing-core --no-parent --json
-orca terminal create --worktree id:<repoId>::<path> --command "opencode" --json
-orca orchestration worker-start --spec "Crear entidades y repositorio en src/billing/" --agent opencode --json
+# 3. Despachar Worker Developer sobre Worktree aislado con OpenCode ($0 inferencia) bajo env -i
+env -i HOME="$HOME" PATH="$PATH" USER="$USER" orca orchestration worker-start \
+  --run "<run_id>" \
+  --task-title "Facturación Core" \
+  --spec "Crear entidades y repositorio en src/billing/" \
+  --agent opencode \
+  --worktree current \
+  --json
 
-# 3. Despachar Worker Reviewer en paralelo para diseñar el arnés de pruebas ($0 inferencia)
-orca worktree create --name test-billing-harness --no-parent --json
-orca terminal create --worktree id:<repoId>::<path> --command "opencode" --json
-orca orchestration worker-start --spec "Escribir tests unitarios mockeados en tests/billing/" --agent opencode --json
+# 4. Despachar Worker Reviewer en paralelo para diseñar el arnés de pruebas ($0 inferencia)
+env -i HOME="$HOME" PATH="$PATH" USER="$USER" orca orchestration worker-start \
+  --run "<run_id>" \
+  --task-title "Tests Facturación" \
+  --spec "Escribir tests unitarios mockeados en tests/billing/" \
+  --agent opencode \
+  --worktree current \
+  --json
 
-# 4. El Coordinador supervisa la finalización de ambos trabajadores concurrentes
-orca orchestration check --wait --types "worker_done,escalation,question" --json
+# 5. El Coordinador supervisa la finalización con escucha reactiva
+orca orchestration check --run "<run_id>" --wait --types "worker_done,escalation,question" --json
+
+# 6. Máquina de estados canónica: detención y liberación de recursos
+orca orchestration worker-stop --dispatch "<dispatch_id>" --json
+orca orchestration worker-release --dispatch "<dispatch_id>" --json
 ```
 
 Esta arquitectura garantiza que la orquestación multi-agente sea fluida, simultánea, segura y con un coste económico de exactamente **$0.00** en todas las fases de ejecución masiva de código.

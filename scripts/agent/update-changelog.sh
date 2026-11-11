@@ -33,8 +33,11 @@ for cmd in git grep head sed awk mktemp date mv; do
 done
 
 ROOT="$(git rev-parse --show-toplevel)"
-CHANGELOG="$ROOT/changelog.md"
-[ -f "$CHANGELOG" ] || CHANGELOG="$ROOT/CHANGELOG.md"
+if [ -f "$ROOT/CHANGELOG.md" ] && [ ! -f "$ROOT/changelog.md" ]; then
+  CHANGELOG="$ROOT/CHANGELOG.md"
+else
+  CHANGELOG="$ROOT/changelog.md"
+fi
 DATE=$(date +%Y-%m-%d)
 
 # ─── 1. Argumento obligatorio ────────────────────────────────────────────────
@@ -42,7 +45,9 @@ if [ $# -lt 1 ]; then
   echo "❌ Uso: bash scripts/agent/update-changelog.sh sprint-XX"
   exit 1
 fi
-SPRINT_NAME="$1"  # e.g. sprint-08
+# Normalización canónica del identificador del sprint (Precision 1 T-146)
+SPRINT_NAME_RAW="$(basename "$1" .md)"
+SPRINT_NAME="${SPRINT_NAME_RAW%-core}"  # e.g. sprint-08
 
 # ─── 2. Determinar rango de commits ──────────────────────────────────────────
 # Busca el tag del sprint anterior o cae a 'git log' completo.
@@ -57,18 +62,17 @@ PREV_TAG=$(git -C "$ROOT" tag --list 'v*' --sort=-v:refname 2>/dev/null | head -
 if [ -n "$PREV_TAG" ]; then
   RANGE="${PREV_TAG}..HEAD"
   echo "📌 Rango: desde tag '$PREV_TAG' hasta HEAD"
+  COMMITS=$(git -C "$ROOT" log --oneline --no-merges "$RANGE" 2>/dev/null || true)
 else
-  # Sin tags: usa los últimos 50 commits como fallback razonable
-  RANGE="HEAD~50..HEAD"
-  echo "📌 Sin tags previos. Usando últimos 50 commits."
+  # Sin tags: usa los últimos commits hasta HEAD sin fallar si el repo tiene <50 commits
+  echo "📌 Sin tags previos. Usando últimos commits hasta HEAD."
+  COMMITS=$(git -C "$ROOT" log --oneline --no-merges -50 HEAD 2>/dev/null || true)
 fi
 
 # ─── 3. Extraer y clasificar commits ─────────────────────────────────────────
-COMMITS=$(git -C "$ROOT" log --oneline --no-merges "$RANGE" 2>/dev/null || true)
-
 if [ -z "$COMMITS" ]; then
-  echo "⚠️  No se encontraron commits en el rango '$RANGE'. ¿El sprint tiene trabajo?"
-  exit 0
+  echo "⚠️  No se encontraron commits en el rango. ¿El sprint tiene trabajo?" >&2
+  exit 1
 fi
 
 FEATS=""
@@ -125,18 +129,23 @@ fi
 [ -n "$CURRENT_VERSION" ] || CURRENT_VERSION="0.0.0"
 IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
+# Declaración explícita del cálculo determinista de SemVer (Precision 2 T-146):
+# - Breaking changes -> bump MAJOR ((MAJOR+1).0.0)
+# - Nuevas features (feat) -> bump MINOR (MAJOR.(MINOR+1).0)
+# - Fixes, docs, refactor, chore o gobernanza pura -> bump PATCH (MAJOR.MINOR.(PATCH+1))
+# Sin elección interactiva ni prompts.
 if [ "$HAS_BREAKING" = true ]; then
   NEW_VERSION="$((MAJOR + 1)).0.0"
-  BUMP_REASON="breaking change detectado"
+  BUMP_REASON="breaking change detectado (MAJOR)"
 elif [ "$HAS_FEAT" = true ]; then
   NEW_VERSION="${MAJOR}.$((MINOR + 1)).0"
-  BUMP_REASON="nuevas features (feat:)"
+  BUMP_REASON="nuevas features (feat:) (MINOR)"
 elif [ "$HAS_FIX" = true ]; then
   NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
-  BUMP_REASON="solo fixes"
+  BUMP_REASON="solo fixes (PATCH)"
 else
   NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
-  BUMP_REASON="docs/refactor/chore"
+  BUMP_REASON="docs/refactor/chore o gobernanza (PATCH)"
 fi
 
 # ─── 5. Construir la entrada del changelog ───────────────────────────────────

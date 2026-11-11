@@ -1,9 +1,25 @@
 # Roadmap — agent-os
 
 ## En curso
-- Sprint 19 — Versiones, Honestidad del Escáner y Seguridad de Secretos (T-113 a T-118). Ver `docs/sprints/sprint-19-core.md`.
+- Ninguno (Sprint 33 completado; listo para planificación de Sprint 34).
 
-## Completado recientemente
+## Próximo
+- Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
+- **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Flujo Desatendido & UI Critique (T-183 a T-188). Formalizado como release `v1.29.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-33-core.md`.
+- **Sprint 32**: Saneamiento Final de Motores, Soporte MCP Remoto, Integración DeepWiki & Rotación Hermes FreeLLMAPI (T-178 a T-182). Formalizado como release `v1.28.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-32-core.md`.
+- **Sprint 31**: Gobernanza de Flota, Tooling Autónomo, Saneamiento de Motores & Diagnóstico de WhatsApp Bridge (T-172 a T-176). Formalizado como release `v1.27.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-31-core.md`.
+- **Sprint 30**: Validación de Ejecución Autónoma sobre Trabajo Real: Nango OAuth, Remediación Homepage y Motor de Búsqueda Soberano (T-166 a T-171). Formalizado como release `v1.26.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-30-core.md`.
+- **Sprint 29**: Cierre de Bane, Higiene de Cierre Completa y Adopción Estándar de Opción D (T-162 a T-164). Formalizado como release `v1.25.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-29-core.md`.
+- **Sprint 28**: Autonomía Acotada (Opción D), Enrutado por Dificultad e Integración Soberana de Bane (T-155 a T-161). Formalizado como release `v1.24.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-28-core.md`.
+- **Sprint 27**: Revisor Antigravity CLI, Observabilidad de Liveness y Paridad de Gobernanza (T-151 a T-154). Formalizado como release `v1.23.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-27-core.md`.
+- **Sprint 26**: Cierre Determinista de Sprint y Hardening de Gobernanza (T-146 a T-150). Formalizado como release `v1.22.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-26-core.md`.
+- **Sprint 25**: Despacho Paralelo Controlado (Piloto de Validación del Gate de Paralelismo) (T-141 a T-145). Formalizado como release `v1.21.0` en `multi-agent` con dictamen vinculante NO-GO (modo estrictamente secuencial ratificado). Ver `docs/sprints/_archived/sprint-25-core.md`.
+- **Sprint 24**: Deliberación en producción durante un ciclo completo con el revisor vivo (T-137 a T-140). Formalizado como release `v1.20.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-24-core.md`.
+- **Sprint 23**: Revisor Ejecutor con Orca ADE, Arbitraje Multi-Nivel y Verificación Autónoma (T-133 a T-136). Formalizado como release `v1.19.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-23-core.md`.
+- **Sprint 22**: Resiliencia de Orquestación Multi-Agente, Puentes de Estado y Flujos Autónomos (T-128 a T-132). Formalizado como release `v1.18.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-22-core.md`.
+- **Sprint 21**: Arquitectura Multi-Agente, Orquestación y Workflows (T-124 a T-127). Formalizado como release `v1.17.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-21-core.md`.
+- **Sprint 20**: Deliberación Cruzada Autónoma y Executive Design Digest (T-119 a T-123). Formalizado como release `v1.16.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-20-core.md`.
+- **Sprint 19**: Versiones, Honestidad del Escáner y Seguridad de Secretos (T-113 a T-118). Formalizado como release `v1.15.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-19-core.md`.
 - **Sprint 18**: Corrección de Versiones, Higiene de Convenciones y Consolidación (T-106, T-108, T-109, T-110, T-112). Publicado en `main` como `v1.14.0` (tag `v1.14.0` sobre `cdb1566`).
 - **Sprint 17**: Despacho Multi-Repo, Flujo de Worktrees y Punto de Entrada del Coordinador (T-104, T-107, T-105). Publicado en `main` como `v1.13.0`.
 - **Sprint 16**: Frontera Portable y Saneado de Exposición (T-103).
@@ -31,18 +47,22 @@
   - `close-sprint.sh` hace staging acotado a sus propios ficheros y avisa de lo ajeno (antes commit `0 insertions / 0 deletions` en sprint-14).
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
 - ✅ Wrapper portable de copias no destructivas (`cp -n` vs `--update=none`) en `lib/portable-fs.sh` (T-110, sprint-18).
-- Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (S).
-- Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (M).
-- [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S).
-- Auditorías automáticas del estado de salud de los scripts en proyectos hijos.
-- Refinamiento de workflows globales y estandarización de logs de ejecución.
+- ✅ Estandarización de variables de entorno y endpoints en `coolify-admin` / MCPs (T-183, Sprint 33).
+- ✅ Impeccable critique: protocolo de auditoría y revisión de interfaces UI para satélites (T-187, Sprint 33).
+- ✅ [T-043] Prospección periódica automatizada de herramientas Freemium / OSS para `tool-inventory` (S): resuelto y superado por `check-tooling-updates.sh` (T-174) y `tooling-advisor` (T-173, T-180).
+- ✅ Auditorías automáticas del estado de salud de los scripts en proyectos hijos (T-184, Sprint 33).
+- ✅ Refinamiento de workflows globales y estandarización de logs de ejecución (T-185, T-188, Sprint 33).
 
 ## Backlog
-- Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
-- Skill + CLI `bytebox-curator` para registrar snippets y comandos en ByteBox (idea de 2026-09-26, especificación en `docs/idea-inbox/`). Producto específico, no es core; puede conectar con trabajo futuro, no se archiva.
+- Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/_archived/2026-06-18-gestion-automatica-manifest.md`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
+- Skill + CLI `bytebox-curator` para registrar snippets y comandos en ByteBox (idea de 2026-09-26, especificación en `docs/idea-inbox/_archived/2026-09-26-bytebox-curator.md`). Producto específico, no es core; puede conectar con trabajo futuro; archivado para higiene del inbox.
+- Integración de Bane (Self-Hosted Deep Research) en el flujo de sprint planning (captura 2026-10-27, especificación en `docs/external-inbox/_archived/2026-10-27-bane-deep-research-in-sprint-planning.md`). Requiere contenedor Docker VPS y consumo de red. Backlog de Infraestructura de Flota / Satélites.
+- Inspección estática/dinámica mediante servidores MCP de ingeniería inversa y sala blanca (patrón REA) (idea 2026-10-21, especificación en `docs/idea-inbox/_archived/2026-10-21-mcp-inspeccion-clean-room.md`). Ámbito específico de satélites de reversing y herramientas binarias; fuera del core $0.
+- Visión Front-Door + Orca ADE + Knowledge Base Soberana (idea 2026-10-30, especificación en `docs/idea-inbox/_archived/2026-10-30-front-door-orca-kb-soberana.md`). Despacho remoto móvil y cola diferida. Backlog de arquitectura post-piloto bajo principio de parsimonia.
 
 ## Descartado
-- (Sin líneas descartadas por el momento)
+- Catálogo de ideas de vídeos técnicos (captura 2026-10-29, `docs/external-inbox/_archived/2026-10-29-captura-ideas-videos.md`): Evaluado y resuelto en Sprint 22 (`cascada de inferencia` implementada en T-130; ideas satélite fuera del core).
+- PREV_TAG de `update-changelog.sh` por versión en vez de fecha (idea 2026-10-16, `docs/idea-inbox/_archived/2026-10-16-prev-tag-orden-version.md`): Ya implementado en T-114 (`--sort=-v:refname`) y validado en control plane.
 
 ## Deuda observada
 

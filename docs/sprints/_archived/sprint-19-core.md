@@ -1,7 +1,7 @@
 # Sprint 19 — Versiones y Honestidad de la Flota
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |

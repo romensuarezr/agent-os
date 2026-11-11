@@ -49,6 +49,8 @@ description: Flujo canónico de trabajo con Git Worktrees efímeros para agentes
 - `.agents/tasks/`
 - `.agents/context/dispatched.jsonl` (registro append-only de lo despachado)
 - `scripts/agent/worktree-dispatch.sh`
+- `scripts/agent/deliberate-plan.sh`
+- `scripts/agent/design-digest.sh`
 - `scripts/agent/verify-goal.sh`
 - `scripts/agent/worktree-merge.sh`
 - `scripts/agent/worktree-gc.sh`
@@ -64,23 +66,28 @@ flowchart TD
         D --> DecisionGate{"Decision Gate (Usuario)"}
     end
 
-    subgraph F2["FASE 2: Despacho Paralelo"]
+    subgraph F2["FASE 2: Despacho y Deliberación"]
         DecisionGate -- APROBADO --> Dispatch["worktree-dispatch.sh por cada tarea"]
         Dispatch --> Record["Registro en dispatched.jsonl + worktree_path"]
-        Record --> SpawnWorkers["Ejecución concurrente de Workers"]
+        Record --> SpawnWorkers["Inicialización de Workers en Worktree"]
+        SpawnWorkers --> Delib["Coder genera plan-draft.md y ejecuta deliberate-plan.sh ($0)"]
+        Delib --> DelibGate{"Arbitraje Coder-Reviewer / Decision Gate"}
+        DelibGate -- CONSENSO / APROBADO --> WorkerExec["Implementación dentro de Allowlist en Worktree"]
     end
 
     subgraph F3["FASE 3: Ralph Loop (Judge)"]
-        SpawnWorkers --> GateJudge["verify-goal.sh --strict --json"]
+        WorkerExec --> PreCheck["Auto-verificación: verify-goal.sh preliminar"]
+        PreCheck --> GateJudge["verify-goal.sh --strict --json (Judge)"]
         GateJudge --> JudgeVerdict{"¿Status PASS?"}
         JudgeVerdict -- FAIL (< 3 reintentos) --> Retry["Feedback al Coder en worktree"]
-        Retry --> SpawnWorkers
+        Retry --> WorkerExec
         JudgeVerdict -- FAIL (3er intento) --> HumanEscalate["Escalado al humano"]
     end
 
-    subgraph F4["FASE 4: Integración y Purga"]
+    subgraph F4["FASE 4: Integración, Cierre y Purga"]
         JudgeVerdict -- PASS --> Merge["worktree-merge.sh (verifica + integra + desmonta)"]
-        Merge --> GCD["worktree-gc.sh --apply (restos)"]
+        Merge --> Close["close-task.sh (archivado + digest de diseño)"]
+        Close --> GCD["worktree-gc.sh --apply (restos)"]
         GCD --> Digest["Consolidación en terminal principal"]
     end
 ```
@@ -99,7 +106,7 @@ flowchart TD
 
 ---
 
-### FASE 2 — Despacho Concurrente en Worktrees Aislados
+### FASE 2 — Despacho Concurrente y Deliberación en Worktrees Aislados
 
 Por cada nodo independiente del DAG:
 
@@ -108,8 +115,24 @@ Por cada nodo independiente del DAG:
    bash scripts/agent/worktree-dispatch.sh --task-id <TASK_ID> --profile <PROFILE> --base <TARGET_BRANCH> --json
    ```
    Sin `--path`: aterriza en `<padre>/<repo>-<TASK_ID>/`. El gate de disco puede rehusar aquí.
-2. **Registro**: el campo `worktree_path` del JSON es la dirección del worker. El dispatcher multi-repo además lo anexa a `.agents/context/dispatched.jsonl`.
-3. **Puesta en marcha**: el worker trabaja dentro de ese directorio, aislado. Carga el arnés con `source <worktree>/.agents/context/worktree.env`.
+2. **Registro y Trazabilidad**: el comando anexa automáticamente la entrada con estado inicial `deliberation: PENDING` a `.agents/context/dispatched.jsonl`, y emite el contrato JSON con la ruta `worktree_path`.
+3. **Puesta en marcha e Inyección**: el worker trabaja dentro de ese directorio, aislado. Carga el arnés con:
+   ```bash
+   source <worktree>/.agents/context/worktree.env
+   ```
+   El entorno exporta `AGENT_OS_ROOT`, `AGENT_OS_TASK_ID`, `AGENT_OS_WORKTREE_PATH` y `AGENT_OS_DELIBERATION_FILE`.
+4. **Bucle de Deliberación ($0 tokens)**:
+   - Antes de modificar código, el Coder redacta `.agents/context/plan-draft.md` dentro de su worktree con el análisis DRY y la propuesta técnica acotada a la allowlist.
+   - Ejecuta el motor determinista de arbitraje:
+     ```bash
+     bash "$AGENT_OS_ROOT/scripts/agent/deliberate-plan.sh" --task-id <TASK_ID> --plan .agents/context/plan-draft.md
+     ```
+   - El resultado se persiste en `.agents/context/deliberation-${TASK_ID}.json`. Solo tras obtener veredicto favorable (`CONSENSO` o aprobación en Decision Gate) procede con la implementación en la allowlist.
+5. **Auto-verificación preventiva**:
+   - Tras completar los cambios y antes de notificar la entrega, el Coder valida localmente:
+     ```bash
+     bash "$AGENT_OS_ROOT/scripts/agent/verify-goal.sh" --task-id <TASK_ID> --allow-dirty --json
+     ```
 
 ---
 
@@ -134,9 +157,14 @@ Por cada nodo independiente del DAG:
    bash scripts/agent/worktree-merge.sh --task-id <TASK_ID> --target <TARGET_BRANCH> --json
    ```
    Revalida, integra (`--ff-only` por defecto), `git worktree remove --force`, `prune`, borra la rama efímera.
-2. **Purga de restos**:
+2. **Cierre Formal y Digest**:
+   ```bash
+   bash scripts/agent/close-task.sh <TASK_ID>
+   ```
+   Archiva el task file y genera el Executive Design Digest leyendo la deliberación persistida.
+3. **Purga de restos**:
    ```bash
    bash scripts/agent/worktree-gc.sh --apply
    ```
    Solo huérfanos. Lo sucio y lo bloqueado se queda.
-3. **Publicación (si procede)**: `promote-to-main.sh --source <RAMA>` integra en `main` con push opcional (gate humano). **No desmonta worktrees**: es publicación, no limpieza. Ver `session-close.md` §3b para cuándo usar cada uno.
+4. **Publicación (si procede)**: `promote-to-main.sh --source <RAMA>` integra en `main` con push opcional (gate humano). **No desmonta worktrees**: es publicación, no limpieza. Ver `session-close.md` §3b para cuándo usar cada uno.

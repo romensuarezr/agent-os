@@ -1,0 +1,17 @@
+{
+  "task_id": "T-143",
+  "verdict": "SIN_REVISOR",
+  "role": "none",
+  "evaluator_tier": "fallback_safe",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "Revisor no disponible (timeout o conexi\u00f3n rehusada). Se activa fallback seguro a aprobaci\u00f3n manual cl\u00e1sica.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "skipped",
+    "reason": "sin_revisor"
+  },
+  "inventory_scoped_bytes": 2044,
+  "plan_source": ".agents/context/plan-draft.md"
+}

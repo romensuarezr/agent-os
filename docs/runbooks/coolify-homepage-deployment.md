@@ -126,14 +126,9 @@ networks:
 
 Homepage monta el directorio `./config` (mapeado en el host en la ruta del proyecto de Coolify, típicamente `/data/coolify/applications/<app-uuid>/config` o volumen nombrado).
 
-### 4.1 Archivo `docker.yaml`
-Para que Homepage se conecte al proxy aislado en lugar de buscar `/var/run/docker.sock`:
-
-```yaml
-# config/docker.yaml
-my-docker:
-  host: tcp://docker-socket-proxy:2375
-```
+### 4.1 Desacoplamiento de Docker Socket Proxy (`docker.yaml`)
+En la arquitectura refinada (T-168), el descubrimiento de servicios de la flota se fundamenta al 100% en el overlay declarativo privado (`fleet.yaml`), desacoplando el archivo `docker.yaml`.
+La integración anterior consultaba Swarm services vía `tcp://docker-socket-proxy:2375/services`, pero al estar configurado con `SERVICES: '0'`, provocaba respuestas recurrentes `403 Forbidden` y logs de `ECONNREFUSED`. Al omitir `docker.yaml`, Homepage opera de manera completamente portable, sin sobrecargar logs ni requerir permisos elevados en el daemon Docker.
 
 ### 4.2 Archivos de Configuración Declarativos
 Los siguientes archivos deben generarse previamente mediante `scripts/agent/generate-homepage-config.sh` y copiarse al volumen `./config`:
@@ -141,16 +136,22 @@ Los siguientes archivos deben generarse previamente mediante `scripts/agent/gene
 | Archivo | Función |
 | :--- | :--- |
 | `settings.yaml` | Título del dashboard, tema visual, layout y buscador DuckDuckGo. |
-| `widgets.yaml` | Banner de recursos: CPU/RAM/Disco local y Glances en `<worker-node>` (`${WORKER_TAILSCALE_IP:-127.0.0.1}:61208`). |
-| `services.yaml` | Grupos de servicios: Inferencia IA ($0) con pings seguros a `/health`, Docker Apps, ByteBox y GitHub. |
+| `widgets.yaml` | Banner de recursos: CPU/RAM/Disco local y Glances condicional en `<nodo-inferencia>` (solo si responde vivo). |
+| `services.yaml` | Grupos de servicios: Inferencia IA ($0) con pings seguros (`/health` para FreeLLMAPI, `/` para OmniRoute), Nango OAuth, Docker Apps y GitHub. |
 | `bookmarks.yaml` | Accesos rápidos a documentación, consola Coolify y repositorios. |
 | `custom.css` | Personalización visual y contraste adaptativo. |
 
-### 4.3 Reglas de Saneamiento y Resiliencia en Producción (T-068)
+### 4.3 Reglas de Saneamiento y Resiliencia en Producción (T-068 / T-167 / T-168)
 Para evitar bucles de diagnóstico y falsas alarmas operativas en los agentes:
-1. **FreeLLMAPI y Gateways IA**: El health check (`ping:`) apunta estrictamente a `/health` (HTTP 200 sin credenciales). Se evita pingear `/v1/models` sin cabecera `Authorization: Bearer`, ya que retorna HTTP 401 y marca erróneamente la tarjeta como `DOWN`.
-2. **Eliminación de Dominios Placeholder**: `generate-homepage-config.sh` detecta y omite automáticamente tarjetas con dominios no configurados (`*.example.com`, `*.example.org`), garantizando 0 tarjetas `DOWN` por fallos de resolución DNS en entornos de producción.
-3. **Inferencia Ollama Condicional**: El estado de Ollama (:11434) se valida en tiempo de generación mediante sondeo de socket TCP no bloqueante. Si el daemon está detenido en el nodo remoto, la tarjeta se omite para no inventar estado ni alertar falsos caídos; en plantillas y documentación permanece en modo bajo demanda sin ping.
+1. **FreeLLMAPI y Gateways IA**: El health check (`ping:`) de FreeLLMAPI apunta estrictamente a `/health` (HTTP 200 sin credenciales). Para **OmniRoute AI Gateway**, el ping apunta deterministamente a la raíz `/` (o `ping_path` configurable), ya que OmniRoute carece de endpoint `/health` y devuelve HTTP 404 en dicha ruta.
+2. **Descubrimiento Portable Multi-Repo**: El generador `generate-homepage-config.sh` y las plantillas son agnósticos y reutilizables en cualquier proyecto hijo satélite. Cada repositorio mantiene su overlay privado `fleet.yaml` sin filtrar secretos ni IPs privadas en el control de versiones.
+3. **Copia de Seguridad Obligatoria Previa**: Cualquier sincronización remota mediante `--remote-push` genera automáticamente un backup fechado con timestamp (`_data.bak.<timestamp>`) en el VPS antes de sobrescribir ningún archivo de configuración.
+4. **Triage de Servicios en Nodo Secundario**:
+   - **Glances**: Se sondea el socket TCP del puerto 61208. Si no está en ejecución, el widget se omite para prevenir tarjetas caídas en la interfaz.
+   - **Ollama**: En el nodo de inferencia opera en loopback `127.0.0.1:11434`. Al no estar expuesto en la interfaz de red pública/Tailscale, se omite condicionalmente para evitar alarmas rojas en el dashboard.
+   - **Open-WebUI**: Interfaz web de chat que opera en el puerto 3005 del nodo de inferencia; se integra en el grupo de IA con ping HTTP 200 verificado.
+   - **Hermes**: Agente CLI autónomo de ejecución local/bajo demanda; al no ser un servicio HTTP daemonizado, no dispone de tarjeta en el dashboard.
+5. **Eliminación de Dominios Placeholder**: `generate-homepage-config.sh` detecta y omite automáticamente tarjetas con dominios no configurados (`*.example.com`, `*.example.org`), garantizando 0 tarjetas `DOWN` por fallos de resolución DNS en entornos de producción.
 
 ---
 
@@ -285,3 +286,22 @@ Si el nuevo stack experimenta un fallo de inicio (`CrashLoopBackOff`) o no conec
    - Si se requiere rollback manual de emergencia, volver a montar el socket directo temporalmente mientras se depura la red interna `homepage-internal`.
 3. **Validación de Red Docker**:
    - Asegurarse de que ambos contenedores comparten la red bridge interna (`docker network inspect <project_name>_homepage-internal`).
+
+---
+
+## 9. Estado de Observabilidad en Vivo: Socket Proxy y Glances (T-167)
+
+Tras la puesta a punto determinista de Sprint 30 (T-167):
+
+### 9.1 Docker Socket Proxy
+- **Estado**: Activo y saludable (`docker-socket-proxy`, contenedor `Up 5+ weeks`).
+- **Conectividad**: Homepage consulta `http://docker-socket-proxy:2375/version` y `/containers/json` de forma transparente.
+- **Seguridad**: Solo llamadas de lectura (`GET`) autorizadas (`POST=0`), contención de memoria en 32MB conforme a ADR 004.
+
+### 9.2 Telemetría Glances
+- **Estado**: Daemon inactivo en el nodo de inferencia (`port 61208`).
+- **Política de Dashboard**: Siguiendo el principio de veracidad de la flota, el widget de Glances en `widgets.yaml` se mantiene desactivado/omitido para prevenir errores visuales de conexión (`ECONNREFUSED` / `ENOTFOUND`) en la interfaz de Homepage. Solo debe reactivarse si el servicio responde afirmativamente al pre-flight.
+
+### 9.3 Integración de Nango OAuth
+- **Estado**: Desplegado y verificado en vivo en `<nodo-orquestacion>` (T-166).
+- **Tarjeta**: Incorporada bajo el grupo *PaaS & Orquestación* con ping de salud a `/health` (:3003) y enlace a Connect UI (:3009).
