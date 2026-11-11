@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- Ninguno (Sprint 33 completado; listo para planificación de Sprint 34).
+- **Sprint 34**: Hardening Determinista de Planning, Proyección Multi-Harness y Automejora (T-189 a T-191). En ejecución bajo régimen Desatendido en rama `sprint-34`.
 
 ## Próximo
 - Rotar las 15 credenciales revocadas detectadas en la bóveda; requiere decidir si `CLOUDFLARE_API_TOKEN` es transversal o un token por zona. ⛔ BLOQUEADO hasta el veredicto del usuario — no entra a sprint sin acotación.
