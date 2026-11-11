@@ -44,7 +44,7 @@ bash scripts/agent/check-session.sh
      Para este sprint, define el régimen operativo y el camino de ejecución:
 
      1️⃣ RÉGIMEN OPERATIVO:
-        A) Desatendida (Opción D): Encadena tareas automáticamente en camino limpio sin volver al usuario entre ellas. Aborta de inmediato a humano ante cualquier anomalía técnica o si la verificación del relé falla.
+        A) Desatendida: Encadena tareas automáticamente en camino limpio sin volver al usuario entre ellas. Aborta de inmediato a humano ante cualquier anomalía técnica o si la verificación del relé falla.
         B) Tarea a tarea (Clásico): Pausa para revisión y aprobación humana explícita en cada puerta antes de proceder con la siguiente tarea.
 
      2️⃣ CAMINO DE CARRILES (derivado de la tabla de dependencias del acta):
@@ -53,18 +53,19 @@ bash scripts/agent/check-session.sh
         - Carril 2: [T-ZZZ] (independiente)
         ¿Confirmas este orden de carriles o prefieres un orden alternativo?
 
-     Esperando tu respuesta (ej: "A, confirmo carriles" o "Opción D, carril 2 primero").
+     Esperando tu respuesta (ej: "A, confirmo carriles" o "Desatendida, carril 2 primero").
      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      ```
    - Al recibir la respuesta del operador, el agente actualiza inmediatamente el sprint file sellando la sección:
      ```markdown
      ## Régimen Operativo del Sprint
-     - **Régimen**: Desatendida (Opción D) [o Tarea a tarea (Clásico)]
+     - **Régimen**: Desatendida [o Tarea a tarea (Clásico)]
      - **Orden de Carriles (DAG de dependencias)**:
        - Carril 1: [T-XXX → T-YYY]
        - Carril 2: [T-ZZZ]
      - **Sellado en**: YYYY-MM-DD HH:MM UTC
      ```
+   > **Nota histórica de compatibilidad**: El régimen «Desatendida» corresponde al anteriormente denominado por su alias histórico «Opción D».
    - **Invariante**: Una vez sellado, el régimen es vinculante e inmutable durante todo el sprint. Las siguientes sesiones de `/session-start` dentro del mismo sprint detectan el sellado y proceden directamente a la tarea activa sin volver a preguntar.
 3. **Comprobar tareas `🟡 En curso`:** si existe alguna, mostrar alerta y esperar confirmación:
    ```
@@ -118,7 +119,7 @@ bash scripts/agent/check-session.sh
 > - **Nivel Macro (Diseño y Arquitectura)**: El diseño conceptual, arquitectura, interfaces y alcance de la tarea ya fueron evaluados, pactados y sellados durante el sprint planning en la sección `## Diseño macro aprobado en planning` del task file.
 > - **Nivel Micro (Compuerta Técnica por Tarea)**: La deliberación entre Coder y Reviewer mediante `deliberate-plan.sh` actúa estrictamente como compuerta técnica determinista (auditoría de caja de archivos, ausencia de duplicación, cobertura de pruebas, compatibilidad del stack y apego estricto al diseño macro ya aprobado). Queda prohibido reabrir o cuestionar decisiones conceptuales selladas en planning.
 > - **Escalado Vinculante**: Ante cualquier desviación entre el plan y el diseño macro aprobado (fuga de alcance, alteración de contratos de interfaces o dependencias no pactadas), el revisor emite bloqueo técnico vinculante y escala al humano (`ESCALADO_A_HUMANO`), suspendiendo inmediatamente cualquier ejecución desatendida hasta resolución humana.
-> - **Régimen Operativo Opción D (Autonomía Acotada Estándar)**: El diseño macro aprobado y sellado en el sprint planning constituye la única autorización previa vinculante. En el flujo `/session-start`, el proceso de deliberación técnica actúa como compuerta determinista. Si se satisfacen todas las condiciones de camino limpio, el agente ejecuta el ciclo de forma desatendida hasta el merge y cierre inclusive. Ante cualquier anomalía técnica o discordancia, el agente aplica contención inmediata fail-closed y escala al operador humano en el chat.
+> - **Régimen Operativo Desatendido (Autonomía Acotada Estándar, alias histórico «Opción D»)**: El diseño macro aprobado y sellado en el sprint planning constituye la única autorización previa vinculante. En el flujo `/session-start`, el proceso de deliberación técnica actúa como compuerta determinista. Si se satisfacen todas las condiciones de camino limpio, el agente ejecuta el ciclo de forma desatendida hasta el merge y cierre inclusive. Ante cualquier anomalía técnica o discordancia, el agente aplica contención inmediata fail-closed y escala al operador humano en el chat.
 
 1. El Coder redacta el borrador del plan en `.agents/context/plan-draft.md` conteniendo objetivo, rama propuesta, archivos a modificar/crear, pasos secuenciales, riesgos, justificación de skills y verificación de conformidad con `## Diseño macro aprobado en planning`.
 2. Ejecuta el motor determinista de arbitraje Coder-Reviewer:
@@ -127,9 +128,9 @@ bash scripts/agent/check-session.sh
    ```
 3. El motor emite el veredicto en `.agents/context/plan-deliberation.json` con uno de los 4 estados canónicos: `CONSENSO`, `REVISADO_CON_CAMBIOS`, `ESCALADO_A_HUMANO` o `SIN_REVISOR`.
 
-### FASE 3.5 — Decision Gate: Bifurcación Opción D y Executive Design Digest
+### FASE 3.5 — Decision Gate: Bifurcación Desatendida y Executive Design Digest
 
-Tras emitir el veredicto de deliberación, el agente evalúa la compuerta determinista de gobernanza según el régimen estándar de **Opción D**:
+Tras emitir el veredicto de deliberación, el agente evalúa la compuerta determinista de gobernanza según el régimen estándar **Desatendido**:
 
 #### 1. Camino Limpio Desatendido (Happy Path)
 
@@ -234,7 +235,7 @@ En caso de compuerta de aborto o modo interactivo, queda terminantemente prohibi
 
 ✅ Permitido: leer **exclusivamente** el task file activo (`task-XXX.md`), el sprint file y el research file, y ejecutar `deliberate-plan.sh`.
 
-Si el agente detecta que ha ejecutado cualquier acción operativa sin la debida autorización (camino limpio Opción D o `APROBADO` explícito):
+Si el agente detecta que ha ejecutado cualquier acción operativa sin la debida autorización (camino limpio del régimen Desatendido o `APROBADO` explícito):
 1. Detenerse inmediatamente.
 2. Informar al usuario de qué ejecutó.
 3. Proponer el rollback correspondiente.
@@ -270,17 +271,17 @@ Mostrar: `"🔒 Sesión abierta. Ejecución autorizada para [T-XXX] en [worktree
 
 Durante el cierre: prohibido leer fuera de la Caja, preparar planes nuevos o analizar trabajo futuro. Si el usuario lanza una petición nueva, confirmar que está capturada en idea-inbox y proceder al cierre sin desviarse.
 
-#### C1b. Protocolo Pre-Merge Refinado y Cierre Atómico (Opción D)
-Bajo el régimen Opción D, la integración y cierre se completan desatendidamente en camino limpio siguiendo esta secuencia determinista:
+#### C1b. Protocolo Pre-Merge Refinado y Cierre Atómico (Régimen Desatendido)
+Bajo el régimen Desatendido, la integración y cierre se completan de forma autónoma en camino limpio siguiendo esta secuencia determinista:
 1. **Ejecución y pruebas**: Verificar suite de control plane completa y linters en verde.
 2. **Publicación remota previa**: Publicar la rama de feature en remoto (`git push origin feat/T-XXX-...`).
 3. **Acreditación del recibo**: El informe y notas de la tarea acreditan el recibo de deliberación (referenciando el veredicto `CONSENSO` y el identificador/SHA del recibo generado en `.agents/context/deliberation-T-XXX.json`).
 4. **Integración controlada**: Cambiar a la rama base (ej. `git checkout multi-agent`), ejecutar merge `--no-ff` (`git merge --no-ff feat/T-XXX-... -m "Merge branch 'feat/T-XXX-...' into multi-agent"`), empujar a origin (`git push origin multi-agent`) y eliminar la rama feature remota y local.
 5. **Cierre y Digest atómico**: Ejecutar `bash scripts/agent/close-task.sh T-XXX "tipo(scope): descripción"`. El script ejecuta internamente `design-digest.sh`, el cual redacta secretos y rutas de forma determinista, persistiendo `T-XXX-digest.md` y `T-XXX-raw.json` en `docs/sprints/design-decisions/` y commiteando atómicamente. La persistencia definitiva del digest y raw ocurre en el cierre, sin requerir la publicación manual previa del archivo JSON crudo en origin antes del merge.
 6. **Encadenamiento desatendido a la siguiente tarea**:
-   Bajo el régimen Opción D (Desatendida), tras completarse el commit atómico con `close-task.sh`:
+   Bajo el régimen Desatendido (alias histórico «Opción D»), tras completarse el commit atómico con `close-task.sh`:
    - El agente ejecuta la verificación del relé de la tarea recién cerrada: suite de pruebas `tests/validate-control-plane.sh` y `verify-goal.sh` (si la tarea cuenta con contrato de meta).
-   - **Compuerta Fail-Closed Crítica**: **El encadenamiento en Opción D aborta inmediatamente a humano si la verificación del relé de la tarea recién cerrada falla** (fallo en suite, error en meta, archivos fuera de caja o anomalías en git). Ante cualquier fallo, el agente NO inicia la siguiente tarea, suspende la autonomía y notifica la anomalía al operador en el chat con la evidencia del error.
+   - **Compuerta Fail-Closed Crítica**: **El encadenamiento en régimen Desatendido aborta inmediatamente a humano si la verificación del relé de la tarea recién cerrada falla** (fallo en suite, error en meta, archivos fuera de caja o anomalías en git). Ante cualquier fallo, el agente NO inicia la siguiente tarea, suspende la autonomía y notifica la anomalía al operador en el chat con la evidencia del error.
    - **Camino Limpio**: Si la verificación del relé es 100% verde (0 errores), el agente evalúa si restan tareas pendientes en el sprint según el `Orden de Carriles` sellado en el acta. De haberlas, encadena automáticamente iniciando de inmediato el ciclo de la siguiente tarea disponible (Fases 1–6) sin pausar para pedir confirmación interactiva. Si no restan tareas pendientes, procede al archivado del sprint con `close-sprint.sh`.
 
 #### C2. Commit atómico
@@ -329,7 +330,7 @@ En modo interactivo clásico (`Tarea a tarea`) o si se aborta a humano:
 4. Petición nueva en el mismo mensaje: capturar en `docs/idea-inbox/YYYY-MM-DD.md`. Responder: `"💡 Capturada. Primero cierro. ¿Confirmas?"` No leer ni preparar nada nuevo.
 5. Solo tras cerrar la sesión (Fase 6 completa) se puede abrir `/session-start` para la petición nueva o siguiente tarea.
 
-En camino limpio bajo el régimen `Desatendida (Opción D)`:
+En camino limpio bajo el régimen Desatendido:
 El cumplimiento de todos los criterios de done desencadena directamente el Protocolo Pre-Merge Refinado y la ejecución de `close-task.sh` sin requerir pausas interactivas en esta compuerta. A continuación, si la verificación del relé post-cierre pasa al 100%, encadena automáticamente con la siguiente tarea del carril según el orden sellado en el acta; si la verificación del relé falla, aborta inmediatamente a humano (fail-closed).
 
 > ❌ **VIOLACIÓN CRÍTICA**: actuar sobre petición nueva antes de cerrar → detener, informar, proponer rollback.

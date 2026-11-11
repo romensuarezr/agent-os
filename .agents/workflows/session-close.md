@@ -15,7 +15,7 @@ No se usa para seguir implementando cambios nuevos.
 - Dejar registrado lo que cambió y lo que queda pendiente.
 - Archivar la tarea activa y generar el digest de decisiones de diseño con redacción automática.
 - Verificar la compuerta del relé post-cierre asegurando fail-closed determinista ante cualquier regresión.
-- Gestionar el encadenamiento fluido hacia la siguiente tarea del carril bajo régimen Opción D en camino limpio.
+- Gestionar el encadenamiento fluido hacia la siguiente tarea del carril bajo régimen Desatendido en camino limpio.
 - Actualizar el sprint activo y archivarlo si está completado al 100%.
 - Actualizar changelog.md al cerrar un sprint.
 - Eliminar locks y temporales de sesión.
@@ -150,7 +150,7 @@ bash scripts/agent/lib/locator-hygiene.sh
     Se detiene la ejecución desatendida a la espera de instrucciones.
     ```
 
-### 3d. Protocolo de encadenamiento entre tareas bajo Opción D
+### 3d. Protocolo de encadenamiento entre tareas bajo régimen Desatendido
 
 Si la verificación del relé concluye con **100% de éxito** (0 errores en control plane, árbol limpio e higiene impecable):
 
@@ -161,13 +161,13 @@ Si la verificación del relé concluye con **100% de éxito** (0 errores en cont
    ```
 
 2. **Bifurcación por Régimen Operativo:**
-   - **Bajo Opción D (Autonomía Acotada Estándar / Desatendida):**
+   - **Bajo régimen Desatendido (Autonomía Acotada Estándar, alias histórico «Opción D»):**
      - Consulta el DAG de carriles del sprint en `docs/sprints/sprint-{{SPRINT_ACTIVE}}.md`.
      - **Si hay una siguiente tarea pendiente en el carril:**
        - Encadena automáticamente iniciando `/session-start T-YYY` sin pausar ni solicitar confirmación humana en el chat, amparado en la autorización macro sellada durante el sprint planning.
      - **Si se completaron todas las tareas del sprint (100% Hecho):**
        - Avanza automáticamente al **Paso 4** para ejecutar el empaquetado y cierre del sprint.
-   - **Bajo Opción A / B (Asistida / Interactiva):**
+   - **Bajo régimen Tarea a tarea (Clásico / Interactivo):**
      - Emite el reporte de cierre (SHA, diffstat y confirmación del relé) y pausa la ejecución esperando que el operador humano indique la siguiente acción.
 
 ### 4. Archivar el sprint + actualizar CHANGELOG (si sprint completado al 100%)
@@ -244,7 +244,7 @@ bash scripts/agent/update-mvp-tracker.sh
 - **No ejecutar `git add` ni `git commit` manualmente durante el cierre de tarea — usar siempre `close-task.sh`.**
 - **Verificación obligatoria del relé:** Ejecutar siempre `validate-control-plane.sh` y `locator-hygiene.sh` tras el cierre antes de cualquier push o encadenamiento.
 - **Fail-closed estricto:** Ante cualquier fallo en la verificación del relé, abortar inmediatamente el avance desatendido y escalar al operador humano en el chat.
-- **Encadenamiento autónomo Opción D:** En camino limpio, encadenar la siguiente tarea del carril sin pausas ni interrupciones al operador humano.
+- **Encadenamiento autónomo Desatendido:** En camino limpio, encadenar la siguiente tarea del carril sin pausas ni interrupciones al operador humano.
 - **El archivado del sprint (`close-sprint.sh`) va en un commit separado tras el commit de tarea.**
 - **`update-changelog.sh` siempre antes de `close-sprint.sh` si el sprint tiene feat: o fix:.**
 - **`audit-mvp-tracker.sh --fast` siempre antes de `update-mvp-tracker.sh` si la sesión tocó capacidades MVP.**

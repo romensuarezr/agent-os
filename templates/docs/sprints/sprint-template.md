@@ -10,7 +10,7 @@
 
 ## Régimen Operativo del Sprint
 > Se sella en el arranque del sprint tras consulta proactiva única al operador en /session-start.
-- **Régimen**: [PENDIENTE_ARRANQUE — Desatendida (Opción D) | Tarea a tarea (Clásico)]
+- **Régimen**: [PENDIENTE_ARRANQUE — Desatendida | Tarea a tarea (Clásico)]
 - **Orden de Carriles (DAG de dependencias)**:
   - Carril 1: [T-001 → ...]
 - **Sellado en**: [PENDIENTE]

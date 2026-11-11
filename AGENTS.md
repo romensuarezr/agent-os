@@ -81,7 +81,7 @@ agent-os/
 4. **Global pequeño, local fino** — skills y rules globales son agnósticas. Lo específico vive en el proyecto hijo.
 5. **Trazabilidad** — operaciones importantes generan marcas (`last-sync.md`, commits atómicos).
 6. **Determinismo y coste 0 de tokens** — si una acción, consulta o auditoría es determinista, se resuelve mediante un script CLI/Bash local que devuelva un digest compacto, no quemando tokens de contexto o inferencia del LLM.
-7. **Autonomía acotada por diseño (Opción D)** — El estándar operativo desacopla la gobernanza en dos niveles: Nivel Macro (aprobación humana sellada en sprint planning como única autorización habilitante) y Nivel Micro (deliberación técnica determinista con `deliberate-plan.sh`). En camino limpio (`CONSENSO` estricto, suite verde, diff en caja, fidelidad macro y centinelas intactos), el avance hacia el merge y cierre es 100% desatendido; ante cualquier anomalía técnica, el sistema aborta de inmediato a fail-closed escalando al operador en el chat.
+7. **Autonomía acotada por diseño (Régimen Desatendido)** — El estándar operativo desacopla la gobernanza en dos niveles: Nivel Macro (aprobación humana sellada en sprint planning como única autorización habilitante) y Nivel Micro (deliberación técnica determinista con `deliberate-plan.sh`). En camino limpio (`CONSENSO` estricto, suite verde, diff en caja, fidelidad macro y centinelas intactos), el avance hacia el merge y cierre es 100% desatendido; ante cualquier anomalía técnica, el sistema aborta de inmediato a fail-closed escalando al operador en el chat. (Nota histórica: corresponde al estándar denominado originalmente como «Opción D»).
 
 ---
 
@@ -103,7 +103,7 @@ agent-os (core)
 
 ## Trabajar sobre el propio core
 
-Para operar agent-os sobre sí mismo, el agente usa el mismo flujo que en cualquier proyecto hijo, rigiéndose por el estándar operativo de **Opción D** (avance desatendido en camino limpio tras aprobación del macro en planning, mediado por deliberación determinista y cierre atómico):
+Para operar agent-os sobre sí mismo, el agente usa el mismo flujo que en cualquier proyecto hijo, rigiéndose por el régimen **Desatendido** (avance desatendido en camino limpio tras aprobación del macro en planning, mediado por deliberación determinista y cierre atómico; conocido por el alias histórico «Opción D»):
 
 ```bash
 # Ver estado del sprint activo
