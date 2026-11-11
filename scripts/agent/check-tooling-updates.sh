@@ -19,6 +19,7 @@ SHOW_HELP=false
 TARGET_TOOL=""
 CHECK_MODE=false
 JSON_OUTPUT=false
+GENERATE_INBOX=false
 
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
@@ -30,16 +31,18 @@ done
 if [ "$SHOW_HELP" = true ]; then
   if type show_help >/dev/null 2>&1; then
     show_help "check-tooling-updates.sh" \
-      "bash scripts/agent/check-tooling-updates.sh [--tool <nombre>] [--check] [--json]" \
+      "bash scripts/agent/check-tooling-updates.sh [--tool <nombre>] [--check] [--json] [--generate-inbox]" \
       "Inspecciona de forma determinista las versiones disponibles de las herramientas de la flota en registros oficiales (npm, GitHub, PyPI)." \
-      "--tool <nombre>   Filtra la inspección a una herramienta concreta (ej: opencode, hermes, orca, infisical, glances)." \
-      "--check           Modo auditoría: devuelve exit code 1 si hay actualizaciones disponibles, 2 ante error/rate limit, 0 si todo está al día." \
-      "--json            Emite el informe estructurado en formato JSON." \
+      "--tool <nombre>      Filtra la inspección a una herramienta concreta (ej: opencode, hermes, orca, infisical, glances)." \
+      "--check              Modo auditoría: devuelve exit code 1 si hay actualizaciones disponibles, 2 ante error/rate limit, 0 si todo está al día." \
+      "--json               Emite el informe estructurado en formato JSON." \
+      "--generate-inbox     Genera borradores estructurados en docs/idea-inbox/ para herramientas con actualización pendiente (\$0 tokens)." \
       "ejemplo: bash scripts/agent/check-tooling-updates.sh" \
       "ejemplo: bash scripts/agent/check-tooling-updates.sh --tool opencode --json" \
-      "ejemplo: bash scripts/agent/check-tooling-updates.sh --check"
+      "ejemplo: bash scripts/agent/check-tooling-updates.sh --check" \
+      "ejemplo: bash scripts/agent/check-tooling-updates.sh --generate-inbox"
   else
-    echo "Uso: bash scripts/agent/check-tooling-updates.sh [--tool <nombre>] [--check] [--json] [-h|--help]"
+    echo "Uso: bash scripts/agent/check-tooling-updates.sh [--tool <nombre>] [--check] [--json] [--generate-inbox] [-h|--help]"
     exit 0
   fi
 fi
@@ -56,6 +59,10 @@ while [ $# -gt 0 ]; do
       ;;
     --json)
       JSON_OUTPUT=true
+      shift
+      ;;
+    --generate-inbox)
+      GENERATE_INBOX=true
       shift
       ;;
     -h|--help)
@@ -286,6 +293,38 @@ except Exception:
     else
       UPDATE_AVAIL=false
       DIFF_SUMMARY="up to date / custom ($INSTALLED)"
+    fi
+
+    # Generación determinista de propuesta en docs/idea-inbox/ si procede
+    if [ "$UPDATE_AVAIL" = "true" ] && [ "$GENERATE_INBOX" = "true" ]; then
+      TODAY="$(date +%Y-%m-%d)"
+      CLEAN_LATEST="$(echo "$LATEST" | sed 's/^v//')"
+      INBOX_FILE="$ROOT_DIR/docs/idea-inbox/${TODAY}-${t_id}-v${CLEAN_LATEST}.md"
+      if [ ! -f "$INBOX_FILE" ]; then
+        mkdir -p "$ROOT_DIR/docs/idea-inbox"
+        cat <<EOF > "$INBOX_FILE"
+# Idea: Actualización de ${t_name} a v${CLEAN_LATEST}
+
+> **Fecha**: ${TODAY}
+> **Origen**: Sonda determinista check-tooling-updates.sh (Paso 1 de planning)
+> **Estado**: 💡 REGISTRADA, NO APROBADA
+> **Herramienta**: ${t_id} (${t_name})
+> **Versión actual**: ${INSTALLED} → **Versión detectada**: ${CLEAN_LATEST}
+
+## Contexto y Motivación
+La sonda determinista de automejora de Agent OS ha detectado una nueva versión upstream disponible en el registro oficial (${t_reg}).
+Esta propuesta se somete a evaluación del operador humano en el ritual de planning bajo el principio estricto de cero auto-ejecución.
+
+## Novedades Principales
+- Actualización de versión: ${INSTALLED} → ${CLEAN_LATEST}
+- Registro oficial: ${t_reg} (${t_url})
+
+## Evaluación de Impacto
+- **Complejidad estimada**: S
+- **Riesgo**: Bajo (homologación y verificación con test suite).
+- **Acción requerida**: Si el operador humano aprueba su incorporación en el Paso 7 del planning, se formalizará como tarea técnica en el siguiente sprint.
+EOF
+      fi
     fi
   fi
 

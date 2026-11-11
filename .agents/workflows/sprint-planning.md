@@ -68,6 +68,16 @@ bash scripts/agent/close-sprint.sh --auto
    bash scripts/agent/sync.sh .
    ```
 
+### 1c. Sonda determinista de automejora del tooling ($0 tokens)
+
+Ejecutar la sonda determinista de actualización de herramientas de la flota:
+```bash
+bash scripts/agent/check-tooling-updates.sh --generate-inbox
+```
+- Inspecciona los registros oficiales (npm, GitHub, PyPI) de herramientas de la flota (OpenCode, Hermes, Orca, Infisical, Glances) a coste $0 de tokens de inferencia.
+- Si detecta versiones upstream nuevas, genera automáticamente un borrador estructurado en `docs/idea-inbox/YYYY-MM-DD-<tool>-v<version>.md` con el estado `💡 REGISTRADA, NO APROBADA`.
+- **Cero auto-ejecución**: no muta ni actualiza paquetes en caliente. La propuesta se clasifica en el Paso 3 y se somete a veredicto soberano del operador en el Paso 7.
+
 ### 2. Lectura de estado
 
 ```bash
@@ -127,9 +137,10 @@ Para cada manifiesto listado, leer Origen, ¿Qué hace?, Archivos que toca, Prio
 > Los archivos de `docs/external-inbox/` no se mueven ni borran hasta la aprobación en el Paso 7.
 
 #### 3b. idea-inbox (si hay entradas)
-1. Para cada idea, evaluar su pertinencia frente al hito actual del roadmap.
-2. Clasificar cada idea en:
-   - **candidata a sprint** → pasa al Paso 3c.
+1. Analizar las propuestas existentes en `docs/idea-inbox/`, incluyendo las recién capturadas por la sonda del Paso 1c (`check-tooling-updates.sh --generate-inbox`).
+2. Evaluar pertinencia e impacto frente al hito actual del proyecto.
+3. Clasificar cada idea en:
+   - **candidata a sprint** → pasa a la cosecha del Paso 3c (proponer al operador formalizar como tarea técnica).
    - **backlog** → anotar en `## Backlog` del roadmap.
    - **descartar** → registrar motivo en el informe del Paso 7.
 

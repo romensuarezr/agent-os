@@ -314,6 +314,12 @@ done
 
 if bash scripts/agent/check-tooling-updates.sh --help >/dev/null 2>&1; then
   echo -e "  ✅ check-tooling-updates.sh expone ayuda estándar (--help)."
+  if bash scripts/agent/check-tooling-updates.sh --help | grep -q -- "--generate-inbox"; then
+    echo -e "  ✅ check-tooling-updates.sh expone el flag determinista --generate-inbox (T-191)."
+  else
+    echo -e "  ❌ check-tooling-updates.sh no expone --generate-inbox."
+    ERRORS=$((ERRORS + 1))
+  fi
 else
   echo -e "  ❌ check-tooling-updates.sh falló al invocar --help."
   ERRORS=$((ERRORS + 1))
