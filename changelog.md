@@ -9,6 +9,62 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.32.0] — sprint-36 — 2026-11-11
+
+### ✨ Features
+
+- feat(skills): skill idea-validator con veredicto de viabilidad 1–10 (T-200)
+- feat(skills): skill idea-validator con veredicto de viabilidad 1–10 (T-200)
+- feat(security): regla sandbox no-root y skill security-audit (T-199)
+- feat(security): regla sandbox no-root y skill security-audit (T-199)
+- feat(inference): rol /advisor en routing-policy y proveedores DeepSeek/NIM en FreeLLMAPI (T-198)
+- feat(inference): rol /advisor en routing-policy y proveedores DeepSeek/NIM en FreeLLMAPI (T-198)
+- feat(tooling): auditoría de tokenomics y skills huérfanas con --context (T-197)
+- feat(tooling): auditoría de tokenomics y skills huérfanas con --context (T-197)
+- feat(rules): jerarquía de conocimiento y regla anti-AI-slop (T-196)
+- feat(secrets): desbloqueo y delimitación de alcance para cloudflare api token (T-195)
+- feat(releases): estandarización de changelog, github releases y version universal (T-194)
+- feat(satellites): actualización asistida de agent-os con dry-run y plan de impacto (T-193)
+- feat(tooling): homologación integral de tooling upstream y detección remota en VPS (T-192)
+- feat(T-191): cierre de tarea T-191
+- feat(T-191): sonda determinista de automejora en planning con canalización a idea-inbox
+- feat(T-190): cierre de tarea T-190
+- feat(T-190): adaptadores estáticos multi-harness con proyección determinista y test fail-closed
+- feat(T-189): cierre de tarea T-189
+- feat(T-189): hardening determinista de sprint-planning y unificación de régimen Desatendida
+
+### 🐛 Bug Fixes
+
+- fix(deliberation): calibración de esfuerzo y timeout en agy revisor Tier 1
+- fix(releases): normalización de urls remotas con alias ssh en update-changelog
+- fix(sprint): cálculo determinista de TAREA_SIGUIENTE_ID en check-sprint.sh e invariante en planning
+- fix(harness): proyección de agent build en adaptadores opencode y desambiguación de placeholders en planning
+- fix(planning): discriminación determinista de core vs satélite en check-sprint y salvaguarda en sync.sh
+- fix(planning): ventana de decisión A/B en Paso 7 y eliminación de restricción read-only en adaptadores OpenCode
+
+### 📚 Documentación
+
+- docs(tasks): integración de research scout/SearXNG en task-200 (T-200)
+- docs(tasks): integración de research scout/SearXNG en task-199 (T-199)
+- docs(tasks): integración de research SearXNG/scout en task-198 (T-198)
+- docs(tasks): integración de research scout en task-197 (T-197)
+- docs(rules): jerarquía de conocimiento y regla anti-AI-slop (T-196)
+- docs(tasks): integración de research scout en task-196 (T-196)
+- docs(idea-inbox): propuesta estratégica de gobernanza de contexto, sandboxing, inferencia y estándares web
+- docs(sprint-34): cierre formal de sprint-34 y registro de hardening empírico T-189/T-190
+- docs(sprint-34): formalización de sprint 34 y contratos de tarea T-189, T-190 y T-191
+
+### 🔧 Mantenimiento
+
+- chore(sprint-36): formalización y sellado de sprint-36 en régimen Desatendido
+- chore: archive sprint-35 [v1.31.0]
+- chore(sprint-35): formalización y sellado de sprint-35 en régimen Desatendido
+- chore: archive sprint-34 [v1.30.0]
+
+### 📦 Otros
+
+- test(control-plane): fix pipefail SIGPIPE al capturar help de check-tooling-updates.sh
+
 ## [1.31.0] — sprint-35 — 2026-11-11
 
 ### ✨ Features
@@ -1724,5 +1780,6 @@ Historial de cambios y releases del núcleo de Agent OS.
   - `inventory-check.sh` y `update-mvp-tracker.sh`.
 - **Workflows Base**: `session-start.md`, `session-close.md`, `sprint-planning.md`, `changelog.md`, `honesto.md`.
 
+[1.32.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.32.0
 [1.31.0]: https://github.com/romensuarezr/agent-os/compare/v1.30.0...v1.31.0
 [1.30.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.30.0
