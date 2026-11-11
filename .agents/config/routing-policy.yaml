@@ -81,6 +81,10 @@ task_routing_matrix:
     timeout_seconds: 5
     max_automatic_rounds: 1
     preferred_model: "auto"
+    agy_revisor:
+      enabled: true
+      timeout_seconds: 60
+      effort: "low"
     orca_revisor:
       enabled: true
       agent: "opencode"

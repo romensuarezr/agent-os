@@ -54,7 +54,7 @@ JSON_OUTPUT=false
 TIMEOUT=5
 ORCA_TIMEOUT=15
 NO_ORCA=false
-AGY_TIMEOUT=30
+AGY_TIMEOUT=60
 NO_AGY=false
 MOCK_RESPONSE=""
 
@@ -301,6 +301,7 @@ orca_agent = "opencode"
 orca_role = "qa-judge"
 agy_timeout = int('"$AGY_TIMEOUT"')
 agy_enabled = True
+agy_effort = "low"
 
 if os.path.isfile(routing_file):
     try:
@@ -340,11 +341,13 @@ if os.path.isfile(routing_file):
         if isinstance(agy_cfg, dict):
             if "enabled" in agy_cfg:
                 agy_enabled = bool(agy_cfg["enabled"])
-            if "timeout_seconds" in agy_cfg and agy_timeout == 30:
+            if "timeout_seconds" in agy_cfg:
                 try:
                     agy_timeout = int(agy_cfg["timeout_seconds"])
                 except Exception:
                     pass
+            if "effort" in agy_cfg and agy_cfg["effort"]:
+                agy_effort = str(agy_cfg["effort"])
     except Exception:
         pass
 
@@ -438,6 +441,7 @@ out = {
     "orca_role": orca_role,
     "agy_timeout": agy_timeout,
     "agy_enabled": agy_enabled,
+    "agy_effort": agy_effort,
     "tiers": resolved_tiers
 }
 print(json.dumps(out))
@@ -446,7 +450,8 @@ print(json.dumps(out))
 
 CONFIG_DATA=$(resolve_deliberation_config)
 AGY_ENABLED=$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("agy_enabled", True) else "false")' "$CONFIG_DATA" 2>/dev/null || echo "true")
-AGY_TIMEOUT=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("agy_timeout", 30))' "$CONFIG_DATA" 2>/dev/null || echo 30)
+AGY_TIMEOUT=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("agy_timeout", 60))' "$CONFIG_DATA" 2>/dev/null || echo 60)
+AGY_EFFORT=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("agy_effort", "low"))' "$CONFIG_DATA" 2>/dev/null || echo "low")
 ORCA_ENABLED=$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("orca_enabled", False) else "false")' "$CONFIG_DATA" 2>/dev/null || echo "false")
 ORCA_AGENT=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("orca_agent", "opencode"))' "$CONFIG_DATA" 2>/dev/null || echo "opencode")
 ORCA_ROLE=$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("orca_role", "qa-judge"))' "$CONFIG_DATA" 2>/dev/null || echo "qa-judge")
@@ -684,10 +689,17 @@ if [ -z "$RAW_REVIEW" ] && [ "$AGY_ENABLED" = "true" ]; then
       [ -n "${HTTPS_PROXY:-}" ] && ENV_WHITELIST+=(HTTPS_PROXY="$HTTPS_PROXY")
       [ -n "${NO_PROXY:-}" ] && ENV_WHITELIST+=(NO_PROXY="$NO_PROXY")
       [ -n "${AGY_BIN_OVERRIDE:-}" ] && ENV_WHITELIST+=(AGY_BIN_OVERRIDE="$AGY_BIN_OVERRIDE")
+      [ -n "${ANTIGRAVITY_APP_DATA_DIR:-}" ] && ENV_WHITELIST+=(ANTIGRAVITY_APP_DATA_DIR="$ANTIGRAVITY_APP_DATA_DIR")
+      [ -n "${ANTIGRAVITY_AGENTAPI_EXE:-}" ] && ENV_WHITELIST+=(ANTIGRAVITY_AGENTAPI_EXE="$ANTIGRAVITY_AGENTAPI_EXE")
 
       AGY_RAW_OUT=""
       AGY_RC=0
-      AGY_RAW_OUT="$(portable_timeout "$AGY_TIMEOUT" env -i "${ENV_WHITELIST[@]}" "$AGY_BIN" --print "$AGY_DIRECT" --output-format json --mode plan --disable-slash-commands 2>/dev/null)" || AGY_RC=$?
+      AGY_EFFORT="${AGY_EFFORT:-low}"
+      AGY_CMD=("$AGY_BIN" --print "$AGY_DIRECT" --output-format json --disable-slash-commands)
+      if [ -z "${AGY_BIN_OVERRIDE:-}" ]; then
+        AGY_CMD+=(--effort "$AGY_EFFORT")
+      fi
+      AGY_RAW_OUT="$(portable_timeout "$AGY_TIMEOUT" env -i "${ENV_WHITELIST[@]}" "${AGY_CMD[@]}" 2>/dev/null)" || AGY_RC=$?
 
       # 4. Centinela POST (T-153): verificar si agy intentó mutar el working tree
       MUTATION_DETECTED=false
