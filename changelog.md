@@ -9,6 +9,19 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.31.0] — sprint-35 — 2026-11-11
+
+### ✨ Features
+
+- feat(secrets): desbloqueo y delimitación de alcance para cloudflare api token (T-195)
+- feat(releases): estandarización de changelog, github releases y version universal (T-194)
+- feat(satellites): actualización asistida de agent-os con dry-run y plan de impacto (T-193)
+- feat(tooling): homologación integral de tooling upstream y detección remota en VPS (T-192)
+
+### 🔧 Mantenimiento
+
+- chore(sprint-35): formalización y sellado de sprint-35 en régimen Desatendido
+
 ## [1.30.0] — sprint-34 — 2026-11-11
 
 ### ✨ Features
@@ -1710,3 +1723,6 @@ Historial de cambios y releases del núcleo de Agent OS.
   - `install.sh` y `sync.sh`.
   - `inventory-check.sh` y `update-mvp-tracker.sh`.
 - **Workflows Base**: `session-start.md`, `session-close.md`, `sprint-planning.md`, `changelog.md`, `honesto.md`.
+
+[1.31.0]: https://github.com/romensuarezr/agent-os/compare/v1.30.0...v1.31.0
+[1.30.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.30.0

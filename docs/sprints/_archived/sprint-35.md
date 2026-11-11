@@ -1,7 +1,7 @@
 # Sprint 35 — 2026-11-11 → 2026-11-25
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 
