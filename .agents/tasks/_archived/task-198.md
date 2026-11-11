@@ -34,20 +34,20 @@ Archivos autorizados para modificación:
 - `templates/freellmapi/config/freellmapi.config.json`
 
 ## Criterios de done
-- [ ] `routing-policy.yaml` declara el rol `advisor` y rutas existentes intactas; YAML válido.
-- [ ] `freellmapi.config.json` declara proveedores DeepSeek MoE y Nvidia NIM; JSON válido y sin claves reales.
-- [ ] Cero dependencias nuevas y cero paquetes mutados.
-- [ ] Suite `tests/validate-control-plane.sh` en verde sin regresiones.
+- [x] `routing-policy.yaml` declara el rol `advisor` (`architecture_advisory`) y rutas existentes intactas; YAML válido.
+- [x] `freellmapi.config.json` declara proveedores DeepSeek MoE y Nvidia NIM; JSON válido y sin claves reales (placeholders `***`).
+- [x] Cero dependencias nuevas y cero paquetes mutados.
+- [x] Suite `tests/validate-control-plane.sh` en verde sin regresiones (38/38, 0 errores).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `[CONSENSO]` — 1/2 rondas, cero objeciones; recibo `.agents/context/deliberation-T-198.json`.
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5) — camino limpio Desatendido (sin pausa interactiva)
+- [x] APROBADO recibido — fecha/hora: 2026-11-11 (régimen Desatendido sellado en planning)
+- [x] Rama creada: `feat/T-198-advisor-routing-freellmapi` (merge `5a03fa8` en `multi-agent`)
+- [x] Lock activo: `.agent-session.lock` (eliminado por `close-task.sh`)
+- [x] Sesión cerrada correctamente
