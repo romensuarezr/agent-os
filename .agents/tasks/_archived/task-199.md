@@ -34,21 +34,21 @@ Archivos autorizados para modificación:
 - `.agents/context/skills-inventory.md` (registro de la skill)
 
 ## Criterios de done
-- [ ] Regla `agent-sandbox.md` creada con comandos de verificación no-root portables y sin literales de infraestructura.
-- [ ] Skill `security-audit/SKILL.md` creada con los 3 familias de patrones, formato de salida y triggers.
-- [ ] Skill registrada en `.agents/context/skills-inventory.md`.
-- [ ] Cero dependencias nuevas; cero ejecución de red.
-- [ ] Suite `tests/validate-control-plane.sh` en verde sin regresiones.
+- [x] Regla `agent-sandbox.md` creada con comandos de verificación no-root portables y sin literales de infraestructura.
+- [x] Skill `security-audit/SKILL.md` creada con los 3 familias de patrones, formato de salida y triggers.
+- [x] Skill registrada en `.agents/context/skills-inventory.md` (fila 25).
+- [x] Cero dependencias nuevas; cero ejecución de red (gate `inspect-skills.sh` score 100/100).
+- [x] Suite `tests/validate-control-plane.sh` en verde sin regresiones (38/38, 0 errores; 28/28 skills íntegras).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `[CONSENSO]` — 1/2 rondas, cero objeciones; recibo `.agents/context/deliberation-T-199.json`.
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5) — camino limpio Desatendido (sin pausa interactiva)
+- [x] APROBADO recibido — fecha/hora: 2026-11-11 (régimen Desatendido sellado en planning)
+- [x] Rama creada: `feat/T-199-sandbox-security-audit` (merge `d56a73e` en `multi-agent`)
+- [x] Lock activo: `.agent-session.lock` (eliminado por `close-task.sh`)
+- [x] Sesión cerrada correctamente
