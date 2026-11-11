@@ -1,9 +1,10 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 35**: Tooling Homologation, Actualización Asistida de Satélites, Estandarización de Releases & Gobernanza de Credenciales (T-192 a T-195). En ejecución bajo régimen Desatendido en rama `sprint-35`.
+- **Sprint 36**: Gobernanza de Contexto, Tokenomics de Skills, Enrutamiento Asesor, Sandboxing no-root e Idea Validator (T-196 a T-200). 🟡 En curso bajo régimen **Desatendido** (sellado 2026-11-11, veredicto `A, aprobado`). Carril 1 secuencial: T-196 → T-197 → T-198 → T-199 → T-200. Ver `docs/sprints/sprint-36.md`.
 
 ## Próximo
+- **Sprint 35**: Tooling Homologation, Actualización Asistida de Satélites, Estandarización de Releases & Gobernanza de Credenciales (T-192 a T-195). Formalizado como release `v1.31.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-35.md`.
 - **Sprint 34**: Hardening Determinista de Planning, Proyección Multi-Harness y Automejora (T-189 a T-191). Formalizado como release `v1.30.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-34.md`.
 - Gobernanza de credenciales en la bóveda: arquitectura de `CLOUDFLARE_API_TOKEN` delimitada como transversal en `/shared` con override local por proyecto (T-195 en Sprint 35). La rotación física de claves en consolas queda como mantenimiento operativo a demanda del operador.
 - **Sprint 33**: Estandarización Ops, Auditoría de Satélites, Hardening de Flujo Desatendido & UI Critique (T-183 a T-188). Formalizado como release `v1.29.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-33-core.md`.
@@ -55,6 +56,7 @@
 - ✅ Refinamiento de workflows globales y estandarización de logs de ejecución (T-185, T-188, Sprint 33).
 
 ## Backlog
+- Bloque F del paquete de gobernanza 2026-11-11 (captura en `docs/idea-inbox/_archived/2026-11-11-paquete-gobernanza-seguridad-contexto.md`): compuerta `templates/workflows/media-storyboard-gate.md` (guión de 5-6 fotogramas antes de renders pesados) y regla `.agents/rules/global/web-structured-data.md` (Schema.org / JSON-LD para satélites web). Diferido del Sprint 36 por límite de 5 tareas.
 - Manifest de assets regenerable en `close-sprint.sh` (idea de 2026-06-18, especificación en `docs/idea-inbox/_archived/2026-06-18-gestion-automatica-manifest.md`). Diferido 4 sprints sin incidente; el manifest manual funciona. Se deja de arrastrar al sprint.
 - Skill + CLI `bytebox-curator` para registrar snippets y comandos en ByteBox (idea de 2026-09-26, especificación en `docs/idea-inbox/_archived/2026-09-26-bytebox-curator.md`). Producto específico, no es core; puede conectar con trabajo futuro; archivado para higiene del inbox.
 - Integración de Bane (Self-Hosted Deep Research) en el flujo de sprint planning (captura 2026-10-27, especificación en `docs/external-inbox/_archived/2026-10-27-bane-deep-research-in-sprint-planning.md`). Requiere contenedor Docker VPS y consumo de red. Backlog de Infraestructura de Flota / Satélites.
