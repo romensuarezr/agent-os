@@ -1,0 +1,17 @@
+{
+  "task_id": "T-200",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan para T-200 cumple con exactitud el dise\u00f1o macro aprobado en planning: a\u00f1ade la skill puramente declarativa en `.agents/skills/idea-validator/SKILL.md` y actualiza `.agents/context/skills-inventory.md` en la posici\u00f3n 26 sin alterar el control plane inmutable. La delimitaci\u00f3n t\u00e9cnica ($0 tokens, prospecci\u00f3n determinista v\u00eda `searxng-client.sh` y `scout.sh`, y reglas anti-sycophancy con umbral m\u00ednimo de fuentes e 'INSUFICIENTE_DATOS') garantiza neutralidad algor\u00edtmica y preserva la soberan\u00eda del operador.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "No se invocan skills operativas auxiliares ya que la propia skill 'idea-validator' es el entregable documental a incorporar. Cumple la exclusi\u00f3n de skills prohibidas (implementar-feature-dry, infisical-secrets, roadmap-a-tarea) y respeta el inventario activo de 25 skills extendi\u00e9ndose a la fila 26."
+  },
+  "inventory_scoped_bytes": 2028,
+  "plan_source": ".agents/context/plan-draft.md"
+}

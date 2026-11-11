@@ -35,20 +35,20 @@ Archivos autorizados para modificación:
 - `.agents/context/skills-inventory.md` (registro de la skill)
 
 ## Criterios de done
-- [ ] Skill `idea-validator/SKILL.md` creada con criterios de puntuación, fuentes deterministas y formato de salida.
-- [ ] Skill registrada en `.agents/context/skills-inventory.md`.
-- [ ] Cero dependencias nuevas; cero llamadas a APIs comerciales.
-- [ ] Suite `tests/validate-control-plane.sh` en verde sin regresiones.
+- [x] Skill `idea-validator/SKILL.md` creada con criterios de puntuación, fuentes deterministas y formato de salida.
+- [x] Skill registrada en `.agents/context/skills-inventory.md` (fila 26).
+- [x] Cero dependencias nuevas; cero llamadas a APIs comerciales (solo `searxng-client.sh` + `scout.sh`).
+- [x] Suite `tests/validate-control-plane.sh` en verde sin regresiones (38/38, 0 errores; 29/29 skills íntegras).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `[CONSENSO]` — 1/2 rondas, cero objeciones; recibo `.agents/context/deliberation-T-200.json`.
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5) — camino limpio Desatendido (sin pausa interactiva)
+- [x] APROBADO recibido — fecha/hora: 2026-11-11 (régimen Desatendido sellado en planning)
+- [x] Rama creada: `feat/T-200-idea-validator-skill` (merge `d43417a` en `multi-agent`)
+- [x] Lock activo: `.agent-session.lock` (eliminado por `close-task.sh`)
+- [x] Sesión cerrada correctamente
