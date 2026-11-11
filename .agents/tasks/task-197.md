@@ -8,6 +8,12 @@ Extender `scripts/agent/inspect-skills.sh` con un flag `--context` que mida lín
 - Hoy no existe métrica de peso en tokens ni detección de skills huérfanas (verificado en `--help` vigente: sin flag `--context`).
 - Referencias: `.agents/context/skills-inventory.md` (catálogo), `.agents/workflows/` y `.agents/profiles/` (fuentes de referencia para huérfanas).
 
+### Research integrado (`## Descubrimientos Scout` → `### T-197`)
+- **Consulta scout**: `token context weight audit orphan skills manifest lines tokens`.
+- **Alternativas detectadas**: paquetes npm ajenos al problema (`js-tokens`, `parse-statements`, `@sanity-labs/design-tokens`) — sin aplicabilidad.
+- **Recomendación**: `Desarrollo a medida justificado` — extensión determinista de `scripts/agent/inspect-skills.sh` (señal⚠️ leído en firewall, no recreado); se reutiliza la base de inspección estática existente.
+- **Investigación web externa**: no requerida (tarea de alcance puramente interno/core; bypass declarado en `docs/sprints/sprint-36-research.md`).
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
