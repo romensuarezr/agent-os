@@ -137,6 +137,13 @@ REAL_TARGET=$(realpath "$TARGET_PROJECT" 2>/dev/null || echo "$TARGET_PROJECT")
 
 TEMP_CORE_DIR=""
 
+# Salvaguarda: sync.sh nunca debe ejecutarse sobre el propio núcleo de Agent OS
+TARGET_ORIGIN="$(git -C "$REAL_TARGET" config --get remote.origin.url 2>/dev/null || true)"
+if [ -f "$REAL_TARGET/tests/validate-control-plane.sh" ] || [[ "$TARGET_ORIGIN" =~ /agent-os(\.git)?$ ]]; then
+    echo "ℹ️  Detectado el núcleo (Core) de Agent OS en $TARGET_PROJECT. 'sync.sh' está diseñado exclusivamente para sincronizar hacia proyectos satélites (hijos), no sobre el propio core."
+    exit 0
+fi
+
 # Si se solicitó --remote, o si AGENT_OS_PATH y TARGET_PROJECT apuntan al mismo directorio (satélite autónomo)
 if [ "$REMOTE" = true ] || [ "$REAL_AGENT_OS" = "$REAL_TARGET" ]; then
     if [ "$REAL_AGENT_OS" = "$REAL_TARGET" ] && [ "$REMOTE" = false ]; then

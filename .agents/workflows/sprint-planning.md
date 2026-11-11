@@ -60,13 +60,13 @@ bash scripts/agent/close-sprint.sh --auto
 - Si `check-session.sh` devuelve un JSON → hay una sesión anterior sin cerrar. Ejecutar el **Modo Rescate** de `/session-start` antes de continuar.
 - `close-sprint.sh --auto` detecta y archiva en `docs/sprints/_archived/` cualquier sprint cuyo estado sea `✅ Completado`. Si no hay ninguno, continúa sin error.
 
-### 1b. Verificación de actualización del core (offline)
+### 1b. Verificación de actualización del core (solo proyectos satélite)
 
-1. Comprobar si existe `.agents/context/last-sync.md`.
-2. Si **NO existe** o la fecha es de hace **más de 7 días**: recomendar al usuario ejecutar:
-   ```bash
-   bash scripts/agent/sync.sh .
-   ```
+- **Si el proyecto es el Core** (`check-sprint.sh` reporta `TIPO_PROYECTO: CORE` o existe `tests/validate-control-plane.sh`): **OMITIR este paso por completo** (el núcleo de agent-os nunca se sincroniza con `sync.sh`).
+- **Si el proyecto es un Satélite (hijo)**: Si `check-session.sh` alerta de desactualización de `last-sync.md` (>7 días), sugerir al usuario ejecutar:
+  ```bash
+  bash scripts/agent/sync.sh .
+  ```
 
 ### 1c. Sonda determinista de automejora del tooling ($0 tokens)
 
@@ -387,6 +387,15 @@ Una vez que el operador responde aprobando el sprint (ej: "A, aprobado" o "Opci�
 5. Confirmar al usuario: `"✅ Sprint {{SPRINT_SIGUIENTE}} formalizado y sellado en régimen Desatendido. Listo para /session-start."`
 
 ## Reglas
+
+### Criterio de Valor para Tareas de Actualización de Tooling
+- **Prohibido el bump cosmético**: Una tarea de actualización de herramienta **NO es solo subir la versión** del paquete o binario.
+- **Alineación con Topología Declarativa**: Las herramientas deben contextualizarse según el entorno declarado en `.agents/config/fleet.yaml` (Host Local, Nodos Remotos de Inferencia, Nodos PaaS/Coolify).
+- **Impacto en Activos Vivos (No Documentación Pasiva)**: Dado que los runbooks son documentos pasivos, la tarea debe actualizar los componentes que los agentes ejecutan directamente en su contexto activo:
+  1. La **Skill activa** en `.agents/skills/<herramienta>/SKILL.md` (incorporando los nuevos flags, subcomandos y patrones de invocación).
+  2. Los **Workflows** o **Perfiles** (`.agents/profiles/`) si la nueva capacidad optimiza un ritual de trabajo.
+  3. Las sondas deterministas (`fleet-doctor.sh`) si cambian endpoints o firmas.
+- **Agrupación Coherente**: Si hay múltiples herramientas menores con actualizaciones upstream, se deben agrupar en una tarea integral de homologación en lugar de fragmentar el sprint en tareas redundantes.
 
 ### Selección de Tareas (Regla de Oro: El agente propone, el usuario confirma)
 - El agente **propone siempre una lista cerrada** de 3 a 5 tareas derivadas autónomamente de spillover, inboxes y roadmap.

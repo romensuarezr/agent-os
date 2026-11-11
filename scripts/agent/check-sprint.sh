@@ -37,6 +37,16 @@ fi
 
 echo "=== SPRINT CONTEXT ==="
 
+# Detección determinista de arquetipo: Core vs. Satélite ($0 tokens)
+IS_CORE=false
+ORIGIN_URL="$(git -C "$ROOT" config --get remote.origin.url 2>/dev/null || true)"
+if [ -f "$ROOT/tests/validate-control-plane.sh" ] || [[ "$ORIGIN_URL" =~ /agent-os(\.git)?$ ]]; then
+  IS_CORE=true
+  echo "TIPO_PROYECTO: CORE (agent-os — núcleo del sistema)"
+else
+  echo "TIPO_PROYECTO: SATÉLITE (proyecto hijo consumidor)"
+fi
+
 if [ -n "$ROADMAP_PATH" ]; then
   PENDING_GLOBAL=$(grep -c "^- \\[ \\]" "$ROADMAP_PATH" 2>/dev/null || true)
   # El estandar del core es roadmap.md en minusculas (audit-repo.sh migra ROADMAP.md).
