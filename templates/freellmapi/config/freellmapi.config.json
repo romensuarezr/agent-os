@@ -27,6 +27,40 @@
           "supportsTools": true
         }
       ]
+    },
+    {
+      "baseUrl": "https://api.deepseek.com/v1",
+      "label": "DeepSeek (MoE)",
+      "apiKey": "***",
+      "models": [
+        {
+          "model": "deepseek-chat",
+          "displayName": "DeepSeek Chat (MoE)",
+          "supportsTools": true
+        },
+        {
+          "model": "deepseek-reasoner",
+          "displayName": "DeepSeek Reasoner (MoE)",
+          "supportsTools": false
+        }
+      ]
+    },
+    {
+      "baseUrl": "https://integrate.api.nvidia.com/v1",
+      "label": "Nvidia NIM",
+      "apiKey": "***",
+      "models": [
+        {
+          "model": "deepseek-ai/deepseek-r1",
+          "displayName": "DeepSeek R1 (NIM)",
+          "supportsTools": false
+        },
+        {
+          "model": "meta/llama-3.3-70b-instruct",
+          "displayName": "Llama 3.3 70B Instruct (NIM)",
+          "supportsTools": true
+        }
+      ]
     }
   ],
   "routing": {

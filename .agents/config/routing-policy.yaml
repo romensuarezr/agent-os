@@ -2,7 +2,7 @@
 # Agent OS — Model Routing & Fallback Policy
 # ==========================================
 version: "1.0.0"
-updated_at: "2026-09-24"
+updated_at: "2026-11-11"
 
 # ==============================================================================
 # MECANISMO DE RESOLUCIÓN DE ENDPOINTS Y EXPANSIÓN DE ENTORNO:
@@ -59,12 +59,19 @@ task_routing_matrix:
     reason: "Errores o alucinaciones en cambios críticos pueden comprometer la integridad o seguridad del sistema."
 
   code_implementation:
-    description: "Generación de código, tests unitarios y corrección de bugs en worktrees aislados"
-    primary: "primary-reliable"
-    secondary: "freellmapi"
-    tertiary: "omniroute"
-    fallback: "ollama-local"
+    description: "Generación de código, tests unitarios y corrección de bugs en worktrees aislados (patrón /advisor: workers rápidos para codificación intensiva)"
+    primary: "freellmapi"
+    secondary: "omniroute"
+    tertiary: "ollama-local"
+    fallback: "primary-reliable"
     preferred_local_model: "mistral-nemo:12b"
+
+  architecture_advisory:
+    description: "Rol /advisor: asesoría de diseño, arbitraje y decisiones de arquitectura — el modelo top se delega solo para consultas, nunca para generación mecánica"
+    primary: "primary-reliable"
+    fallback: "freellmapi"
+    allow_unverified_fallback: false
+    reason: "Los workers rápidos cubren la codificación; el modelo top queda reservado para diseño y arbitraje (rol advisor) y como último recurso defensivo."
 
   read_only_operations:
     description: "Auditorías de logs, comprobación de estado de contenedores, inspección de git"
