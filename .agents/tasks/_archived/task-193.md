@@ -30,16 +30,16 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-35.md`
 
 ## Criterios de done
-- [ ] `check-session.sh` reporta disponibilidad de nueva versión de forma determinista y sin bloqueos de timeout no interactivos.
-- [ ] `sync.sh --dry-run` emite un digest estructurado de archivos nuevos, modificados y deprecados.
-- [ ] Paso 1b en `sprint-planning.md` documenta la generación del Plan de Impacto a partir de `changelog.md`.
-- [ ] Ventana de decisión del planning en satélites incluye la compuerta de sincronización opcional.
-- [ ] Suite `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
+- [x] `check-session.sh` reporta disponibilidad de nueva versión de forma determinista y sin bloqueos de timeout no interactivos.
+- [x] `sync.sh --dry-run` emite un digest estructurado de archivos nuevos, modificados y deprecados.
+- [x] Paso 1b en `sprint-planning.md` documenta la generación del Plan de Impacto a partir de `changelog.md`.
+- [x] Ventana de decisión del planning en satélites incluye la compuerta de sincronización opcional.
+- [x] Suite `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
 
 ## Estado de aprobación y deliberación
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido en planning
-- [ ] Rama de trabajo activa
-- [ ] Lock activo: —
-- [ ] Tarea cerrada y verificada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido en planning
+- [x] Rama de trabajo activa
+- [x] Lock activo: —
+- [x] Tarea cerrada y verificada

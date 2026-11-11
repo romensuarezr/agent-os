@@ -13,13 +13,17 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/cli-help.sh"
+NON_INTERACTIVE=false
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     show_help "check-session.sh" \
-      "bash scripts/agent/check-session.sh" \
+      "bash scripts/agent/check-session.sh [--non-interactive]" \
       "Detecta si existe una sesión de desarrollo activa, verifica el lock .agent-session.lock y el estado del árbol de trabajo." \
+      "--non-interactive       Omite prompts interactivos y reporta CORE_UPDATE_AVAILABLE sin bloquearse" \
       "-h, --help               Muestra este mensaje de ayuda" \
       "ejemplo: bash scripts/agent/check-session.sh"
+  elif [ "$arg" = "--non-interactive" ] || [ "$arg" = "--batch" ]; then
+    NON_INTERACTIVE=true
   fi
 done
 
@@ -147,28 +151,34 @@ if [ "$is_core" = "false" ]; then
     fi
     echo ""
     
-    # Preguntar de forma interactiva
-    echo -n "¿Actualizar agent-os ahora? (sync / skip): "
-    # timeout de 10 segundos para lectura por si se ejecuta de forma no interactiva
-    if read -r -t 10 response; then
-      response=$(echo "$response" | tr '[:upper:]' '[:lower:]' | xargs)
+    # Comprobar si la ejecución es interactiva (humana) o desatendida (agente / CI / subproceso)
+    if [ ! -t 0 ] || [ "${NON_INTERACTIVE:-false}" = "true" ] || [ "${AGENT_OS_NON_INTERACTIVE:-0}" = "1" ]; then
+      echo "CORE_UPDATE_AVAILABLE: true"
+      echo "ℹ️  Ejecución desatendida/agente detectada: actualización pospuesta para evaluación en sprint-planning (sync.sh --dry-run)."
     else
-      response="skip"
-      echo "skip (timeout)"
-    fi
-    
-    if [ "$response" = "sync" ] && [ -f "scripts/agent/sync.sh" ]; then
-      echo "Ejecutando sincronización..."
-      if [ -n "$AGENT_OS_CORE_DIR" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
-        bash scripts/agent/sync.sh .
+      # Preguntar de forma interactiva
+      echo -n "¿Actualizar agent-os ahora? (sync / skip): "
+      # timeout de 10 segundos para lectura por si se ejecuta de forma no interactiva
+      if read -r -t 10 response; then
+        response=$(echo "$response" | tr '[:upper:]' '[:lower:]' | xargs)
       else
-        bash scripts/agent/sync.sh --remote .
+        response="skip"
+        echo "skip (timeout)"
       fi
-    else
-      # Registrar skipped en last-sync.md
-      mkdir -p "$(dirname "$LAST_SYNC_FILE")"
-      echo "skipped: $(date +%Y-%m-%d)" > "$LAST_SYNC_FILE"
-      echo "Sincronización pospuesta."
+      
+      if [ "$response" = "sync" ] && [ -f "scripts/agent/sync.sh" ]; then
+        echo "Ejecutando sincronización..."
+        if [ -n "$AGENT_OS_CORE_DIR" ] && [ -d "$AGENT_OS_CORE_DIR/.git" ]; then
+          bash scripts/agent/sync.sh .
+        else
+          bash scripts/agent/sync.sh --remote .
+        fi
+      else
+        # Registrar skipped en last-sync.md
+        mkdir -p "$(dirname "$LAST_SYNC_FILE")"
+        echo "skipped: $(date +%Y-%m-%d)" > "$LAST_SYNC_FILE"
+        echo "Sincronización pospuesta."
+      fi
     fi
     echo "--------------------------------------------------------"
   fi

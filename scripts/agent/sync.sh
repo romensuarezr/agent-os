@@ -220,6 +220,8 @@ if [ "$COMMIT" = true ] && [ "$DRY_RUN" = false ]; then
 fi
 
 TOUCHED_FILES=()
+DRY_RUN_CREATE=()
+DRY_RUN_MODIFY=()
 CORE_SHA=$(git -C "$AGENT_OS_PATH" rev-parse HEAD 2>/dev/null || echo "unknown")
 
 AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
@@ -273,6 +275,7 @@ sync_file() {
     if [ ! -f "$dst" ]; then
         if [ "$DRY_RUN" = true ]; then
             echo "    [dry-run] crear: $label"
+            DRY_RUN_CREATE+=("${dst#"$TARGET_PROJECT/"}")
         else
             mkdir -p "$(dirname "$dst")"
             cp "$src" "$dst"
@@ -295,6 +298,7 @@ sync_file() {
     # Caso 3: El archivo existe y difiere del core (personalización o actualización)
     if [ "$DRY_RUN" = true ]; then
         echo "    [dry-run] diferir: $label (personalización local o actualización disponible)"
+        DRY_RUN_MODIFY+=("${dst#"$TARGET_PROJECT/"}")
         return 0
     fi
 
@@ -687,6 +691,31 @@ if [ "$DRY_RUN" = true ]; then
         else
             echo "  [dry-run] commit: omitido porque el destino no es un repositorio git."
         fi
+    fi
+    echo ""
+    echo "=============================================================================="
+    echo "📋 RESUMEN DE SIMULACIÓN DE ACTUALIZACIÓN (--dry-run)"
+    echo "=============================================================================="
+    echo "✨ Archivos nuevos a crear (${#DRY_RUN_CREATE[@]}):"
+    for f in "${DRY_RUN_CREATE[@]}"; do
+        echo "    + $f"
+    done
+    echo "🔄 Archivos a actualizar/revisar (${#DRY_RUN_MODIFY[@]}):"
+    for f in "${DRY_RUN_MODIFY[@]}"; do
+        echo "    ~ $f"
+    done
+    if [ "${#DETECTED_DEPRECATED[@]}" -gt 0 ]; then
+        echo "🗑️  Archivos deprecados a limpiar con --cleanup (${#DETECTED_DEPRECATED[@]}):"
+        for f in "${DETECTED_DEPRECATED[@]}"; do
+            echo "    - $f"
+        done
+    fi
+    TOTAL_PENDING=$((${#DRY_RUN_CREATE[@]} + ${#DRY_RUN_MODIFY[@]} + ${#DETECTED_DEPRECATED[@]}))
+    echo "------------------------------------------------------------------------------"
+    if [ "$TOTAL_PENDING" -eq 0 ]; then
+        echo "ℹ️  Sin cambios pendientes: el proyecto ya cuenta con todos los assets del core al día."
+    else
+        echo "Total activos impactados: $TOTAL_PENDING (Nuevos: ${#DRY_RUN_CREATE[@]}, Modificados: ${#DRY_RUN_MODIFY[@]}, Deprecados: ${#DETECTED_DEPRECATED[@]})"
     fi
     echo "✅ [DRY-RUN] Simulación completada sin escrituras en disco."
 else

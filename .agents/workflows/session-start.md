@@ -20,7 +20,7 @@ description: Inicia una sesión de desarrollo. Detecta sesiones colgadas, selecc
 
 ## Protocolo
 
-### FASE 0 — Detección de sesión anterior (Modo Rescate)
+### FASE 0 — Detección de sesión anterior (Modo Rescate) y salud de la plataforma
 
 ```bash
 bash scripts/agent/check-session.sh
@@ -28,6 +28,7 @@ bash scripts/agent/check-session.sh
 
 - `NO_ACTIVE_SESSION` → ir a Fase 1.
 - **JSON devuelto** → sesión sin cerrar. Leer `task`, `sprint`, `opened`. Avisar: `"⚠️ Sesión anterior sin cerrar: [task] desde [opened]. Preparando cierre para aprobación."` No commitear aún. Reflejar rescate en el plan. Continuar a Fase 1.
+- `CORE_UPDATE_AVAILABLE: true` (solo satélites) → El agente no se bloquea; toma nota de la versión disponible para evaluarla mediante `sync.sh --dry-run` y Plan de Impacto en el siguiente ritual de planning.
 
 ### FASE 1 — Lectura de contexto
 

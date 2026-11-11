@@ -60,13 +60,22 @@ bash scripts/agent/close-sprint.sh --auto
 - Si `check-session.sh` devuelve un JSON → hay una sesión anterior sin cerrar. Ejecutar el **Modo Rescate** de `/session-start` antes de continuar.
 - `close-sprint.sh --auto` detecta y archiva en `docs/sprints/_archived/` cualquier sprint cuyo estado sea `✅ Completado`. Si no hay ninguno, continúa sin error.
 
-### 1b. Verificación de actualización del core (solo proyectos satélite)
+### 1b. Auditoría y Plan de Impacto de Actualización del Core (solo proyectos satélite)
 
 - **Si el proyecto es el Core** (`check-sprint.sh` reporta `TIPO_PROYECTO: CORE` o existe `tests/validate-control-plane.sh`): **OMITIR este paso por completo** (el núcleo de agent-os nunca se sincroniza con `sync.sh`).
-- **Si el proyecto es un Satélite (hijo)**: Si `check-session.sh` alerta de desactualización de `last-sync.md` (>7 días), sugerir al usuario ejecutar:
-  ```bash
-  bash scripts/agent/sync.sh .
-  ```
+- **Si el proyecto es un Satélite (hijo)**:
+  1. Si `check-session.sh` reporta `CORE_UPDATE_AVAILABLE: true` o `last-sync.md` supera los 7 días:
+     Ejecutar la simulación determinista sin escrituras en disco:
+     ```bash
+     bash scripts/agent/sync.sh --dry-run .
+     ```
+  2. Extraer las novedades de `changelog.md` del core frente a la versión local registrada en `.agents/context/last-sync.md` o `.agents/context/agent-os-changelog.md`.
+  3. Formular el **Plan de Impacto de Actualización de Agent OS**:
+     - **Versiones**: Core upstream (`vX.Y.Z`) vs Satélite local (`vA.B.C`).
+     - **Novedades**: 3 a 5 puntos clave de la nueva versión (nuevas skills, scripts, reglas o correcciones).
+     - **Activos vivos impactados**: Archivos nuevos (+), modificados (~) y deprecados a limpiar con `--cleanup` (-) según el resumen de `sync.sh --dry-run`.
+     - **Impacto operativo**: Cómo beneficia al flujo de trabajo del satélite y qué ventajas o cambios operativos introduce.
+  4. La decisión de aplicar la actualización se integra como compuerta explícita en la ventana de decisión macro del **Paso 7**: si el usuario aprueba la actualización junto al sprint, el agente ejecuta `bash scripts/agent/sync.sh .` antes de arrancar la primera tarea del sprint.
 
 ### 1c. Sonda determinista de automejora del tooling ($0 tokens)
 
@@ -351,6 +360,7 @@ El agente presenta el informe consolidado y emite **OBLIGATORIAMENTE** la siguie
 - Roadmap: [estado y temas analizados]
 - Inboxes: [entradas procesadas]
 - Tooling Updates (Paso 1c): [versiones detectadas o N/A]
+[Si satélite con actualización del core pendiente: incluir bloque PLAN DE IMPACTO AGENT OS (vLocal -> vUpstream)]
 
 🎯 Tareas propuestas:
 | ID | Tarea | Tamaño | Dependencias | Justificación técnica |

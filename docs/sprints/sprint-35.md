@@ -8,7 +8,7 @@
 | ID | Descripción | Categoría | Tamaño | Estado | Dependencias | Task file |
 |---|---|---|:---:|:---:|---|---|
 | T-192 | Homologación integral de actualización de tooling upstream (glances, hermes, infisical, opencode, orca) | Core / Tooling & Flota | M | ✅ Completada | — | [.agents/tasks/task-192.md](.agents/tasks/_archived/task-192.md) |
-| T-193 | Actualización asistida de Agent OS en proyectos satélite (dry-run, plan de impacto y compuerta de sincronización) | Core / Satélites & DX | M | ⬜ Pendiente | T-192 | [.agents/tasks/task-193.md](.agents/tasks/task-193.md) |
+| T-193 | Actualización asistida de Agent OS en proyectos satélite (dry-run, plan de impacto y compuerta de sincronización) | Core / Satélites & DX | M | ✅ Completada | T-192 | [.agents/tasks/task-193.md](.agents/tasks/_archived/task-193.md) |
 | T-194 | Estandarización de Changelog, GitHub Releases y archivo VERSION universal para satélites | Core / Releases & Gobernanza | M | ⬜ Pendiente | T-193 | [.agents/tasks/task-194.md](.agents/tasks/task-194.md) |
 | T-195 | Desbloqueo y rotación de credenciales (Cloudflare API Token / Infisical) | Core / Seguridad & Secretos | L | ⬜ Pendiente | — | [.agents/tasks/task-195.md](.agents/tasks/task-195.md) |
 
