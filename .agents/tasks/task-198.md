@@ -9,6 +9,11 @@ Formalizar el rol de modelo Asesor (`advisor`) en la política de enrutamiento d
 - Patrón eficiente: workers económicos/rápidos para codificación mecánica; modelo top delegado como *Asesor* en deliberación y arquitectura.
 - Ambos proveedores exponen API OpenAI-compatible (NIM: `base_url` `https://integrate.api.nvidia.com/v1`; DeepSeek: endpoint compatible chat/completions) — verificado en consultas SearXNG del research del sprint.
 
+### Research integrado (`## Descubrimientos Scout` → `### T-198` + consultas SearXNG)
+- **Scout OSS**: `openai compatible gateway provider catalog deepseek nvidia nim freellmapi` → sin repos ni paquetes relevantes en NPM/GitHub → `Desarrollo a medida justificado` (declaración directa en el template propio).
+- **SearXNG (T-198)**: NIM expone API OpenAI-compatible en `https://integrate.api.nvidia.com/v1` (docs NVIDIA / ai-sdk / promptfoo); catálogo gratuito con IDs tipo `deepseek-ai/deepseek-r1`, `meta/llama-3.3-70b-instruct`; DeepSeek V4 es familia MoE open-weight licencia MIT con API compatible chat/completions.
+- **Constraint clave**: sin secretos en claro en el template (placeholders), cero dependencias nuevas, cero mutación de paquetes.
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
