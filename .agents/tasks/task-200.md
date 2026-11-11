@@ -9,6 +9,11 @@ Crear la skill `idea-validator`, filtro de viabilidad objetiva para las ideas de
 - No existe `.agents/skills/idea-validator/` (verificado: cero implementación en inventory-check y changelog).
 - El veredicto es insumo advisory; la decisión soberana sigue siendo el veredicto del operador en el Paso 7 del planning.
 
+### Research integrado (`## Descubrimientos Scout` → `### T-200` + consultas SearXNG)
+- **Scout OSS**: `idea validation viability scoring bias detection skill` → sin repos relevantes; único matiz `@skill-harness/core` (LLM-judge con API de terceros — no adoptable bajo soberanía $0) → `Desarrollo a medida justificado`.
+- **SearXNG (T-200)**: metodologías de validación objetiva confirmadas — recogida de evidencia (no opiniones), criterios puntuables de demanda/competencia/alternativas, marcos multi-criterio (desirability/feasibility/viability) usados como guía de criterios, no como dependencia.
+- **Constraint clave**: prospección solo con `searxng-client.sh` + `scout.sh` ($0); cero APIs comerciales; veredicto advisory de 4 criterios puntuados 1–10.
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
