@@ -40,10 +40,12 @@ show_usage() {
       "--path <dir>       Directorio de skills o skill individual (default: .agents/skills)" \
       "--baseline <file>  Archivo de supresión de falsos positivos (default: .agents/skills/skill-inspector/baseline.json)" \
       "--json             Salida en formato JSON estructurado" \
+      "--context          Auditoría de tokenomics: líneas, tokens estimados y skills huérfanas" \
       "--human            Salida interactiva para terminal (default)" \
       "-h, --help         Muestra esta ayuda" \
       "ejemplo: bash scripts/agent/inspect-skills.sh" \
-      "ejemplo: bash scripts/agent/inspect-skills.sh --path .agents/skills/remote-admin --json"
+      "ejemplo: bash scripts/agent/inspect-skills.sh --path .agents/skills/remote-admin --json" \
+      "ejemplo: bash scripts/agent/inspect-skills.sh --context --json"
   else
     cat << 'EOF'
 Uso: bash scripts/agent/inspect-skills.sh [opciones]
@@ -52,6 +54,11 @@ Opciones:
   --path <dir>       Directorio de skills o skill individual (default: .agents/skills)
   --baseline <file>  Archivo baseline de supresión (default: .agents/skills/skill-inspector/baseline.json)
   --json             Salida en formato JSON estructurado determinista
+  --context          Auditoría de tokenomics: por SKILL.md emite líneas, tokens_est
+                     (líneas × 10, factor determinista sin tokenizador) y marca de
+                     huérfana (sin referencia en .agents/workflows/ ni .agents/profiles/).
+                     Modo informativo: sale con 0 sin aplicar el gate de seguridad.
+                     Combinable con --json.
   --human            Salida visual para consola (default)
   -h, --help         Muestra este mensaje de ayuda
 
@@ -69,6 +76,7 @@ EOF
 TARGET_PATH=".agents/skills"
 BASELINE_FILE=".agents/skills/skill-inspector/baseline.json"
 OUTPUT_MODE="human"
+CONTEXT_MODE="0"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -104,6 +112,10 @@ while [ $# -gt 0 ]; do
       ;;
     --human)
       OUTPUT_MODE="human"
+      shift
+      ;;
+    --context)
+      CONTEXT_MODE="1"
       shift
       ;;
     -h|--help)
@@ -172,6 +184,61 @@ fi
 
 if [ "${#SKILL_DIRS[@]}" -eq 0 ]; then
   echo "⚠️ Advertencia: No se encontraron directorios de skills en: $TARGET_PATH" >&2
+fi
+
+# ------------------------------------------------------------------------------
+# 3b. Modo --context: Auditoría de Tokenomics (líneas, tokens, huérfanas)
+# ------------------------------------------------------------------------------
+# Emite por SKILL.md: líneas, tokens_est (líneas × 10, factor determinista sin
+# tokenizador externo) y marca de huérfana (nombre sin referencia en
+# .agents/workflows/ ni .agents/profiles/). Modo informativo: exit 0, no aplica
+# el gate CRITICAL/HIGH. Combinable con --json. Coste $0: bash/grep/wc puros.
+if [ "$CONTEXT_MODE" = "1" ]; then
+  CONTEXT_PROCESSED=0
+  CONTEXT_TOKENS=0
+  CONTEXT_ORPHANS=0
+  JSON_ITEMS=""
+  HUMAN_ROWS=""
+  for dir in "${SKILL_DIRS[@]}"; do
+    sfile="$dir/SKILL.md"
+    if [ ! -f "$sfile" ]; then
+      continue
+    fi
+    sname="$(basename "$dir")"
+    slines="$(wc -l < "$sfile" | tr -d ' ')"
+    tokens_est=$((slines * 10))
+    referenced="false"
+    for root in ".agents/workflows" ".agents/profiles"; do
+      if [ -d "$root" ] && grep -rl -- "$sname" "$root" >/dev/null 2>&1; then
+        referenced="true"
+        break
+      fi
+    done
+    orphan="false"
+    if [ "$referenced" = "false" ]; then
+      orphan="true"
+      CONTEXT_ORPHANS=$((CONTEXT_ORPHANS + 1))
+    fi
+    CONTEXT_PROCESSED=$((CONTEXT_PROCESSED + 1))
+    CONTEXT_TOKENS=$((CONTEXT_TOKENS + tokens_est))
+    if [ -n "$JSON_ITEMS" ]; then
+      JSON_ITEMS="$JSON_ITEMS,"
+    fi
+    JSON_ITEMS="$JSON_ITEMS{\"skill\":\"$sname\",\"file\":\"$dir/SKILL.md\",\"lines\":$slines,\"tokens_est\":$tokens_est,\"orphan\":$orphan}"
+    row="$(printf '%-28s %8s %12s %10s' "$sname" "$slines" "$tokens_est" "$orphan")"
+    HUMAN_ROWS="${HUMAN_ROWS}${row}
+"
+  done
+  if [ "$OUTPUT_MODE" = "json" ]; then
+    printf '{"factor_tokens_por_linea":10,"total_skills":%d,"total_tokens_est":%d,"orphan_skills":%d,"skills":[%s]}\n' \
+      "$CONTEXT_PROCESSED" "$CONTEXT_TOKENS" "$CONTEXT_ORPHANS" "$JSON_ITEMS"
+  else
+    printf '%-28s %8s %12s %10s\n' "SKILL" "LÍNEAS" "TOKENS_EST" "HUÉRFANA"
+    printf '%s' "$HUMAN_ROWS"
+    printf '\nTotal: %d skills | tokens_est=%d (líneas×10) | huérfanas=%d\n' \
+      "$CONTEXT_PROCESSED" "$CONTEXT_TOKENS" "$CONTEXT_ORPHANS"
+  fi
+  exit 0
 fi
 
 # ------------------------------------------------------------------------------
