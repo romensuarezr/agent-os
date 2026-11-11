@@ -9,6 +9,11 @@ Crear la regla global de sandboxing no-root (daemons, agentes y contenedores sin
 - El escáner debe ser estático, determinista y de coste $0 (bash/ripgrep sobre código del satélite), sin ejecución de red ni dependencias de pago.
 - Referencias de patrón (hallazgos SearXNG, no dependencias): endpoints con parámetros de identidad sin validación de propiedad (IDOR), JWT con `alg: none` o sin verificación de firma, rutas sin middleware de autorización.
 
+### Research integrado (`## Descubrimientos Scout` → `### T-199` + consultas SearXNG)
+- **Scout OSS**: `static security audit scanner JWT authorization IDOR OWASP` → `saas-security-audit` (npm v0.11.0, alcance SaaS/tenant-isolation, distinto), `oauth4webapi` y `oidc-provider` (flujos OAuth, no escáneres estáticos); ninguna alternativa ≥500⭐ con licencia permisiva verificable → `Desarrollo a medida justificado`.
+- **SearXNG (T-199)**: patrones deterministas confirmados — identidad en endpoints sin función de propiedad (IDOR), JWT `alg: none` / sin verificación de firma, rutas sin cadena de middleware de autorización; referencias de método (semgrep.dev, scanmycode.dev) usadas como guía de patrones, no como dependencia.
+- **Constraint clave**: escaneo estático sin red, sin dependencias npm, sin ejecución de exploits; salida digest con severidad y `archivo:línea`.
+
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
 > El Revisor Ejecutor audita el plan técnico contra esta sección: cualquier desviación gatilla ESCALADO_A_HUMANO.
