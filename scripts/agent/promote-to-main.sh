@@ -41,6 +41,7 @@ MERGE_COMMIT=false
 CREATE_PR=false
 JSON_MODE=false
 SKIP_TESTS=false
+CREATE_RELEASE=false
 
 # Modo de merge. --ff-only es el valor por defecto histórico: SOLO se relaja cuando
 # el usuario pide --merge-commit explícitamente, para no romper los llamadores actuales.
@@ -70,6 +71,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --pr)
       CREATE_PR=true
+      shift
+      ;;
+    --release)
+      CREATE_RELEASE=true
       shift
       ;;
     --skip-tests)
@@ -422,6 +427,50 @@ if [ "$CREATE_PR" = true ]; then
     exit 1
   fi
   log "  ✅ PR creado: ${PR_URL}"
+fi
+
+# 8. GitHub Release (--release)
+RELEASE_URL=""
+if [ "$CREATE_RELEASE" = true ]; then
+  log "  📦 Generando GitHub Release oficial..."
+  REL_VER=""
+  if [ -f "$ROOT/VERSION" ]; then
+    REL_VER="$(tr -d '[:space:]' < "$ROOT/VERSION" 2>/dev/null || true)"
+  fi
+  if [ -z "$REL_VER" ] && [ -f "$ROOT/changelog.md" ]; then
+    REL_VER="$(grep -E '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$ROOT/changelog.md" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)"
+  fi
+
+  if [ -z "$REL_VER" ]; then
+    log "  ⚠️  No se pudo determinar la versión semver (VERSION o changelog.md ausentes). Creación de release omitida."
+  else
+    TAG_NAME="v${REL_VER#v}"
+    NOTES_TMP=$(mktemp)
+    if [ -f "$ROOT/changelog.md" ]; then
+      awk -v ver="$REL_VER" '
+        $0 ~ "^## \\[" ver "\\]" { capture=1; next }
+        capture && /^## \[/ { capture=0 }
+        capture { print }
+      ' "$ROOT/changelog.md" > "$NOTES_TMP"
+    fi
+
+    if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+      if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+        log "  ℹ️  La release $TAG_NAME ya existe en GitHub."
+        RELEASE_URL="$(gh release view "$TAG_NAME" --json url -q .url 2>/dev/null || true)"
+      else
+        if [ -s "$NOTES_TMP" ]; then
+          RELEASE_URL="$(gh release create "$TAG_NAME" --title "$TAG_NAME" --notes-file "$NOTES_TMP" 2>/dev/null || true)"
+        else
+          RELEASE_URL="$(gh release create "$TAG_NAME" --title "$TAG_NAME" --generate-notes 2>/dev/null || true)"
+        fi
+        log "  ✅ Release publicada en GitHub: ${RELEASE_URL:-$TAG_NAME}"
+      fi
+    else
+      log "  ⚠️  gh CLI no está autenticado o disponible en este entorno. Creación de release en GitHub degradada de forma segura (fail-soft)."
+    fi
+    rm -f "$NOTES_TMP"
+  fi
 fi
 
 # Post-condición del merge: el commit de la rama origen tiene que quedar ANCESTRO del

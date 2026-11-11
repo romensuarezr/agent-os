@@ -200,6 +200,20 @@ if [ "$APPLY_MODE" == true ]; then
         fi
     fi
 
+    if grep -q "\- \[ \] Inicializar archivo plano VERSION en la raíz" "$AUDIT_FILE"; then
+        if [ ! -f "VERSION" ]; then
+            detected_ver=""
+            if [ -f "package.json" ]; then
+                detected_ver=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' package.json 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || true)
+            elif [ -f "pyproject.toml" ]; then
+                detected_ver=$(grep -E '^version[[:space:]]*=' pyproject.toml 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || true)
+            fi
+            echo "${detected_ver:-0.1.0}" > VERSION
+            echo "✅ Inicializado archivo VERSION en la raíz (${detected_ver:-0.1.0})"
+            applied_changes=$((applied_changes + 1))
+        fi
+    fi
+
     # 2. Mover o renombrar mvp-tracker e implemented
     if grep -q "\- \[ \] Mover mvp-tracker.md de la raíz a docs/mvp-tracker.md" "$AUDIT_FILE"; then
         if [ -f "mvp-tracker.md" ]; then
@@ -540,6 +554,13 @@ else
         incompatibilidades+="- ⚠️ Archivo clave con casing incorrecto en la raíz: \`$changelog_exists\` (debería ser \`changelog.md\`)\n"
         propuestas+="- [ ] Renombrar $changelog_exists a changelog.md en la raíz\n"
     fi
+fi
+
+# Para VERSION
+version_exists=$(find . -maxdepth 1 -name "VERSION" 2>/dev/null | head -n 1 | sed 's|^\./||')
+if [ -z "$version_exists" ]; then
+    incompatibilidades+="- ℹ️  El proyecto no dispone de archivo plano VERSION en la raíz (estándar de Agent OS para consumo desacoplado en UI y endpoints).\n"
+    propuestas+="- [ ] Inicializar archivo plano VERSION en la raíz (estándar universal)\n"
 fi
 
 # 2. Comprobar existencia, ubicación y casing de mvp-tracker.md e implemented.md (con fuzzy matching seguro)

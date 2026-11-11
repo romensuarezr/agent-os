@@ -500,6 +500,8 @@ if [ -d "$AGENT_OS_PATH/templates/root" ]; then
             existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*road*" -o -iname "*map*" \) 2>/dev/null | head -n 1 || true)
         elif [ "$fname" = "changelog.md" ]; then
             existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*change*" -o -iname "*log*" -o -iname "*history*" \) 2>/dev/null | head -n 1 || true)
+        elif [ "$fname" = "VERSION" ]; then
+            existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f -iname "VERSION" 2>/dev/null | head -n 1 || true)
         fi
         if [ -z "$existing_fuzzy" ] && [ ! -f "$TARGET_PROJECT/$fname" ]; then
             if [ "$DRY_RUN" = true ]; then

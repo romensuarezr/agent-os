@@ -192,6 +192,40 @@ awk -v entry="$(printf '%b' "$ENTRY")" '
 # Si el archivo no tenía entradas previas, awk END lo habrá añadido al final — bien
 mv "$TMP" "$CHANGELOG"
 
+# ─── 6b. Enlaces de comparación SemVer (Keep a Changelog) ───────────────────
+ORIGIN_URL=$(git -C "$ROOT" config --get remote.origin.url 2>/dev/null || true)
+REPO_HTTP_URL=""
+if [ -n "$ORIGIN_URL" ]; then
+  # Normalizar ssh (git@github.com:owner/repo.git) o https (https://github.com/owner/repo.git)
+  REPO_HTTP_URL=$(echo "$ORIGIN_URL" | sed -E 's|git@github.com:|https://github.com/|; s|\.git$||')
+fi
+
+if [ -n "$REPO_HTTP_URL" ] && [[ "$REPO_HTTP_URL" =~ ^https://github.com/ ]]; then
+  COMPARE_LINK=""
+  if [ -n "$PREV_TAG" ]; then
+    COMPARE_LINK="[${NEW_VERSION}]: ${REPO_HTTP_URL}/compare/${PREV_TAG}...v${NEW_VERSION}"
+  else
+    COMPARE_LINK="[${NEW_VERSION}]: ${REPO_HTTP_URL}/releases/tag/v${NEW_VERSION}"
+  fi
+
+  # Comprobar si ya existe el enlace para no duplicarlo
+  if ! grep -qF "[${NEW_VERSION}]:" "$CHANGELOG" 2>/dev/null; then
+    if grep -qE '^\[[0-9]+\.[0-9]+\.[0-9]+\]:' "$CHANGELOG" 2>/dev/null; then
+      TMP_LINK=$(mktemp)
+      awk -v link="$COMPARE_LINK" '
+        /^\[[0-9]+\.[0-9]+\.[0-9]+\]:/ && !inserted {
+          print link
+          inserted=1
+        }
+        { print }
+      ' "$CHANGELOG" > "$TMP_LINK"
+      mv "$TMP_LINK" "$CHANGELOG"
+    else
+      printf '\n%s\n' "$COMPARE_LINK" >> "$CHANGELOG"
+    fi
+  fi
+fi
+
 # ─── 7. Resumen ──────────────────────────────────────────────────────────────
 echo ""
 echo "✅ changelog.md actualizado"

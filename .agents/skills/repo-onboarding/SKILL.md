@@ -39,7 +39,8 @@ El script buscará y reportará:
 4. Ubicación no estándar del inbox (`external-inbox` en la raíz en lugar de `docs/external-inbox/`).
 5. Estructuras de `MVP-TRACKER.md` sin columna Peso o fila TOTAL.
 6. Secciones faltantes en `roadmap.md`.
-7. Commits históricos en Git para proponer un Sprint 00.
+7. Ausencia del archivo plano `VERSION` en la raíz o presencia de versiones hardcodeadas en código fuente.
+8. Commits históricos en Git para proponer un Sprint 00.
 
 ### Paso 2: Revisión y Presentación
 Abre el reporte autogenerado en `docs/agent-os-audit.md` y preséntale un resumen claro al usuario:
@@ -47,6 +48,7 @@ Abre el reporte autogenerado en `docs/agent-os-audit.md` y preséntale un resume
 - Los componentes de CI/CD e IaC identificados (o su ausencia honesta).
 - Las incompatibilidades estructurales encontradas.
 - Lista exactamente qué archivos se renombrarán o moverán.
+- **Opción de Versionado Universal (Opt-In)**: Si el repositorio es de terceros o tiene su propia convención previa, preguntar explícitamente al operador si desea adoptar el archivo plano `VERSION` en la raíz (con Keep a Changelog navegable) y desacoplar versiones hardcodeadas en frontend/backend (según `docs/runbooks/version-consumption-pattern.md`), o si prefiere conservar intacto el esquema nativo del repositorio.
 - Presenta el diff propuesto para `MVP-TRACKER.md` y `roadmap.md`.
 - Muestra el esquema propuesto para `docs/sprints/sprint-00-historical.md`.
 

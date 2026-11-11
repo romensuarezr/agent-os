@@ -767,11 +767,27 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
                 existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*road*" -o -iname "*map*" \) 2>/dev/null | head -n 1 || true)
             elif [ "$filename" = "changelog.md" ]; then
                 existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*change*" -o -iname "*log*" -o -iname "*history*" \) 2>/dev/null | head -n 1 || true)
+            elif [ "$filename" = "VERSION" ]; then
+                existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f -iname "VERSION" 2>/dev/null | head -n 1 || true)
             fi
             
             if [ -z "$existing_fuzzy" ] && [ ! -f "$TARGET_PROJECT/$filename" ]; then
-                cp "$template_path" "$TARGET_PROJECT/$filename"
-track_installed "$TARGET_PROJECT/$filename"
+                if [ "$filename" = "VERSION" ]; then
+                    detected_init_ver=""
+                    if [ -f "$TARGET_PROJECT/package.json" ]; then
+                        detected_init_ver=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$TARGET_PROJECT/package.json" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || true)
+                    elif [ -f "$TARGET_PROJECT/pyproject.toml" ]; then
+                        detected_init_ver=$(grep -E '^version[[:space:]]*=' "$TARGET_PROJECT/pyproject.toml" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || true)
+                    fi
+                    if [ -n "$detected_init_ver" ]; then
+                        echo "$detected_init_ver" > "$TARGET_PROJECT/$filename"
+                    else
+                        cp "$template_path" "$TARGET_PROJECT/$filename"
+                    fi
+                else
+                    cp "$template_path" "$TARGET_PROJECT/$filename"
+                fi
+                track_installed "$TARGET_PROJECT/$filename"
             fi
         fi
     done

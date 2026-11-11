@@ -31,16 +31,16 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-35.md`
 
 ## Criterios de done
-- [ ] `update-changelog.sh` inserta enlaces de diff comparativo SemVer al final de `changelog.md`.
-- [ ] `promote-to-main.sh` incluye subcomando o flag determinista para publicar Release en GitHub con notas extraídas del changelog.
-- [ ] `install.sh` provisiona el archivo `VERSION` en la raíz de los nuevos proyectos satélite.
-- [ ] Plantillas documentan la lectura desacoplada de `VERSION` para entornos web/backend.
-- [ ] Suite `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
+- [x] `update-changelog.sh` inserta enlaces de diff comparativo SemVer al final de `changelog.md`.
+- [x] `promote-to-main.sh` incluye subcomando o flag determinista para publicar Release en GitHub con notas extraídas del changelog.
+- [x] `install.sh` provisiona el archivo `VERSION` en la raíz de los nuevos proyectos satélite.
+- [x] Plantillas documentan la lectura desacoplada de `VERSION` para entornos web/backend.
+- [x] Suite `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
 
 ## Estado de aprobación y deliberación
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido en planning
-- [ ] Rama de trabajo activa
-- [ ] Lock activo: —
-- [ ] Tarea cerrada y verificada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido en planning
+- [x] Rama de trabajo activa
+- [x] Lock activo: —
+- [x] Tarea cerrada y verificada
