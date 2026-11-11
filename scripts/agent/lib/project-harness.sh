@@ -29,7 +29,6 @@ project_opencode_commands() {
         cat <<EOF > "$shim"
 ---
 description: ${desc}
-agent: plan
 ---
 
 Sigue y ejecuta de inmediato y de forma autónoma el workflow en .agents/workflows/${wname}.md \$ARGUMENTS (pasos en orden estricto).

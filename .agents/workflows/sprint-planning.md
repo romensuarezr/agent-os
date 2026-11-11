@@ -337,22 +337,54 @@ Si el research incluye URLs de repositorios GitHub:
 
 ### 7. Entrega y Solicitud de Aprobación Macro del Sprint
 
-Justo al finalizar la planificación (antes de la pausa si hubo fallback, o como entrega final para aprobación si SearXNG fue autónomo):
-1. Resumen del estado del roadmap (3 líneas máximo).
-2. Decisiones tomadas sobre tareas incompletas del sprint anterior (si las hubo).
-3. Resultado de la verificación de código del paso 2c (tabla con evidencias).
-4. **Resultado de la prospección determinista OSS del paso 2d** (tabla con alternativas detectadas por `scout.sh` y recomendación de adopción vs construcción).
-5. Las tareas del sprint seleccionadas con su tamaño.
-6. **Progreso MVP actualizado (omitir si el proyecto no tiene `docs/MVP-TRACKER.md`):**
-   ```
-   📊 Progreso MVP: XX%
-      Capacidad 1                  ██████████ 100%
-      Capacidad 2                  ████████░░  80%
-      ...
-   ```
-7. El prompt para Perplexity listo para copiar (**exclusivamente si SearXNG estuvo inactivo**). Si SearXNG estuvo activo, indicar: `"✅ Investigación técnica completada autónomamente con SearXNG e integrada en el research file."`
-8. Ruta del sprint file creado.
-9. **Verificación de compuerta Scout-First (T-129):** Confirmar explícitamente la presencia de `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md` con su sección `## Descubrimientos Scout (por tarea)` completa para todas las tareas del sprint. Si falta el research estructurado, detenerse inmediatamente: *"Sin research scout estructurado no hay plan de sprint admisible"*.
+### 7. Entrega y Ventana de Decisión del Sprint (Aprobación Macro)
+
+El agente presenta el informe consolidado y emite **OBLIGATORIAMENTE** la siguiente ventana estructurada de decisión en el chat, finalizando su turno a la espera de la respuesta del operador:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 PROPUESTA DE SPRINT {{SPRINT_SIGUIENTE}} — APROBACIÓN MACRO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 Resumen del estado:
+- Roadmap: [estado y temas analizados]
+- Inboxes: [entradas procesadas]
+- Tooling Updates (Paso 1c): [versiones detectadas o N/A]
+
+🎯 Tareas propuestas:
+| ID | Tarea | Tamaño | Dependencias | Justificación técnica |
+|---|---|:---:|---|---|
+| T-XXX | ... | S/M/L | — | ... |
+
+🛣️ Propuesta de Carriles de Ejecución (DAG):
+- Carril 1: [T-XXX → T-YYY]
+- Carril 2: [T-ZZZ]
+
+🔬 Estado de Research y Prospección:
+- Scout OSS: Completado en docs/sprints/sprint-{{SPRINT_SIGUIENTE}}-research.md (Gate Scout-First T-129 verificado)
+- Investigación técnica: [Autónoma con SearXNG / Bypass interno / Fallback Perplexity]
+- Prompt Perplexity: [Incluir bloque solo si SearXNG estuvo inactivo; omitir si fue autónomo]
+[Si el proyecto es satélite con MVP-TRACKER.md: incluir barra de progreso MVP]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👉 VENTANA DE DECISIÓN DEL OPERADOR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣ RÉGIMEN OPERATIVO:
+   A) Desatendida: Encadena tareas automáticamente en camino limpio sin volver al usuario entre ellas. Aborta de inmediato a humano ante cualquier anomalía técnica o si la verificación del relé falla.
+   B) Tarea a tarea (Clásico): Pausa para revisión y aprobación humana explícita antes de cada tarea.
+
+Esperando tu respuesta (ej: "A, aprobado" o enmiendas concretas al plan).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+#### Protocolo de Materialización tras Aprobación del Operador:
+Una vez que el operador responde aprobando el sprint (ej: "A, aprobado" o "Opción A"):
+1. **Sellar el Sprint File**: Escribir `docs/sprints/sprint-{{SPRINT_SIGUIENTE}}.md` sellando el régimen y carriles según la respuesta recibida (ej. `- **Régimen**: Desatendida`).
+2. **Instanciar Task Files**: Crear cada contrato de tarea en `.agents/tasks/task-XXX.md` con su sección `## Diseño macro aprobado en planning` rellenada y veredicto `[APROBADO_EN_PLANNING]`.
+3. **Actualizar Roadmap**: Registrar las nuevas tareas como `🟡 En curso` en `roadmap.md`.
+4. **Archivar Inboxes**: Mover procesados de `docs/idea-inbox/` y `docs/external-inbox/` a sus respectivas subcarpetas `_archived/`.
+5. Confirmar al usuario: `"✅ Sprint {{SPRINT_SIGUIENTE}} formalizado y sellado en régimen Desatendido. Listo para /session-start."`
 
 ## Reglas
 
