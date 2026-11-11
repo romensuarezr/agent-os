@@ -35,21 +35,21 @@ Archivos autorizados para modificación:
 - `tests/validate-control-plane.sh` (solo si se añade cobertura del flag)
 
 ## Criterios de done
-- [ ] `--help` documenta `--context` con ejemplo de uso.
-- [ ] `bash scripts/agent/inspect-skills.sh --context` lista todas las skills con líneas/tokens y detecta huérfanas.
-- [ ] `--context --json` emite JSON válido.
-- [ ] Ejecución sin flags idéntica al comportamiento previo (sin regresiones del gate).
-- [ ] Suite `tests/validate-control-plane.sh` en verde (38/38 o ampliación limpia).
+- [x] `--help` documenta `--context` con ejemplo de uso.
+- [x] `bash scripts/agent/inspect-skills.sh --context` lista todas las skills con líneas/tokens y detecta huérfanas (27 skills, 5 huérfanas detectadas).
+- [x] `--context --json` emite JSON válido (`factor_tokens_por_linea`, `total_skills`, `total_tokens_est`, `orphan_skills`, `skills[]`).
+- [x] Ejecución sin flags idéntica al comportamiento previo (diff byte a byte vs snapshot: salida y exit codes intactos, gate CRITICAL/HIGH sin regresiones).
+- [x] Suite `tests/validate-control-plane.sh` en verde (38/38, 0 errores; denominador intacto).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `[CONSENSO]` — 1/2 rondas, cero objeciones; recibo `.agents/context/deliberation-T-197.json`.
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
-- [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Plan presentado al usuario (Fase 3.5) — camino limpio Desatendido (sin pausa interactiva)
+- [x] APROBADO recibido — fecha/hora: 2026-11-11 (régimen Desatendido sellado en planning)
+- [x] Rama creada: `feat/T-197-inspect-skills-context` (merge `dee1e55` en `multi-agent`)
+- [x] Lock activo: `.agent-session.lock` (eliminado por `close-task.sh`)
+- [x] Sesión cerrada correctamente
