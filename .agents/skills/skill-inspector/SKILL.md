@@ -34,7 +34,17 @@ bash scripts/agent/inspect-skills.sh --json
 
 # Uso de un archivo de baseline alternativo
 bash scripts/agent/inspect-skills.sh --baseline path/to/custom-baseline.json
+
+# Auditoría de tokenomics: líneas, tokens estimados y skills huérfanas (T-197)
+bash scripts/agent/inspect-skills.sh --context
+bash scripts/agent/inspect-skills.sh --context --json
 ```
+
+### Flag `--context` (auditoría de tokenomics, T-197)
+
+- **Emisión por `SKILL.md`**: ruta, `lines` (líneas), `tokens_est = lines × 10` (factor determinista documentado, sin tokenizador externo) y `orphan` (`true` si el nombre de la skill no aparece en `.agents/workflows/` ni `.agents/profiles/`).
+- **Modo informativo**: sale con código `0` sin aplicar el gate CRITICAL/HIGH; combinable con `--json` (`{"factor_tokens_por_linea":10,"total_skills":N,"total_tokens_est":N,"orphan_skills":N,"skills":[...]}`).
+- **Uso típico**: detectar skills con peso desproporcionado en contexto y candidatas a desactivación por ausencia de referencia en workflows o perfiles.
 
 ---
 
