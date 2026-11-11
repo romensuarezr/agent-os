@@ -59,6 +59,12 @@ bash scripts/agent/check-tooling-updates.sh --tool opencode --json
 
 Si la sonda reporta `updates_available_count: 0`, informa al operador que todas las herramientas monitoreadas se encuentran en su última versión estable y detén el flujo.
 
+### Paso 1.5: Inspección Multi-Nodo Agnóstica (Local vs. VPS)
+La sonda `check-tooling-updates.sh` es consciente de la topología declarativa:
+- Inspecciona de forma nativa los binarios del entorno local de desarrollo.
+- Si `.agents/config/fleet.yaml` define nodos remotos de inferencia o infraestructura con servicios como `hermes_gateway`, realiza una sonda SSH no bloqueante (`ConnectTimeout=2`, fail-soft) para reportar `installed_version_remote` sin acoplar IPs ni secretos al código del repositorio.
+- Ante herramientas compartidas (ej. Hermes Agent), evalúa tanto la instancia local como la remota para evitar derivas operativas entre entornos.
+
 ### Paso 2: Análisis Cualitativo y Filtro Anti-Volcados
 Si una o más herramientas presentan `update_available: true`:
 1. Identifica la herramienta, la versión instalada/declarada y la versión upstream.

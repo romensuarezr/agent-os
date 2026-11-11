@@ -34,15 +34,15 @@ Archivos autorizados para modificación:
 - `docs/sprints/sprint-35.md`
 
 ## Criterios de done
-- [ ] Skills activas de herramientas actualizadas con directivas de uso, flags y patrones vigentes.
-- [ ] Sondas de `fleet-doctor.sh` adaptadas para validar las nuevas versiones sin advertencias falsas.
-- [ ] Sonda `check-tooling-updates.sh` sincronizada con los nuevos baselines instalados.
-- [ ] La suite de validación `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
+- [x] Skills activas de herramientas actualizadas con directivas de uso, flags y patrones vigentes.
+- [x] Sondas de `fleet-doctor.sh` adaptadas para validar las nuevas versiones sin advertencias falsas.
+- [x] Sonda `check-tooling-updates.sh` sincronizada con los nuevos baselines instalados y detección remota en VPS.
+- [x] La suite de validación `tests/validate-control-plane.sh` pasa 38/38 checks verdes.
 
 ## Estado de aprobación y deliberación
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido en planning
-- [ ] Rama de trabajo activa
-- [ ] Lock activo: —
-- [ ] Tarea cerrada y verificada
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido en planning
+- [x] Rama de trabajo activa
+- [x] Lock activo: —
+- [x] Tarea cerrada y verificada

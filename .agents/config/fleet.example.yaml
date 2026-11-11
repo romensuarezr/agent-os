@@ -41,7 +41,7 @@ local_environment:
       description: "Lightweight command-line JSON processor"
     opencode:
       status: "available"
-      version: "2.2.6"
+      version: "2.2.7"
       description: "Terminal autonomous AI coding worker (acotado en sandbox/worktree)"
     agy:
       status: "available"
@@ -80,7 +80,7 @@ nodes:
           - "deepseek-r1:8b"
       glances:
         endpoint: "http://192.0.2.10:61208"
-        version: 4
+        version: "4.5.9"
         label: "DataManager"
         description: "Hardware telemetry daemon (ADR 004 compliant)"
       searxng:

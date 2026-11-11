@@ -38,11 +38,14 @@ La gramática de `/orchestrator` es agnóstica del runtime subyacente y se adapt
 1. **Hermes Agent (NousResearch / chat front-door)**:
    - Mapeo nativo a slash-commands (`/goal`, `/subgoal`).
    - Envío de notificaciones a través de la pasarela de mensajería (WhatsApp/Telegram/Slack) solicitando `/gate approve`.
+   - Soporte v0.23+ para `hermes gateway attach` en clientes locales, catálogo de plugins ampliado (16 MiB) y gestión de variables de entorno con alcance de sesión.
 2. **Orca ADE (onorca.com / Desktop IDE)**:
    - Integración directa con los runners de tareas en worktrees efímeros (`<padre>/<repo>-<task-id>/`, hermano al checkout, fuera del árbol).
    - Sincronización con el bus de eventos de federación (`control-mail` y compuertas `pending_approval`).
+   - Soporte v1.4.256+ para visualización de subagentes OpenCode en tarjetas desacopladas dedicadas, persistencia automática de borradores de tareas y ciclo de vida de VM workspaces (suspender/reanudar).
 3. **Terminales CLI y ACP (Anthropic / Claude Code / OpenCode)**:
    - Ejecución sin interfaz gráfica vía scripts Bash estándar consumiendo salidas JSON estructuradas.
+   - Compatibilidad OpenCode v2.2.7+ aprovechando `Exit code: N` en shell, comandos `read` con offset negativo para colas de logs y reconexión resiliente de MCPs remotos.
 
 ---
 

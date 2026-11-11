@@ -28,6 +28,9 @@ La configuración del servicio se resuelve de forma dinámica y desacoplada medi
 - **Configuración en Flota (`.agents/config/fleet.yaml`)**:
   - Consulta la sección `nodes.<nodo>.services.infisical` para resolver el endpoint y consola sin exponer datos en git.
 - **Modo Recomendado**: `infisical` standalone lite (<500MB RAM) con PostgreSQL y Redis local.
+- **Esquema de Versionado y Componentes**:
+  - **Servidor / Plataforma Web**: Versionado oficial upstream en el repositorio `Infisical/infisical` (esquema `v0.167.x`), desplegado en contenedor Docker en `<nodo-orquestacion>`.
+  - **Cliente CLI**: Paquete `@infisical/cli` en npm (esquema `v0.45.x`), instalado en los hosts locales y runners para inyección efímera de secretos con `infisical run`.
 
 ---
 

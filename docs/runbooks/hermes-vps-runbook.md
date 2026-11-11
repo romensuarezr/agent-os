@@ -117,6 +117,39 @@ journalctl --user -u hermes-gateway -n 50 -f
 journalctl --user -u hermes-dashboard -n 50 -f
 ```
 
+### Protocolo de Actualización Segura de Hermes en VPS (Upstream v0.23+)
+
+Ante la disponibilidad de nuevas versiones upstream (auditadas mediante `check-tooling-updates.sh`), seguir estrictamente este flujo de 5 pasos para no comprometer servicios ni parches locales:
+
+1. **Inspección de parches locales**:
+   ```bash
+   # Comprobar si existen commits locales (carried commits) en el repo clonado
+   git -C ~/.hermes/hermes-agent status
+   git -C ~/.hermes/hermes-agent log -n 3 --oneline
+   ```
+2. **Respaldo preventivo de configuración**:
+   ```bash
+   cp ~/.hermes/config.yaml ~/.hermes/config.yaml.bak.$(date +%Y%m%d_%H%M%S)
+   ```
+3. **Actualización del binario / virtualenv**:
+   ```bash
+   # Si no hay parches locales:
+   PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes update
+
+   # Si existen carried commits, preferir pull con rebase:
+   git -C ~/.hermes/hermes-agent pull --rebase origin main
+   ~/.hermes/hermes-agent/venv/bin/pip install -e ~/.hermes/hermes-agent
+   ```
+4. **Reinicio coordinado de servicios**:
+   ```bash
+   systemctl --user restart hermes-gateway hermes-dashboard
+   ```
+5. **Verificación funcional de inferencia**:
+   ```bash
+   PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes -z "ping" --yolo
+   # Verificación esperada: respuesta "pong" con código de salida 0.
+   ```
+
 ---
 
 ## 5. Detección y Limpieza de Procesos Huérfanos

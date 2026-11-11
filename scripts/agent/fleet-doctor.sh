@@ -244,6 +244,12 @@ if clis_status["docker"]["installed"]:
 else:
     auth_status["docker"] = {"ok": False, "status": "MISSING"}
 
+# CLIs opcionales de desarrollo y orquestación (fail-soft, sin penalizar si están ausentes)
+for opt_cli, bin_name in [("opencode", "opencode"), ("orca", "orca-ide"), ("hermes", "hermes")]:
+    if check_cli(bin_name):
+        clis_status[opt_cli] = {"installed": True}
+        auth_status[opt_cli] = {"ok": True, "status": "AVAILABLE"}
+
 # 3. Parsear flota y verificar conectividad viva
 fleet_data = {}
 if not HAS_YAML:

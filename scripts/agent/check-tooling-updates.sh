@@ -79,10 +79,44 @@ done
 # ------------------------------------------------------------------------------
 # Detección de versiones instaladas o declaradas en la flota
 # ------------------------------------------------------------------------------
+REMOTE_HERMES_VERSION=""
+
 extract_semver() {
   local text="$1"
   # Extrae la primera ocurrencia de X.Y.Z o vX.Y.Z
   echo "$text" | grep -oE 'v?[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 | tr -d 'v[:space:]'
+}
+
+detect_remote_hermes_version() {
+  local fleet_file=""
+  if [ -f "$ROOT_DIR/.agents/config/fleet.yaml" ]; then
+    fleet_file="$ROOT_DIR/.agents/config/fleet.yaml"
+  elif [ -f "$ROOT_DIR/config/fleet.yaml" ]; then
+    fleet_file="$ROOT_DIR/config/fleet.yaml"
+  fi
+  [ -z "$fleet_file" ] && return 0
+
+  local remote_target=""
+  remote_target="$(python3 -c "
+import yaml
+try:
+    with open('$fleet_file') as f:
+        d = yaml.safe_load(f) or {}
+    nodes = d.get('nodes', {})
+    for node_id, node_cfg in nodes.items():
+        svcs = node_cfg.get('services', {})
+        if 'hermes' in svcs or 'hermes_gateway' in svcs:
+            print(node_cfg.get('alias') or node_id or node_cfg.get('ip') or '')
+            break
+except Exception:
+    pass
+" 2>/dev/null || true)"
+
+  if [ -n "$remote_target" ] && command -v ssh >/dev/null 2>&1; then
+    local r_out=""
+    r_out="$(ssh -o BatchMode=yes -o ConnectTimeout=2 "$remote_target" "PATH=\$HOME/.local/bin:\$HOME/.hermes/hermes-agent/venv/bin:\$PATH hermes --version" 2>/dev/null || true)"
+    extract_semver "$r_out"
+  fi
 }
 
 detect_installed_version() {
@@ -104,25 +138,34 @@ except Exception:
     pass
 " 2>/dev/null || true)"
       fi
-      [ -z "$ver" ] && ver="2.2.6"
+      [ -z "$ver" ] && ver="2.2.7"
       ;;
     hermes)
       if command -v hermes >/dev/null 2>&1; then
         ver="$(extract_semver "$(hermes --version 2>/dev/null || true)")"
       fi
-      [ -z "$ver" ] && ver="0.22.7"
+      # Sonda determinista fail-soft sobre nodo VPS si está configurado en fleet.yaml
+      local r_ver=""
+      r_ver="$(detect_remote_hermes_version)"
+      if [ -n "$r_ver" ]; then
+        REMOTE_HERMES_VERSION="$r_ver"
+        if [ -z "$ver" ]; then
+          ver="$r_ver"
+        fi
+      fi
+      [ -z "$ver" ] && ver="0.23.1"
       ;;
     orca)
       if command -v orca-ide >/dev/null 2>&1; then
         ver="$(extract_semver "$(orca-ide --version 2>/dev/null || true)")"
       fi
-      [ -z "$ver" ] && ver="1.4.255"
+      [ -z "$ver" ] && ver="1.4.256"
       ;;
     infisical)
       if command -v infisical >/dev/null 2>&1; then
         ver="$(extract_semver "$(infisical --version 2>/dev/null || true)")"
       fi
-      [ -z "$ver" ] && ver="0.43.0"
+      [ -z "$ver" ] && ver="0.45.6"
       ;;
     glances)
       if command -v glances >/dev/null 2>&1; then
@@ -139,7 +182,7 @@ except Exception:
     pass
 " 2>/dev/null || true)"
       fi
-      [ -z "$ver" ] && ver="4.0.0"
+      [ -z "$ver" ] && ver="4.5.9"
       ;;
     *)
       ver="unknown"
@@ -224,7 +267,7 @@ declare -a CATALOG=(
   "opencode|OpenCode CLI|npm|https://registry.npmjs.org/@opencode/cli/latest"
   "hermes|Hermes Agent|github|https://api.github.com/repos/NousResearch/hermes-agent/releases/latest"
   "orca|Orca IDE|github|https://api.github.com/repos/stablyai/orca/releases/latest"
-  "infisical|Infisical CLI|github|https://api.github.com/repos/Infisical/infisical/releases/latest"
+  "infisical|Infisical CLI|npm|https://registry.npmjs.org/@infisical/cli/latest"
   "glances|Glances Daemon|pypi|https://pypi.org/pypi/glances/json"
 )
 
@@ -246,6 +289,9 @@ for item in "${CATALOG[@]}"; do
   fi
 
   TOTAL_INSPECTED=$((TOTAL_INSPECTED + 1))
+  if [ "$t_id" = "hermes" ]; then
+    REMOTE_HERMES_VERSION="$(detect_remote_hermes_version)"
+  fi
   INSTALLED="$(detect_installed_version "$t_id")"
   UPSTREAM_RES="$(fetch_latest_version "$t_id" "$t_reg" "$t_url")"
   LATEST="$(echo "$UPSTREAM_RES" | cut -d'|' -f1)"
@@ -339,6 +385,7 @@ items.append({
     'name': '$t_name',
     'registry': '$t_reg',
     'installed_version': '$INSTALLED',
+    'installed_version_remote': '$REMOTE_HERMES_VERSION' if '$t_id' == 'hermes' and '$REMOTE_HERMES_VERSION' else None,
     'latest_version': None if '$LATEST' == 'null' else '$LATEST',
     'update_available': True if '$UPDATE_AVAIL' == 'true' else False,
     'status': '$STATUS',
@@ -367,47 +414,34 @@ print(json.dumps(result, indent=2))
 "
   rm -f "$PYTHON_PAYLOAD"
 else
-  rm -f "$PYTHON_PAYLOAD"
   echo "=============================================================================="
   echo "  SONDA DETERMINISTA DE ACTUALIZACIÓN DE HERRAMIENTAS (AGENT OS)"
   echo "=============================================================================="
   printf "%-12s | %-12s | %-12s | %-8s | %s\n" "HERRAMIENTA" "INSTALADA" "UPSTREAM" "FUENTE" "ESTADO"
   echo "-------------+--------------+--------------+----------+-----------------------"
 
-  for item in "${CATALOG[@]}"; do
-    IFS='|' read -r t_id t_name t_reg t_url <<< "$item"
-    if [ -n "$TARGET_TOOL" ] && [ "$TARGET_TOOL" != "$t_id" ]; then
-      continue
-    fi
+  python3 -c "
+import json
+with open('$PYTHON_PAYLOAD', 'r') as f:
+    items = json.load(f)
 
-    INSTALLED="$(detect_installed_version "$t_id")"
-    UPSTREAM_RES="$(fetch_latest_version "$t_id" "$t_reg" "$t_url")"
-    LATEST="$(echo "$UPSTREAM_RES" | cut -d'|' -f1)"
-    STATUS="$(echo "$UPSTREAM_RES" | cut -d'|' -f2)"
-
-    if [ "$STATUS" != "ok" ] || [ "$LATEST" = "null" ]; then
-      ICON="⚠️"
-      DISP_LATEST="N/A ($STATUS)"
-    else
-      COMP_RES="$(python3 -c "
-def parse_v(v):
-    return tuple(int(x) if x.isdigit() else 0 for x in v.lstrip('v').strip().split('-')[0].split('.'))
-try:
-    print('update' if parse_v('$LATEST') > parse_v('$INSTALLED') else 'ok')
-except Exception:
-    print('unknown')
-" 2>/dev/null || echo "unknown")"
-      if [ "$COMP_RES" = "update" ]; then
-        ICON="🔔 ACTUALIZACIÓN"
-        DISP_LATEST="$LATEST"
-      else
-        ICON="✅ Al día"
-        DISP_LATEST="$LATEST"
-      fi
-    fi
-
-    printf "%-12s | %-12s | %-12s | %-8s | %s\n" "$t_id" "$INSTALLED" "$DISP_LATEST" "$t_reg" "$ICON"
-  done
+for it in items:
+    t_id = it['tool']
+    inst = it['installed_version']
+    lat = it['latest_version'] or 'N/A'
+    reg = it['registry']
+    st = it['status']
+    rem = it.get('installed_version_remote')
+    inst_disp = f'{inst} (vps:{rem})' if rem and rem != inst else inst
+    if st != 'ok' or lat == 'N/A':
+        icon = f'⚠️ {st}'
+    elif it['update_available']:
+        icon = '🔔 ACTUALIZACIÓN'
+    else:
+        icon = '✅ Al día'
+    print(f'{t_id:<12} | {inst_disp:<12} | {lat:<12} | {reg:<8} | {icon}')
+"
+  rm -f "$PYTHON_PAYLOAD"
   echo "=============================================================================="
   echo "Resumen: $TOTAL_INSPECTED herramientas inspeccionadas | $UPDATES_AVAILABLE_COUNT con actualización | $NETWORK_ERRORS_COUNT con aviso de red/cuota."
 fi
