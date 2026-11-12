@@ -228,7 +228,16 @@ Para cada tarea incorporada a la tabla del sprint:
    - `Diseño y arquitectura aprobados por`: `[Humano / Relé]`.
    - `Decisiones e interfaces selladas`: descripción concreta de interfaces pactadas, contratos de tipos, dependencias admitidas y guardarraíles técnicos acordados.
    - `Veredicto de diseño macro`: `[APROBADO_EN_PLANNING]`.
-2. **Modelado de dependencias y carriles de ejecución**: En la tabla de tareas, la columna `Dependencias` explicita las precondiciones técnicas (IDs de tareas precedentes obligatorias o `—` si es independiente). A partir de la tabla, se deriva el grafo acíclico dirigido (DAG) y se proyecta la distribución en carriles de ejecución en la sección `## Régimen Operativo del Sprint` (ej. Carril 1: T-172 → T-173 → T-174; Carril 2: T-175; Carril 3: T-176).
+2. **Modelado de dependencias y carriles de ejecución (DAG y Cajas de Archivos)**:
+   En la tabla de tareas, la columna `Dependencias` explicita las precondiciones técnicas (IDs de tareas precedentes obligatorias o `—` si es independiente).
+   A partir de la tabla y del análisis de archivos a tocar, se deriva el grafo acíclico dirigido (DAG) y se proyecta la distribución en carriles en la sección `## Régimen Operativo del Sprint`:
+   - **Criterio de Cajas de Archivos Disjuntas**: El agente compara la caja de archivos (`Caja de archivos`) proyectada para cada tarea candidata.
+   - **Carril Único (Secuencial)**: Si dos o más tareas comparten archivos a modificar o una depende de la salida de otra, **deben** agruparse en el mismo carril en orden de precedencia (ej. `Carril 1: T-172 → T-173 → T-174`).
+   - **Carriles Múltiples (Paralelizables)**: Si dos o más tareas no tienen dependencias entre sí Y sus cajas de archivos son estrictamente disjuntas ($\text{Files}(T_A) \cap \text{Files}(T_B) = \emptyset$), **deben** modelarse en carriles paralelos separados (ej. `Carril 1: [T-172 → T-173]`, `Carril 2: [T-175]`, `Carril 3: [T-176]`).
+   - **Prerrequisito de Inferencia y Concurrencia**:
+     - La infraestructura de Git Worktrees (`worktree-dispatch.sh` y `worktree-merge.sh`) y el aislamiento POSIX son 100% seguros y soportan concurrencia real sin riesgo de colisión.
+     - Si el entorno cuenta con inferencia desacoplada (APIs en la nube, subagentes o múltiples nodos de flota), los carriles pueden despacharse concurrentemente.
+     - Si la flota depende de una pasarela monohilo local saturable (la causa física del veredicto NO-GO en el piloto del Sprint 25), la ejecución física de las deliberaciones debe serializarse para evitar timeouts de pasarela. En sesiones interactivas CLI monohilo, el agente consume los carriles ordenadamente respetando los hitos de merge.
 3. **Reflejo en notas de planning**: Las decisiones arquitectónicas transversales del conjunto de tareas se resumen en `## Notas de planning` del sprint file.
 4. **Invariante de desacoplamiento y handoff al arranque del sprint**: Una vez aprobado el sprint, el diseño macro de las tareas queda sellado. El planning prepara la propuesta de orden de carriles, dejando el régimen en `[PENDIENTE_ARRANQUE]`. Al arrancar el sprint en la primera sesión de `/session-start`, el flujo formula una **consulta proactiva única** al operador para sellar (1) el régimen operativo (`A) Desatendida` vs. `B) Tarea a tarea (Clásico)`) y (2) el camino de carriles. Si se sella el régimen **Desatendido** (anteriormente conocido por su alias histórico «Opción D»), el diseño macro actúa como la **única autorización habilitante** para que el agente encadene autónomamente las tareas en camino limpio sin volver al usuario entre ellas. En la posterior ejecución por tarea, el Revisor Ejecutor opera como compuerta técnica determinista (Nivel Micro) mediante `deliberate-plan.sh` y no reabre diseño; si se alcanzan las 5 condiciones del camino limpio (`CONSENSO`), la tarea se ejecuta, integra y cierra de forma 100% desatendida. Ante cualquier discrepancia técnica frente a esta sección, fallo en la verificación del relé de la tarea cerrada o veredicto no consensual, el sistema aborta de inmediato a fail-closed (`ESCALADO_A_HUMANO`) suspendiendo la autonomía y devolviendo el control al operador humano en el chat.
 
@@ -368,8 +377,8 @@ El agente presenta el informe consolidado y emite **OBLIGATORIAMENTE** la siguie
 | T-XXX | ... | S/M/L | — | ... |
 
 🛣️ Propuesta de Carriles de Ejecución (DAG):
-- Carril 1: [T-XXX → T-YYY]
-- Carril 2: [T-ZZZ]
+- Carril 1: [T-XXX → T-YYY] (secuencial: comparten caja de archivos o dependencias)
+- Carril 2: [T-ZZZ] (independiente: caja de archivos disjunta, paralelizable si hay capacidad)
 
 🔬 Estado de Research y Prospección:
 - Scout OSS: Completado en docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md (Gate Scout-First T-129 verificado)
@@ -440,3 +449,12 @@ Una vez que el operador responde aprobando el sprint (ej: "A, aprobado" o "Opci�
 - **Artefacto Concreto Requerido**: Toda tarea activa debe formalizarse con la sección canónica `## Diseño macro aprobado en planning` conteniendo el veredicto `[APROBADO_EN_PLANNING]` y el desglose de interfaces y decisiones acordadas.
 - **Compuerta Técnica y Escalado Vinculante**: Durante `/session-start`, el Revisor Ejecutor (o relé) audita estrictamente la caja de archivos, pruebas y apego al diseño macro ya sellado. Ante cualquier desviación o fuga de alcance, emite bloqueo técnico inmediato con `ESCALADO_A_HUMANO`, suspendiendo la ejecución desatendida.
 - **Papel del Relé en Transición**: El operador humano / relé se mantiene como fallback operativo ante indisponibilidad de pasarela (`SIN_REVISOR`) y sigue frenando de forma obligatoria y manual los merges hasta verificar paridad estadística empírica en el Sprint 27.
+
+### Modelado de Carriles (DAG) y Concurrencia Multi-Agente (Doctrina Sprint 25 & Cajas Disjuntas)
+- **Prohibido el carril único perezoso (Lazy Flattening)**: Si un sprint contiene tareas independientes con cajas de archivos disjuntas, el agente **no debe** aplanar arbitrariamente todas las tareas en un único `Carril 1: [T-A → T-B → T-C → T-D → T-E]`. Debe estructurar los carriles reflejando la independencia real del grafo.
+- **Criterios de Partición en Carriles**:
+  1. *Dependencia funcional*: Si T-B requiere artefactos, contratos o APIs de T-A, van obligatoriamente en el mismo carril (`T-A → T-B`).
+  2. *Caja de archivos solapada*: Si T-A y T-B mutan o crean los mismos ficheros, configuraciones o scripts, **deben** pertenecer al mismo carril (`T-A → T-B`) para prevenir conflictos de merge y desalineaciones de contexto.
+  3. *Cajas disjuntas e independientes*: Si $\text{Archivos}(T_A) \cap \text{Archivos}(T_B) = \emptyset$ y no hay dependencias funcionales, **deben** declararse en carriles paralelos (`Carril 1: [T-A]`, `Carril 2: [T-B]`).
+- **Soberanía Unificada de Git (Doctrina Sprint 25)**: Aunque múltiples workers trabajen concurrentemente en worktrees efímeros independientes (`worktree-dispatch.sh`), los workers **nunca realizan merges entre sí desatendidamente**. La consolidación hacia la rama troncal (`multi-agent`) es potestad exclusiva del Coordinador (o del operador humano), validando con `tests/validate-control-plane.sh` y `verify-goal.sh` antes de cada merge atómico con `worktree-merge.sh`.
+- **Límites Físicos de Inferencia**: El paralelismo operativo real requiere que los agentes no compitan por una pasarela local monohilo saturable (cuello de botella detectado en Sprint 25). Con proveedores en la nube, subagentes desacoplados o múltiples nodos de flota, el despacho paralelo en worktrees está totalmente habilitado. En sesiones interactivas monohilo (un único proceso de chat CLI), el agente procesará los carriles de forma secuencial pero manteniendo su aislamiento modular.

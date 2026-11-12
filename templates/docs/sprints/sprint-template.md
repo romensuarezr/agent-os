@@ -13,6 +13,7 @@
 - **Régimen**: [PENDIENTE_ARRANQUE — Desatendida | Tarea a tarea (Clásico)]
 - **Orden de Carriles (DAG de dependencias)**:
   - Carril 1: [T-001 → ...]
+  - Carril 2: [T-002 ...] (independiente / caja de archivos disjunta)
 - **Sellado en**: [PENDIENTE]
 
 ## Notas de planning
