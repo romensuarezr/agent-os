@@ -47,6 +47,7 @@ scripts/agent/inspect-skills.sh
 scripts/agent/assets-manifest.txt
 scripts/agent/dispatch-satellite.sh
 .agents/config/satellites.yaml
+.agents/config/orchestration-playbooks.yaml
 scripts/agent/worktree-gc.sh
 
 [deprecated]

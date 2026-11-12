@@ -108,11 +108,21 @@ bash scripts/agent/check-session.sh
 
 > ⚠️ Completar el task file **no autoriza la ejecución**. La única autorización es el APROBADO en Fase 3.5.
 
-### FASE 3 — Declaración de la Caja y Cláusula de Skills
+### FASE 3 — Declaración de la Caja, Selección de Playbook y Cláusula de Skills
 
 1. Leer `## Caja de archivos` del task file y mostrar archivos autorizados.
-2. Identificar skills relevantes declaradas en el task file por nombre. No activarlas aún.
-3. **Cláusula de Skills (obligatoria)**: El agente debe verificar que cada skill declarada en el task file tenga su regla aplicada explícitamente citada en el borrador del plan, o bien declarar `"no aplica"` con motivo fundado.
+2. **Selección Declarativa de Playbook y Regla de Umbral (<= 3 archivos)**:
+   - Consultar `.agents/config/orchestration-playbooks.yaml` (si existe).
+   - Evaluar el número de archivos autorizados en `## Caja de archivos`:
+     - **Regla dura de umbral (<= 3 archivos)**: Si la caja contiene 3 o menos archivos, **SE FUERZA** el playbook `direct`. Queda estrictamente prohibido despachar a worktrees o delegar en subagentes para evitar el *floor cost* de tokens y el *context rot*. La tarea se implementa directamente en la sesión local.
+     - **Caja > 3 archivos o cambios transversales**:
+       - Si existe incertidumbre arquitectónica o dependencias externas nuevas: playbook `scout-then-build`.
+       - Si combina diseño conceptual exigente con código mecánico intensivo: playbook `plan-big-execute-small`.
+       - Si pertenece a un carril DAG independiente y concurrente del sprint: playbook `parallel-worktrees` (despacho mediante `worktree-dispatch.sh`).
+       - Si altera interfaces críticas, seguridad o contratos globales: activar playbook `review-gate`.
+   - Declarar el playbook seleccionado en el encabezado del borrador del plan (`.agents/context/plan-draft.md`).
+3. Identificar skills relevantes declaradas en el task file por nombre. No activarlas aún.
+4. **Cláusula de Skills (obligatoria)**: El agente debe verificar que cada skill declarada en el task file tenga su regla aplicada explícitamente citada en el borrador del plan, o bien declarar `"no aplica"` con motivo fundado.
 
 ### FASE 3.4 — Generación del Borrador y Deliberación Autónoma
 
