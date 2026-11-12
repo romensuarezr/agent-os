@@ -1,7 +1,7 @@
 # Sprint 37 — 2026-11-16 → 2026-11-20
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |

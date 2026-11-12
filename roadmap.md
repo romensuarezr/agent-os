@@ -1,9 +1,10 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 37**: Orquestación Declarativa, Boot de Coordinador en Satélites, Regla de Umbral y Telemetría Eficiente (T-201 a T-204). 🟡 En curso bajo régimen **Desatendido** (sellado 2026-11-12). Carril 1 secuencial: T-201 → T-202 → T-203 → T-204 (validación real en satélite `annascheer-web`). Ver `docs/sprints/sprint-37.md`.
+- (Sin sprint en curso — planificar próximo ciclo con /sprint-planning)
 
 ## Próximo
+- **Sprint 37**: Orquestación Declarativa, Boot de Coordinador en Satélites, Regla de Umbral y Telemetría Eficiente (T-201 a T-204). Formalizado como release `v1.33.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-37.md`.
 - **Sprint 36**: Gobernanza de Contexto, Tokenomics de Skills, Enrutamiento Asesor, Sandboxing no-root e Idea Validator (T-196 a T-200). Formalizado como release `v1.32.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-36.md`.
 - **Sprint 35**: Tooling Homologation, Actualización Asistida de Satélites, Estandarización de Releases & Gobernanza de Credenciales (T-192 a T-195). Formalizado como release `v1.31.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-35.md`.
 - **Sprint 34**: Hardening Determinista de Planning, Proyección Multi-Harness y Automejora (T-189 a T-191). Formalizado como release `v1.30.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-34.md`.
