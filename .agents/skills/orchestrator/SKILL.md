@@ -106,7 +106,23 @@ Para evitar que el usuario supervise manualmente cada worktree, el orquestador m
 
 ---
 
-## 5. Reglas Críticas de Seguridad y Concurrencia
+## 5. Catálogo Declarativo de Playbooks y Regla de Umbral (<= 3 archivos)
+
+Antes de despachar tareas o crear worktrees, el Coordinador evalúa la estrategia óptima según `.agents/config/orchestration-playbooks.yaml`:
+
+1. **Regla de Umbral (<= 3 archivos)**:
+   - Si la allowlist de la tarea contiene **3 o menos archivos**, se ejecuta forzosamente bajo el playbook `direct` (mono-agente en la sesión local).
+   - Queda estrictamente prohibido despachar a worktrees efímeros (`/dispatch`) o instanciar subagentes para tareas $\le 3$ archivos: el coste base de tokens (*floor cost*) y la saturación de contexto (*context rot*) superan con creces el trabajo a realizar.
+2. **Estrategias Canónicas**:
+   - `direct`: Tareas acotadas $\le 3$ archivos, fixes localizados y tests puntuales en la sesión local.
+   - `scout-then-build`: Prospección previa de solo lectura a coste $0 con `scout.sh` / `searxng-client.sh` antes de diseñar el plan.
+   - `plan-big-execute-small`: Modelo director de alta capacidad planifica y define contratos; workers económicos o locales ejecutan el código mecánico.
+   - `parallel-worktrees`: Despacho concurrente de tareas independientes del DAG en worktrees aislados (`worktree-dispatch.sh`).
+   - `review-gate`: Auditoría determinista desacoplada previa a integración con `deliberate-plan.sh` y `verify-goal.sh`.
+
+---
+
+## 6. Reglas Críticas de Seguridad y Concurrencia
 
 1. **Aislamiento Estricto**: Ningún worker puede acceder o modificar archivos de otro worktree concurrentemente.
 2. **Circuit Breaker Activo**: Si `/judge` reporta `FAIL` en 3 intentos sucesivos, el Coordinator **detiene el lote** y solicita intervención mediante `/gate`.
@@ -114,7 +130,7 @@ Para evitar que el usuario supervise manualmente cada worktree, el orquestador m
 
 ---
 
-## 6. Protocolo de Promoción a Main y Decision Gate (`/promote`)
+## 7. Protocolo de Promoción a Main y Decision Gate (`/promote`)
 
 El comando `/promote` consolida la rama de trabajo hacia `main` (o la rama principal configurada) de forma totalmente determinista mediante `scripts/agent/promote-to-main.sh`.
 

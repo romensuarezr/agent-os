@@ -1,0 +1,59 @@
+version: "1.0.0"
+description: "Catálogo declarativo de estrategias de orquestación y reglas de umbral de Agent OS."
+
+thresholds:
+  direct_max_files: 3
+  direct_rationale: "Tareas con <= 3 archivos incurren en mayor gasto de tokens por floor cost de delegación y transcripts que ejecutadas directamente en mono-agente."
+
+default_playbook: "direct"
+
+playbooks:
+  direct:
+    name: "Ejecución Directa (Mono-Agente Local)"
+    description: "Ejecución secuencial en la sesión actual sin crear worktrees ni subagentes."
+    trigger: "Caja de archivos <= 3, fixes atómicos o tests localizados."
+    strategy: "direct_execution"
+    isolation_level: "none"
+    roles:
+      executor: "coordinator"
+
+  scout-then-build:
+    name: "Prospección Previa + Implementación"
+    description: "Fase de exploración de solo lectura a coste $0 (scout.sh / searxng-client.sh) antes de formular el plan."
+    trigger: "Incertidumbre arquitectónica, nuevas dependencias externas o búsqueda de referencias OSS."
+    strategy: "scout_and_build"
+    isolation_level: "read_only"
+    roles:
+      researcher: "docs-researcher"
+      executor: "coordinator"
+
+  plan-big-execute-small:
+    name: "Planifica en Grande, Ejecuta en Pequeño"
+    description: "Coordinador formula el plan y contratos en modelo de alta capacidad; workers económicos o locales ejecutan el código mecánico."
+    trigger: "Tareas extensas con diseño arquitectónico exigente pero código mecánico intensivo."
+    strategy: "tiered_delegation"
+    isolation_level: "worktree"
+    roles:
+      planner: "coordinator"
+      worker: "coder"
+      reviewer: "qa-judge"
+
+  parallel-worktrees:
+    name: "Despacho Paralelo en Git Worktrees"
+    description: "Despacho concurrente de tareas independientes en árboles de trabajo aislados con integración controlada."
+    trigger: "Múltiples tareas del sprint en carriles DAG independientes con cajas de archivos disjuntas."
+    strategy: "parallel_worktrees"
+    isolation_level: "worktree"
+    roles:
+      dispatcher: "coordinator"
+      workers: ["coder"]
+      integrator: "coordinator"
+
+  review-gate:
+    name: "Compuerta de Revisión y Arbitraje Desacoplado"
+    description: "Auditoría obligatoria de planes y diffs mediante qa-judge determinista y verify-goal.sh antes de la integración."
+    trigger: "Tareas críticas que modifiquen contratos globales, seguridad o interfaces del core."
+    strategy: "review_gate"
+    isolation_level: "sandbox"
+    roles:
+      evaluator: "qa-judge"

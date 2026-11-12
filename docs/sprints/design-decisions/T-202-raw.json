@@ -1,0 +1,17 @@
+{
+  "task_id": "T-202",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan de trabajo para T-202 aborda de manera precisa la formalizaci\u00f3n declarativa de las 5 estrategias de orquestaci\u00f3n can\u00f3nicas y la regla dura de umbral (<= 3 archivos en la caja de cambios -> forzar modo `direct`). La delimitaci\u00f3n de archivos es estrictamente acotada, contempla el registro preventivo en `assets-manifest.txt` y asegura la preservaci\u00f3n del floor cost de tokens sin introducir acoplamiento innecesario ni mutaciones fuera del \u00e1mbito acordado.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "Las skills declaradas (`orchestrator`, `structure-guardian`, `workflow-designer`) existen en el inventario can\u00f3nico del repositorio, son pertinentes para definir la configuraci\u00f3n declarativa de playbooks, integrar compuertas en workflows y asegurar la estructura est\u00e1ndar en `.agents/config/`, sin invocar capacidades prohibidas ni desalineadas."
+  },
+  "inventory_scoped_bytes": 2007,
+  "plan_source": ".agents/context/plan-draft.md"
+}

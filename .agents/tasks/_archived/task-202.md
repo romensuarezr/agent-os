@@ -38,18 +38,18 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-202.md`
 
 ## Criterios de done
-- [ ] Archivo `.agents/config/orchestration-playbooks.yaml` creado con esquema declarativo válido y descripciones claras.
-- [ ] Regla de umbral ($\le 3$ archivos) integrada en `session-start.md` documentando el bypass del despacho de worktrees.
-- [ ] Skill `orchestrator` alineada con la selección de playbooks.
-- [ ] Manifiesto `assets-manifest.txt` actualizado.
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] Archivo `.agents/config/orchestration-playbooks.yaml` creado con esquema declarativo válido y descripciones claras.
+- [x] Regla de umbral ($\le 3$ archivos) integrada en `session-start.md` documentando el bypass del despacho de worktrees.
+- [x] Skill `orchestrator` alineada con la selección de playbooks.
+- [x] Manifiesto `assets-manifest.txt` actualizado.
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado
