@@ -774,6 +774,8 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
                 existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*change*" -o -iname "*log*" -o -iname "*history*" \) 2>/dev/null | head -n 1 || true)
             elif [ "$filename" = "VERSION" ]; then
                 existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f -iname "VERSION" 2>/dev/null | head -n 1 || true)
+            elif [ "$filename" = "AGENTS.md" ]; then
+                existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*agents*.md" -o -iname "*agent.md" \) 2>/dev/null | head -n 1 || true)
             fi
             
             if [ -z "$existing_fuzzy" ] && [ ! -f "$TARGET_PROJECT/$filename" ]; then
@@ -789,6 +791,9 @@ if [ -d "$AGENT_OS_ROOT_TEMPLATES" ]; then
                     else
                         cp "$template_path" "$TARGET_PROJECT/$filename"
                     fi
+                elif [ "$filename" = "AGENTS.md" ] || [ "$filename" = "roadmap.md" ]; then
+                    target_pname=$(basename "$(cd "$TARGET_PROJECT" 2>/dev/null && pwd || echo "$TARGET_PROJECT")")
+                    sed "s/{{PROJECT_NAME}}/$target_pname/g" "$template_path" > "$TARGET_PROJECT/$filename"
                 else
                     cp "$template_path" "$TARGET_PROJECT/$filename"
                 fi

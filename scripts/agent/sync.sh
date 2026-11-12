@@ -502,12 +502,19 @@ if [ -d "$AGENT_OS_PATH/templates/root" ]; then
             existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*change*" -o -iname "*log*" -o -iname "*history*" \) 2>/dev/null | head -n 1 || true)
         elif [ "$fname" = "VERSION" ]; then
             existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f -iname "VERSION" 2>/dev/null | head -n 1 || true)
+        elif [ "$fname" = "AGENTS.md" ]; then
+            existing_fuzzy=$(find "$TARGET_PROJECT" -maxdepth 1 -type f \( -iname "*agents*.md" -o -iname "*agent.md" \) 2>/dev/null | head -n 1 || true)
         fi
         if [ -z "$existing_fuzzy" ] && [ ! -f "$TARGET_PROJECT/$fname" ]; then
             if [ "$DRY_RUN" = true ]; then
                 echo "    [dry-run] propagar template root: $fname"
             else
-                cp "$tmpl" "$TARGET_PROJECT/$fname"
+                if [ "$fname" = "AGENTS.md" ] || [ "$fname" = "roadmap.md" ]; then
+                    target_pname=$(basename "$(cd "$TARGET_PROJECT" 2>/dev/null && pwd || echo "$TARGET_PROJECT")")
+                    sed "s/{{PROJECT_NAME}}/$target_pname/g" "$tmpl" > "$TARGET_PROJECT/$fname"
+                else
+                    cp "$tmpl" "$TARGET_PROJECT/$fname"
+                fi
                 echo "    [propagado] template root: $fname"
                 TOUCHED_FILES+=("$fname")
             fi

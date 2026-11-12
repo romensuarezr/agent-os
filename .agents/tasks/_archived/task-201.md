@@ -35,18 +35,18 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-201.md`
 
 ## Criterios de done
-- [ ] Plantilla `templates/root/AGENTS.md` creada con instrucciones claras para agentes y desarrolladores.
-- [ ] Regla `.agents/rules/global/coordinator-boot.md` creada con trigger de arranque y plantilla de bienvenida estructurada.
-- [ ] `install.sh` y `sync.sh` actualizados para distribuir `AGENTS.md` a la raíz de los satélites.
-- [ ] `assets-manifest.txt` actualizado con los nuevos activos gestionados.
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] Plantilla `templates/root/AGENTS.md` creada con instrucciones claras para agentes y desarrolladores.
+- [x] Regla `.agents/rules/global/coordinator-boot.md` creada con trigger de arranque y plantilla de bienvenida estructurada.
+- [x] `install.sh` y `sync.sh` actualizados para distribuir `AGENTS.md` a la raíz de los satélites.
+- [x] `assets-manifest.txt` actualizado con los nuevos activos gestionados.
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado
