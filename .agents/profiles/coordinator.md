@@ -22,6 +22,7 @@ tooling:
     - scripts/agent/worktree-merge.sh
     - scripts/agent/close-task.sh
     - scripts/agent/close-sprint.sh
+    - scripts/agent/orchestration-report.sh
     - scripts/agent/scout.sh
   forbidden:
     - "git push"
@@ -99,3 +100,15 @@ La colaboración multi-agente se rige por transiciones deterministas basadas en 
 | **REVIEWED** | `reviewer` | `coordinator` / Humano | `.agents/context/deliberation-${TASK_ID}.json` | Veredicto `CONSENSO` o `REVISADO_CON_CAMBIOS` en Executive Design Digest. |
 | **EVALUATED** | `coder` | `qa-judge` | Rama `feat/<ID>-<profile>` + `verify-goal.sh` | Tests en verde, diff ⊆ allowlist, 0 secretos detectados. Veredicto `PASS`. |
 | **MERGED** | `qa-judge` | `coordinator` | `worktree-merge.sh` + `close-task.sh` | Integración limpia (ff/squash), worktree desmontado y digest archivado. |
+
+---
+
+## 5. Recepción de Handover y Aislamiento de Contexto (Anti-Context Rot)
+
+Para evitar la degradación del contexto en el Coordinador:
+1. **Exigencia de Retorno Compacto**: El Coordinador rechaza reportes que contengan historiales conversacionales crudos o logs extensos de terminal; solo admite el digest de evidencia estructurado ($\le 30$ líneas) con diffstat y salida de `verify-goal.sh`.
+2. **Telemetría y Métricas a Coste $0**:
+   - Para consultar el estado global, duración, playbooks empleados y cálculo de ahorro de tokens sin quemar inferencia, el Coordinador invoca deterministamente:
+     ```bash
+     bash scripts/agent/orchestration-report.sh [--sprint <ID>] [--json]
+     ```

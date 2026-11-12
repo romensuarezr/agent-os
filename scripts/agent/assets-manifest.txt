@@ -49,6 +49,7 @@ scripts/agent/dispatch-satellite.sh
 .agents/config/satellites.yaml
 .agents/config/orchestration-playbooks.yaml
 scripts/agent/worktree-gc.sh
+scripts/agent/orchestration-report.sh
 
 [deprecated]
 # fecha       archivo                              motivo
