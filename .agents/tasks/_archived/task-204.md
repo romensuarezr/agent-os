@@ -37,18 +37,51 @@ Archivos autorizados para modificación:
 - Referencia externa: `<satelites>/annascheer-web` (solo vía `sync.sh`)
 
 ## Criterios de done
-- [ ] `sync.sh --force --cleanup --commit` ejecutado satisfactoriamente sobre `<satelites>/annascheer-web`.
-- [ ] Verificado que `annascheer-web/AGENTS.md` existe y está en paridad con la plantilla canónica.
-- [ ] Verificado que `audit-satellites.sh` reporta `annascheer-web` como LIMPIO (60/60 scripts OK o nueva cuenta con `orchestration-report.sh`).
-- [ ] Guía paso a paso documentada para la prueba manual del operador humano en `annascheer-web`.
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] `sync.sh --force --cleanup --commit` ejecutado satisfactoriamente sobre `<satelites>/annascheer-web`.
+- [x] Verificado que `annascheer-web/AGENTS.md` existe y está en paridad con la plantilla canónica.
+- [x] Verificado que `audit-satellites.sh` reporta `annascheer-web` como LIMPIO (61/61 scripts OK).
+- [x] Guía paso a paso documentada para la prueba manual del operador humano en `annascheer-web`.
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+
+## Guía de Verificación Manual para el Operador (annascheer-web)
+
+Para verificar en vivo que las innovaciones de Agent OS funcionan correctamente sobre el satélite real:
+
+### Paso 1: Abrir terminal interactiva en el satélite
+Abre una terminal o inicia una sesión de Antigravity en la carpeta del satélite:
+```bash
+cd ~/Proyectos/annascheer-web
+# o inicia la sesión de Antigravity / Cursor en dicho directorio
+```
+
+### Paso 2: Saludo inicial y boot proactivo
+Escribe un simple saludo:
+> `"hola"` o `"buenas"`
+
+**Respuesta esperada del agente**:
+- El agente lee proactivamente `AGENTS.md` y la regla `coordinator-boot.md`.
+- Ejecuta internamente en silencio `bash scripts/agent/check-session.sh` y `bash scripts/agent/check-sprint.sh` ($0 tokens).
+- Se presenta explícitamente como el **Coordinador** de Agent OS.
+- Reporta el estado real del **Sprint 02** (2/5 completadas, tareas pendientes: `T-008`, `T-009`, `T-010`).
+- Muestra el menú de opciones interactivas para continuar con el sprint (`/session-start`), planificar o consultar telemetría.
+
+### Paso 3: Verificación de telemetría determinista a $0 tokens
+Ejecuta directamente el nuevo script de telemetría de orquestación:
+```bash
+bash scripts/agent/orchestration-report.sh
+```
+**Resultado esperado**:
+- Reporte formateado en terminal mostrando el progreso de Sprint 02 (40.0%), los playbooks (`plan-big-execute-small` para T-008, T-009 y T-010 debido a sus cajas >3 archivos) y métricas de eficiencia.
+
+### Paso 4: Comprobar la regla de umbral de orquestación
+Si ejecutas una tarea pequeña (<= 3 archivos en su caja autorizada), el Coordinador utilizará el modo `direct` en la sesión local sin crear ramas ni worktrees efímeros redundantes. Si ejecutas una tarea extensa (como T-008 o T-009 con 9–10 archivos), el agente propondrá aislarla en worktree para evitar el context rot.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado
