@@ -93,6 +93,8 @@ detect_remote_hermes_version() {
     fleet_file="$ROOT_DIR/.agents/config/fleet.yaml"
   elif [ -f "$ROOT_DIR/config/fleet.yaml" ]; then
     fleet_file="$ROOT_DIR/config/fleet.yaml"
+  elif [ -f "${HOME:-}/.agents/config/fleet.yaml" ]; then
+    fleet_file="${HOME:-}/.agents/config/fleet.yaml"
   fi
   [ -z "$fleet_file" ] && return 0
 

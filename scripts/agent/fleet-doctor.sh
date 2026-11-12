@@ -86,6 +86,8 @@ if [[ -z "$FLEET_FILE" ]]; then
     # Fallback retrocompatible para proyectos hijos desactualizados
     echo "⚠️  DEPRECATED: $REPO_ROOT/config/fleet.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.yaml" >&2
     FLEET_FILE="$REPO_ROOT/config/fleet.yaml"
+  elif [[ -f "${HOME:-}/.agents/config/fleet.yaml" ]]; then
+    FLEET_FILE="${HOME:-}/.agents/config/fleet.yaml"
   elif [[ -f "$REPO_ROOT/.agents/config/fleet.example.yaml" ]]; then
     FLEET_FILE="$REPO_ROOT/.agents/config/fleet.example.yaml"
     DOC_MODE=true

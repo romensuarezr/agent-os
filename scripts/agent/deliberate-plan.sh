@@ -290,7 +290,14 @@ import os, sys, yaml, re, json
 
 root = os.environ.get("AGENT_OS_ROOT", "'"$ROOT_DIR"'")
 routing_file = os.environ.get("AGENT_OS_ROUTING_POLICY", os.path.join(root, ".agents", "config", "routing-policy.yaml"))
-fleet_file = os.environ.get("AGENT_OS_FLEET_CONFIG", os.path.join(root, ".agents", "config", "fleet.yaml"))
+fleet_file = os.environ.get("AGENT_OS_FLEET_CONFIG")
+if not fleet_file:
+    candidate = os.path.join(root, ".agents", "config", "fleet.yaml")
+    if os.path.isfile(candidate):
+        fleet_file = candidate
+    else:
+        user_global = os.path.expanduser("~/.agents/config/fleet.yaml")
+        fleet_file = user_global if os.path.isfile(user_global) else candidate
 
 cascade = []
 endpoints_cfg = {}

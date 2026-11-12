@@ -113,8 +113,17 @@ resolve_nango_url() {
   fi
   local root fleet_file
   root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-  fleet_file="${FLEET_FILE:-$root/.agents/config/fleet.yaml}"
-  if [ -f "$fleet_file" ]; then
+  fleet_file="${FLEET_FILE:-}"
+  if [ -z "$fleet_file" ]; then
+    if [ -f "$root/.agents/config/fleet.yaml" ]; then
+      fleet_file="$root/.agents/config/fleet.yaml"
+    elif [ -f "$root/config/fleet.yaml" ]; then
+      fleet_file="$root/config/fleet.yaml"
+    elif [ -f "${HOME:-}/.agents/config/fleet.yaml" ]; then
+      fleet_file="${HOME:-}/.agents/config/fleet.yaml"
+    fi
+  fi
+  if [ -n "$fleet_file" ] && [ -f "$fleet_file" ]; then
     local u
     u=$(python3 -c "
 import yaml

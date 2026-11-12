@@ -695,13 +695,18 @@ if [ -d "$AGENT_OS_PATH/.agents/config" ]; then
     for cfg in "$AGENT_OS_PATH/.agents/config"/*; do
         [ -f "$cfg" ] || continue
         cfg_name=$(basename "$cfg")
-        # EXCLUSIÓN CRÍTICA: Nunca copiar overlays privados de flota
+        # EXCLUSIÓN CRÍTICA: Nunca copiar overlays privados de flota en el repo destino
         if [ "$cfg_name" = "fleet.yaml" ] || [ "$cfg_name" = "fleet.local.yaml" ]; then
             continue
         fi
         agent_cp_n "$cfg" "$TARGET_PROJECT/.agents/config/"
 track_installed "$TARGET_PROJECT/.agents/config/$cfg_name"
     done
+    # Asegurar que el overlay global de flota del operador existe en ~/.agents/config/fleet.yaml
+    if [ -f "$AGENT_OS_PATH/.agents/config/fleet.yaml" ] && [ ! -f "${HOME:-}/.agents/config/fleet.yaml" ]; then
+        mkdir -p "${HOME:-}/.agents/config"
+        cp "$AGENT_OS_PATH/.agents/config/fleet.yaml" "${HOME:-}/.agents/config/fleet.yaml" 2>/dev/null || true
+    fi
     echo "✅ Configuraciones runtime instaladas en .agents/config/ (overlay privado fleet.yaml excluido)."
 fi
 

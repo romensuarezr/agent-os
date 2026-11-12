@@ -91,7 +91,7 @@ import os, sys, yaml
 
 def resolve():
     root = sys.argv[1]
-    for cfg in [os.path.join(root, '.agents/config/fleet.yaml'), os.path.join(root, '.agents/config/fleet.example.yaml')]:
+    for cfg in [os.path.join(root, '.agents/config/fleet.yaml'), os.path.expanduser('~/.agents/config/fleet.yaml'), os.path.join(root, '.agents/config/fleet.example.yaml')]:
         if not os.path.isfile(cfg):
             continue
         try:
