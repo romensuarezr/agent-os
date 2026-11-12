@@ -111,9 +111,16 @@ El Coder participa en compuertas estrictas antes y después de la fase de implem
 - **Mecanismo de Arbitraje**: Ejecuta o somete el plan a `scripts/agent/deliberate-plan.sh --task-id <TASK_ID>`.
 - **Condición de Salida**: Obtener el artefacto `.agents/context/deliberation-${TASK_ID}.json` con veredicto de consenso o revisión con cambios y la aprobación formal en el Decision Gate humano antes de editar código.
 
-### B. Handover de Entrega Técnica (Coder → QA-Judge): Estado `EVALUATED`
+### B. Handover de Entrega Técnica (Coder → QA-Judge / Coordinator): Estado `EVALUATED`
 - **Artefactos emitidos**:
   - Rama de trabajo limpia: `feat/<task-id>-coder` con commits atómicos y sin merge a ramas principales.
   - Registro de deliberación persistido: `.agents/context/deliberation-${TASK_ID}.json`.
   - Auto-verificación preliminar local: ejecución satisfactoria de `scripts/agent/verify-goal.sh --task-id <TASK_ID> --allow-dirty --json`.
+- **Cláusula Contractual de Retorno Compacto (Anti-Context Rot)**:
+  - Para proteger la ventana de contexto del Coordinador y prevenir el deterioro cognitivo (*context rot*), el Coder tiene **TERMINANTEMENTE PROHIBIDO** volcar transcripciones crudas de terminal, historiales de chat completos o archivos enteros en su mensaje de retorno.
+  - El handover debe ser un digest de evidencia estructurado de **máximo 30 líneas** conteniendo:
+    1. Síntesis ejecutiva de la implementación realizada.
+    2. Diffstat determinista (`git diff --stat <base>...HEAD`).
+    3. Lista explícita de archivos modificados dentro de la caja autorizada.
+    4. Veredicto y código de salida de `verify-goal.sh --json` (status: PASS).
 - **Condición de Aceptación**: Cero modificaciones fuera de la allowlist y ausencia total de secretos o credenciales rastreadas. Traspaso inmediato de control al `qa-judge` para el arbitraje independiente en el Ralph Loop.

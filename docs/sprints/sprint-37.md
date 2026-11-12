@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | T-201 | Plantilla AGENTS.md para satélites y regla de boot del Coordinador | M | ✅ Completada | — | `.agents/tasks/task-201.md` |
 | T-202 | Declaración de Playbooks de orquestación y regla de umbral (<= 3 archivos) | M | ✅ Completada | T-201 | `.agents/tasks/task-202.md` |
-| T-203 | Contrato de retorno compacto anti-context rot y script de telemetría | M | ⬜ Pendiente | T-202 | `.agents/tasks/task-203.md` |
+| T-203 | Contrato de retorno compacto anti-context rot y script de telemetría | M | ✅ Completada | T-202 | `.agents/tasks/task-203.md` |
 | T-204 | Ensayo y validación E2E en satélite real (annascheer-web) | S | ⬜ Pendiente | T-201, T-202, T-203 | `.agents/tasks/task-204.md` |
 
 ## Régimen Operativo del Sprint

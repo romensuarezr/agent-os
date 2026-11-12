@@ -36,17 +36,17 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-203.md`
 
 ## Criterios de done
-- [ ] Script `scripts/agent/orchestration-report.sh` implementado con permisos de ejecución (+x) y soporte `--help`, `--json` y agregación por tarea/sprint.
-- [ ] Perfiles `coder.md` y `coordinator.md` actualizados con la cláusula contractual de retorno compacto.
-- [ ] Manifiesto `assets-manifest.txt` actualizado con `orchestration-report.sh`.
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] Script `scripts/agent/orchestration-report.sh` implementado con permisos de ejecución (+x) y soporte `--help`, `--json` y agregación por tarea/sprint.
+- [x] Perfiles `coder.md` y `coordinator.md` actualizados con la cláusula contractual de retorno compacto.
+- [x] Manifiesto `assets-manifest.txt` actualizado con `orchestration-report.sh`.
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado
