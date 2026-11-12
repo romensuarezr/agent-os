@@ -235,6 +235,23 @@ if not reviewer_data or not isinstance(reviewer_data, dict):
     sys.stderr.write(f"❌ ERROR: Datos de reviewer inválidos o vacíos en {reviewer_path}\n")
     sys.exit(1)
 
+# Carga contextual de perfil coder para contrastar skills permitidas vs prohibidas del implementador
+coder_skills_forbidden = []
+profiles_dir = os.path.dirname(qa_judge_path)
+coder_path = os.path.join(profiles_dir, "coder.md")
+if os.path.isfile(coder_path):
+    try:
+        coder_data, _ = load_frontmatter_safe(coder_path)
+        if isinstance(coder_data, dict):
+            c_skills = coder_data.get("skills") or {}
+            if isinstance(c_skills, dict):
+                c_forbidden = c_skills.get("forbidden") or []
+                if isinstance(c_forbidden, str):
+                    c_forbidden = [c_forbidden]
+                coder_skills_forbidden = [str(x).strip() for x in c_forbidden if str(x).strip()]
+    except Exception:
+        pass
+
 # Extracción de campos obligatorios (fail-closed si falta alguno)
 qa_role = qa_judge_data.get("role") or qa_judge_data.get("name")
 reviewer_purpose = reviewer_data.get("purpose")
@@ -305,10 +322,10 @@ lines = [
     "Presupuesto de ejecución en Orca ADE: 15 segundos (el límite de 5s en reviewer.yaml corresponde al tier de pasarela HTTP en deliberate-plan.sh, no al worker ejecutor).",
     "Circuit breaker: Máximo 2 rondas de deliberación en total (1 ronda de corrección automática; si en la ronda 2 no hay consenso, el veredicto debe ser ESCALADO_A_HUMANO).",
     "",
-    "## 1. PRINCIPIO FUNDAMENTAL Y PROHIBICIONES ESTRICTAS (ZERO CODE MUTATION)",
+    "## 1. PRINCIPIO FUNDAMENTAL Y PROHIBICIONES ESTRICTAS DEL REVISOR (ZERO CODE MUTATION)",
     "El Revisor Ejecutor actúa exclusivamente como compuerta técnica y árbitro imparcial.",
     "Bajo ninguna circunstancia escribe código nuevo, arregla tests o soluciona bugs.",
-    "Queda terminantemente prohibido:",
+    "Queda terminantemente prohibido para el Revisor:",
 ]
 
 for f_item in all_forbidden:
@@ -317,7 +334,8 @@ for f_item in all_forbidden:
 if q_skills_forbidden:
     lines.extend([
         "",
-        "Skills explícitamente prohibidas (skills.forbidden):",
+        "Skills explícitamente prohibidas para el Revisor (Zero Code Generation):",
+        "El Revisor NO debe invocar ni ejecutar estas skills durante su labor de evaluación:",
     ])
     for s_item in q_skills_forbidden:
         lines.append(f"- {s_item}")
@@ -357,6 +375,12 @@ lines.extend([
     '  "design_summary": "sintesis tecnica de buenas practicas y justificacion"',
     "}",
     "<!-- VERDICT_JSON_END -->",
+    "",
+    "### Directrices obligatorias para 'skills_evaluation':",
+    "- Las prohibiciones de la Sección 1 (`skills.forbidden`) aplican estrictamente al Revisor (para que no escriba código).",
+    "- Para el implementador (Coder/Worker), skills como 'implementar-feature-dry', 'infisical-secrets', 'testing-flows' y 'architecture-audit' son legítimas y autorizadas para programar.",
+    "- El Revisor solo debe emitir objeción ('status': 'objection') si el plan del Coder incluye skills prohibidas para implementación" + (f" ({', '.join(coder_skills_forbidden)})" if coder_skills_forbidden else " (ej. 'orchestrator', 'goal-evaluation', 'adr-decision-recorder')") + " o inexistentes en el repositorio.",
+    "- Si las skills declaradas son pertinentes para la implementación técnica de la tarea, emitir 'status': 'verified'.",
 ])
 
 if plan_content.strip():
