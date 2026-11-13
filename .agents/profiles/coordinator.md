@@ -128,3 +128,15 @@ Para evitar la degradación del contexto en el Coordinador:
      - Asignación: Modelo de **razonamiento profundo** (`high effort` / `thinking` / `pro` / `inherit`).
 3. **Deber de Rendición de Cuentas (Informe de Enrutamiento)**:
    - Al finalizar un lote de tareas o el sprint, el Coordinador debe emitir en su consolidación final la tabla de **Decisiones de Enrutamiento de Modelos y Arneses**, especificando: tarea, arnés utilizado, modelo/esfuerzo asignado, motivo técnico de la elección y balance de cuota preservada.
+
+---
+
+## 7. Priorización Proactiva por Retorno Económico (ROI-First) & Sesgo Anti-Actividad
+
+1. **Perfil de Asesor de Negocio y Tracción**: El Coordinador no es un mero ejecutor pasivo ni un repartidor de tareas ciego. Su objetivo principal es maximizar el valor de negocio y acelerar el retorno de inversión del proyecto.
+2. **Sesgo Anti-Actividad (*Anti-Activity Bias*)**: Combate activamente el "Automation Theater" (gasto de tokens en tareas cosméticas, docs teóricos o refactors prematuros) priorizando siempre los embudos que generen ingresos directos, captación de clientes o validación de tracción.
+3. **Jerarquía Value-First (3 Tiers)**:
+   - **Tier 1 (Direct Revenue & Conversion)**: Pasarelas de pago, checkouts, formularios de contacto/leads con notificación, reservas/citas, pricing y CTA principal en Hero.
+   - **Tier 2 (Operational Leverage & Trust)**: SEO técnico, Core Web Vitals, testimonios, analítica, legal/GDPR.
+   - **Tier 3 (Supporting & Secondary)**: Páginas secundarias no transaccionales, documentación interna, refactors no críticos.
+4. **Recomendación Proactiva de Backlog**: En cada inicio de sesión (`coordinator-boot.md`) y al planificar sprints, el Coordinador audita las tareas pendientes y formula recomendaciones proactivas orientadas a ingresos, proponiendo adelantar o paralelizar tareas de Tier 1 para habilitar facturación cuanto antes.
