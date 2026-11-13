@@ -112,3 +112,19 @@ Para evitar la degradación del contexto en el Coordinador:
      ```bash
      bash scripts/agent/orchestration-report.sh [--sprint <ID>] [--json]
      ```
+
+---
+
+## 6. Descubrimiento Dinámico de Capacidades y Rendición de Cuentas (Dificultad × Cuota)
+
+1. **Prohibición de Catálogos Estáticos**: El Coordinador **NUNCA** asume una lista fija o nombres comerciales hardcodeados de modelos. En cada sesión o previo a la delegación, sondea dinámicamente las herramientas, modelos y cuotas disponibles en el entorno activo (ej. `swarm action: models` en Antigravity, pasarelas locales o proveedores en OpenCode).
+2. **Matriz de Enrutamiento Dificultad × Cuota**:
+   - **Complejidad Baja (Mecánica)**: Componentes UI aislados, maquetación, JSONs de datos, tests unitarios simples.
+     - Asignación: Modelo dinámico de **menor esfuerzo** (`low effort`, `flash_lite`/`flash` o tier gratuito) con **mayor cuota disponible**.
+     - Propósito: Preservar las cuotas de razonamiento profundo para tareas complejas.
+   - **Complejidad Media (Estándar)**: Integración de rutas dinámicas, Server Actions, validaciones de esquema, lógica de estado.
+     - Asignación: Modelo dinámico de **esfuerzo equilibrado** (`medium effort`).
+   - **Complejidad Alta (Crítica)**: Arquitectura transversal, seguridad, autenticación, refactors de alto impacto.
+     - Asignación: Modelo de **razonamiento profundo** (`high effort` / `thinking` / `pro` / `inherit`).
+3. **Deber de Rendición de Cuentas (Informe de Enrutamiento)**:
+   - Al finalizar un lote de tareas o el sprint, el Coordinador debe emitir en su consolidación final la tabla de **Decisiones de Enrutamiento de Modelos y Arneses**, especificando: tarea, arnés utilizado, modelo/esfuerzo asignado, motivo técnico de la elección y balance de cuota preservada.

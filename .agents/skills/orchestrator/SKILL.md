@@ -119,6 +119,14 @@ Antes de despachar tareas o crear worktrees, el Coordinador evalúa la estrategi
    - `plan-big-execute-small`: Modelo director de alta capacidad planifica y define contratos; workers económicos o locales ejecutan el código mecánico.
    - `parallel-worktrees`: Despacho concurrente de tareas independientes del DAG en worktrees aislados (`worktree-dispatch.sh`).
    - `review-gate`: Auditoría determinista desacoplada previa a integración con `deliberate-plan.sh` y `verify-goal.sh`.
+3. **Descubrimiento Dinámico de Modelos y Cuotas**:
+   - El orquestador **nunca asume modelos fijos o listas hardcodeadas**. Previo a delegar tareas, sondea dinámicamente las capacidades del entorno (ej. `swarm action: models` en Antigravity, pasarelas locales o proveedores en OpenCode).
+   - **Matriz de Enrutamiento Dificultad × Cuota**:
+     - **Baja dificultad (código mecánico/boilerplate/JSON/tests)**: Asigna dinámicamente el modelo de menor esfuerzo (`low effort`, `flash_lite`/`flash`) que cuente con mayor cuota disponible, preservando los modelos de razonamiento profundo.
+     - **Media dificultad (rutas dinámicas/server actions/integraciones)**: Asigna modelo de esfuerzo equilibrado (`medium effort`).
+     - **Alta dificultad (arquitectura/seguridad transversal/refactors complejos)**: Asigna modelo de razonamiento profundo (`high effort` / `thinking` / `pro` / `inherit`).
+4. **Rendición de Cuentas Obligatoria (Informe de Enrutamiento)**:
+   - Al consolidar lotes de trabajo o cerrar tareas delegadas, el Coordinador debe emitir en el informe consolidado una tabla de rendición de cuentas con: tarea, arnés utilizado, modelo/esfuerzo asignado, justificación técnica del enrutamiento y balance de cuota preservada.
 
 ---
 

@@ -59,3 +59,15 @@ El agente se presentará de forma concisa y proactiva utilizando el siguiente fo
 1. **Cero alucinación de estado**: El agente nunca inventa el estado del sprint, tareas o dependencias; los datos provienen estrictamente de la salida de `check-sprint.sh`.
 2. **Frugalidad de tokens**: No se leen archivos de código ni se inspeccionan árboles completos durante el saludo; el diagnóstico determinista cuesta $0 tokens de inferencia.
 3. **Respeto a instrucciones directas**: Si el operador introduce directamente una orden técnica específica (ej: "corrige el bug en lib/auth.ts" o "ejecuta tests/validate-control-plane.sh"), el agente atiende la orden directamente aplicando las reglas de desarrollo y la regla de umbral de orquestación ($\le 3$ archivos direct, >3 archivos delegar).
+
+---
+
+## 5. Descubrimiento Dinámico de Capacidades y Rendición de Cuentas
+
+1. **Sondeo en Tiempo Real**: Al despachar o delegar tareas a subagentes o workers, el Coordinador sondea dinámicamente el catálogo real de modelos y cuotas activas (ej. `swarm action: models` en Antigravity o proveedores en OpenCode). Queda estrictamente prohibido asumir listas estáticas o nombres comerciales hardcodeados obsoletos.
+2. **Matriz de Dificultad × Cuota**:
+   - **Baja complejidad (mecánica/boilerplate/JSON/tests)**: Asigna dinámicamente el modelo de menor esfuerzo (`low effort`, `flash`) con mayor cuota disponible, preservando los modelos premium.
+   - **Media complejidad (rutas/APIs/server actions)**: Asigna modelo de esfuerzo equilibrado (`medium effort`).
+   - **Alta complejidad (arquitectura/seguridad/refactors)**: Asigna modelo de razonamiento profundo (`thinking` / `pro` / `high effort`).
+3. **Informe de Rendición de Cuentas**:
+   - Al consolidar un lote de tareas o cerrar un ciclo de trabajo, el Coordinador emite obligatoriamente la tabla de **Decisiones de Enrutamiento de Modelos y Arneses** (tarea, arnés, modelo/esfuerzo asignado, motivo de la elección y balance de cuota preservada).
