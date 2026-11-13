@@ -176,19 +176,19 @@ fi
 # 2. Inspección de Páginas Legales Obligatorias
 # ==============================================================================
 # Aviso Legal (LSSI-CE)
-if find "$TARGET_DIR" -maxdepth 4 -type f \( -iname "*aviso-legal*" -o -iname "*legal-notice*" \) \
+if find "$TARGET_DIR" -maxdepth 4 -type f \( -path "*/aviso-legal/page.*" -o -iname "*aviso-legal*" -o -path "*/legal-notice/page.*" -o -iname "*legal-notice*" \) \
   ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/.git/*" ! -path "*/.agents/*" | grep -q .; then
   HAS_AVISO_LEGAL=true
 fi
 
 # Política de Privacidad (RGPD)
-if find "$TARGET_DIR" -maxdepth 4 -type f \( -iname "*politica-privacidad*" -o -iname "*privacy-policy*" -o -iname "*privacidad*" \) \
+if find "$TARGET_DIR" -maxdepth 4 -type f \( -path "*/politica-privacidad/page.*" -o -iname "*politica-privacidad*" -o -path "*/privacy/page.*" -o -iname "*privacy-policy*" -o -iname "*privacidad*" \) \
   ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/.git/*" ! -path "*/.agents/*" | grep -q .; then
   HAS_POLITICA_PRIVACIDAD=true
 fi
 
 # Política de Cookies (ePrivacy)
-if find "$TARGET_DIR" -maxdepth 4 -type f \( -iname "*politica-cookies*" -o -iname "*cookie-policy*" -o -iname "*cookies.tsx" -o -iname "*cookies.jsx" -o -iname "*cookies.html" \) \
+if find "$TARGET_DIR" -maxdepth 4 -type f \( -path "*/politica-cookies/page.*" -o -iname "*politica-cookies*" -o -path "*/cookies/page.*" -o -iname "*cookie-policy*" -o -iname "*cookies.tsx" -o -iname "*cookies.jsx" -o -iname "*cookies.html" \) \
   ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/.git/*" ! -path "*/.agents/*" | grep -q .; then
   HAS_POLITICA_COOKIES=true
 fi

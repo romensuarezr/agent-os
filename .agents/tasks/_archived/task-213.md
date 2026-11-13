@@ -26,23 +26,24 @@ Sincronizar las nuevas habilidades y herramientas de Sprint 39 (`web-compliance`
 
 ## Caja de archivos
 Archivos autorizados para modificación:
+- `scripts/agent/audit-web-compliance.sh`
 - `docs/sprints/sprint-39.md`
 - `.agents/tasks/task-213.md`
 - Referencia externa: `<satelites>/annascheer-web` (vía `sync.sh` e implementación de piloto)
 
 ## Criterios de done
-- [ ] Activos sincronizados al satélite `annascheer-web` con `audit-satellites.sh` limpio.
-- [ ] Diagnóstico inicial con `audit-web-compliance.sh` ejecutado.
-- [ ] Banner de cookies y páginas legales operativas en el satélite.
-- [ ] Auditoría final en satélite reporta cumplimiento conforme.
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] Activos sincronizados al satélite `annascheer-web` con `audit-satellites.sh` limpio.
+- [x] Diagnóstico inicial con `audit-web-compliance.sh` ejecutado.
+- [x] Banner de cookies y páginas legales operativas en el satélite.
+- [x] Auditoría final en satélite reporta cumplimiento conforme.
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado
