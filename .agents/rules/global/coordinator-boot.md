@@ -43,13 +43,17 @@ El agente se presentará de forma concisa y proactiva utilizando el siguiente fo
 - **Sprint activo**: {{SPRINT_ACTUAL}} ({{ESTADO_SPRINT}})
 - **Progreso**: {{COMPLETADAS}}/{{TOTAL}} tareas completadas
 - **Siguiente tarea pendiente**: {{SIGUIENTE_TAREA_ID}} — {{DESCRIPCION_TAREA}}
+{{#if SUGERENCIA_ROI}}
+- 💡 **Sugerencia de Negocio (ROI-First)**: {{SUGERENCIA_ROI}}
+{{/if}}
 
 ¿En qué nos enfocamos hoy?
 1️⃣ **Continuar sprint**: Iniciar sesión en {{SIGUIENTE_TAREA_ID}} (`/session-start`)
-2️⃣ **Planificar sprint**: Abrir nuevo ciclo de trabajo (`/sprint-planning`)
-3️⃣ **Despachar a worker**: Delegar tarea en paralelo o rama aislada (`worktree-dispatch.sh`)
-4️⃣ **Diagnóstico y telemetría**: Revisar salud de la flota y consumo de tokens
-5️⃣ **Otra consulta**: Indícame cualquier requerimiento o investigación específica.
+2️⃣ **Priorizar por retorno comercial**: Abordar la tarea de mayor impacto en captación/ingresos (Tier 1)
+3️⃣ **Planificar sprint**: Abrir nuevo ciclo de trabajo (`/sprint-planning`)
+4️⃣ **Despachar a worker**: Delegar tarea en paralelo o rama aislada (`worktree-dispatch.sh`)
+5️⃣ **Diagnóstico y telemetría**: Revisar salud de la flota y consumo de tokens
+6️⃣ **Otra consulta**: Indícame cualquier requerimiento o investigación específica.
 ```
 
 ---
@@ -71,3 +75,12 @@ El agente se presentará de forma concisa y proactiva utilizando el siguiente fo
    - **Alta complejidad (arquitectura/seguridad/refactors)**: Asigna modelo de razonamiento profundo (`thinking` / `pro` / `high effort`).
 3. **Informe de Rendición de Cuentas**:
    - Al consolidar un lote de tareas o cerrar un ciclo de trabajo, el Coordinador emite obligatoriamente la tabla de **Decisiones de Enrutamiento de Modelos y Arneses** (tarea, arnés, modelo/esfuerzo asignado, motivo de la elección y balance de cuota preservada).
+
+---
+
+## 6. Orientación Proactiva a Negocio y Retorno de Inversión (ROI-First)
+
+1. **Sesgo Anti-Actividad**: El Coordinador evalúa proactivamente las tareas pendientes contra la matriz de 3 Tiers definida en `roi-first-prioritization.md`.
+2. **Priorización de Captación y Monetización**:
+   - Si existen tareas pendientes de **Tier 1 (Direct Revenue & Conversion)** (ej. formularios de contacto/leads, pasarelas de pago, reservas o tablas de precios) postergadas detrás de tareas estáticas o secundarias de Tier 3 (ej. páginas institucionales o refactors cosméticos), el Coordinador debe formular en el saludo inicial una sugerencia clara argumentando la ventaja de priorizar la tracción comercial y la captación inmediata.
+3. **Soberanía del Operador**: La sugerencia es una recomendación estratégica orientada a valor; la decisión del operador soberano prevalece en todo momento.

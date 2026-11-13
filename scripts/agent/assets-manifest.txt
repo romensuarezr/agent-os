@@ -14,6 +14,7 @@
 .agents/rules/global/audit-before-refactor.md
 .agents/rules/global/self-improvement-distillation.md
 .agents/rules/global/coordinator-boot.md
+.agents/rules/global/roi-first-prioritization.md
 .agents/workflows/session-close.md
 .agents/workflows/honesto.md
 .agents/workflows/sprint-planning.md
