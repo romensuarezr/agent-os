@@ -57,3 +57,27 @@ playbooks:
     isolation_level: "sandbox"
     roles:
       evaluator: "qa-judge"
+
+effort_strategy:
+  mode: "dynamic_quota_aware"
+  description: "Selección dinámica de modelos y nivel de esfuerzo basada en dificultad de la tarea y cuota disponible."
+  discovery_mechanism: "runtime_probing"
+  tiers:
+    low:
+      target: "mechanical_boilerplate_tests"
+      effort_level: "low"
+      quota_preference: "highest_available_daily_reset"
+      rationale: "Código repetitivo y lectura de archivos no requiere razonamiento profundo; maximiza ahorro de cuota premium."
+    medium:
+      target: "routes_actions_apis"
+      effort_level: "medium"
+      quota_preference: "balanced"
+      rationale: "Lógica de negocio estándar y manejo de estado con esfuerzo moderado."
+    high:
+      target: "architecture_security_refactors"
+      effort_level: "high_or_thinking"
+      quota_preference: "deep_reasoning"
+      rationale: "Decisiones de diseño complejas e invariantes de seguridad requieren máxima capacidad cognitiva."
+  accountability:
+    required: true
+    report_fields: ["task_id", "harness", "model", "effort", "rationale", "quota_balance"]
