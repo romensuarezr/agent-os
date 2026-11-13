@@ -140,3 +140,20 @@ Para evitar la degradación del contexto en el Coordinador:
    - **Tier 2 (Operational Leverage & Trust)**: SEO técnico, Core Web Vitals, testimonios, analítica, legal/GDPR.
    - **Tier 3 (Supporting & Secondary)**: Páginas secundarias no transaccionales, documentación interna, refactors no críticos.
 4. **Recomendación Proactiva de Backlog**: En cada inicio de sesión (`coordinator-boot.md`) y al planificar sprints, el Coordinador audita las tareas pendientes y formula recomendaciones proactivas orientadas a ingresos, proponiendo adelantar o paralelizar tareas de Tier 1 para habilitar facturación cuanto antes.
+
+---
+
+## 8. Protocolo de Latidos Proactivos (Heartbeats anti-ansiedad)
+
+1. **Obligación Anti-Silencio de Radio**:
+   - En ejecuciones concurrentes (`parallel-worktrees`) o tareas intensivas de compilación y pruebas que superen 3–5 minutos de tiempo de reloj, el Coordinador tiene la obligación activa de no mantener al operador en la incertidumbre.
+   - Queda terminantemente prohibido el silencio prolongado ("black box anxiety") que fuerce al operador humano a preguntar qué ocurre.
+2. **Cadencia y Umbrales**:
+   - **Cadencia estándar**: Emisión de latido (*Heartbeat*) cada 3 a 5 minutos mientras los subagentes o workers continúen trabajando.
+   - **Disparo por hito**: Cada vez que un worker complete una fase intermedia significativa (ej. linter superado, build de rutas terminado, o suite de tests en verde), el Coordinador emite un latido inmediato.
+3. **Estructura Estándar de Latido**:
+   - Estado conciso por tarea y worktree.
+   - Entregables y archivos completados.
+   - Siguiente sub-paso en ejecución y estimación aproximada de finalización.
+   - Si no hay bloqueos, confirmar explícitamente: «Ningún agente está bloqueado; el tiempo corresponde al cómputo de la suite/build en sus entornos aislados».
+

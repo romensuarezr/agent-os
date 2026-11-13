@@ -5,6 +5,12 @@ thresholds:
   direct_max_files: 3
   direct_rationale: "Tareas con <= 3 archivos incurren en mayor gasto de tokens por floor cost de delegación y transcripts que ejecutadas directamente en mono-agente."
 
+heartbeat:
+  enabled: true
+  interval_minutes: 3
+  verbose_threshold_minutes: 5
+  description: "Telemetría de latidos proactivos periódicos durante ejecuciones paralelas o prolongadas para mitigar el silencio de radio y la ansiedad de la caja negra."
+
 default_playbook: "direct"
 
 playbooks:

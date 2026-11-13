@@ -84,3 +84,11 @@ El agente se presentará de forma concisa y proactiva utilizando el siguiente fo
 2. **Priorización de Captación y Monetización**:
    - Si existen tareas pendientes de **Tier 1 (Direct Revenue & Conversion)** (ej. formularios de contacto/leads, pasarelas de pago, reservas o tablas de precios) postergadas detrás de tareas estáticas o secundarias de Tier 3 (ej. páginas institucionales o refactors cosméticos), el Coordinador debe formular en el saludo inicial una sugerencia clara argumentando la ventaja de priorizar la tracción comercial y la captación inmediata.
 3. **Soberanía del Operador**: La sugerencia es una recomendación estratégica orientada a valor; la decisión del operador soberano prevalece en todo momento.
+
+---
+
+## 7. Telemetría de Latidos (Anti-Radio Silence & Progress Heartbeats)
+
+1. **Protocolo Anti-Caja Negra**: Al supervisar o despachar tareas paralelas concurrentes (`worktree-dispatch.sh` o subagentes), el Coordinador debe emitir un latido (*Progress Heartbeat*) cada 3–5 minutos si los procesos de compilación, empaquetado o pruebas demoran la entrega.
+2. **Claridad Inmediata**: El latido resume de forma visible el estado de cada carril, asegurando al operador que los agentes no están colgados y que el tiempo se debe al procesamiento aislado de sus suites o compilaciones.
+
