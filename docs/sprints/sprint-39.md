@@ -7,7 +7,7 @@
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|---|---|---|---|
 | T-209 | Skill web-compliance: protocolo de cookies (vanilla-cookieconsent v3), legal y seguridad | M | ✅ Hecho | — | `.agents/tasks/task-209.md` |
-| T-210 | Script determinista audit-web-compliance.sh ($0 tokens) y manifiesto de activos | S | ⬜ Pendiente | T-209 | `.agents/tasks/task-210.md` |
+| T-210 | Script determinista audit-web-compliance.sh ($0 tokens) y manifiesto de activos | S | ✅ Hecho | T-209 | `.agents/tasks/task-210.md` |
 | T-211 | Heartbeat Proactivo & Telemetría de Latidos en Orquestación Multi-Agente | M | ⬜ Pendiente | — | `.agents/tasks/task-211.md` |
 | T-212 | Desacoplamiento de Build en Worktrees (Fast Verification vs Full Static Merge) | S | ⬜ Pendiente | T-211 | `.agents/tasks/task-212.md` |
 | T-213 | Ensayo E2E y despliegue real en satélite annascheer-web (Sprint 04 Piloto) | S | ⬜ Pendiente | T-209, T-210, T-211, T-212 | `.agents/tasks/task-213.md` |

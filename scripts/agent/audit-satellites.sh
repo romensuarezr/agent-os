@@ -25,22 +25,24 @@ source "$SCRIPT_DIR/lib/cli-help.sh"
 SATELLITES_FILE=""
 CHECK_MODE=false
 JSON_MODE=false
+WEB_COMPLIANCE_MODE=false
 EXPLICIT_PATHS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help)
       show_help "audit-satellites.sh" \
-        "bash scripts/agent/audit-satellites.sh [--satellites <yaml>] [--check] [--json] [rutas...]" \
+        "bash scripts/agent/audit-satellites.sh [--satellites <yaml>] [--check] [--json] [--web-compliance] [rutas...]" \
         "Audita la integridad, permisos (+x), ausencia y desvios de scripts en satelites vs core. Solo lectura: cero escrituras, cero git y cero red." \
         "--satellites <yaml>      Declaracion con bloque 'satellites:' (alias y path)" \
         "--check                  Sale con codigo 1 si detecta desvios, ausencia o permisos invalidos" \
         "--json                   Emite el informe completo en formato JSON estructurado" \
+        "--web-compliance         Audita ademas la conformidad legal y de cookies si el satelite es web" \
         "<rutas...>               Rutas de repositorios satelite directos para auditar" \
         "-h, --help               Muestra este mensaje de ayuda" \
         "ejemplo: bash scripts/agent/audit-satellites.sh --check" \
         "ejemplo: bash scripts/agent/audit-satellites.sh --satellites .agents/config/satellites.yaml" \
-        "ejemplo: bash scripts/agent/audit-satellites.sh --json ~/Proyectos/mi-satelite"
+        "ejemplo: bash scripts/agent/audit-satellites.sh --json --web-compliance ~/Proyectos/mi-satelite"
       ;;
     --satellites)
       if [ $# -lt 2 ]; then
@@ -60,6 +62,10 @@ while [ $# -gt 0 ]; do
       ;;
     --json)
       JSON_MODE=true
+      shift
+      ;;
+    --web-compliance)
+      WEB_COMPLIANCE_MODE=true
       shift
       ;;
     --)
@@ -398,6 +404,11 @@ else
         IFS='|' read -r i_script i_st i_chash i_shash i_det <<< "$single_iss"
         echo "   ↳ [$i_st] $i_script ($i_det)"
       done
+    fi
+
+    if [ "$WEB_COMPLIANCE_MODE" = true ] && [ -d "$r_path" ] && [ -f "$r_path/package.json" ]; then
+      echo "   🌐 Auditoría Web Compliance:"
+      bash "$CORE_ROOT/scripts/agent/audit-web-compliance.sh" --path "$r_path" 2>&1 | sed 's/^/      /' || true
     fi
   done
 
