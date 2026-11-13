@@ -163,3 +163,32 @@ Por favor, confirma con **APROBADO** para proceder a consolidar en main y sincro
 ```
 
 Únicamente tras recibir la confirmación explícita del usuario, el orquestador invocará `bash scripts/agent/promote-to-main.sh`.
+
+---
+
+## 8. Protocolo de Latidos Proactivos & Telemetría (/heartbeat)
+
+Cuando se ejecutan tareas intensivas o lotes paralelos (`/dispatch` múltiple), el Coordinador debe activar el latido proactivo para evitar el silencio de radio:
+
+### 8.1 Disparadores
+- Procesos de larga duración (>3–5 minutos) en workers (ej. compilación masiva de rutas estáticas, suites E2E, docker builds).
+- Superación de hitos técnicos intermedios por parte de algún worker.
+
+### 8.2 Formato Canónico del Latido de Progreso
+```markdown
+### 💓 Diagnóstico en Vivo & Latido de Progreso (Heartbeat)
+
+Ningún agente está bloqueado ni colgado. El tiempo transcurrido corresponde a la compilación y validación aislada en sus worktrees:
+
+#### 1. Coder T-XXX (<Título Tarea>)
+- **Entorno**: `<worktree-path>`
+- **Estado**: Código finalizado / Ejecutando validación
+- **Entregables listos**: `<lista de archivos modificados/creados>`
+- **Siguiente paso**: `verify-goal.sh` / compilación
+
+#### 2. Coder T-YYY (<Título Tarea>)
+- **Entorno**: `<worktree-path>`
+- **Estado**: En progreso / Tests superados
+...
+```
+
