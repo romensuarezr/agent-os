@@ -34,6 +34,7 @@
 | 24 | **workflow-designer** | Creación y refactorización de flujos de trabajo estructurados en `.agents/workflows/` siguiendo el estándar oficial. | `.agents/skills/workflow-designer/` |
 | 25 | **security-audit** | Escáner estático determinista para satélites: autorización de rutas, firma JWT e IDOR con digest de severidad `archivo:línea`, sin red ni exploits. | `.agents/skills/security-audit/` |
 | 26 | **idea-validator** | Filtro de viabilidad objetiva para `docs/idea-inbox/` con veredicto numérico 1–10 basado en prospección determinista SearXNG + scout OSS y reglas anti-sycophancy. | `.agents/skills/idea-validator/` |
+| 27 | **web-compliance** | Protocolo de cookies AEPD/RGPD con `vanilla-cookieconsent` v3, páginas legales obligatorias LSSI/RGPD y cabeceras HTTP de seguridad. | `.agents/skills/web-compliance/` |
 
 > ℹ️ **Nota de desambiguación**:
 > - `sprint-planning`: Es un **workflow** (`.agents/workflows/sprint-planning.md`), no una skill.

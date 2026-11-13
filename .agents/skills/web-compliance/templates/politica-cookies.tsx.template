@@ -1,0 +1,86 @@
+'use client';
+
+import React from 'react';
+
+/**
+ * Página informativa de Política de Cookies conforme a la Directiva ePrivacy y Guía AEPD.
+ * Incluye botón declarativo para reabrir el panel de preferencias de vanilla-cookieconsent.
+ */
+export default function PoliticaCookiesPage() {
+  return (
+    <main className="max-w-4xl mx-auto px-4 py-12 prose dark:prose-invert">
+      <h1 className="text-3xl font-bold tracking-tight mb-8">Política de Cookies</h1>
+
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">1. ¿Qué son las Cookies?</h2>
+        <p>
+          Una cookie es un pequeño archivo de texto que los sitios web almacenan en su ordenador, teléfono móvil o cualquier otro dispositivo con acceso a internet. Permiten recordar información sobre su navegación, facilitar el inicio de sesión y analizar estadísticas de visita.
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">2. Tipos de Cookies que Utilizamos</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-800">
+                <th className="px-4 py-2 font-medium">Categoría</th>
+                <th className="px-4 py-2 font-medium">Finalidad</th>
+                <th className="px-4 py-2 font-medium">Ejemplos</th>
+                <th className="px-4 py-2 font-medium">Duración</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr>
+                <td className="px-4 py-3 font-semibold">Técnicas (Necesarias)</td>
+                <td className="px-4 py-3">Esenciales para el funcionamiento del sitio, la navegación y la seguridad de la sesión. No requieren consentimiento previo.</td>
+                <td className="px-4 py-3 font-mono text-xs">cc_cookie, session_id</td>
+                <td className="px-4 py-3">Sesión / 6 meses</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 font-semibold">Analíticas / Rendimiento</td>
+                <td className="px-4 py-3">Permiten cuantificar visitas y fuentes de tráfico para evaluar el rendimiento de la web y mejorar contenidos.</td>
+                <td className="px-4 py-3 font-mono text-xs">_ga, _gid (si se activan)</td>
+                <td className="px-4 py-3">Hasta 2 años</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 font-semibold">Terceros / Integraciones</td>
+                <td className="px-4 py-3">Herramientas externas embebidas (ej. reserva de citas Calendly, vídeos o pasarelas de pago).</td>
+                <td className="px-4 py-3 font-mono text-xs">optin_*, calendly_*</td>
+                <td className="px-4 py-3">Variable según proveedor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">3. Gestión y Revocación del Consentimiento</h2>
+        <p>
+          En cualquier momento puede cambiar sus preferencias o revocar el consentimiento previamente otorgado para las cookies no necesarias haciendo clic en el siguiente botón:
+        </p>
+
+        <div className="my-6">
+          <button
+            type="button"
+            data-cc="show-preferencesModal"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+          >
+            Configurar preferencias de cookies
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Asimismo, puede permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador que utilice (Chrome, Firefox, Safari, Edge).
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">4. Actualización de la Política</h2>
+        <p>
+          Esta Política de Cookies puede ser modificada en función de nuevas exigencias legislativas, reglamentarias, o con la finalidad de adaptar dicha política a las instrucciones dictadas por la Agencia Española de Protección de Datos.
+        </p>
+      </section>
+    </main>
+  );
+}

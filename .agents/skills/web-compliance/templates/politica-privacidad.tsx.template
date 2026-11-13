@@ -1,0 +1,78 @@
+import React from 'react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Política de Privacidad',
+  description: 'Información sobre el tratamiento y protección de sus datos personales conforme al RGPD.',
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export default function PoliticaPrivacidadPage() {
+  return (
+    <main className="max-w-4xl mx-auto px-4 py-12 prose dark:prose-invert">
+      <h1 className="text-3xl font-bold tracking-tight mb-8">Política de Privacidad</h1>
+
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">1. Responsable del Tratamiento</h2>
+        <p>
+          En cumplimiento del Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo (RGPD) y de la Ley Orgánica 3/2018 (LOPDGDD), se informa de los datos del responsable del tratamiento:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Identidad:</strong> [NOMBRE_EMPRESA_O_AUTONOMO]</li>
+          <li><strong>NIF / CIF:</strong> [NIF_CIF]</li>
+          <li><strong>Dirección:</strong> [DOMICILIO_SOCIAL_COMPLETO]</li>
+          <li><strong>Correo electrónico de privacidad:</strong> [EMAIL_CONTACTO_PRIVACIDAD]</li>
+        </ul>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">2. Finalidad del Tratamiento de los Datos</h2>
+        <p>
+          Tratamos la información facilitada por las personas interesadas con las siguientes finalidades:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Atender y gestionar las solicitudes de contacto, presupuestos o información recibidas mediante formularios o correo electrónico.</li>
+          <li>Prestar los servicios contratados y gestionar la facturación y cobro.</li>
+          <li>Gestionar reservas o citas acordadas a través de nuestras herramientas integradas.</li>
+          <li>Envío de comunicaciones comerciales y boletines informativos, siempre que medie consentimiento expreso del usuario.</li>
+        </ul>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">3. Legitimación para el Tratamiento</h2>
+        <p>
+          La base legal para el tratamiento de sus datos es:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Consentimiento expreso:</strong> para el envío de formularios de consulta, suscripciones o uso de cookies no técnicas.</li>
+          <li><strong>Ejecución de un contrato o relación precontractual:</strong> para la prestación y facturación de servicios.</li>
+          <li><strong>Cumplimiento de obligaciones legales:</strong> fiscales, mercantiles y de prevención de fraude.</li>
+        </ul>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">4. Plazo de Conservación de los Datos</h2>
+        <p>
+          Los datos personales se conservarán mientras se mantenga la relación comercial o durante el tiempo estrictamente necesario para cumplir con las obligaciones legales aplicables, tras lo cual se procederá a su bloqueo y posterior supresión.
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">5. Comunicación a Terceros</h2>
+        <p>
+          Los datos no se cederán a terceros ajenos salvo obligación legal expresa o cuando sea indispensable para la prestación técnica del servicio (proveedores de infraestructura en la nube, pasarelas de pago o gestorías), garantizándose acuerdos de encargo de tratamiento con garantías RGPD adecuadas.
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">6. Derechos del Usuario (ARCO+)</h2>
+        <p>
+          Puede ejercer en cualquier momento sus derechos de acceso, rectificación, supresión, limitación del tratamiento, portabilidad y oposición enviando una solicitud motivada junto con copia de su documento de identidad a <strong>[EMAIL_CONTACTO_PRIVACIDAD]</strong>. Asimismo, tiene derecho a presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD, www.aepd.es) si considera vulnerados sus derechos.
+        </p>
+      </section>
+    </main>
+  );
+}

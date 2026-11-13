@@ -1,0 +1,164 @@
+'use client';
+
+import { useEffect } from 'react';
+import * as CookieConsent from 'vanilla-cookieconsent';
+import 'vanilla-cookieconsent/dist/cookieconsent.css';
+
+/**
+ * Componente modular de consentimiento de cookies para Next.js (App Router).
+ * Cumple con directrices AEPD / RGPD / Directiva ePrivacy:
+ * - Botones con idéntica visibilidad ("Aceptar todas" vs "Rechazar todas").
+ * - Sin casillas pre-marcadas en cookies no técnicas.
+ * - Soporte bilingüe (español e inglés).
+ * - autoClear activo para purgar cookies al revocar consentimiento.
+ */
+export function CookieBanner() {
+  useEffect(() => {
+    CookieConsent.run({
+      guiOptions: {
+        consentModal: {
+          layout: 'box',
+          position: 'bottom right',
+          equalWeightButtons: true,
+          flipButtons: false,
+        },
+        preferencesModal: {
+          layout: 'box',
+          position: 'right',
+          equalWeightButtons: true,
+          flipButtons: false,
+        },
+      },
+      categories: {
+        necessary: {
+          readOnly: true,
+          enabled: true,
+        },
+        analytics: {
+          autoClear: {
+            cookies: [
+              {
+                name: /^(_ga|_gid)/,
+              },
+            ],
+          },
+        },
+        marketing: {
+          autoClear: {
+            cookies: [
+              {
+                name: /^(_fbp|_gcl)/,
+              },
+            ],
+          },
+        },
+      },
+      language: {
+        default: 'es',
+        autoDetect: 'browser',
+        translations: {
+          es: {
+            consentModal: {
+              title: 'Gestión de Cookies y Privacidad',
+              description:
+                'Utilizamos cookies técnicas necesarias para el funcionamiento del sitio y, opcionalmente, cookies analíticas y de personalización para mejorar su experiencia de navegación conforme a nuestra <a href="/politica-cookies">Política de Cookies</a>.',
+              acceptAllBtn: 'Aceptar todas',
+              acceptNecessaryBtn: 'Rechazar todas',
+              showPreferencesBtn: 'Configurar preferencias',
+              footer: '<a href="/politica-privacidad">Privacidad</a> | <a href="/aviso-legal">Aviso Legal</a>',
+            },
+            preferencesModal: {
+              title: 'Centro de Preferencias de Privacidad',
+              acceptAllBtn: 'Aceptar todas',
+              acceptNecessaryBtn: 'Rechazar todas',
+              savePreferencesBtn: 'Guardar configuración',
+              closeIconLabel: 'Cerrar ventana',
+              serviceCounterLabel: 'Servicios',
+              sections: [
+                {
+                  title: 'Uso de Cookies',
+                  description:
+                    'Puede configurar sus preferencias respecto al almacenamiento de cookies en su dispositivo. Las cookies técnicas son obligatorias para el correcto funcionamiento de la plataforma.',
+                },
+                {
+                  title: 'Cookies Técnicas y Estrictamente Necesarias',
+                  description:
+                    'Estas cookies son esenciales para permitir la navegación básica, la seguridad del sitio y recordar sus preferencias de sesión.',
+                  linkedCategory: 'necessary',
+                },
+                {
+                  title: 'Cookies de Rendimiento y Analítica',
+                  description:
+                    'Nos permiten cuantificar el número de usuarios y realizar mediciones estadísticas del uso que hacen del servicio ofertado.',
+                  linkedCategory: 'analytics',
+                },
+                {
+                  title: 'Cookies de Personalización y Marketing',
+                  description:
+                    'Permiten ofrecer contenidos y servicios más relevantes y adaptados al perfil del usuario.',
+                  linkedCategory: 'marketing',
+                },
+                {
+                  title: 'Más información',
+                  description:
+                    'Para cualquier consulta relacionada con nuestra política de cookies y privacidad, consulte nuestra <a href="/politica-cookies">Política de Cookies</a> o contacte con nosotros.',
+                },
+              ],
+            },
+          },
+          en: {
+            consentModal: {
+              title: 'Cookie & Privacy Management',
+              description:
+                'We use necessary technical cookies to ensure our website functions correctly, and optional analytics/marketing cookies to enhance your experience as detailed in our <a href="/politica-cookies">Cookie Policy</a>.',
+              acceptAllBtn: 'Accept all',
+              acceptNecessaryBtn: 'Reject all',
+              showPreferencesBtn: 'Preferences',
+              footer: '<a href="/politica-privacidad">Privacy</a> | <a href="/aviso-legal">Legal Notice</a>',
+            },
+            preferencesModal: {
+              title: 'Privacy Preferences Center',
+              acceptAllBtn: 'Accept all',
+              acceptNecessaryBtn: 'Reject all',
+              savePreferencesBtn: 'Save preferences',
+              closeIconLabel: 'Close modal',
+              serviceCounterLabel: 'Services',
+              sections: [
+                {
+                  title: 'Cookie Usage',
+                  description:
+                    'You can manage your consent preferences for cookies stored on your device. Necessary cookies cannot be disabled.',
+                },
+                {
+                  title: 'Strictly Necessary Cookies',
+                  description:
+                    'Essential for the website to function, secure sessions, and store user choices.',
+                  linkedCategory: 'necessary',
+                },
+                {
+                  title: 'Analytics & Performance Cookies',
+                  description:
+                    'Allow us to count visits and traffic sources to measure and improve site performance.',
+                  linkedCategory: 'analytics',
+                },
+                {
+                  title: 'Marketing Cookies',
+                  description:
+                    'Used to deliver relevant content and ads tailored to user interests.',
+                  linkedCategory: 'marketing',
+                },
+                {
+                  title: 'More Information',
+                  description:
+                    'For any questions regarding our policies, please review our <a href="/politica-cookies">Cookie Policy</a> or reach out to us.',
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
+  }, []);
+
+  return null;
+}

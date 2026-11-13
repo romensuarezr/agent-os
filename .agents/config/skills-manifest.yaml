@@ -142,3 +142,8 @@ skills:
   workflow-designer:
     scope: universal
     description: "Diseño, creación y refactorización de flujos de trabajo estructurados en .agents/workflows/."
+
+  web-compliance:
+    scope: universal
+    description: "Protocolo de cookies AEPD/RGPD con vanilla-cookieconsent v3, páginas legales obligatorias LSSI/RGPD y cabeceras HTTP de seguridad."
+

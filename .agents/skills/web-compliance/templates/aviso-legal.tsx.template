@@ -1,0 +1,62 @@
+import React from 'react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Aviso Legal',
+  description: 'Información legal, titularidad del sitio web y condiciones de uso conforme a la LSSI-CE.',
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export default function AvisoLegalPage() {
+  return (
+    <main className="max-w-4xl mx-auto px-4 py-12 prose dark:prose-invert">
+      <h1 className="text-3xl font-bold tracking-tight mb-8">Aviso Legal</h1>
+
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">1. Datos Identificativos del Responsable</h2>
+        <p>
+          En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se facilitan a continuación los datos del titular del sitio web:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Titular / Razón Social:</strong> [NOMBRE_EMPRESA_O_AUTONOMO]</li>
+          <li><strong>NIF / CIF:</strong> [NIF_CIF]</li>
+          <li><strong>Domicilio Social:</strong> [DOMICILIO_SOCIAL_COMPLETO]</li>
+          <li><strong>Correo Electrónico de Contacto:</strong> [EMAIL_CONTACTO]</li>
+          <li><strong>Teléfono:</strong> [TELEFONO_CONTACTO]</li>
+          <li><strong>Datos Registrales:</strong> [REGISTRO_MERCANTIL_O_COLEGIACION_SI_APLICA]</li>
+        </ul>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">2. Objeto y Ámbito de Aplicación</h2>
+        <p>
+          El presente Aviso Legal regula el acceso, navegación y uso del sitio web accesible a través de este dominio, así como las responsabilidades derivadas de la utilización de sus contenidos (textos, gráficos, dibujos, diseños, códigos, software, fotografías, música, vídeos, sonidos, bases de datos, imágenes, expresiones e informaciones).
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">3. Propiedad Intelectual e Industrial</h2>
+        <p>
+          Todos los derechos de propiedad industrial e intelectual del sitio web y de sus contenidos pertenecen al Titular o, en su caso, a terceras partes licenciantes. Queda prohibida la reproducción, distribución, comunicación pública y transformación, total o parcial, de los contenidos sin la autorización expresa del Titular.
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">4. Responsabilidad y Enlaces</h2>
+        <p>
+          El Titular no se hace responsable de los daños y perjuicios derivados del mal uso de los contenidos, ni de los enlaces a terceros que pudieran existir, sobre los cuales no ejerce control alguno.
+        </p>
+      </section>
+
+      <section className="space-y-4 mt-8">
+        <h2 className="text-xl font-semibold">5. Legislación Aplicable y Jurisdicción</h2>
+        <p>
+          Para la resolución de cualquier controversia o cuestión relacionada con el presente sitio web, será de aplicación la legislación española, sometiéndose las partes expresamente a los Juzgados y Tribunales competentes del domicilio del titular o del usuario conforme a la normativa de consumidores aplicable.
+        </p>
+      </section>
+    </main>
+  );
+}
