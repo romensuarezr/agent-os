@@ -1,15 +1,15 @@
 # Sprint 38 — 2026-11-13 → 2026-11-17
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|---|---|---|---|
 | T-205 | Protocolo dinámico de modelos/cuotas, matriz de esfuerzo y reporte de rendición de cuentas | M | ✅ Completada | — | `.agents/tasks/_archived/task-205.md` |
 | T-206 | Telemetría de arnés/modelo en orchestration-report.sh y sincronización a la flota | S | ✅ Completada | T-205 | `.agents/tasks/_archived/task-206.md` |
-| T-207 | Regla global de Priorización por Retorno Económico (ROI-First) y sesgo Anti-Activity Theater | M | ✅ Completada | T-205, T-206 | `.agents/tasks/task-207.md` |
-| T-208 | Promoción a main (Decision Gate), versión v1.34.0 y sincronización universal a satélites | S | ⬜ Pendiente | T-207 | `.agents/tasks/task-208.md` |
+| T-207 | Regla global de Priorización por Retorno Económico (ROI-First) y sesgo Anti-Activity Theater | M | ✅ Completada | T-205, T-206 | `.agents/tasks/_archived/task-207.md` |
+| T-208 | Promoción a main (Decision Gate), versión v1.34.0 y sincronización universal a satélites | S | ✅ Completada | T-207 | `.agents/tasks/task-208.md` |
 
 ## Régimen Operativo del Sprint
 > Se sella en el sprint planning bajo la gobernanza de Autonomía Acotada (Régimen Desatendido).
