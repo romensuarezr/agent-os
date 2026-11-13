@@ -8,9 +8,9 @@
 
 - **Modo**: self-hosted (agent-os operando sobre sí mismo)
 - **Sprint activo**: ninguno (planificar con /sprint-planning)
-- **Último sprint cerrado**: sprint-37 (archivado en `docs/sprints/_archived/`)
+- **Último sprint cerrado**: sprint-38 (archivado en `docs/sprints/_archived/`)
 - **Último bootstrap**: 2026-06-16
-- **Versión del core**: `v1.33.0` (`changelog.md` es la fuente de verdad; `VERSION` debe coincidir)
+- **Versión del core**: `v1.34.0` (`changelog.md` es la fuente de verdad; `VERSION` debe coincidir)
 
 ---
 
