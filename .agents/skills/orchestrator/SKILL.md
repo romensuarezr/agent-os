@@ -192,3 +192,22 @@ Ningún agente está bloqueado ni colgado. El tiempo transcurrido corresponde a 
 ...
 ```
 
+---
+
+## 9. Desacoplamiento de Build en Worktrees (Fast Verification vs Full Static Merge)
+
+Para maximizar el rendimiento y evitar la contención destructiva de I/O de disco y memoria cuando múltiples workers operan en paralelo en un mismo repositorio:
+
+### 9.1 Rol del Worker (Fast Verification en Worktree)
+- El worker en su worktree efímero debe evitar compilar el proyecto completo para producción (ej. `next build` generando 30+ rutas estáticas concurrentemente).
+- Debe validar su submeta mediante verificación rápida: comprobación estricta de tipos (`tsc --noEmit` o `npm run type-check`), linters (`eslint`) y suite de tests unitarios/integración focalizados (`npm test`).
+- Comando estándar del worker:
+  ```bash
+  bash scripts/agent/verify-goal.sh --task-id <ID> --fast --allow-dirty --json
+  ```
+
+### 9.2 Rol del Coordinador (Full Static Merge en Árbol Principal)
+- La ejecución del build completo de producción (ej. `next build` exhaustivo) se desacopla del worker y se realiza **una sola vez** en el árbol principal durante la compuerta de consolidación `/merge` o promoción `/promote`.
+- Esto reduce el tiempo total de ejecución de un lote paralelo de varias tareas en más de un 60%, garantizando simultáneamente la integridad de tipos en los workers y la validez del artefacto final de producción en `main`.
+
+

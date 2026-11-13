@@ -33,17 +33,17 @@ Archivos autorizados para modificación:
 - `.agents/tasks/task-212.md`
 
 ## Criterios de done
-- [ ] `verify-goal.sh` actualizado con soporte de verificación rápida para workers efímeros.
-- [ ] Perfil `coder.md` actualizado con directiva de verificación ágil.
-- [ ] Desacoplamiento documentado en `orchestrator/SKILL.md`.
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] `verify-goal.sh` actualizado con soporte de verificación rápida para workers efímeros.
+- [x] Perfil `coder.md` actualizado con directiva de verificación ágil.
+- [x] Desacoplamiento documentado en `orchestrator/SKILL.md`.
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado
