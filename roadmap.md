@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 38**: Descubrimiento Dinámico de Capacidades, Enrutamiento por Dificultad × Cuota y Telemetría Transparente (T-205 y T-206). 🟡 En curso bajo régimen **Desatendido** (sellado 2026-11-13). Carril 1: T-205 → T-206. Ver `docs/sprints/sprint-38.md`.
+- **Sprint 38**: Descubrimiento Dinámico de Capacidades, Priorización Proactiva por ROI Económico y Sincronización a Satélites (T-205 a T-208). 🟡 En curso bajo régimen **Desatendido** (sellado 2026-11-13). Carril 1: T-205 (hecho) → T-206 (hecho); Carril 2: T-207; Carril 3: T-208. Ver `docs/sprints/sprint-38.md`.
 
 ## Próximo
 - **Sprint 37**: Orquestación Declarativa, Boot de Coordinador en Satélites, Regla de Umbral y Telemetría Eficiente (T-201 a T-204). Formalizado como release `v1.33.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-37.md`.
