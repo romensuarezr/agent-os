@@ -33,6 +33,7 @@ ALLOWLIST_FILE=""
 JSON_MODE=false
 SKIP_TESTS=false
 ALLOW_DIRTY=false
+FAST_MODE=false
 TEST_CMD=""
 
 show_help() {
@@ -45,6 +46,7 @@ Opciones:
   --allowlist <LISTA>     Lista separada por comas o espacios de archivos autorizados.
   --allowlist-file <PATH> Archivo con rutas autorizadas (una por línea, JSON o markdown).
   --test-cmd <CMD>        Comando para ejecutar tests (ej: "npm test").
+  --fast                  Ejecuta verificación rápida (tipos + tests unitarios) sin build estático masivo.
   --skip-tests            Omite la ejecución de tests.
   --allow-dirty           Permite working tree con cambios sin commitear (modo WIP).
   --json                  Emite únicamente JSON plano a stdout.
@@ -74,6 +76,10 @@ while [[ $# -gt 0 ]]; do
     --test-cmd)
       TEST_CMD="$2"
       shift 2
+      ;;
+    --fast)
+      FAST_MODE=true
+      shift
       ;;
     --skip-tests)
       SKIP_TESTS=true
@@ -274,6 +280,17 @@ if [ "$SKIP_TESTS" = false ]; then
     # Auto-detección
     if [ -x "tests/validate-control-plane.sh" ]; then
       TEST_CMD="bash tests/validate-control-plane.sh"
+    elif [ "$FAST_MODE" = true ] && [ -f "package.json" ]; then
+      # Modo rápido para workers en worktrees: type-check y tests unitarios sin build estático masivo
+      if grep -q '"test:fast"' "package.json"; then
+        TEST_CMD="npm run test:fast"
+      elif grep -q '"type-check"' "package.json" && grep -q '"test"' "package.json"; then
+        TEST_CMD="npm run type-check && npm test"
+      elif [ -f "tsconfig.json" ] && grep -q '"test"' "package.json"; then
+        TEST_CMD="npx tsc --noEmit && npm test"
+      elif grep -q '"test"' "package.json"; then
+        TEST_CMD="npm test"
+      fi
     elif [ -f "package.json" ] && grep -q '"test"' "package.json"; then
       TEST_CMD="npm test"
     elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then

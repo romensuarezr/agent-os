@@ -89,10 +89,14 @@ sequenceDiagram
    - Espera la resolución del Decision Gate humano antes de modificar código en el worktree.
 3. **Ciclo de Desarrollo**:
    - Implementa los archivos autorizados asegurando cobertura de tests.
-   - Ejecuta de forma preventiva:
-     ```bash
-     bash scripts/agent/verify-goal.sh --task-id <TASK_ID> --allow-dirty --json
-     ```
+   - **Verificación Rápida y Desacoplada (Fast Verification)**:
+     - En el worktree aislado, el Coder **NUNCA** ejecuta compilaciones completas de producción pesadas (`next build` con prerenderizado estático masivo de decenas de páginas) que saturan I/O y memoria compitiendo con otros workers paralelos.
+     - Valida la corrección mediante comprobación estricta de tipos (`tsc --noEmit` o `npm run type-check`), linters y tests unitarios directos (`npm test` o `npm run test:fast`).
+     - Ejecuta la auto-verificación preliminar con el flag `--fast`:
+       ```bash
+       bash scripts/agent/verify-goal.sh --task-id <TASK_ID> --fast --allow-dirty --json
+       ```
+     - La compilación global de producción se delega formalmente al Coordinador durante la compuerta de merge en el árbol principal.
 4. **Commit y Notificación**:
    - Realiza commit descriptivo (`feat(scope): ...`).
    - Notifica al agente `qa-judge` o al Coordinator para dar paso a la compuerta de validación independiente.
