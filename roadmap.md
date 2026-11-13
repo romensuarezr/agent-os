@@ -1,7 +1,7 @@
 # Roadmap — agent-os
 
 ## En curso
-(Ninguno actualmente — sprint-38 completado)
+- **Sprint 39**: Web Compliance (Cookies/RGPD/Legal), Seguridad de Cabeceras y Resiliencia Multi-Agente (Heartbeat & Fast Build) (T-209 a T-213). 🟡 En curso bajo régimen **Desatendido** (sellado 2026-11-13). Carril 1: T-209 → T-210; Carril 2: T-211 → T-212; Carril 3: T-213. Ver `docs/sprints/sprint-39.md`.
 
 ## Próximo
 - **Sprint 38**: Descubrimiento Dinámico de Capacidades, Priorización Proactiva por ROI Económico y Sincronización a Satélites (T-205 a T-208). Formalizado como release `v1.34.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-38.md`.
