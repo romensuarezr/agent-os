@@ -185,12 +185,71 @@ for item in tasks_raw:
 
     playbook_counts[playbook] = playbook_counts.get(playbook, 0) + 1
 
+    # Resolver arnés, modelo y esfuerzo empleado
+    harness = "direct"
+    model = "auto"
+    effort = "medium"
+
+    size_upper = (item.get("size") or "M").upper()
+    if size_upper in ["XS", "S"]:
+        effort = "low"
+    elif size_upper in ["M"]:
+        effort = "medium"
+    elif size_upper in ["L", "XL"]:
+        effort = "high"
+
+    if tid in dispatched_events:
+        d_ev = dispatched_events[tid]
+        harness = d_ev.get("harness") or ("worktree-" + d_ev.get("route", "git"))
+        if d_ev.get("model"):
+            model = d_ev.get("model")
+        if d_ev.get("effort"):
+            effort = d_ev.get("effort")
+
+    raw_json_path = os.path.join(root_dir, "docs", "sprints", "design-decisions", f"{tid}-raw.json")
+    if os.path.isfile(raw_json_path):
+        try:
+            with open(raw_json_path, "r", encoding="utf-8") as rf:
+                r_data = json.load(rf)
+                if r_data.get("harness"):
+                    harness = r_data.get("harness")
+                elif r_data.get("evaluator_tier"):
+                    tier = r_data.get("evaluator_tier")
+                    if tier == "agy":
+                        harness = "antigravity"
+                    elif tier == "opencode":
+                        harness = "opencode"
+                    else:
+                        harness = tier
+                if r_data.get("model"):
+                    model = r_data.get("model")
+                if r_data.get("effort"):
+                    effort = r_data.get("effort")
+        except Exception:
+            pass
+
+    if os.path.isfile(tfile):
+        with open(tfile, "r", encoding="utf-8", errors="ignore") as tf:
+            c = tf.read()
+            m_harness = re.search(r'(?:Arnés|Harness):\s*`?([^`\n\r]+)`?', c, re.I)
+            if m_harness:
+                harness = m_harness.group(1).strip()
+            m_model = re.search(r'(?:Modelo|Model):\s*`?([^`\n\r]+)`?', c, re.I)
+            if m_model:
+                model = m_model.group(1).strip()
+            m_effort = re.search(r'(?:Esfuerzo|Effort):\s*`?([^`\n\r]+)`?', c, re.I)
+            if m_effort:
+                effort = m_effort.group(1).strip()
+
     tasks.append({
         "id": tid,
         "description": item["description"],
         "size": item["size"],
         "status": status,
         "playbook": playbook,
+        "harness": harness,
+        "model": model,
+        "effort": effort,
         "files_in_box": file_count,
         "dispatched": tid in dispatched_events
     })
@@ -218,7 +277,8 @@ report = {
         "direct_tasks_count": direct_count,
         "estimated_tokens_saved": estimated_tokens_saved,
         "context_rot_mitigated": True,
-        "zero_token_preflights": True
+        "zero_token_preflights": True,
+        "model_accountability": True
     },
     "tasks": tasks
 }
@@ -240,9 +300,9 @@ else:
     print(f"  • Ahorro estimado por floor cost evitado: ~{estimated_tokens_saved:,} tokens")
     print(f"  • Mitigación de context rot: ACTIVA (contrato de retorno compacto)")
     print("\nDetalle de tareas:")
-    print(f"{'ID':<8} {'ESTADO':<14} {'PLAYBOOK':<22} {'ARCHIVOS':<10} {'DESCRIPCIÓN'}")
-    print("-" * 64)
+    print(f"{'ID':<8} {'ESTADO':<12} {'PLAYBOOK':<18} {'ARNÉS':<14} {'MODELO':<16} {'ESFUERZO':<10} {'DESCRIPCIÓN'}")
+    print("-" * 92)
     for t in tasks:
-        print(f"{t['id']:<8} {t['status']:<14} {t['playbook']:<22} {t['files_in_box']:<10} {t['description'][:35]}")
-    print("=" * 64)
+        print(f"{t['id']:<8} {t['status']:<12} {t['playbook']:<18} {t['harness']:<14} {t['model']:<16} {t['effort']:<10} {t['description'][:30]}")
+    print("=" * 92)
 PYEOF

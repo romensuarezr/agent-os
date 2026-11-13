@@ -32,18 +32,18 @@ Archivos autorizados para modificación:
 - Referencia externa: `<satelites>/annascheer-web` (solo vía `sync.sh`)
 
 ## Criterios de done
-- [ ] Script `orchestration-report.sh` actualizado con soporte para arnés, modelo y nivel de esfuerzo.
-- [ ] Ejecución de `orchestration-report.sh` validada tanto en modo terminal como con `--json`.
-- [ ] Sincronización a satélite real (`<satelites>/annascheer-web`) ejecutada limpiamente.
-- [ ] `audit-satellites.sh` reporta satélite LIMPIO (61/61 scripts OK).
-- [ ] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
+- [x] Script `orchestration-report.sh` actualizado con soporte para arnés, modelo y nivel de esfuerzo.
+- [x] Ejecución de `orchestration-report.sh` validada tanto en modo terminal como con `--json`.
+- [x] Sincronización a satélite real (`<satelites>/annascheer-web`) ejecutada limpiamente.
+- [x] `audit-satellites.sh` reporta satélite LIMPIO (61/61 scripts OK).
+- [x] Suite `tests/validate-control-plane.sh` pasando limpia sin regresiones (38/38 checks verdes).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] Rama de trabajo creada
-- [ ] Verificación con verify-goal.sh
-- [ ] Cierre y merge formalizado
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] Rama de trabajo creada
+- [x] Verificación con verify-goal.sh
+- [x] Cierre y merge formalizado

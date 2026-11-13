@@ -7,7 +7,7 @@
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|---|---|---|---|
 | T-205 | Protocolo dinámico de modelos/cuotas, matriz de esfuerzo y reporte de rendición de cuentas | M | ✅ Completada | — | `.agents/tasks/task-205.md` |
-| T-206 | Telemetría de arnés/modelo en orchestration-report.sh y sincronización a la flota | S | ⬜ Pendiente | T-205 | `.agents/tasks/task-206.md` |
+| T-206 | Telemetría de arnés/modelo en orchestration-report.sh y sincronización a la flota | S | ✅ Completada | T-205 | `.agents/tasks/task-206.md` |
 
 ## Régimen Operativo del Sprint
 > Se sella en el sprint planning bajo la gobernanza de Autonomía Acotada (Régimen Desatendido).
