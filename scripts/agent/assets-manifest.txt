@@ -23,6 +23,7 @@
 .agents/workflows/parallel-orchestration.md
 .agents/workflows/session-start.md
 .agents/skills/remote-admin/SKILL.md
+.agents/skills/web-compliance/SKILL.md
 .agents/context/agent-os-changelog.md
 scripts/agent/contribute.sh
 scripts/agent/update-mvp-tracker.sh
@@ -51,6 +52,7 @@ scripts/agent/dispatch-satellite.sh
 .agents/config/orchestration-playbooks.yaml
 scripts/agent/worktree-gc.sh
 scripts/agent/orchestration-report.sh
+scripts/agent/audit-web-compliance.sh
 
 [deprecated]
 # fecha       archivo                              motivo
