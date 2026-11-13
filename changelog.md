@@ -9,6 +9,20 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.35.0] — sprint-39 — 2026-11-13
+
+### ✨ Features
+
+- feat(satellites): ensayo E2E de web compliance y sincronizacion en annascheer-web (T-213)
+- feat(orchestration): desacoplamiento de build en worktrees y flag --fast en verify-goal.sh (T-212)
+- feat(orchestration): protocolo de latidos proactivos (Heartbeats) y telemetria anti-ansiedad (T-211)
+- feat(scripts): herramienta determinista audit-web-compliance.sh y actualizacion de activos (T-210)
+- feat(skills): skill web-compliance para cookies, legal y cabeceras (T-209)
+
+### 📚 Documentación
+
+- docs(sprint): planificar sprint-39 (T-209 a T-213) web compliance y resiliencia multi-agente
+
 ## [1.34.0] — sprint-38 — 2026-11-13
 
 ### ✨ Features
@@ -1916,6 +1930,7 @@ Historial de cambios y releases del núcleo de Agent OS.
   - `inventory-check.sh` y `update-mvp-tracker.sh`.
 - **Workflows Base**: `session-start.md`, `session-close.md`, `sprint-planning.md`, `changelog.md`, `honesto.md`.
 
+[1.35.0]: https://github.com/romensuarezr/agent-os/compare/v1.34.0...v1.35.0
 [1.34.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.34.0
 [1.33.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.33.0
 [1.32.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.32.0
