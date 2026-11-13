@@ -1,7 +1,7 @@
 # Sprint 39 — 2026-11-13 → 2026-11-17
 
 ## Estado
-🟡 En curso
+🟢 Completado (100%)
 
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
@@ -10,7 +10,7 @@
 | T-210 | Script determinista audit-web-compliance.sh ($0 tokens) y manifiesto de activos | S | ✅ Hecho | T-209 | `.agents/tasks/task-210.md` |
 | T-211 | Heartbeat Proactivo & Telemetría de Latidos en Orquestación Multi-Agente | M | ✅ Hecho | — | `.agents/tasks/task-211.md` |
 | T-212 | Desacoplamiento de Build en Worktrees (Fast Verification vs Full Static Merge) | S | ✅ Hecho | T-211 | `.agents/tasks/task-212.md` |
-| T-213 | Ensayo E2E y despliegue real en satélite annascheer-web (Sprint 04 Piloto) | S | ⬜ Pendiente | T-209, T-210, T-211, T-212 | `.agents/tasks/task-213.md` |
+| T-213 | Ensayo E2E y despliegue real en satélite annascheer-web (Sprint 04 Piloto) | S | ✅ Hecho | T-209, T-210, T-211, T-212 | `.agents/tasks/task-213.md` |
 
 ## Régimen Operativo del Sprint
 > Se sella en el sprint planning bajo la gobernanza de Autonomía Acotada (Régimen Desatendido).
