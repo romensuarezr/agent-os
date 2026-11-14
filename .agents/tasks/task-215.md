@@ -28,20 +28,20 @@ Archivos autorizados para modificación:
 - `.agents/config/fleet.yaml` (si requiere registrar los runtimes remotos)
 
 ## Criterios de done
-- [ ] Entorno de ejecución de Antigravity operativo en `<nodo-inferencia>` (ARM64).
-- [ ] Perfil `agy` (Google Pro 1) configurado y autenticado en el VPS.
-- [ ] Perfil `agy2` (Google Pro 2) configurado y autenticado en el VPS.
-- [ ] Ejecución de prueba con éxito en ambos perfiles (prompt simple no destructivo devolviendo respuesta válida).
+- [x] Entorno de ejecución de Antigravity operativo en `<nodo-inferencia>` (ARM64).
+- [x] Perfil `agy` (Google Pro 1) configurado y autenticado en el VPS.
+- [x] Perfil `agy2` (Google Pro 2) configurado y autenticado en el VPS.
+- [x] Ejecución de prueba con éxito en ambos perfiles (prompt simple no destructivo devolviendo respuesta válida).
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-14T09:30:00Z
+- [x] Rama creada: `multi-agent`
 - [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente

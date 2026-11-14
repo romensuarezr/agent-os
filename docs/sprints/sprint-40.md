@@ -1,13 +1,13 @@
 # Sprint 40 — 2026-11-14 → 2026-11-18
 
 ## Estado
-🟡 En curso (0%)
+🟡 En curso (40%)
 
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|---|---|---|---|
 | T-214 | Sincronización del Core de Agent OS en <nodo-inferencia> (v1.35.0 y 31 skills) | M | ✅ Hecho | — | `.agents/tasks/task-214.md` |
-| T-215 | Despliegue de Harness y Autenticación Dual Google Pro en el VPS (agy + agy2) | M | ⏳ Pendiente | T-214 | `.agents/tasks/task-215.md` |
+| T-215 | Despliegue de Harness y Autenticación Dual Google Pro en el VPS (agy + agy2) | M | ✅ Hecho | T-214 | `.agents/tasks/task-215.md` |
 | T-216 | Hermes Concierge Bridge y Failover de Cuentas | L | ⏳ Pendiente | T-215 | `.agents/tasks/task-216.md` |
 | T-217 | Cronjobs de Monitoreo Proactivo y Briefing Matutino en WhatsApp | S | ⏳ Pendiente | T-214 | `.agents/tasks/task-217.md` |
 | T-218 | Validación E2E del Conserje y Ensayo de Flota | M | ⏳ Pendiente | T-214, T-215, T-216, T-217 | `.agents/tasks/task-218.md` |
