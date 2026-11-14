@@ -27,20 +27,20 @@ Archivos autorizados para modificación:
 - `scripts/agent/fleet-doctor.sh` (si requiere extensión para métricas de WhatsApp)
 
 ## Criterios de done
-- [ ] `~/.hermes/cron/jobs.json` libre de modelos erróneos o fallidos.
-- [ ] Script de diagnóstico matutino de flota verificado ($0 tokens).
-- [ ] Job de briefing diario 08:30 AM registrado y activo en Hermes con entrega a WhatsApp.
-- [ ] Job de verificación de caídas críticas por excepción activo.
+- [x] `~/.hermes/cron/jobs.json` libre de modelos erróneos o fallidos.
+- [x] Script de diagnóstico matutino de flota verificado ($0 tokens).
+- [x] Job de briefing diario 08:30 AM registrado y activo en Hermes con entrega a WhatsApp.
+- [x] Job de verificación de caídas críticas por excepción activo.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-14T09:30:00Z
+- [x] Rama creada: `multi-agent`
 - [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
