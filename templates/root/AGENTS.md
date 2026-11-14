@@ -65,6 +65,20 @@ Cuando un agente de IA (Antigravity CLI, IDE, Cursor, etc.) interactúa en la te
 | `bash scripts/agent/worktree-dispatch.sh` | Despacha una tarea a un worktree o worker aislado | $0 tokens |
 | `bash scripts/agent/worktree-merge.sh` | Valida e integra el trabajo de un worker en la rama principal | $0 tokens |
 | `bash scripts/agent/sync.sh` | Sincroniza mejoras del núcleo de Agent OS hacia este satélite | $0 tokens |
+| `bash scripts/agent/contribute.sh <archivo>` | Promueve mejoras locales agnósticas (skills, tools) hacia el Core vía PR | $0 tokens |
+
+---
+
+## Ciclo de Vida y Contribución hacia el Core de Agent OS
+
+Este satélite forma parte de la flota de Agent OS y mantiene un canal bidireccional limpio con el Core:
+1. **De Core a Satélite (`sync.sh`)**: Trae nuevas versiones de reglas, skills universales y herramientas ops (`scripts/ops/coolify.sh`).
+2. **De Satélite a Core (`contribute.sh`)**: Si durante una tarea en este proyecto desarrollas una mejora generalizable (una nueva skill, una plantilla universal o una optimización de script agnóstica):
+   - **Condición**: La mejora debe ser 100% agnóstica del negocio específico de este repositorio (cero secretos, cero dependencias locales de dominio).
+   - **Promoción**: Ejecuta `bash scripts/agent/contribute.sh /ruta/al/archivo`. Esto creará una rama aislada y una propuesta/PR hacia el Core.
+3. **Cero Actualizaciones Automáticas a Ciegas**:
+   - El Core **nunca** incorpora cambios automáticamente.
+   - En el Core, el mantenedor/agente ejecuta `bash scripts/agent/audit-satellites.sh --skills`, evalúa la propuesta con `inventory-check.sh` y la somete al sprint planning para su homologación controlada.
 
 ---
 
