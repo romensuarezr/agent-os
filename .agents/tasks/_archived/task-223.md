@@ -1,5 +1,5 @@
 # T-223 — Universalización y Recipe Determinista de Despliegue Coolify para Next.js (soporte monorepo + flat)
-Sprint: Sprint 41 | Estado: ⬜ Pendiente | Tamaño: M | Rama propuesta: feat/T-223-coolify-nextjs-universal-deploy | Merge destino: multi-agent
+Sprint: Sprint 41 | Estado: ✅ Hecho | Tamaño: M | Rama propuesta: feat/T-223-coolify-nextjs-universal-deploy | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 41 — 2026-11-14

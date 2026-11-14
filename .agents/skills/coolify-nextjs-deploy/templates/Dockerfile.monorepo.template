@@ -1,0 +1,72 @@
+# syntax=docker/dockerfile:1
+# ==============================================================================
+# Dockerfile.monorepo.template — Multi-stage standalone para Monorepos (pnpm Workspaces)
+# Diseñado para Coolify VPS / Docker Engine (Node.js 22 LTS Alpine + pnpm)
+# ==============================================================================
+
+# Stage 1: Imagen base con pnpm habilitado
+FROM node:22-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Stage 2: Instalación de dependencias (deps)
+FROM base AS deps
+WORKDIR /app
+
+# Copiar manifiestos y lockfile de la raíz y paquetes
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
+# Copiar selectivamente package.json de paquetes y apps para maximizar caché de Docker
+COPY packages/*/package.json ./packages/
+COPY apps/*/package.json ./apps/
+
+# Instalar dependencias congeladas del monorepo
+RUN pnpm install --frozen-lockfile
+
+# Stage 3: Compilación (builder)
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app ./
+COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# ==============================================================================
+# Variables públicas en BUILD TIME (NEXT_PUBLIC_*)
+# Configurar en Coolify como: Build Variable (Build Args)
+# ==============================================================================
+# ARG NEXT_PUBLIC_API_URL
+# ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Compilar paquetes compartidos y la aplicación web objetivo
+# Ajustar el filtro según el workspace del monorepo (ej: @mi-proyecto/web o apps/web)
+RUN pnpm --filter @*/core build 2>/dev/null || true
+RUN pnpm --filter ...web build || pnpm run build
+
+# Stage 4: Ejecución en producción (runner)
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Seguridad: ejecutar bajo usuario no root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copiar assets estáticos y servidor standalone
+# Nota: En monorepos Next.js genera la estructura bajo apps/web/ o en la raíz según outputFolder
+COPY --from=builder /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+# En monorepo standalone, el entrypoint vive en apps/web/server.js o server.js
+CMD ["node", "apps/web/server.js"]

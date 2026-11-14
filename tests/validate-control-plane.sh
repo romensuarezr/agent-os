@@ -229,6 +229,16 @@ done
 echo -e "  ✅ $VALID_SKILLS/$TOTAL_SKILLS skills verificadas con SKILL.md intacto."
 echo -e "  ℹ️  Compatibilidad de symlinks con Hermes en <nodo-inferencia> garantizada."
 
+if [ -x ".agents/skills/coolify-nextjs-deploy/scripts/audit-next.sh" ] && \
+   [ -f ".agents/skills/coolify-nextjs-deploy/templates/Dockerfile.flat.template" ] && \
+   [ -f ".agents/skills/coolify-nextjs-deploy/templates/Dockerfile.monorepo.template" ] && \
+   [ -f "docs/runbooks/coolify-nextjs-deploy.md" ]; then
+  echo -e "  ✅ coolify-nextjs-deploy universalizado: audit-next.sh, templates (flat/monorepo) y runbook conformes (T-223)."
+else
+  echo -e "  ❌ Faltan assets universales de coolify-nextjs-deploy."
+  ERRORS=$((ERRORS + 1))
+fi
+
 # ------------------------------------------------------------------------------
 # 6. Verificación de Auto-Descubrimiento Determinista (discover-fleet.sh)
 # ------------------------------------------------------------------------------

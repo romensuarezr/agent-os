@@ -10,7 +10,7 @@
 | T-220 | Absorción de `orca-cli` (v1.4.258), actualización de `infisical-secrets` (v0.45.8) y fix de staging acotado en `contribute.sh` | S | ✅ Hecho | — | [.agents/tasks/task-220.md](file:///.agents/tasks/task-220.md) |
 | T-221 | Auditoría Bidireccional de Drift Core ↔ Satélites (`audit-satellites.sh --skills`) | M | ✅ Hecho | — | [.agents/tasks/task-221.md](file:///.agents/tasks/task-221.md) |
 | T-222 | Sincronización y Propagación de Herramientas Ops (`scripts/ops/coolify.sh`) en `sync.sh` | S | ✅ Hecho | — | [.agents/tasks/task-222.md](file:///.agents/tasks/task-222.md) |
-| T-223 | Universalización y Recipe Determinista de Despliegue Coolify para Next.js (soporte monorepo + flat) | M | ⬜ Pendiente | T-222 | [.agents/tasks/task-223.md](file:///.agents/tasks/task-223.md) |
+| T-223 | Universalización y Recipe Determinista de Despliegue Coolify para Next.js (soporte monorepo + flat) | M | ✅ Hecho | T-222 | [.agents/tasks/task-223.md](file:///.agents/tasks/task-223.md) |
 
 ## Régimen Operativo del Sprint
 > Sellado formalmente tras aprobación macro del operador (2026-11-14).
