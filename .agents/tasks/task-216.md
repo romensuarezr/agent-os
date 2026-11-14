@@ -28,20 +28,20 @@ Archivos autorizados para modificación:
 - `.agents/skills/orchestrator/SKILL.md` (documentar el conector Concierge)
 
 ## Criterios de done
-- [ ] Skill de conserje desplegada y registrada en Hermes (`~/.hermes/skills/hermes-concierge`).
-- [ ] Mecanismo de reenvío de preguntas/compuertas a WhatsApp validado.
-- [ ] Manejador de conmutación por cuota agotada (`agy` -> `agy2`) probado.
-- [ ] Trazabilidad de logs de sesión en el VPS.
+- [x] Skill de conserje desplegada y registrada en Hermes (`~/.hermes/skills/hermes-concierge`).
+- [x] Mecanismo de reenvío de preguntas/compuertas a WhatsApp validado.
+- [x] Manejador de conmutación por cuota agotada (`agy` -> `agy2`) probado.
+- [x] Trazabilidad de logs de sesión en el VPS.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-14T09:30:00Z
+- [x] Rama creada: `multi-agent`
 - [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente

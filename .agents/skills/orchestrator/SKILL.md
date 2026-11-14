@@ -38,6 +38,7 @@ La gramática de `/orchestrator` es agnóstica del runtime subyacente y se adapt
 1. **Hermes Agent (NousResearch / chat front-door)**:
    - Mapeo nativo a slash-commands (`/goal`, `/subgoal`).
    - Envío de notificaciones a través de la pasarela de mensajería (WhatsApp/Telegram/Slack) solicitando `/gate approve`.
+   - Conector Concierge (`hermes-concierge`): interlocutor bidireccional entre la pasarela de chat y el Coordinador Antigravity en VPS, con retransmisión de preguntas y failover automático ante cuotas Google Pro (`agy` -> `agy2`).
    - Soporte v0.23+ para `hermes gateway attach` en clientes locales, catálogo de plugins ampliado (16 MiB) y gestión de variables de entorno con alcance de sesión.
 2. **Orca ADE (onorca.com / Desktop IDE)**:
    - Integración directa con los runners de tareas en worktrees efímeros (`<padre>/<repo>-<task-id>/`, hermano al checkout, fuera del árbol).
