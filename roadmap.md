@@ -1,7 +1,12 @@
 # Roadmap — agent-os
 
 ## En curso
-(Ninguno — sprint-40 completado, listo para planificar sprint-41)
+- **Sprint 41**: Orquestación, Sincronización Bidireccional Core-Satélites y Universalización de Despliegues Coolify (T-219 a T-223). En curso. Ver `docs/sprints/sprint-41.md`.
+  - [T-219] Integración Automática de Reporte de Orquestación en `close-sprint.sh` y `session-close.md` (S).
+  - [T-220] Absorción de `orca-cli` (v1.4.258), actualización de `infisical-secrets` (v0.45.8) y fix de staging acotado en `contribute.sh` (S).
+  - [T-221] Auditoría Bidireccional de Drift Core ↔ Satélites (`audit-satellites.sh --skills`) (M).
+  - [T-222] Sincronización y Propagación de Herramientas Ops (`scripts/ops/coolify.sh`) en `sync.sh` (S).
+  - [T-223] Universalización y Recipe Determinista de Despliegue Coolify para Next.js (soporte monorepo + flat) (M).
 
 ## Próximo
 - **Sprint 40**: Hermes Conserje (WhatsApp/Telegram), Harness Antigravity Dual Google Pro y Observabilidad Proactiva de Flota (T-214 a T-218). Formalizado como release `v1.36.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-40.md`.
