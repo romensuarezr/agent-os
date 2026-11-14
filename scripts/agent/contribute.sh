@@ -70,7 +70,7 @@ cp -r "$SRC_DIR/$FILE_NAME" "$DEST_DIR/"
 echo "🚀 Promoviendo $FILE_NAME desde $PROJECT_PATH..."
 
 cd "$AGENT_OS_PATH" || exit 1
-git add .
+git add "$DEST_DIR/$FILE_NAME"
 git commit -m "feat: promote $FILE_NAME ($TYPE_NAME) from $(basename "$PROJECT_PATH")"
 
 echo "✅ Promovido. Ejecuta sync.sh en los otros proyectos para propagar."

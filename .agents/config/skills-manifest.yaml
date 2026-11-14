@@ -87,6 +87,11 @@ skills:
     scope: universal
     description: "Orquestación multi-agente declarativa y despacho de tareas en paralelo en git worktrees."
 
+  orca-cli:
+    scope: universal
+    optional: true
+    description: "Operar worktrees gestionados por Orca IDE (v1.4.258), terminales PTY aisladas y navegador embebido."
+
   remote-admin:
     scope: infra
     infra:

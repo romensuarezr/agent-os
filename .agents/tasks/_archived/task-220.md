@@ -1,5 +1,5 @@
 # T-220 — Absorción de orca-cli (v1.4.258), actualización de infisical-secrets (v0.45.8) y fix de staging acotado en contribute.sh
-Sprint: Sprint 41 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-220-tooling-absorption-and-contribute-fix | Merge destino: multi-agent
+Sprint: Sprint 41 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-220-tooling-absorption-and-contribute-fix | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 41 — 2026-11-14
