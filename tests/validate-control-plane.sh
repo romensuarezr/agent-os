@@ -295,7 +295,7 @@ fi
 # ------------------------------------------------------------------------------
 echo ""
 echo -e "🔍 [9/38] Verificando sintaxis y permisos de scripts de metas, orquestación, promoción, tooling y auditoría..."
-ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh" "scripts/agent/check-tooling-updates.sh" "scripts/agent/audit-satellites.sh")
+ORCH_SCRIPTS=("scripts/agent/verify-goal.sh" "scripts/agent/worktree-dispatch.sh" "scripts/agent/worktree-merge.sh" "scripts/agent/promote-to-main.sh" "scripts/agent/check-tooling-updates.sh" "scripts/agent/audit-satellites.sh" "scripts/ops/coolify.sh")
 
 for s in "${ORCH_SCRIPTS[@]}"; do
   if [ ! -f "$s" ]; then
@@ -382,6 +382,27 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$AUDIT_TMP"
+
+# Prueba de propagación de scripts/ops en install.sh y sync.sh (T-222)
+OPS_TMP=$(mktemp -d -t test-ops-sync-XXXXXX)
+mkdir -p "$OPS_TMP/sat"
+git -C "$OPS_TMP/sat" init -q 2>/dev/null || true
+bash scripts/agent/install.sh --minimal "$OPS_TMP/sat" >/dev/null 2>&1 || true
+if [ -x "$OPS_TMP/sat/scripts/ops/coolify.sh" ]; then
+  echo -e "  ✅ install.sh propaga scripts/ops/coolify.sh con permisos de ejecución (T-222)."
+else
+  echo -e "  ❌ install.sh no propagó scripts/ops/coolify.sh como ejecutable."
+  ERRORS=$((ERRORS + 1))
+fi
+
+SYNC_OPS_DRY="$(bash scripts/agent/sync.sh --dry-run "$OPS_TMP/sat" 2>&1 || true)"
+if echo "$SYNC_OPS_DRY" | grep -q "scripts/ops"; then
+  echo -e "  ✅ sync.sh inspecciona y sincroniza scripts/ops en satélites (T-222)."
+else
+  echo -e "  ❌ sync.sh no reportó inspección de scripts/ops en --dry-run."
+  ERRORS=$((ERRORS + 1))
+fi
+rm -rf "$OPS_TMP"
 
 # ------------------------------------------------------------------------------
 # 10. Validación Estricta de Frontmatter YAML en Perfiles Declarativos (.md)

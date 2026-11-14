@@ -53,6 +53,7 @@ scripts/agent/dispatch-satellite.sh
 scripts/agent/worktree-gc.sh
 scripts/agent/orchestration-report.sh
 scripts/agent/audit-web-compliance.sh
+scripts/ops/coolify.sh
 
 [deprecated]
 # fecha       archivo                              motivo

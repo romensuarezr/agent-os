@@ -1,5 +1,5 @@
 # T-222 — Sincronización y Propagación de Herramientas Ops (scripts/ops/coolify.sh) en sync.sh e install.sh
-Sprint: Sprint 41 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-222-propagate-ops-tools-in-sync | Merge destino: multi-agent
+Sprint: Sprint 41 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-222-propagate-ops-tools-in-sync | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 41 — 2026-11-14

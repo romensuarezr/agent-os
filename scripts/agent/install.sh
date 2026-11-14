@@ -266,6 +266,7 @@ AGENT_OS_RULES="$AGENT_OS_PATH/.agents/rules/global"
 AGENT_OS_WORKFLOWS="$AGENT_OS_PATH/.agents/workflows"
 AGENT_OS_SKILLS="$AGENT_OS_PATH/.agents/skills"
 AGENT_OS_PROFILES="$AGENT_OS_PATH/.agents/profiles"
+AGENT_OS_OPS="$AGENT_OS_PATH/scripts/ops"
 AGENT_OS_GOALS="$AGENT_OS_PATH/templates/goals"
 AGENT_OS_TEMPLATES="$AGENT_OS_PATH/templates/docs"
 AGENT_OS_ROOT_TEMPLATES="$AGENT_OS_PATH/templates/root"
@@ -278,6 +279,7 @@ TARGET_SKILLS="$TARGET_AGENTS/skills"
 TARGET_PROFILES="$TARGET_PROJECT/.agents/profiles"
 TARGET_GOALS="$TARGET_PROJECT/templates/goals"
 TARGET_SCRIPTS="$TARGET_PROJECT/scripts/agent"
+TARGET_OPS="$TARGET_PROJECT/scripts/ops"
 TARGET_ONBOARDING="$TARGET_PROJECT/.agents/AGENT_ONBOARDING.md"
 
 # ==============================================================================
@@ -414,6 +416,7 @@ if [[ "$CHECK_MODE" == true ]]; then
     echo "     - $TARGET_GOALS"
     echo "     - $TARGET_PROJECT/.agents/context"
     echo "     - $TARGET_SCRIPTS"
+    echo "     - $TARGET_OPS"
     echo "     - $TARGET_PROJECT/docs/sprints"
     echo "     - $TARGET_PROJECT/docs/adrs"
     echo "     - $TARGET_PROJECT/docs/idea-inbox"
@@ -494,6 +497,19 @@ if [[ "$CHECK_MODE" == true ]]; then
         fi
     fi
 
+    echo "  🛠️  Scripts de operaciones a instalar (sin sobreescribir):"
+    if [ -d "$AGENT_OS_OPS" ]; then
+        for ops_sc in "$AGENT_OS_OPS"/*.sh; do
+            [ -f "$ops_sc" ] || continue
+            ops_scname=$(basename "$ops_sc")
+            if [ -f "$TARGET_OPS/$ops_scname" ]; then
+                echo "     - script ops: $ops_scname (ya existe en destino)"
+            else
+                echo "     + script ops: $ops_scname (nuevo)"
+            fi
+        done
+    fi
+
     echo "  👤 Perfiles y templates de metas:"
     if [ -d "$AGENT_OS_PROFILES" ]; then
         for pf in "$AGENT_OS_PROFILES"/*; do
@@ -547,6 +563,7 @@ mkdir -p "$TARGET_GOALS"
 mkdir -p "$TARGET_PROJECT/.agents/context"
 mkdir -p "$TARGET_PROJECT/.agents/config"
 mkdir -p "$TARGET_SCRIPTS"
+mkdir -p "$TARGET_OPS"
 
 # 2. Crear estructura de documentación
 mkdir -p "$TARGET_PROJECT/docs/sprints"
@@ -675,6 +692,18 @@ track_installed "$TARGET_SCRIPTS/lib" || true
         chmod +x "$TARGET_SCRIPTS"/lib/*.sh 2>/dev/null || true
     fi
     echo "✅ Scripts de agente instalados (sin sobreescribir)."
+fi
+
+# 6b. Copiar scripts de operaciones (sin sobreescribir)
+if [ -d "$AGENT_OS_OPS" ]; then
+    mkdir -p "$TARGET_OPS"
+    for ops_sc in "$AGENT_OS_OPS"/*.sh; do
+        [ -f "$ops_sc" ] || continue
+        agent_cp_n "$ops_sc" "$TARGET_OPS/"
+        track_installed "$TARGET_OPS/$(basename "$ops_sc")"
+    done
+    chmod +x "$TARGET_OPS"/*.sh 2>/dev/null || true
+    echo "✅ Scripts de operaciones instalados (sin sobreescribir)."
 fi
 
 # 7. Copiar perfiles de agente (sin sobreescribir)
