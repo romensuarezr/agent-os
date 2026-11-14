@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|:---:|:---:|:---:|:---:|
-| T-219 | Integración Automática de Reporte de Orquestación en `close-sprint.sh` y `session-close.md` | S | ⬜ Pendiente | — | [.agents/tasks/task-219.md](file:///.agents/tasks/task-219.md) |
+| T-219 | Integración Automática de Reporte de Orquestación en `close-sprint.sh` y `session-close.md` | S | ✅ Hecho | — | [.agents/tasks/task-219.md](file:///.agents/tasks/task-219.md) |
 | T-220 | Absorción de `orca-cli` (v1.4.258), actualización de `infisical-secrets` (v0.45.8) y fix de staging acotado en `contribute.sh` | S | ⬜ Pendiente | — | [.agents/tasks/task-220.md](file:///.agents/tasks/task-220.md) |
 | T-221 | Auditoría Bidireccional de Drift Core ↔ Satélites (`audit-satellites.sh --skills`) | M | ⬜ Pendiente | — | [.agents/tasks/task-221.md](file:///.agents/tasks/task-221.md) |
 | T-222 | Sincronización y Propagación de Herramientas Ops (`scripts/ops/coolify.sh`) en `sync.sh` | S | ⬜ Pendiente | — | [.agents/tasks/task-222.md](file:///.agents/tasks/task-222.md) |

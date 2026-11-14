@@ -197,6 +197,9 @@ El flujo completo es:
 git commit -m "chore: archive sprint-{{SPRINT_ACTIVE}} [vX.Y.Z]"
 ```
 
+- **Reporte Automático de Orquestación y Telemetría (T-219)**:
+  `close-sprint.sh` invoca deterministamente `scripts/agent/orchestration-report.sh --sprint <sprint>` al finalizar el archivado. El agente/coordinador **DEBE** presentar este reporte de telemetría en el mensaje de cierre final de la sesión, mostrando el desglose por worker/harness/modelo y los tokens ahorrados ($0 floor cost savings).
+
 > **✔️ Regla:** Los sprints en `docs/sprints/` son activos o en curso.
 > Los sprints completados deben vivir en `docs/sprints/_archived/`.
 > Nunca archives un sprint parcialmente completado.

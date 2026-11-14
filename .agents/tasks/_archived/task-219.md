@@ -1,5 +1,5 @@
 # T-219 — Integración Automática de Reporte de Orquestación en close-sprint.sh y session-close.md
-Sprint: Sprint 41 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-219-orchestration-report-auto-closure | Merge destino: multi-agent
+Sprint: Sprint 41 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-219-orchestration-report-auto-closure | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 41 — 2026-11-14

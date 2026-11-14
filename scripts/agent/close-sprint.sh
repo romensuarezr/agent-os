@@ -306,3 +306,10 @@ echo "   Commit: $COMMIT_MSG"
 if [ "$CHANGELOG_MODIFIED" = true ]; then
   echo "   changelog.md incluido en el commit."
 fi
+
+# --- Reporte automático de orquestación y telemetría multi-agente (T-219) ---
+ORCHESTRATION_REPORT="$SCRIPT_DIR/orchestration-report.sh"
+if [ -f "$ORCHESTRATION_REPORT" ]; then
+  echo ""
+  bash "$ORCHESTRATION_REPORT" --sprint "$SPRINT_BASE" 2>/dev/null || true
+fi
