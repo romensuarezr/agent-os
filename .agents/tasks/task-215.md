@@ -1,10 +1,10 @@
 # Task-215: Despliegue de Harness y Autenticación Dual Google Pro en el VPS (agy + agy2)
 
 ## Objetivo
-Desplegar el harness nativo de Antigravity en el VPS `datamanager` (ARM64) y configurar dos perfiles de ejecución aislados vinculados a las dos cuentas de Google Pro (`agy` y `agy2`), aplicando primero el Método Inmediato (Cero Fricción) mediante la transferencia segura de tokens OAuth desde la estación local a través de Tailscale.
+Desplegar el harness nativo de Antigravity en el VPS `<nodo-inferencia>` (ARM64) y configurar dos perfiles de ejecución aislados vinculados a las dos cuentas de Google Pro (`agy` y `agy2`), aplicando primero el Método Inmediato (Cero Fricción) mediante la transferencia segura de tokens OAuth desde la estación local a través de Tailscale.
 
 ## Contexto técnico
-- En la estación local, el operador dispone de dos cuentas Google Pro aisladas en perfiles (`HOME=/home/romen/.antigravity_pro2` y `HOME=/home/romen/.antigravity_pro3`).
+- En la estación local, el operador dispone de dos cuentas Google Pro aisladas en perfiles (`~/.antigravity_pro2` y `~/.antigravity_pro3`).
 - El paquete PyPI `google-antigravity` (0.1.23) proporciona el wheel oficial para Linux ARM64 con el binario nativo `localharness` y soporte para `local_openai_connection` y Google Auth.
 - La transferencia del archivo `antigravity-oauth-token` permite que el VPS quede autenticado inmediatamente sin requerir interacción gráfica en navegador.
 - En caso de fallo con los tokens transferidos, se dispone del método fallback Out-of-Band (`ANTIGRAVITY_REMOTE_OOB_AUTH`).
@@ -17,8 +17,8 @@ Desplegar el harness nativo de Antigravity en el VPS `datamanager` (ARM64) y con
 - **Diseño y arquitectura aprobados por**: Humano (Romén)
 - **Decisiones e interfaces selladas**:
   - Probar en primera instancia el Método Inmediato (Cero Fricción) transfiriendo los tokens de `agy` y `agy2`.
-  - Crear los directorios de perfil en `datamanager`: `/home/ubuntu/.antigravity_pro1` y `/home/ubuntu/.antigravity_pro2`.
-  - Crear los scripts envoltorios `/home/ubuntu/.local/bin/agy` y `/home/ubuntu/.local/bin/agy2` en `datamanager`.
+  - Crear los directorios de perfil en `<nodo-inferencia>`: `/home/ubuntu/.antigravity_pro1` y `/home/ubuntu/.antigravity_pro2`.
+  - Crear los scripts envoltorios `/home/ubuntu/.local/bin/agy` y `/home/ubuntu/.local/bin/agy2` en `<nodo-inferencia>`.
   - Verificar que ambos perfiles pueden consultar modelos Pro sin errores de autenticación.
 - **Veredicto de diseño macro**: APROBADO_EN_PLANNING
 
@@ -28,7 +28,7 @@ Archivos autorizados para modificación:
 - `.agents/config/fleet.yaml` (si requiere registrar los runtimes remotos)
 
 ## Criterios de done
-- [ ] Entorno de ejecución de Antigravity operativo en `datamanager` (ARM64).
+- [ ] Entorno de ejecución de Antigravity operativo en `<nodo-inferencia>` (ARM64).
 - [ ] Perfil `agy` (Google Pro 1) configurado y autenticado en el VPS.
 - [ ] Perfil `agy2` (Google Pro 2) configurado y autenticado en el VPS.
 - [ ] Ejecución de prueba con éxito en ambos perfiles (prompt simple no destructivo devolviendo respuesta válida).

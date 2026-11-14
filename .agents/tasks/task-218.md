@@ -5,7 +5,7 @@ Realizar la prueba de extremo a extremo (E2E) del flujo completo del Conserje He
 
 ## Contexto técnico
 - Esta tarea consolida el trabajo de T-214 a T-217.
-- Debe probar que un mensaje enviado desde el móvil o simulado a través del gateway de WhatsApp de Hermes activa a Antigravity en `datamanager`, trabaja sobre un repositorio satélite o de prueba respetando las reglas de Agent OS, y cierra el ciclo de comunicación sin requerir que el operador toque una terminal.
+- Debe probar que un mensaje enviado desde el móvil o simulado a través del gateway de WhatsApp de Hermes activa a Antigravity en `<nodo-inferencia>`, trabaja sobre un repositorio satélite o de prueba respetando las reglas de Agent OS, y cierra el ciclo de comunicación sin requerir que el operador toque una terminal.
 
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.

@@ -1,7 +1,7 @@
 # Task-216: Hermes Concierge Bridge y Failover de Cuentas
 
 ## Objetivo
-Implementar el módulo/skill de conserje para Hermes Agent en `datamanager` que actúe como interlocutor bidireccional entre el operador (en WhatsApp/Telegram) y el Coordinador Antigravity residente en el VPS: traslada prompts, retransmite consultas interactivas y compuertas (`/gate`), inyecta respuestas, gestiona failover automático entre `agy` y `agy2` ante límites de cuota, y entrega el reporte final.
+Implementar el módulo/skill de conserje para Hermes Agent en `<nodo-inferencia>` que actúe como interlocutor bidireccional entre el operador (en WhatsApp/Telegram) y el Coordinador Antigravity residente en el VPS: traslada prompts, retransmite consultas interactivas y compuertas (`/gate`), inyecta respuestas, gestiona failover automático entre `agy` y `agy2` ante límites de cuota, y entrega el reporte final.
 
 ## Contexto técnico
 - Hermes Agent corre como servicio systemd continuo con integración de mensajería (WhatsApp bridge en puerto 3001, Telegram DM con Romén).

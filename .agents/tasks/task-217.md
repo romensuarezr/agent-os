@@ -1,12 +1,12 @@
 # Task-217: Cronjobs de Monitoreo Proactivo y Briefing Matutino en WhatsApp
 
 ## Objetivo
-Reparar el subsistema de cronjobs en Hermes (`~/.hermes/cron/jobs.json`) reconfigurando el modelo obsoleto hacia OmniRoute a coste $0, e implementar los cronjobs deterministas de observabilidad para la flota: briefing matutino a las 08:30 AM en WhatsApp (salud de Coolify en `oracle` y telemetría de recursos) más alertas inmediatas por excepción ante caídas de servicios críticos.
+Reparar el subsistema de cronjobs en Hermes (`~/.hermes/cron/jobs.json`) reconfigurando el modelo obsoleto hacia OmniRoute a coste $0, e implementar los cronjobs deterministas de observabilidad para la flota: briefing matutino a las 08:30 AM en WhatsApp (salud de Coolify en `<nodo-orquestacion>` y telemetría de recursos) más alertas inmediatas por excepción ante caídas de servicios críticos.
 
 ## Contexto técnico
-- En la auditoría de `datamanager` se descubrió un job activo (`Newsletter Weekly Audit`) que falla semanalmente con `RuntimeError: HTTP 400: llama3.1:8b is not a valid model ID`.
+- En la auditoría de `<nodo-inferencia>` se descubrió un job activo (`Newsletter Weekly Audit`) que falla semanalmente con `RuntimeError: HTTP 400: llama3.1:8b is not a valid model ID`.
 - Hermes posee un planificador cron nativo en SQLite que soporta entrega directa al canal de mensajería (`deliver: "whatsapp"`).
-- Se requiere monitorizar el estado de los 56 contenedores en `oracle` y los endpoints públicos (`romensuarez.com`, etc.) sin quemar tokens innecesarios, usando un script Bash determinista que solo envíe mensajes de texto limpios.
+- Se requiere monitorizar el estado de los 56 contenedores en `<nodo-orquestacion>` y los endpoints públicos (`romensuarez.com`, etc.) sin quemar tokens innecesarios, usando un script Bash determinista que solo envíe mensajes de texto limpios.
 
 ## Diseño macro aprobado en planning
 > Registro vinculante del diseño acordado entre el humano y el agente durante el sprint planning.
