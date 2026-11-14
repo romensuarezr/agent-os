@@ -1,9 +1,10 @@
 # Roadmap — agent-os
 
 ## En curso
-(Ninguno — sprint-39 completado, listo para planificar sprint-40)
+(Ninguno — sprint-40 completado, listo para planificar sprint-41)
 
 ## Próximo
+- **Sprint 40**: Hermes Conserje (WhatsApp/Telegram), Harness Antigravity Dual Google Pro y Observabilidad Proactiva de Flota (T-214 a T-218). Formalizado como release `v1.36.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-40.md`.
 - **Sprint 39**: Web Compliance (Cookies/RGPD/Legal), Seguridad de Cabeceras y Resiliencia Multi-Agente (Heartbeat & Fast Build) (T-209 a T-213). Formalizado como release `v1.35.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-39.md`.
 - **Sprint 38**: Descubrimiento Dinámico de Capacidades, Priorización Proactiva por ROI Económico y Sincronización a Satélites (T-205 a T-208). Formalizado como release `v1.34.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-38.md`.
 - **Sprint 37**: Orquestación Declarativa, Boot de Coordinador en Satélites, Regla de Umbral y Telemetría Eficiente (T-201 a T-204). Formalizado como release `v1.33.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-37.md`.

@@ -9,6 +9,20 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.36.0] — sprint-40 — 2026-11-14
+
+### ✨ Features
+
+- feat(validation): validacion E2E del conserje y ensayo de flota con failover en vivo (T-218)
+- feat(observability): cronjobs de monitoreo proactivo y briefing matutino en whatsapp (T-217)
+- feat(hermes): despliegue de hermes-concierge bridge y failover de cuentas (T-216)
+- feat(infra): despliegue de harness y autenticacion dual google pro en nodo-inferencia (T-215)
+- feat(infra): sincronizacion de agent-os v1.35.0 y 31 skills en nodo-inferencia (T-214)
+
+### 📚 Documentación
+
+- docs(sprint): planificar sprint-40 (T-214 a T-218) hermes conserje y flota autonoma
+
 ## [1.35.0] — sprint-39 — 2026-11-13
 
 ### ✨ Features

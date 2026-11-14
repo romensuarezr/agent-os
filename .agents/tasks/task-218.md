@@ -26,20 +26,20 @@ Archivos autorizados para modificación:
 - `roadmap.md`
 
 ## Criterios de done
-- [ ] Ejecución E2E del flujo Conserje superada con éxito.
-- [ ] Mensaje de reporte final recibido en WhatsApp con formato sintético y claro.
-- [ ] Control plane validado en su totalidad (`tests/validate-control-plane.sh` en verde).
-- [ ] Documentación, changelog y roadmap actualizados.
+- [x] Ejecución E2E del flujo Conserje superada con éxito.
+- [x] Mensaje de reporte final recibido en WhatsApp con formato sintético y claro.
+- [x] Control plane validado en su totalidad (`tests/validate-control-plane.sh` en verde).
+- [x] Documentación, changelog y roadmap actualizados.
 
 ## Estado de aprobación y deliberación
 > Este bloque lo rellena el agente durante /session-start y cierre de tarea.
 > No modificar manualmente.
 
-- [ ] Deliberación técnica completada (`deliberate-plan.sh`)
-  - **Veredicto del revisor**: `[CONSENSO | REVISADO_CON_CAMBIOS | ESCALADO_A_HUMANO | SIN_REVISOR]`
+- [x] Deliberación técnica completada (`deliberate-plan.sh`)
+  - **Veredicto del revisor**: `CONSENSO`
   - **Rol del revisor**: Compuerta técnica determinista (caja de archivos, tests, realidad repo, fidelidad a diseño macro).
-- [ ] Plan presentado al usuario (Fase 3.5)
-- [ ] APROBADO recibido — fecha/hora: ___
-- [ ] Rama creada: ___
+- [x] Plan presentado al usuario (Fase 3.5)
+- [x] APROBADO recibido — fecha/hora: 2026-11-14T09:30:00Z
+- [x] Rama creada: `multi-agent`
 - [ ] Lock activo: ___
-- [ ] Sesión cerrada correctamente
+- [x] Sesión cerrada correctamente
