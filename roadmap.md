@@ -1,14 +1,14 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 41**: Orquestación, Sincronización Bidireccional Core-Satélites y Universalización de Despliegues Coolify (T-219 a T-223). En curso. Ver `docs/sprints/sprint-41.md`.
-  - [T-219] Integración Automática de Reporte de Orquestación en `close-sprint.sh` y `session-close.md` (S).
-  - [T-220] Absorción de `orca-cli` (v1.4.258), actualización de `infisical-secrets` (v0.45.8) y fix de staging acotado en `contribute.sh` (S).
-  - [T-221] Auditoría Bidireccional de Drift Core ↔ Satélites (`audit-satellites.sh --skills`) (M).
-  - [T-222] Sincronización y Propagación de Herramientas Ops (`scripts/ops/coolify.sh`) en `sync.sh` (S).
-  - [T-223] Universalización y Recipe Determinista de Despliegue Coolify para Next.js (soporte monorepo + flat) (M).
+- **Sprint 42**: Hermes VPS Autonomía Proactiva, Auto-Sincronización del Core, Recarga en Caliente de Skills y Contratos Operativos (T-224 a T-227). En curso. Ver `docs/sprints/sprint-42.md`.
+  - [T-224] Script Determinista de Sincronización del Core y Regeneración Atómica de Symlinks de Skills en VPS (S).
+  - [T-225] Integración del Cronjob `no_agent: true` de Auto-Sincronización en Hermes y Telemetría Matutina (S).
+  - [T-226] Despliegue del Contrato Operativo `AGENTS.md` de Conserje en el Home de Hermes (`/home/ubuntu/AGENTS.md`) (S).
+  - [T-227] Actualización del Runbook Operativo de Hermes VPS (`/reload-skills`, auto-sync y manual de conserjería) (S).
 
 ## Próximo
+- **Sprint 41**: Orquestación, Sincronización Bidireccional Core-Satélites y Universalización de Despliegues Coolify (T-219 a T-223). Formalizado como release `v1.37.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-41.md`.
 - **Sprint 40**: Hermes Conserje (WhatsApp/Telegram), Harness Antigravity Dual Google Pro y Observabilidad Proactiva de Flota (T-214 a T-218). Formalizado como release `v1.36.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-40.md`.
 - **Sprint 39**: Web Compliance (Cookies/RGPD/Legal), Seguridad de Cabeceras y Resiliencia Multi-Agente (Heartbeat & Fast Build) (T-209 a T-213). Formalizado como release `v1.35.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-39.md`.
 - **Sprint 38**: Descubrimiento Dinámico de Capacidades, Priorización Proactiva por ROI Económico y Sincronización a Satélites (T-205 a T-208). Formalizado como release `v1.34.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-38.md`.
