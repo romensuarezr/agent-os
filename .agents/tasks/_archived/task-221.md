@@ -1,5 +1,5 @@
 # T-221 — Auditoría Bidireccional de Drift Core ↔ Satélites (audit-satellites.sh --skills)
-Sprint: Sprint 41 | Estado: ⬜ Pendiente | Tamaño: M | Rama propuesta: feat/T-221-bidirectional-satellite-skills-audit | Merge destino: multi-agent
+Sprint: Sprint 41 | Estado: ✅ Hecho | Tamaño: M | Rama propuesta: feat/T-221-bidirectional-satellite-skills-audit | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 41 — 2026-11-14

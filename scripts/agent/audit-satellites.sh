@@ -26,22 +26,25 @@ SATELLITES_FILE=""
 CHECK_MODE=false
 JSON_MODE=false
 WEB_COMPLIANCE_MODE=false
+SKILLS_MODE=false
 EXPLICIT_PATHS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help)
       show_help "audit-satellites.sh" \
-        "bash scripts/agent/audit-satellites.sh [--satellites <yaml>] [--check] [--json] [--web-compliance] [rutas...]" \
-        "Audita la integridad, permisos (+x), ausencia y desvios de scripts en satelites vs core. Solo lectura: cero escrituras, cero git y cero red." \
+        "bash scripts/agent/audit-satellites.sh [--satellites <yaml>] [--check] [--json] [--web-compliance] [--skills] [rutas...]" \
+        "Audita la integridad, permisos (+x), ausencia y desvios de scripts y skills en satelites vs core. Solo lectura: cero escrituras, cero git y cero red." \
         "--satellites <yaml>      Declaracion con bloque 'satellites:' (alias y path)" \
         "--check                  Sale con codigo 1 si detecta desvios, ausencia o permisos invalidos" \
         "--json                   Emite el informe completo en formato JSON estructurado" \
         "--web-compliance         Audita ademas la conformidad legal y de cookies si el satelite es web" \
+        "--skills                 Audita el desvio (drift), orfandad y modificaciones en .agents/skills" \
         "<rutas...>               Rutas de repositorios satelite directos para auditar" \
         "-h, --help               Muestra este mensaje de ayuda" \
         "ejemplo: bash scripts/agent/audit-satellites.sh --check" \
         "ejemplo: bash scripts/agent/audit-satellites.sh --satellites .agents/config/satellites.yaml" \
+        "ejemplo: bash scripts/agent/audit-satellites.sh --skills ~/Proyectos/mi-satelite" \
         "ejemplo: bash scripts/agent/audit-satellites.sh --json --web-compliance ~/Proyectos/mi-satelite"
       ;;
     --satellites)
@@ -66,6 +69,10 @@ while [ $# -gt 0 ]; do
       ;;
     --web-compliance)
       WEB_COMPLIANCE_MODE=true
+      shift
+      ;;
+    --skills)
+      SKILLS_MODE=true
       shift
       ;;
     --)
@@ -151,6 +158,15 @@ if [ -d "$CORE_ROOT/scripts/agent" ]; then
   fi
 fi
 
+CORE_SKILLS=()
+if [ -d "$CORE_ROOT/.agents/skills" ]; then
+  for sdir in "$CORE_ROOT/.agents/skills"/*; do
+    if [ -d "$sdir" ] && [ -f "$sdir/SKILL.md" ]; then
+      CORE_SKILLS+=("$(basename "$sdir")")
+    fi
+  done
+fi
+
 CORE_VER="unknown"
 if [ -f "$CORE_ROOT/VERSION" ]; then
   CORE_VER="$(tr -d '[:space:]' < "$CORE_ROOT/VERSION" 2>/dev/null || echo "unknown")"
@@ -213,6 +229,9 @@ DRIFT_COUNT=0
 MISSING_COUNT=0
 NO_EXEC_COUNT=0
 ERRORS_COUNT=0
+TOTAL_SKILLS_DRIFT=0
+TOTAL_SKILLS_ORPHAN=0
+TOTAL_SKILLS_MISSING=0
 
 SATELLITE_RESULTS=()
 
@@ -220,7 +239,17 @@ for entry in ${ENTRIES[@]+"${ENTRIES[@]}"}; do
   alias="${entry%%$'\t'*}"
   raw_path="${entry#*$'\t'}"
   case "$raw_path" in
-    "~/"*) raw_path="${HOME:-}/${raw_path#\~/}" ;;
+    "~/"*)
+      if [ -d "${HOME:-}/${raw_path#\~/}" ]; then
+        raw_path="${HOME:-}/${raw_path#\~/}"
+      elif [ -n "${USER:-}" ] && [ -d "/home/$USER/${raw_path#\~/}" ]; then
+        raw_path="/home/$USER/${raw_path#\~/}"
+      elif command -v id >/dev/null 2>&1 && [ -d "/home/$(id -un)/${raw_path#\~/}" ]; then
+        raw_path="/home/$(id -un)/${raw_path#\~/}"
+      else
+        raw_path="${HOME:-}/${raw_path#\~/}"
+      fi
+      ;;
   esac
   real_path="$(as_resolve_dir "$raw_path")"
 
@@ -243,7 +272,7 @@ for entry in ${ENTRIES[@]+"${ENTRIES[@]}"}; do
   if [ "$real_path" = "$CORE_ROOT" ]; then
     sat_status="SELF"
     sat_ok=$sat_total
-    SATELLITE_RESULTS+=("$alias"$'\t'"$real_path"$'\t'"$sat_status"$'\t'"$sat_total"$'\t'"$sat_ok"$'\t'"0"$'\t'"0"$'\t'"0")
+    SATELLITE_RESULTS+=("$alias"$'\t'"$real_path"$'\t'"$sat_status"$'\t'"$sat_total"$'\t'"$sat_ok"$'\t'"0"$'\t'"0"$'\t'"0"$'\t'""$'\t'"${#CORE_SKILLS[@]}"$'\t'"${#CORE_SKILLS[@]}"$'\t'"0"$'\t'"0"$'\t'"0"$'\t'"")
     continue
   fi
 
@@ -251,7 +280,7 @@ for entry in ${ENTRIES[@]+"${ENTRIES[@]}"}; do
     sat_status="AUSENTE"
     sat_missing=$sat_total
     ERRORS_COUNT=$((ERRORS_COUNT + 1))
-    SATELLITE_RESULTS+=("$alias"$'\t'"$real_path"$'\t'"$sat_status"$'\t'"$sat_total"$'\t'"0"$'\t'"0"$'\t'"$sat_total"$'\t'"0")
+    SATELLITE_RESULTS+=("$alias"$'\t'"$real_path"$'\t'"$sat_status"$'\t'"$sat_total"$'\t'"0"$'\t'"0"$'\t'"$sat_total"$'\t'"0"$'\t'""$'\t'"${#CORE_SKILLS[@]}"$'\t'"0"$'\t'"0"$'\t'"0"$'\t'"${#CORE_SKILLS[@]}"$'\t'"")
     continue
   fi
 
@@ -309,6 +338,66 @@ for entry in ${ENTRIES[@]+"${ENTRIES[@]}"}; do
     ERRORS_COUNT=$((ERRORS_COUNT + 1))
   fi
 
+  # Auditoría de Skills (.agents/skills)
+  sat_skills_dir="$real_path/.agents/skills"
+  sat_sk_total=${#CORE_SKILLS[@]}
+  sat_sk_ok=0
+  sat_sk_drift=0
+  sat_sk_orphan=0
+  sat_sk_missing=0
+  SKILL_ISSUES=()
+
+  if [ -d "$sat_skills_dir" ]; then
+    for sdir in "$sat_skills_dir"/*; do
+      [ -d "$sdir" ] || continue
+      sname="$(basename "$sdir")"
+      core_sdir="$CORE_ROOT/.agents/skills/$sname"
+
+      if [ ! -d "$core_sdir" ]; then
+        sat_sk_orphan=$((sat_sk_orphan + 1))
+        SKILL_ISSUES+=("$sname|ORPHAN|skill creada en satelite ausente en core")
+      else
+        if ! diff -r -q -x "*.tmp" -x ".git*" "$core_sdir" "$sdir" >/dev/null 2>&1; then
+          sat_sk_drift=$((sat_sk_drift + 1))
+          SKILL_ISSUES+=("$sname|MODIFIED|skill modificada localmente en satelite")
+        else
+          sat_sk_ok=$((sat_sk_ok + 1))
+        fi
+      fi
+    done
+
+    for cname in "${CORE_SKILLS[@]}"; do
+      if [ ! -d "$sat_skills_dir/$cname" ]; then
+        sat_sk_missing=$((sat_sk_missing + 1))
+        SKILL_ISSUES+=("$cname|MISSING|skill del core no instalada en satelite")
+      fi
+    done
+  elif [ "$real_path" != "$CORE_ROOT" ]; then
+    sat_sk_missing=$sat_sk_total
+  fi
+
+  if [ "$SKILLS_MODE" = true ]; then
+    if [ "$sat_sk_orphan" -gt 0 ] || [ "$sat_sk_drift" -gt 0 ]; then
+      if [ "$sat_status" = "LIMPIO" ]; then
+        sat_status="DESFASADO"
+        CLEAN=$((CLEAN - 1))
+        ERRORS_COUNT=$((ERRORS_COUNT + 1))
+      fi
+    fi
+  fi
+  TOTAL_SKILLS_DRIFT=$((TOTAL_SKILLS_DRIFT + sat_sk_drift))
+  TOTAL_SKILLS_ORPHAN=$((TOTAL_SKILLS_ORPHAN + sat_sk_orphan))
+  TOTAL_SKILLS_MISSING=$((TOTAL_SKILLS_MISSING + sat_sk_missing))
+
+  encoded_sk_issues=""
+  for skiss in ${SKILL_ISSUES[@]+"${SKILL_ISSUES[@]}"}; do
+    if [ -n "$encoded_sk_issues" ]; then
+      encoded_sk_issues="${encoded_sk_issues}@@@${skiss}"
+    else
+      encoded_sk_issues="${skiss}"
+    fi
+  done
+
   # Codificar issues concatenadas con pipes si existen
   encoded_issues=""
   for iss in ${ISSUES[@]+"${ISSUES[@]}"}; do
@@ -319,7 +408,7 @@ for entry in ${ENTRIES[@]+"${ENTRIES[@]}"}; do
     fi
   done
 
-  SATELLITE_RESULTS+=("$alias"$'\t'"$real_path"$'\t'"$sat_status"$'\t'"$sat_total"$'\t'"$sat_ok"$'\t'"$sat_drift"$'\t'"$sat_missing"$'\t'"$sat_no_exec"$'\t'"$encoded_issues")
+  SATELLITE_RESULTS+=("$alias"$'\t'"$real_path"$'\t'"$sat_status"$'\t'"$sat_total"$'\t'"$sat_ok"$'\t'"$sat_drift"$'\t'"$sat_missing"$'\t'"$sat_no_exec"$'\t'"$encoded_issues"$'\t'"$sat_sk_total"$'\t'"$sat_sk_ok"$'\t'"$sat_sk_drift"$'\t'"$sat_sk_orphan"$'\t'"$sat_sk_missing"$'\t'"$encoded_sk_issues")
 done
 
 # ─── Salida JSON ─────────────────────────────────────────────────────────────
@@ -335,7 +424,7 @@ if [ "$JSON_MODE" = true ]; then
 EOF
   first_sat=true
   for res in "${SATELLITE_RESULTS[@]}"; do
-    IFS=$'\t' read -r r_alias r_path r_status r_total r_ok r_drift r_missing r_no_exec r_issues <<< "$res"
+    IFS=$'\t' read -r r_alias r_path r_status r_total r_ok r_drift r_missing r_no_exec r_issues r_sk_total r_sk_ok r_sk_drift r_sk_orphan r_sk_missing r_sk_issues <<< "$res"
     if [ "$first_sat" = true ]; then
       first_sat=false
     else
@@ -371,7 +460,32 @@ EOF
           "$(as_json_escape "$i_script")" "$i_st" "$i_chash" "$i_shash" "$(as_json_escape "$i_det")"
       done
     fi
-    printf '\n      ]\n    }'
+    printf '\n      ],\n'
+    cat <<EOF
+      "skills": {
+        "total_core": ${r_sk_total:-0},
+        "ok": ${r_sk_ok:-0},
+        "drift": ${r_sk_drift:-0},
+        "orphan": ${r_sk_orphan:-0},
+        "missing": ${r_sk_missing:-0},
+        "issues": [
+EOF
+    if [ -n "${r_sk_issues:-}" ]; then
+      first_sk_issue=true
+      IFS='@@@' read -ra sk_array <<< "$r_sk_issues"
+      for single_sk in "${sk_array[@]}"; do
+        [ -z "$single_sk" ] && continue
+        IFS='|' read -r sk_n sk_st sk_det <<< "$single_sk"
+        if [ "$first_sk_issue" = true ]; then
+          first_sk_issue=false
+        else
+          printf ',\n'
+        fi
+        printf '        { "skill": "%s", "status": "%s", "detail": "%s" }' \
+          "$(as_json_escape "$sk_n")" "$sk_st" "$(as_json_escape "$sk_det")"
+      done
+    fi
+    printf '\n      ]\n    }\n    }'
   done
   cat <<EOF
 
@@ -382,19 +496,24 @@ EOF
     "drift": $DRIFT_COUNT,
     "missing": $MISSING_COUNT,
     "no_exec": $NO_EXEC_COUNT,
-    "errors": $ERRORS_COUNT
+    "errors": $ERRORS_COUNT,
+    "skills": {
+      "drift": $TOTAL_SKILLS_DRIFT,
+      "orphan": $TOTAL_SKILLS_ORPHAN,
+      "missing": $TOTAL_SKILLS_MISSING
+    }
   }
 }
 EOF
 else
   # ─── Salida Humana ───────────────────────────────────────────────────────────
-  echo "📦 Core: $CORE_VER ($CORE_ROOT) · Total scripts auditables: ${#CORE_SCRIPTS[@]}"
+  echo "📦 Core: $CORE_VER ($CORE_ROOT) · Total scripts auditables: ${#CORE_SCRIPTS[@]} · Skills: ${#CORE_SKILLS[@]}"
   echo ""
   printf '%-20s %-10s %-8s %-8s %-8s %-8s\n' "ALIAS" "ESTADO" "OK" "DRIFT" "MISSING" "NO-EXEC"
   printf '%-20s %-10s %-8s %-8s %-8s %-8s\n' "--------------------" "----------" "--------" "--------" "--------" "--------"
 
   for res in "${SATELLITE_RESULTS[@]}"; do
-    IFS=$'\t' read -r r_alias r_path r_status r_total r_ok r_drift r_missing r_no_exec r_issues <<< "$res"
+    IFS=$'\t' read -r r_alias r_path r_status r_total r_ok r_drift r_missing r_no_exec r_issues r_sk_total r_sk_ok r_sk_drift r_sk_orphan r_sk_missing r_sk_issues <<< "$res"
     printf '%-20s %-10s %-8s %-8s %-8s %-8s\n' "$r_alias" "$r_status" "$r_ok" "$r_drift" "$r_missing" "$r_no_exec"
 
     if [ -n "${r_issues:-}" ]; then
@@ -406,6 +525,20 @@ else
       done
     fi
 
+    if [ "$SKILLS_MODE" = true ]; then
+      echo "   🎨 Auditoría de Skills:"
+      if [ -z "${r_sk_issues:-}" ]; then
+        echo "      ✅ Todas las skills sincronizadas con el core ($r_sk_ok/$r_sk_total)."
+      else
+        IFS='@@@' read -ra sk_array <<< "$r_sk_issues"
+        for single_sk in "${sk_array[@]}"; do
+          [ -z "$single_sk" ] && continue
+          IFS='|' read -r sk_n sk_st sk_det <<< "$single_sk"
+          echo "      ↳ [$sk_st] $sk_n ($sk_det)"
+        done
+      fi
+    fi
+
     if [ "$WEB_COMPLIANCE_MODE" = true ] && [ -d "$r_path" ] && [ -f "$r_path/package.json" ]; then
       echo "   🌐 Auditoría Web Compliance:"
       bash "$CORE_ROOT/scripts/agent/audit-web-compliance.sh" --path "$r_path" 2>&1 | sed 's/^/      /' || true
@@ -414,6 +547,9 @@ else
 
   echo ""
   echo "📊 Satélites: $TOTAL · Limpios: $CLEAN · Drift: $DRIFT_COUNT · Missing: $MISSING_COUNT · No-exec: $NO_EXEC_COUNT · Con incidencias: $ERRORS_COUNT"
+  if [ "$SKILLS_MODE" = true ]; then
+    echo "   🎨 Resumen de Skills: Drift: $TOTAL_SKILLS_DRIFT · Huérfanas en satélites: $TOTAL_SKILLS_ORPHAN · Ausentes: $TOTAL_SKILLS_MISSING"
+  fi
 fi
 
 # ─── Código de salida determinista ───────────────────────────────────────────

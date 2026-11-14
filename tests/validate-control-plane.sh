@@ -325,8 +325,14 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
-if bash scripts/agent/audit-satellites.sh --help >/dev/null 2>&1; then
+if AUDIT_HELP="$(bash scripts/agent/audit-satellites.sh --help 2>&1)"; then
   echo -e "  ✅ audit-satellites.sh expone ayuda estándar (--help)."
+  if echo "$AUDIT_HELP" | grep -q -- "--skills"; then
+    echo -e "  ✅ audit-satellites.sh expone la bandera determinista --skills (T-221)."
+  else
+    echo -e "  ❌ audit-satellites.sh no expone --skills en --help."
+    ERRORS=$((ERRORS + 1))
+  fi
 else
   echo -e "  ❌ audit-satellites.sh falló al invocar --help."
   ERRORS=$((ERRORS + 1))
@@ -362,6 +368,17 @@ if [ "$AUDIT_OK_RC" -eq 0 ] && [ "$AUDIT_DRIFT_RC" -eq 1 ] && echo "$AUDIT_JSON"
   echo -e "  ✅ audit-satellites.sh valida satélites limpios (rc=0), desvíos (rc=1) y JSON determinista."
 else
   echo -e "  ❌ audit-satellites.sh falló validación funcional (ok_rc=$AUDIT_OK_RC, drift_rc=$AUDIT_DRIFT_RC)."
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Prueba de detección de skills huérfanas con --skills (T-221)
+mkdir -p "$AUDIT_TMP/sat_drift/.agents/skills/custom-skill"
+echo "---" > "$AUDIT_TMP/sat_drift/.agents/skills/custom-skill/SKILL.md"
+AUDIT_SKILLS_JSON="$(bash scripts/agent/audit-satellites.sh "$AUDIT_TMP/sat_drift" --skills --json 2>/dev/null || true)"
+if echo "$AUDIT_SKILLS_JSON" | grep -q '"orphan": 1'; then
+  echo -e "  ✅ audit-satellites.sh --skills detecta skills huérfanas en satélites (T-221)."
+else
+  echo -e "  ❌ audit-satellites.sh --skills no detectó skill huérfana en JSON."
   ERRORS=$((ERRORS + 1))
 fi
 rm -rf "$AUDIT_TMP"
