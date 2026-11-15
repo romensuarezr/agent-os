@@ -23,11 +23,12 @@ source "$SCRIPT_DIR/cli-help.sh" 2>/dev/null || {
 for arg in "$@"; do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     show_help "searxng-client.sh" \
-      "bash scripts/agent/lib/searxng-client.sh [--query <TEXT>] [--timeout <SEC>] [--output <FILE>] [--check] [--json]" \
+      "bash scripts/agent/lib/searxng-client.sh [--query <TEXT>] [--timeout <SEC>] [--output <FILE>] [--append] [--check] [--json]" \
       "Cliente determinista CLI para interactuar con el motor de meta-búsqueda soberano SearXNG ($0)." \
       "--query <string>      Texto de la consulta técnica a buscar (emite Markdown por stdout)" \
       "--timeout <seg>       Timeout máximo en segundos (defecto: 10s para query, 3s para check)" \
       "--output <path>       Ruta opcional donde guardar el resultado en Markdown" \
+      "--append              Añade el resultado al final de --output en lugar de sobrescribir" \
       "--check               Sonda de salud: exit 0 si activo/alcanzable, exit 2 si inactivo/no-configurado" \
       "--json                Emite salida estructurada JSON con metadatos" \
       "-h, --help            Muestra este mensaje de ayuda" \
@@ -40,6 +41,7 @@ done
 QUERY=""
 TIMEOUT=""
 OUTPUT_FILE=""
+APPEND_MODE=false
 CHECK_MODE=false
 JSON_MODE=false
 
@@ -56,6 +58,10 @@ while [ $# -gt 0 ]; do
     --output)
       OUTPUT_FILE="${2:-}"
       shift 2
+      ;;
+    --append)
+      APPEND_MODE=true
+      shift
       ;;
     --check)
       CHECK_MODE=true
@@ -294,7 +300,11 @@ printf "%s\n" "$OUTPUT_TEXT"
 # Volcado opcional a archivo si se especificó --output
 if [ -n "$OUTPUT_FILE" ]; then
   mkdir -p "$(dirname "$OUTPUT_FILE")"
-  printf "%s\n" "$OUTPUT_TEXT" > "$OUTPUT_FILE"
+  if [ "$APPEND_MODE" = true ]; then
+    printf "\n%s\n" "$OUTPUT_TEXT" >> "$OUTPUT_FILE"
+  else
+    printf "%s\n" "$OUTPUT_TEXT" > "$OUTPUT_FILE"
+  fi
 fi
 
 exit 0

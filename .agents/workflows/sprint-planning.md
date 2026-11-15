@@ -264,6 +264,7 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
 > Protocolo unificado de investigación técnica profunda. Si SearXNG está disponible en la flota,
 > ejecuta la investigación de forma 100% desatendida; si no, activa el fallback asistido con Perplexity.
 > **Regla de oro: El fallback nunca es silencioso. Si se recurre a Perplexity, se declara explícitamente el motivo.**
+> **Regla de honestidad en fuentes (Anti-Cosmetic Badge): PROHIBIDO estampar "SearXNG" en la cabecera si no se ejecutaron queries web reales ni se incorporan sus URLs de resultados en el cuerpo del research. Si la solución proviene de código propio o repositorios hermanos, debe declararse honestamente como activo interno.**
 
 1. **Comprobar disponibilidad de SearXNG:**
    ```bash
@@ -273,14 +274,34 @@ Revisar manualmente si alguna capacidad requiere actualizar su `% cap.`:
 
 2. **Bifurcación:**
    - **Si SearXNG está activo (`exit 0`):**
-     - **Formulación de queries deterministas**: Para cada tarea del sprint que presente incertidumbre arquitectónica, integración de nueva librería o protocolo externo:
-       ```bash
-       bash scripts/agent/lib/searxng-client.sh --query "<stack> <tecnología/librería> <problema concreto>" --output "docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md"
-       ```
-     - **Bypass determinista para tareas puramente internas**: Si **todas** las tareas del sprint son de alcance interno (refactorización de scripts locales, workflows, reglas o documentación, con cero incertidumbre externa o de red):
-       Declarar explícitamente en `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md`:
-       > *Investigación web externa no requerida: tareas de alcance puramente interno/core.*
-       y avanzar directamente al Paso 7 sin llamadas superfluas a la red.
+     - **Clasificación y volcado honesto de fuentes por tarea**:
+       1. **Tareas con incertidumbre externa, librerías nuevas o integración de APIs**:
+          Formular queries deterministas y consultar SearXNG:
+          ```bash
+          bash scripts/agent/lib/searxng-client.sh --query "<stack> <tecnología/librería> <problema concreto>"
+          ```
+          El agente DEBE volcar en `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md` la query ejecutada y la lista de enlaces reales devueltos (`[Título](URL)`) junto con el patrón adoptado o descartado (puede usarse `--output ... --append` para anexar resultados directos).
+       2. **Tareas basadas en reutilización de código propio / repositorios hermanos (ej. Kanarii, Agencia_IA)**:
+          Declarar explícitamente en la tarea correspondiente del research:
+          - **Activo interno inspeccionado**: `<ruta/del/archivo:líneas>`
+          - **Patrón o algoritmo extraído**: Explicar la lógica existente rescatada.
+          - **Adaptación requerida**: Describir los cambios de arquitectura necesarios (puertos, esquemas, adaptadores).
+          - En este caso, la cabecera del research **NO debe atribuirse a SearXNG**, sino a:
+            `> Fuente: Reutilización de activos internos (<repositorios o rutas locales>)`
+            `> Nota: Investigación web externa no requerida: lógica resuelta mediante activos locales probados.`
+       3. **Bypass determinista para tareas puramente internas**:
+          Si **todas** las tareas del sprint son de alcance interno (refactorización de scripts locales, workflows, reglas o documentación, con cero incertidumbre externa o de red):
+          Declarar explícitamente en `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md`:
+          > *Investigación web externa no requerida: tareas de alcance puramente interno/core.*
+          y avanzar directamente al Paso 7 sin llamadas superfluas a la red.
+     - **Estructura Canónica Obligatoria para `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md`**:
+       El archivo de research debe consolidar:
+       - **Cabecera**: Título, fecha y fuentes reales declaradas (Web SearXNG, Activos Internos o Mixto).
+       - `## Descubrimientos Scout (por tarea)`: Sección generada en el Paso 3c.3 con alternativas de librerías OSS detectadas o justificación de desarrollo a medida.
+       - `## Investigación Técnica y Fuentes`: Subsección `### T-XXX` para cada tarea indicando:
+         - Si usó SearXNG: Query lanzada, lista de URLs markdown (`[Título](URL)`) y decisión técnica fundamentada.
+         - Si usó código propio: Archivo/líneas analizados, algoritmo extraído y adaptación arquitectónica.
+         - Si fue interna: Declaración explícita de tarea interna sin incertidumbre externa.
      - **Sin prompt de Perplexity ni bloqueo en pausa:** pasar directamente al **Paso 7 (Entrega y Aprobación del Sprint)**.
    - **Si SearXNG está inactivo (`exit 2` o fallo de red/configuración):**
      **Anuncio obligatorio y ruidoso**: El agente DEBE emitir en el chat el aviso explícito:
@@ -327,7 +348,7 @@ Mostrar al usuario el siguiente mensaje y **no continuar hasta recibir respuesta
 ### 6b. Recepción de hallazgos de Perplexity (cuando el usuario vuelve de la pausa asistida)
 
 1. Recibir el output de Perplexity del usuario.
-2. Si `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md` ya existe (creado por el paso 2e), **NO sobrescribirlo**: añadir las secciones de Perplexity (`## Hallazgos clave`, `## Decisiones tomadas`, `## Descartado`) sin tocar `## Descubrimientos Scout (por tarea)`. Si no existe, crearlo con esta estructura:
+2. Si `docs/sprints/sprint-[SPRINT_SIGUIENTE]-research.md` ya existe (creado por el paso 3c.3), **NO sobrescribirlo**: añadir las secciones de Perplexity (`## Hallazgos clave`, `## Decisiones tomadas`, `## Descartado`) sin tocar `## Descubrimientos Scout (por tarea)`. Si no existe, crearlo con esta estructura:
 
 ```markdown
 # Research Sprint [SPRINT_SIGUIENTE]
