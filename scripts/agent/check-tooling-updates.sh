@@ -348,8 +348,36 @@ except Exception:
       TODAY="$(date +%Y-%m-%d)"
       CLEAN_LATEST="$(echo "$LATEST" | sed 's/^v//')"
       INBOX_FILE="$ROOT_DIR/docs/idea-inbox/${TODAY}-${t_id}-v${CLEAN_LATEST}.md"
-      if [ ! -f "$INBOX_FILE" ]; then
-        mkdir -p "$ROOT_DIR/docs/idea-inbox"
+
+      mkdir -p "$ROOT_DIR/docs/idea-inbox"
+
+      # 1. Purgar borradores de versiones anteriores obsoletas para esta herramienta
+      for old_doc in "$ROOT_DIR/docs/idea-inbox"/*"-${t_id}-v"*.md; do
+        [ -f "$old_doc" ] || continue
+        case "$old_doc" in
+          *"-${t_id}-v${CLEAN_LATEST}.md")
+            ;;
+          *)
+            rm -f "$old_doc"
+            ;;
+        esac
+      done
+
+      # 2. Comprobar si ya existe una propuesta para esta versión exacta (de hoy o de fecha anterior)
+      EXISTING_PROPOSALS=()
+      for exist_doc in "$ROOT_DIR/docs/idea-inbox"/*"-${t_id}-v${CLEAN_LATEST}.md"; do
+        [ -f "$exist_doc" ] && EXISTING_PROPOSALS+=("$exist_doc")
+      done
+
+      # Si existen duplicados de la misma versión (fechas distintas), conservar solo uno y purgar el resto
+      if [ "${#EXISTING_PROPOSALS[@]}" -gt 1 ]; then
+        for ((idx=1; idx<${#EXISTING_PROPOSALS[@]}; idx++)); do
+          rm -f "${EXISTING_PROPOSALS[$idx]}"
+        done
+      fi
+
+      # 3. Solo crear el archivo si no existía previamente ninguna propuesta para esta versión
+      if [ "${#EXISTING_PROPOSALS[@]}" -eq 0 ]; then
         cat <<EOF > "$INBOX_FILE"
 # Idea: Actualización de ${t_name} a v${CLEAN_LATEST}
 
