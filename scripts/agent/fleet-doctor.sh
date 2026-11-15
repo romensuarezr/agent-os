@@ -80,14 +80,21 @@ done
 # Resolver ruta de archivo fleet si no fue proporcionada
 DOC_MODE=false
 if [[ -z "$FLEET_FILE" ]]; then
+  USER_REAL_HOME=""
+  if command -v python3 >/dev/null 2>&1; then
+    USER_REAL_HOME=$(python3 -c "import pwd, os; print(pwd.getpwuid(os.getuid()).pw_dir)" 2>/dev/null || true)
+  fi
+
   if [[ -f "$REPO_ROOT/.agents/config/fleet.yaml" ]]; then
     FLEET_FILE="$REPO_ROOT/.agents/config/fleet.yaml"
+  elif [[ -f "${HOME:-}/.agents/config/fleet.yaml" ]]; then
+    FLEET_FILE="${HOME:-}/.agents/config/fleet.yaml"
+  elif [[ -n "$USER_REAL_HOME" ]] && [[ -f "$USER_REAL_HOME/.agents/config/fleet.yaml" ]]; then
+    FLEET_FILE="$USER_REAL_HOME/.agents/config/fleet.yaml"
   elif [[ -f "$REPO_ROOT/config/fleet.yaml" ]]; then
     # Fallback retrocompatible para proyectos hijos desactualizados
     echo "⚠️  DEPRECATED: $REPO_ROOT/config/fleet.yaml es una ruta obsoleta. Migrar a .agents/config/fleet.yaml" >&2
     FLEET_FILE="$REPO_ROOT/config/fleet.yaml"
-  elif [[ -f "${HOME:-}/.agents/config/fleet.yaml" ]]; then
-    FLEET_FILE="${HOME:-}/.agents/config/fleet.yaml"
   elif [[ -f "$REPO_ROOT/.agents/config/fleet.example.yaml" ]]; then
     FLEET_FILE="$REPO_ROOT/.agents/config/fleet.example.yaml"
     DOC_MODE=true

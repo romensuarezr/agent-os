@@ -75,48 +75,65 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# Resolver URL de SearXNG (entorno o fleet.yaml)
+# Resolver URL de SearXNG (entorno o fleet.yaml con resolución multinivel)
 resolve_searxng_url() {
   if [ -n "${SEARXNG_API_URL:-}" ]; then
     echo "$SEARXNG_API_URL"
     return 0
   fi
-  local root fleet_file
+  local root
   root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-  fleet_file="${FLEET_FILE:-}"
-  if [ -z "$fleet_file" ]; then
-    if [ -f "$root/.agents/config/fleet.yaml" ]; then
-      fleet_file="$root/.agents/config/fleet.yaml"
-    elif [ -f "$root/config/fleet.yaml" ]; then
-      fleet_file="$root/config/fleet.yaml"
-    elif [ -f "${HOME:-}/.agents/config/fleet.yaml" ]; then
-      fleet_file="${HOME:-}/.agents/config/fleet.yaml"
-    fi
-  fi
-  if [ -n "$fleet_file" ] && [ -f "$fleet_file" ]; then
-    local u
-    u=$(python3 -c "
-import yaml
-try:
-    d = yaml.safe_load(open('$fleet_file')) or {}
-    nodes = d.get('nodes', {})
-    for nname, ndata in nodes.items():
-        svcs = ndata.get('services', {})
-        if 'searxng' in svcs:
-            s = svcs['searxng']
-            if isinstance(s, dict):
-                print(s.get('endpoint') or s.get('url') or '')
-                exit(0)
-            elif isinstance(s, str):
-                print(s)
-                exit(0)
-except Exception:
-    pass
-" 2>/dev/null || true)
-    if [ -n "$u" ] && [ "$u" != "None" ]; then
-      echo "$u"
-      return 0
-    fi
+
+  local u
+  u=$(python3 -c "
+import os, sys, yaml
+
+fleet_env = os.environ.get('FLEET_FILE')
+if fleet_env:
+    candidates = [fleet_env]
+else:
+    root = sys.argv[1]
+    candidates = [
+        os.path.join(root, '.agents/config/fleet.yaml'),
+        os.path.join(root, 'config/fleet.yaml'),
+        os.path.expanduser('~/.agents/config/fleet.yaml'),
+    ]
+    try:
+        import pwd
+        real_home = pwd.getpwuid(os.getuid()).pw_dir
+        real_fleet = os.path.join(real_home, '.agents/config/fleet.yaml')
+        if real_fleet not in candidates:
+            candidates.append(real_fleet)
+    except Exception:
+        pass
+
+for cand in candidates:
+    if not os.path.isfile(cand):
+        continue
+    try:
+        with open(cand, 'r', encoding='utf-8') as f:
+            d = yaml.safe_load(f) or {}
+        nodes = d.get('nodes', {})
+        for nname, ndata in nodes.items():
+            svcs = ndata.get('services', {})
+            if 'searxng' in svcs:
+                s = svcs['searxng']
+                url = ''
+                if isinstance(s, dict):
+                    url = s.get('endpoint') or s.get('url') or ''
+                elif isinstance(s, str):
+                    url = s
+                if url and 'example.com' not in url:
+                    print(url)
+                    sys.exit(0)
+    except Exception:
+        continue
+sys.exit(1)
+" "$root" 2>/dev/null || true)
+
+  if [ -n "$u" ] && [ "$u" != "None" ]; then
+    echo "$u"
+    return 0
   fi
   return 1
 }

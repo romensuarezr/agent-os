@@ -88,31 +88,47 @@ extract_semver() {
 }
 
 detect_remote_hermes_version() {
-  local fleet_file=""
-  if [ -f "$ROOT_DIR/.agents/config/fleet.yaml" ]; then
-    fleet_file="$ROOT_DIR/.agents/config/fleet.yaml"
-  elif [ -f "$ROOT_DIR/config/fleet.yaml" ]; then
-    fleet_file="$ROOT_DIR/config/fleet.yaml"
-  elif [ -f "${HOME:-}/.agents/config/fleet.yaml" ]; then
-    fleet_file="${HOME:-}/.agents/config/fleet.yaml"
-  fi
-  [ -z "$fleet_file" ] && return 0
-
   local remote_target=""
   remote_target="$(python3 -c "
-import yaml
-try:
-    with open('$fleet_file') as f:
-        d = yaml.safe_load(f) or {}
-    nodes = d.get('nodes', {})
-    for node_id, node_cfg in nodes.items():
-        svcs = node_cfg.get('services', {})
-        if 'hermes' in svcs or 'hermes_gateway' in svcs:
-            print(node_cfg.get('alias') or node_id or node_cfg.get('ip') or '')
-            break
-except Exception:
-    pass
-" 2>/dev/null || true)"
+import os, sys, yaml
+
+fleet_env = os.environ.get('FLEET_FILE')
+if fleet_env:
+    candidates = [fleet_env]
+else:
+    root = sys.argv[1]
+    candidates = [
+        os.path.join(root, '.agents/config/fleet.yaml'),
+        os.path.join(root, 'config/fleet.yaml'),
+        os.path.expanduser('~/.agents/config/fleet.yaml'),
+    ]
+    try:
+        import pwd
+        real_home = pwd.getpwuid(os.getuid()).pw_dir
+        real_fleet = os.path.join(real_home, '.agents/config/fleet.yaml')
+        if real_fleet not in candidates:
+            candidates.append(real_fleet)
+    except Exception:
+        pass
+
+for cand in candidates:
+    if not os.path.isfile(cand):
+        continue
+    try:
+        with open(cand, 'r', encoding='utf-8') as f:
+            d = yaml.safe_load(f) or {}
+        nodes = d.get('nodes', {})
+        for node_id, node_cfg in nodes.items():
+            svcs = node_cfg.get('services', {})
+            if 'hermes' in svcs or 'hermes_gateway' in svcs:
+                val = node_cfg.get('alias') or node_id or node_cfg.get('ip') or ''
+                if val:
+                    print(val)
+                    sys.exit(0)
+    except Exception:
+        continue
+sys.exit(0)
+" "$ROOT_DIR" 2>/dev/null || true)"
 
   if [ -n "$remote_target" ] && command -v ssh >/dev/null 2>&1; then
     local r_out=""
