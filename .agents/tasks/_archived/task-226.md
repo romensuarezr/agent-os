@@ -1,5 +1,5 @@
 # T-226 — Despliegue del Contrato Operativo `AGENTS.md` de Conserje en el Home de Hermes (`/home/ubuntu/AGENTS.md`)
-Sprint: Sprint 42 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-226-hermes-concierge-agents-md | Merge destino: multi-agent
+Sprint: Sprint 42 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-226-hermes-concierge-agents-md | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 42 — 2026-11-14
