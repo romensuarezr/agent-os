@@ -1,5 +1,5 @@
 # T-227 — Actualización del Runbook Operativo de Hermes VPS (`/reload-skills`, auto-sync y manual de conserjería)
-Sprint: Sprint 42 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-227-hermes-vps-runbook-update | Merge destino: multi-agent
+Sprint: Sprint 42 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-227-hermes-vps-runbook-update | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 42 — 2026-11-14

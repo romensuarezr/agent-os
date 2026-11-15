@@ -109,7 +109,8 @@ systemctl --user status hermes-gateway --no-pager
 systemctl --user restart hermes-dashboard
 
 # Reiniciar Gateway tras cambios en ~/.hermes/config.yaml
-# NOTA: Provoca una desconexión transitoria de ~3 segundos en mensajería
+# NOTA: Provoca una desconexión transitoria de ~3 segundos en mensajería.
+# Para cambios exclusivos en habilidades o symlinks, NO reinicies el gateway: utiliza /reload-skills.
 systemctl --user restart hermes-gateway
 
 # Consultar logs en tiempo real
@@ -152,7 +153,112 @@ Ante la disponibilidad de nuevas versiones upstream (auditadas mediante `check-t
 
 ---
 
-## 5. Detección y Limpieza de Procesos Huérfanos
+## 5. Recarga en Caliente de Habilidades y Slash Commands (/reload-skills)
+
+Hermes Agent incluye soporte para recarga en caliente de herramientas y comandos de barra diagonal (`/`) sin reiniciar el proceso del gateway ni provocar micro-desconexiones en los bridges de mensajería (WhatsApp / Telegram).
+
+### Mecánica de Detección y Recarga
+
+1. **Modificaciones de archivos existentes**: Hermes detecta cambios en el sistema de archivos (`SKILL.md` o scripts ya enlazados) automáticamente en el siguiente turno de conversación.
+2. **Nuevas habilidades o symlinks añadidos**: Cuando se incorpora una nueva habilidad al directorio `~/.hermes/skills/` (ej. vía symlink), el registro de herramientas en memoria debe actualizarse invocando el comando de pasarela:
+   ```text
+   /reload-skills
+   ```
+   (o su alias canónico `/reload_skills`).
+
+### Canales de Invocación
+
+- **Desde WhatsApp o Telegram**: Envía `/reload-skills` en el chat directo con Hermes. El gateway responderá confirmando las herramientas recargadas.
+- **Desde la CLI de Hermes**:
+  ```bash
+  PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes -z "/reload-skills" --yolo
+  ```
+
+---
+
+## 6. Sincronización Automática del Core y Cronjobs a $0 Tokens
+
+Para mantener el repositorio del Core de Agent OS y sus habilidades sincronizadas en `<nodo-inferencia>` sin intervención humana ni coste de tokens LLM, se utiliza el patrón de watchdogs nativos de Hermes (`no_agent: true`).
+
+### Arquitectura de Sincronización Determinista
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Cronjob Nativo de Hermes (0 6,18 * * *)               │
+│  "no_agent": true — Omite llamada al LLM ($0 tokens)  │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│  ~/.hermes/scripts/sync_agent_os_core.sh               │
+│  1. git fetch & git pull --ff-only origin multi-agent  │
+│  2. Sincroniza symlinks en ~/.hermes/skills/agent-os/  │
+│  3. Aplica permisos de ejecución (+x) a scripts        │
+│  4. Registra estado en last_core_update.json           │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+            ┌──────────────┴──────────────┐
+            ▼                             ▼
+   [Sin cambios detectados]      [Novedades / Nueva versión]
+   • Salida vacía                • Emite reporte estructurado
+   • Hermes: Modo Silencioso     • Hermes entrega alerta directa
+     (0 mensajes en WhatsApp)      por WhatsApp al operador
+```
+
+### Ejecución Manual y Diagnóstico
+
+```bash
+# Sincronización interactiva con salida verbose
+bash ${HOME}/scripts/sync_agent_os_core.sh --verbose
+
+# Consultar estado de la última sincronización
+cat ${HOME}/.hermes/runtime/last_core_update.json
+
+# Verificar tareas programadas en Hermes
+PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes cron list
+```
+
+### Telemetría Matutina de Flota en WhatsApp (08:30 AM)
+
+El briefing diario (`~/.hermes/scripts/fleet_morning_briefing.py`) se ejecuta cada mañana a las 08:30 AM bajo el mismo régimen determinista (`no_agent: true`). Lee de forma autónoma `last_core_update.json` y consolida:
+- Versión actual del Core y conteo de habilidades activas.
+- Indicador visual si el Core fue actualizado en las últimas 24 horas (`🚀 actualizado hoy`).
+- Telemetría de memoria, disco y contenedores activos.
+
+---
+
+## 7. Contrato Operativo de Conserjería (AGENTS.md) y Gobernanza
+
+En consonancia con la arquitectura de Nous Research, las directivas de Hermes se dividen estrictamente en dos capas:
+
+1. **`~/.hermes/SOUL.md` (Identidad y Tono)**: Define la personalidad del modelo (comunicación directa, concisa, sin adulaciones ni sycophancy, profundidad ganada).
+2. **`${HOME}/AGENTS.md` (Instrucciones de Trabajo y Matriz de Enrutamiento)**: Se ubica en la raíz de ejecución de Hermes (`TERMINAL_CWD`) y se inyecta automáticamente en el contexto operativo de cada turno.
+
+### Matriz de Enrutamiento del Conserje
+
+| Tipo de Tarea | Destino Operativo | Protocolo |
+|---|---|---|
+| **Código / Tareas de Sprint / Bugs** | Coordinador Antigravity VPS | `hermes-concierge` (`concierge_bridge.py`) hacia `${HOME}/projects/` |
+| **Infraestructura / Satélites Coolify** | Admin de Ops / Docker | `coolify-admin` (`coolify.sh`) y `remote-admin` |
+| **Monitoreo y Salud de Flota** | Scripts Locales Deterministas | `fleet_morning_briefing.py` / `fleet_exception_watcher.py` |
+| **Mantenimiento del Core** | Script Determinista | `sync_agent_os_core.sh` y `/reload-skills` |
+
+### Protocolo de Despacho de Código a Antigravity
+
+Hermes nunca edita código de aplicaciones de satélites directamente. Ante una solicitud de desarrollo, despacha la orden a través del puente de conserjería:
+
+```bash
+python3 ~/.hermes/skills/hermes-concierge/scripts/concierge_bridge.py \
+  --prompt "<Instrucción exacta del operador>" \
+  --repo "${HOME}/projects/<proyecto-destino>" \
+  --notify-whatsapp "<USER_PHONE>@lid"
+```
+
+El puente conmuta automáticamente entre perfiles Google Pro (`agy` → `agy2`) en caso de saturación de cuota y entrega el resultado directamente por WhatsApp.
+
+---
+
+## 8. Detección y Limpieza de Procesos Huérfanos
 
 Sesiones interactivas desatendidas (ej. `hermes --tui --yolo`) lanzadas en terminales desconectados (`pts/X`) pueden permanecer activas indefinidamente consumiendo memoria y CPU.
 
@@ -181,7 +287,7 @@ ps -eo pid,user,tty,etime,args | grep -E 'hermes|tui_gateway' | grep -v grep
 
 ---
 
-## 6. Verificación Operativa y Health Checks
+## 9. Verificación Operativa y Health Checks
 
 ### Comprobación de Listener de Red (9119)
 
@@ -217,7 +323,7 @@ PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes -z "ping"
 
 ---
 
-## 7. Troubleshooting
+## 10. Troubleshooting
 
 | Síntoma | Causa probable | Acción correctiva |
 |---|---|---|
@@ -228,14 +334,20 @@ PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes -z "ping"
 | `hermes: command not found` vía SSH no login | `~/.local/bin` o el virtualenv no están en el `PATH` no interactivo. | Invocar con `PATH=$HOME/.local/bin:$HOME/.hermes/hermes-agent/venv/bin:$PATH hermes`. |
 | Subdominio `trycloudflare.com` caído | Túnel efímero expirado. | Migrar la `base_url` a `http://<TAILSCALE_IP>:20128/v1` en Tailscale. |
 | Cron jobs en estado "config drifted" | `hermes-gateway` ejecutándose con configuración desfasada. | Ejecutar `systemctl --user restart hermes-gateway`. |
+| Habilidad nueva no visible tras git pull | El registro en memoria de herramientas no ha sido refrescado. | Enviar `/reload-skills` en WhatsApp o ejecutar `hermes -z "/reload-skills" --yolo`. |
+| Cron de auto-sync falla con "Blocked: script path resolves outside..." | El script en `~/.hermes/scripts/` es un symlink a un destino exterior. | Mantener el archivo físico en `~/.hermes/scripts/sync_agent_os_core.sh` y enlazar simbólicamente hacia `${HOME}/scripts/`. |
+| Puente WhatsApp sin respuesta | Bridge Node.js desconectado o sesión QR expirada. | Inspeccionar `journalctl --user -u hermes-gateway -n 50` y reiniciar el servicio de gateway si procede. |
 
 ---
 
-## 8. Checklist Post-Cambio
+## 11. Checklist Post-Cambio
 
 - [ ] Backup previo de `~/.hermes/config.yaml` guardado con timestamp.
 - [ ] Bind de puertos verificado en `<TAILSCALE_IP>` o `0.0.0.0` (nunca restringido a `127.0.0.1` para servicios de red).
 - [ ] Servicios `hermes-dashboard` y `hermes-gateway` en estado `active (running)`.
+- [ ] Cronjob de auto-sincronización `Agent OS Core Sync` verificado en `hermes cron list` con `no_agent: true`.
+- [ ] Briefing matutino en WhatsApp (`fleet_morning_briefing.py`) verificado reportando versión y skills del Core.
+- [ ] Contrato `${HOME}/AGENTS.md` desplegado y alineado con `SOUL.md`.
 - [ ] Procesos huérfanos eliminados tras auditoría de TTY.
 - [ ] Credenciales inyectadas efímeramente vía Infisical sin archivos `.env` en repositorios.
 - [ ] Test de inferencia `hermes -z "ping" --yolo` verificado retornando `pong`.
