@@ -1,5 +1,5 @@
 # T-225 — Integración del Cronjob `no_agent: true` de Auto-Sincronización en Hermes y Telemetría Matutina
-Sprint: Sprint 42 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-225-hermes-cron-core-sync | Merge destino: multi-agent
+Sprint: Sprint 42 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-225-hermes-cron-core-sync | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 42 — 2026-11-14
