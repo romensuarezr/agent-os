@@ -1,5 +1,5 @@
 # T-224 — Script Determinista de Sincronización del Core y Regeneración Atómica de Symlinks de Skills en VPS
-Sprint: Sprint 42 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-224-hermes-core-sync-script | Merge destino: multi-agent
+Sprint: Sprint 42 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-224-hermes-core-sync-script | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 42 — 2026-11-14

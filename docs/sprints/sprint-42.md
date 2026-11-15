@@ -6,19 +6,19 @@
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|:---:|:---:|:---:|:---:|
-| T-224 | Script Determinista de Sincronización del Core y Regeneración Atómica de Symlinks de Skills en VPS | S | ⬜ Pendiente | — | [.agents/tasks/task-224.md](file:///.agents/tasks/task-224.md) |
+| T-224 | Script Determinista de Sincronización del Core y Regeneración Atómica de Symlinks de Skills en VPS | S | ✅ Hecho | — | [.agents/tasks/task-224.md](file:///.agents/tasks/task-224.md) |
 | T-225 | Integración del Cronjob `no_agent: true` de Auto-Sincronización en Hermes y Telemetría Matutina | S | ⬜ Pendiente | T-224 | [.agents/tasks/task-225.md](file:///.agents/tasks/task-225.md) |
 | T-226 | Despliegue del Contrato Operativo `AGENTS.md` de Conserje en el Home de Hermes (`/home/ubuntu/AGENTS.md`) | S | ⬜ Pendiente | — | [.agents/tasks/task-226.md](file:///.agents/tasks/task-226.md) |
 | T-227 | Actualización del Runbook Operativo de Hermes VPS (`/reload-skills`, auto-sync y manual de conserjería) | S | ⬜ Pendiente | T-224, T-225, T-226 | [.agents/tasks/task-227.md](file:///.agents/tasks/task-227.md) |
 
 ## Régimen Operativo del Sprint
-> Se sella en la primera sesión de /session-start tras consulta proactiva única al operador.
-- **Régimen**: [PENDIENTE_ARRANQUE — Desatendida | Tarea a tarea (Clásico)]
+> Sellado en arranque tras confirmación explícita del operador: Aprobado (Régimen Desatendido).
+- **Régimen**: Desatendido
 - **Orden de Carriles (DAG de dependencias)**:
   - Carril 1 (Automatización y Sincronización del Core): [T-224 → T-225]
   - Carril 2 (Gobernanza y Contratos de Hermes Conserje): [T-226]
   - Carril 3 (Documentación y Cierre de Runbook): [T-227]
-- **Sellado en**: [PENDIENTE]
+- **Sellado en**: 2026-11-15 (Arranque de Sprint 42)
 
 ## Notas de planning
 - Sprint 41 cerrado con éxito, release `v1.37.0` publicada y validada con 38/38 checks verdes.
