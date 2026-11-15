@@ -9,6 +9,23 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.38.0] — sprint-42 — 2026-11-15
+
+### ✨ Features
+
+- feat(T-227): cierre de tarea T-227
+- feat(T-226): cierre de tarea T-226
+- feat(T-225): cierre de tarea T-225
+- feat(T-224): cierre de tarea T-224
+
+### 📚 Documentación
+
+- docs(templates): explicitar contrato de contribucion bidireccional y contribute.sh en AGENTS.md de satelites
+
+### 🔧 Mantenimiento
+
+- chore(sprint): abrir sprint-42 hermes vps autonomia, auto-sync core y contratos operativos (T-224 a T-227)
+
 ## [1.37.0] — sprint-41 — 2026-11-14
 
 ### ✨ Features
@@ -1958,6 +1975,7 @@ Historial de cambios y releases del núcleo de Agent OS.
   - `inventory-check.sh` y `update-mvp-tracker.sh`.
 - **Workflows Base**: `session-start.md`, `session-close.md`, `sprint-planning.md`, `changelog.md`, `honesto.md`.
 
+[1.38.0]: https://github.com/romensuarezr/agent-os/compare/v1.37.0...v1.38.0
 [1.37.0]: https://github.com/romensuarezr/agent-os/compare/v1.36.0...v1.37.0
 [1.35.0]: https://github.com/romensuarezr/agent-os/compare/v1.34.0...v1.35.0
 [1.34.0]: https://github.com/romensuarezr/agent-os/compare/v1.29.0...v1.34.0
