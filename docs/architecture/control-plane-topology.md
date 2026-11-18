@@ -66,7 +66,7 @@
 - **IP Tailscale:** `<ip-nodo-principal>` (IP Pública: `<ip-gateway>` protegida por UFW)
 - **Rol:** Centro neurálgico 24/7, memoria vectorial, bridge conversacional e inferencia.
 - **Componentes:**
-  - **Hermes Agent (0.21.2):** Corre como servicio systemd persistente (`hermes-gateway.service`), gestionando WhatsApp y triage.
+  - **Hermes Agent (0.23.2):** Corre como servicio systemd persistente (`hermes-gateway.service`), gestionando WhatsApp y triage.
   - **RAG Local:** FastAPI en puerto `8643` + base de datos vectorial Qdrant en puerto `6333`.
   - **FreeLLMAPI:** Pasarela de modelos en puerto `3001` (restringido estrictamente a `<ip-nodo-principal>`).
   - **Ollama Local:** Motor de modelos GGUF en `127.0.0.1:11434` (`llama3.1:8b`, `qwen2.5:7b`, `qwen2.5:3b`, `mistral-nemo:12b`).

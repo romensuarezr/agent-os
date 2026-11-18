@@ -1,5 +1,5 @@
 # T-232 — Homologación de Tooling de Flota (OpenCode, Hermes, Orca, Infisical)
-Sprint: Sprint 43 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-232-fleet-tooling-homologation | Merge destino: multi-agent
+Sprint: Sprint 43 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-232-fleet-tooling-homologation | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 43 — 2026-11-18
