@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|:---:|:---:|:---:|:---:|
-| T-228 | Declaración Integral del Stack Auditado en `fleet.yaml` | S | ⬜ Pendiente | — | [.agents/tasks/task-228.md](file:///.agents/tasks/task-228.md) |
+| T-228 | Declaración Integral del Stack Auditado en `fleet.yaml` | S | ✅ Hecho | — | [.agents/tasks/task-228.md](file:///.agents/tasks/task-228.md) |
 | T-229 | Despliegue de Glances Web en VPS DataManager vía Tailscale | S | ⬜ Pendiente | — | [.agents/tasks/task-229.md](file:///.agents/tasks/task-229.md) |
 | T-230 | Adaptación de `generate-homepage-config.sh` para Stack Completo y Multi-Host | M | ⬜ Pendiente | T-228, T-229 | [.agents/tasks/task-230.md](file:///.agents/tasks/task-230.md) |
 | T-231 | Despliegue en Vivo y Validación en Homepage (`http://g8o4sgwsw8k4c0cscoskkks8...`) | S | ⬜ Pendiente | T-230 | [.agents/tasks/task-231.md](file:///.agents/tasks/task-231.md) |

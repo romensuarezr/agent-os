@@ -122,6 +122,36 @@ nodes:
         url: "http://<nodo-orquestacion>:3003"
         connect_ui_url: "http://<nodo-orquestacion>:3009"
         description: "Self-hosted unified OAuth & API integration platform"
+      umami:
+        url: "https://umami.example.com"
+        port: 3000
+        description: "Privacy-focused web analytics platform"
+      n8n:
+        url: "https://n8n.example.com"
+        port: 5678
+        description: "Workflow and task automation platform"
+      ghost:
+        url: "https://blog.example.com"
+        port: 2368
+        description: "Personal and technical blog"
+      whatsapp_bridge:
+        url: "https://whatsapp.example.com"
+        port: 8080
+        description: "Evolution API WhatsApp bridge for agent communications"
+      twenty_crm:
+        url: "http://twenty.example.com"
+        port: 3000
+        description: "Open source CRM platform"
+      calibre_web:
+        url: "http://calibre.example.com:8083"
+        port: 8083
+        description: "E-book management and reading platform"
+      outbid:
+        url: "https://outbid.example.com"
+        description: "Leaderboard production web application"
+      kanarii:
+        url: "http://kanarii.example.com"
+        description: "Kanarii intelligent workflow satellite"
 
 # ------------------------------------------------------------------------------
 # 2b. Fleet Observability & Dashboard Monitoring (Homepage)

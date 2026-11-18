@@ -1,5 +1,5 @@
 # T-228 — Declaración Integral del Stack Auditado en `fleet.yaml`
-Sprint: Sprint 43 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-228-fleet-stack-declaration | Merge destino: multi-agent
+Sprint: Sprint 43 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-228-fleet-stack-declaration | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 43 — 2026-11-18
