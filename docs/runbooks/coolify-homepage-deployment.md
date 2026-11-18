@@ -289,19 +289,26 @@ Si el nuevo stack experimenta un fallo de inicio (`CrashLoopBackOff`) o no conec
 
 ---
 
-## 9. Estado de Observabilidad en Vivo: Socket Proxy y Glances (T-167)
-
-Tras la puesta a punto determinista de Sprint 30 (T-167):
+## 9. Estado de Observabilidad en Vivo: Socket Proxy y Glances (T-167 / T-231)
 
 ### 9.1 Docker Socket Proxy
-- **Estado**: Activo y saludable (`docker-socket-proxy`, contenedor `Up 5+ weeks`).
+- **Estado**: Activo y saludable (`docker-socket-proxy`).
 - **Conectividad**: Homepage consulta `http://docker-socket-proxy:2375/version` y `/containers/json` de forma transparente.
 - **Seguridad**: Solo llamadas de lectura (`GET`) autorizadas (`POST=0`), contención de memoria en 32MB conforme a ADR 004.
 
-### 9.2 Telemetría Glances
-- **Estado**: Daemon inactivo en el nodo de inferencia (`port 61208`).
-- **Política de Dashboard**: Siguiendo el principio de veracidad de la flota, el widget de Glances en `widgets.yaml` se mantiene desactivado/omitido para prevenir errores visuales de conexión (`ECONNREFUSED` / `ENOTFOUND`) en la interfaz de Homepage. Solo debe reactivarse si el servicio responde afirmativamente al pre-flight.
+### 9.2 Telemetría Glances y Multi-Host (Sprint 43 — T-229 / T-231)
+- **Estado**: Daemon activo y saludable en `<nodo-inferencia>` (puerto Tailscale `61208`, API v4).
+- **Aislamiento**: Amarrado estrictamente a la IP privada Tailscale (`<TAILSCALE_IP_DATAMANAGER>:61208`), bloqueado el acceso WAN público conforme a ADR 004.
+- **Widget de Homepage**: Mapeado en `widgets.yaml` con `version: 4`, reportando telemetría de CPU, memoria y disco en vivo desde el nodo de inferencia directamente en la interfaz de Homepage. Verificado con `wget` interno y respuesta HTTP 200 en `/api/4/cpu`.
+- **Topología de Recursos**: Widget dual configurado:
+  1. `resources`: CPU, RAM y disco local de `<nodo-orquestacion>`.
+  2. `glances`: Telemetría remota de `<nodo-inferencia>` vía red Tailscale.
 
-### 9.3 Integración de Nango OAuth
-- **Estado**: Desplegado y verificado en vivo en `<nodo-orquestacion>` (T-166).
-- **Tarjeta**: Incorporada bajo el grupo *PaaS & Orquestación* con ping de salud a `/health` (:3003) y enlace a Connect UI (:3009).
+### 9.3 Despliegue en Vivo y Sincronización Remota (T-231)
+- **URL Operativa Confirmada**: `http://g8o4sgwsw8k4c0cscoskkks8.<nodo-orquestacion-ip>.sslip.io/` (enrutado por Traefik en Coolify).
+- **Procedimiento de Despliegue**: Automatizado vía `scripts/agent/generate-homepage-config.sh --fleet .agents/config/fleet.yaml --remote-push <nodo-orquestacion>`.
+- **Higiene Operativa**:
+  1. Backup fechado automático previo en el host: `${REMOTE_DATA_DIR}.bak.YYYYMMDDHHMMSS`.
+  2. Purga mandatoria de `docker.yaml` en el volumen para evitar colisiones con Traefik / Swarm.
+  3. Reinicio atómico del contenedor de Homepage (`docker restart <id>`).
+- **Servicios Integrados**: 15 servicios mapeados en 4 grupos categorizados (*AI Gateways & Inferencia*, *Control Plane & Secretos*, *Productividad Dev & Snippets*, *PaaS & Orquestación*), con endpoints canónicos auditados contra la base de datos de Coolify (ej. Coolify en `https://coolify.example.com` con ping a `/login`).
