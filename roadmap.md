@@ -1,13 +1,15 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 42**: Hermes VPS Autonomía Proactiva, Auto-Sincronización del Core, Recarga en Caliente de Skills y Contratos Operativos (T-224 a T-227). En curso. Ver `docs/sprints/sprint-42.md`.
-  - [T-224] Script Determinista de Sincronización del Core y Regeneración Atómica de Symlinks de Skills en VPS (S).
-  - [T-225] Integración del Cronjob `no_agent: true` de Auto-Sincronización en Hermes y Telemetría Matutina (S).
-  - [T-226] Despliegue del Contrato Operativo `AGENTS.md` de Conserje en el Home de Hermes (`/home/ubuntu/AGENTS.md`) (S).
-  - [T-227] Actualización del Runbook Operativo de Hermes VPS (`/reload-skills`, auto-sync y manual de conserjería) (S).
+- **Sprint 43**: Dashboard Homepage Operativo, Stack Completo Coolify y Telemetría Multi-Host Glances DataManager (T-228 a T-232). En curso. Ver `docs/sprints/sprint-43.md`.
+  - [T-228] Declaración Integral del Stack Auditado en `fleet.yaml` (S).
+  - [T-229] Despliegue de Glances Web en VPS DataManager vía Tailscale (S).
+  - [T-230] Adaptación de `generate-homepage-config.sh` para Stack Completo y Multi-Host (M).
+  - [T-231] Despliegue en Vivo y Validación en Homepage (`http://g8o4sgwsw8k4c0cscoskkks8...`) (S).
+  - [T-232] Homologación de Tooling de Flota (OpenCode, Hermes, Orca, Infisical) (S).
 
 ## Próximo
+- **Sprint 42**: Hermes VPS Autonomía Proactiva, Auto-Sincronización del Core, Recarga en Caliente de Skills y Contratos Operativos (T-224 a T-227). Formalizado como release `v1.38.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-42.md`.
 - **Sprint 41**: Orquestación, Sincronización Bidireccional Core-Satélites y Universalización de Despliegues Coolify (T-219 a T-223). Formalizado como release `v1.37.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-41.md`.
 - **Sprint 40**: Hermes Conserje (WhatsApp/Telegram), Harness Antigravity Dual Google Pro y Observabilidad Proactiva de Flota (T-214 a T-218). Formalizado como release `v1.36.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-40.md`.
 - **Sprint 39**: Web Compliance (Cookies/RGPD/Legal), Seguridad de Cabeceras y Resiliencia Multi-Agente (Heartbeat & Fast Build) (T-209 a T-213). Formalizado como release `v1.35.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-39.md`.

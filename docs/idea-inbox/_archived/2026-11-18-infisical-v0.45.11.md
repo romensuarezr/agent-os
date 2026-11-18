@@ -1,18 +1,18 @@
-# Idea: Actualización de Orca IDE a v1.4.258
+# Idea: Actualización de Infisical CLI a v0.45.11
 
-> **Fecha**: 2026-11-14
+> **Fecha**: 2026-11-18
 > **Origen**: Sonda determinista check-tooling-updates.sh (Paso 1 de planning)
 > **Estado**: 💡 REGISTRADA, NO APROBADA
-> **Herramienta**: orca (Orca IDE)
-> **Versión actual**: 1.4.253 → **Versión detectada**: 1.4.258
+> **Herramienta**: infisical (Infisical CLI)
+> **Versión actual**: 0.43.137 → **Versión detectada**: 0.45.11
 
 ## Contexto y Motivación
-La sonda determinista de automejora de Agent OS ha detectado una nueva versión upstream disponible en el registro oficial (github).
+La sonda determinista de automejora de Agent OS ha detectado una nueva versión upstream disponible en el registro oficial (npm).
 Esta propuesta se somete a evaluación del operador humano en el ritual de planning bajo el principio estricto de cero auto-ejecución.
 
 ## Novedades Principales
-- Actualización de versión: 1.4.253 → 1.4.258
-- Registro oficial: github (https://api.github.com/repos/stablyai/orca/releases/latest)
+- Actualización de versión: 0.43.137 → 0.45.11
+- Registro oficial: npm (https://registry.npmjs.org/@infisical/cli/latest)
 
 ## Evaluación de Impacto
 - **Complejidad estimada**: S
