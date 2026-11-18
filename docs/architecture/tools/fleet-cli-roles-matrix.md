@@ -27,10 +27,10 @@ La flota de Agent OS incorpora diversos CLIs agénticos y motores de ejecución 
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Antigravity CLI (`agy`)** | Binario oficial `agy` | `local` | **Coordinador, Planificador & Tier 1 Reviewer** | Supervisada / Opción D | Autorizado para orquestar ramas y merges controlados |
 | **Orca ADE (`orca-ide`)** | `stablyai/orca` (vía `orca-orchestrate.sh`) | `local` / `<nodo-orquestacion>` | **Plano de Ejecución & Tier 2 Reviewer** | Supervisada en sandbox | Ejecución en worktrees; emisión de veredictos estructurados |
-| **OpenCode 2 (`opencode`)** | `@opencode/cli` (npm v2.2.6) | `local` / `<nodo-inferencia>` | **Worker / Coder acotado** | Autonomía acotada en worktree | Restringido a commits en rama de trabajo efímera; **Merge Prohibido** |
+| **OpenCode 2 (`opencode`)** | `@opencode/cli` (npm v2.3.2) | `local` / `<nodo-inferencia>` | **Worker / Coder acotado** | Autonomía acotada en worktree | Restringido a commits en rama de trabajo efímera; **Merge Prohibido** |
 | **Claude Code** | `anthropic/claude-code` | Entorno CLI experimental | *Descartado como Juez* | — | **Descartado del Control Plane** |
 | **Aider CLI** | `aider-chat/aider` | Entorno CLI experimental | *Descartado para Merges* | — | **Prohibido para resolución de merges** |
-| **Hermes Agent** | `NousResearch/hermes-agent` (v0.22.7) | `<nodo-inferencia>` / host | **Agente de Mensajería & Triage** | Autónomo en canal propio | Opera sobre su propio bridge; **Descartado como front door separado** |
+| **Hermes Agent** | `NousResearch/hermes-agent` (v0.23.2) | `<nodo-inferencia>` / host | **Agente de Mensajería & Triage** | Autónomo en canal propio | Opera sobre su propio bridge; **Descartado como front door separado** |
 
 ---
 

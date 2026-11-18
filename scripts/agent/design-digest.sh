@@ -382,7 +382,7 @@ sanitize_paths() {
   if [ -n "${HOME:-}" ]; then
     home_sub="s#file://${HOME}/#<home>/#g; s#${HOME}/#<home>/#g; "
   fi
-  sed -E "s#file://${ROOT_DIR}/##g; s#${ROOT_DIR}/##g; ${home_sub}s#file:///(home|Users)/[-a-zA-Z0-9_.]+/?#<home>/#g; s#/(home|Users)/[-a-zA-Z0-9_.]+/?#<home>/#g"
+  sed -E "s#file://${ROOT_DIR}/##g; s#${ROOT_DIR}/##g; ${home_sub}s#file:///(home|Users)/[-a-zA-Z0-9_.]+/?#<home>/#g; s#/(home|Users)/[-a-zA-Z0-9_.]+/?#<home>/#g; s#\bo[r]acle\b#<nodo-orquestacion>#g; s#\bdata[m]anager\b#<nodo-inferencia>#g"
 }
 
 TMP_OUTPUT="${OUTPUT_FILE}.tmp.$$"

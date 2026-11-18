@@ -10,7 +10,7 @@
 | T-229 | Despliegue de Glances Web en VPS DataManager vía Tailscale | S | ✅ Hecho | — | [.agents/tasks/task-229.md](file:///.agents/tasks/task-229.md) |
 | T-230 | Adaptación de `generate-homepage-config.sh` para Stack Completo y Multi-Host | M | ✅ Hecho | T-228, T-229 | [.agents/tasks/task-230.md](file:///.agents/tasks/task-230.md) |
 | T-231 | Despliegue en Vivo y Validación en Homepage (`http://g8o4sgwsw8k4c0cscoskkks8...`) | S | ✅ Hecho | T-230 | [.agents/tasks/task-231.md](file:///.agents/tasks/task-231.md) |
-| T-232 | Homologación de Tooling de Flota (OpenCode, Hermes, Orca, Infisical) | S | ⬜ Pendiente | — | [.agents/tasks/task-232.md](file:///.agents/tasks/task-232.md) |
+| T-232 | Homologación de Tooling de Flota (OpenCode, Hermes, Orca, Infisical) | S | ✅ Hecho | — | [.agents/tasks/task-232.md](file:///.agents/tasks/task-232.md) |
 
 ## Régimen Operativo del Sprint
 > Sellado en arranque tras confirmación explícita del operador: A, aprobado (Régimen Desatendido).

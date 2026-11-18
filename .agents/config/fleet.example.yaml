@@ -41,7 +41,7 @@ local_environment:
       description: "Lightweight command-line JSON processor"
     opencode:
       status: "available"
-      version: "2.2.7"
+      version: "2.3.2"
       description: "Terminal autonomous AI coding worker (acotado en sandbox/worktree)"
     agy:
       status: "available"
@@ -51,6 +51,7 @@ local_environment:
       description: "Mesh VPN for secure node interconnectivity"
     infisical:
       status: "optional"
+      version: "0.45.11"
       description: "End-to-end encrypted secret manager CLI"
 
 # ------------------------------------------------------------------------------

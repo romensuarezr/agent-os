@@ -156,7 +156,7 @@ except Exception:
     pass
 " 2>/dev/null || true)"
       fi
-      [ -z "$ver" ] && ver="2.2.7"
+      [ -z "$ver" ] && ver="2.3.2"
       ;;
     hermes)
       if command -v hermes >/dev/null 2>&1; then
@@ -171,19 +171,19 @@ except Exception:
           ver="$r_ver"
         fi
       fi
-      [ -z "$ver" ] && ver="0.23.1"
+      [ -z "$ver" ] && ver="0.23.2"
       ;;
     orca)
       if command -v orca-ide >/dev/null 2>&1; then
         ver="$(extract_semver "$(orca-ide --version 2>/dev/null || true)")"
       fi
-      [ -z "$ver" ] && ver="1.4.256"
+      [ -z "$ver" ] && ver="1.4.262"
       ;;
     infisical)
       if command -v infisical >/dev/null 2>&1; then
         ver="$(extract_semver "$(infisical --version 2>/dev/null || true)")"
       fi
-      [ -z "$ver" ] && ver="0.45.6"
+      [ -z "$ver" ] && ver="0.45.11"
       ;;
     glances)
       if command -v glances >/dev/null 2>&1; then
