@@ -6,3 +6,12 @@
     memory: true
     disk: /
     label: Oracle VPS
+- glances:
+    label: DataManager
+    url: http://192.0.2.10:61208
+    version: 4.5.9
+    cpu: true
+    mem: true
+    expanded: true
+    disk:
+    - /
