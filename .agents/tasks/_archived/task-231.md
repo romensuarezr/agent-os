@@ -1,5 +1,5 @@
 # T-231 — Despliegue en Vivo y Validación en Homepage (`http://g8o4sgwsw8k4c0cscoskkks8...`)
-Sprint: Sprint 43 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-231-homepage-live-deploy-and-verify | Merge destino: multi-agent
+Sprint: Sprint 43 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-231-homepage-live-deploy-and-verify | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 43 — 2026-11-18
