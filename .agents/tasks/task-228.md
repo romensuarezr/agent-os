@@ -8,18 +8,18 @@ Sprint: Sprint 43 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-
   - Incorporar a `.agents/config/fleet.yaml` y `.agents/config/fleet.example.yaml` todo el inventario de servicios y aplicaciones en producción verificado en la base de datos de Coolify (`coolify-db`) y Traefik.
   - Endpoints reales:
     - Coolify: `https://coolify.romensuarez.com`
-    - Homepage: `http://g8o4sgwsw8k4c0cscoskkks8.158.179.213.240.sslip.io/`
-    - SearXNG: `http://searxng-lswo0woww0sswwsk0wkcc4o0.158.179.213.240.sslip.io`
+    - Homepage: `http://g8o4sgwsw8k4c0cscoskkks8.<nodo-orquestacion-ip>.sslip.io/`
+    - SearXNG: `http://searxng-lswo0woww0sswwsk0wkcc4o0.<nodo-orquestacion-ip>.sslip.io`
     - n8n: `https://n8n.romensuarez.com`
     - Umami: `https://umami.romensuarez.com`
     - Ghost: `https://blog.romensuarez.com`
     - WhatsApp Bridge: `https://whatsapp.romensuarez.com`
     - ByteBox: `https://bytebox.romensuarez.com`
-    - Twenty CRM: `http://j44wc80o8oc04w08880sgw00.158.179.213.240.sslip.io`
-    - Calibre Web: `http://calibre-fggk84oowsw888cw4sgcc8k4.158.179.213.240.sslip.io:8083`
-    - Satélites: Outbid (`https://outbid.romensuarez.com`), Kanarii (`http://lwwcgo8kggokcwcgc0kkk0kc.158.179.213.240.sslip.io`), Finca Adama (`https://fincaadama.com`), HD-API (`https://hd-api.romensuarez.com`).
-    - Nango OAuth: `http://100.96.20.7:3009` (Connect UI) / `http://100.96.20.7:3003` (API).
-    - DataManager services: declarar `glances: 61208` bajo `nodes.datamanager.services`.
+    - Twenty CRM: `http://j44wc80o8oc04w08880sgw00.<nodo-orquestacion-ip>.sslip.io`
+    - Calibre Web: `http://calibre-fggk84oowsw888cw4sgcc8k4.<nodo-orquestacion-ip>.sslip.io:8083`
+    - Satélites: Outbid (`https://outbid.romensuarez.com`), Kanarii (`http://lwwcgo8kggokcwcgc0kkk0kc.<nodo-orquestacion-ip>.sslip.io`), Finca Adama (`https://fincaadama.com`), HD-API (`https://hd-api.romensuarez.com`).
+    - Nango OAuth: `http://<TAILSCALE_IP_ORACLE>:3009` (Connect UI) / `http://<TAILSCALE_IP_ORACLE>:3003` (API).
+    - DataManager services: declarar `glances: 61208` bajo `nodes.<nodo-inferencia>.services`.
   - Cero secretos commiteados; estructura declarativa YAML estricta y portable.
 - **Veredicto de diseño macro**: [APROBADO_EN_PLANNING]
 
@@ -40,7 +40,7 @@ Alinear el modelo declarativo de la flota (`fleet.yaml`) con la realidad física
 
 ## 4. Plan de implementación
 1. Actualizar `.agents/config/fleet.yaml` con las URLs y metadatos verificados para cada servicio de Oracle y DataManager.
-2. Añadir la declaración de `glances` en DataManager (`port: 61208`, `bind: 100.77.82.13`).
+2. Añadir la declaración de `glances` en DataManager (`port: 61208`, `bind: <TAILSCALE_IP_DATAMANAGER>`).
 3. Reflejar la misma estructura esquemática en `.agents/config/fleet.example.yaml` con marcadores genéricos.
 4. Validar sintaxis con `python3 -c "import yaml; yaml.safe_load(open('.agents/config/fleet.yaml'))"`.
 5. Ejecutar `scripts/agent/fleet-doctor.sh` para comprobar la detección del nuevo catálogo.

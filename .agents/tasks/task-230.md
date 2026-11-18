@@ -13,7 +13,7 @@ Sprint: Sprint 43 | Estado: ⬜ Pendiente | Tamaño: M | Rama propuesta: feat/T-
        - `Aplicaciones Satélite & Productos`: Outbid, Kanarii, Finca Adama, HD-API, Polybot & Bot3.
     2. En `widgets.yaml`:
        - Widget local `resources` para Oracle VPS (CPU, memoria, disco).
-       - Widget remoto `glances` para DataManager VPS (`http://100.77.82.13:61208`, versión 4, expandido, CPU/RAM/Disco).
+       - Widget remoto `glances` para DataManager VPS (`http://<TAILSCALE_IP_DATAMANAGER>:61208`, versión 4, expandido, CPU/RAM/Disco).
     3. En `settings.yaml`:
        - Adaptar la matriz de layouts con 4 columnas o filas proporcionadas a los 4 grupos.
     4. En `bookmarks.yaml`:
