@@ -148,3 +148,14 @@ En `templates/homepage/config/widgets.yaml`:
    - Verificar que Tailscale está levantado en ambos nodos (`tailscale status`).
    - Comprobar que UFW permite el tráfico en `tailscale0` (`sudo ufw status`).
 
+---
+
+## 7. Estado de Despliegue en Producción (Sprint 43 — T-229)
+
+- **Host desplegado**: `<nodo-inferencia>` (`glances-telemetry`).
+- **Ruta del servicio**: `~/services/glances/docker-compose.yml`.
+- **Enlace de red**: Amarrado exclusivamente a la IP privada Tailscale `<TAILSCALE_IP_DATAMANAGER>:61208` con `restart: unless-stopped`.
+- **Verificación de aislamiento**: Acceso WAN público verificado como rechazado / timeout (100% conforme a ADR 004).
+- **Consumo desde Homepage**: La API responde con JSON en tiempo real (`/api/4/cpu`, `/api/4/mem`, `/api/4/fs`) accesible desde `<nodo-orquestacion>` a través de la malla Tailscale.
+
+
