@@ -177,6 +177,7 @@ group_ai = []
 group_control = []
 group_dev = []
 group_paas = []
+group_apps = []
 
 # Procesar nodos
 for node_name, node_data in nodes.items():
@@ -357,6 +358,84 @@ for node_name, node_data in nodes.items():
                 }
             })
 
+    if "umami" in services and is_service_enabled(services["umami"]):
+        s = services["umami"]
+        url = s.get("url") or f"http://{host}:{s.get('port', 3000)}"
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "Umami Analytics": {
+                    "icon": "si-umami",
+                    "href": url,
+                    "description": s.get("description", "Privacy-focused web analytics platform"),
+                    "ping": url
+                }
+            })
+
+    if "n8n" in services and is_service_enabled(services["n8n"]):
+        s = services["n8n"]
+        url = s.get("url") or f"http://{host}:{s.get('port', 5678)}"
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "n8n Automation": {
+                    "icon": "si-n8n",
+                    "href": url,
+                    "description": s.get("description", "Workflow and task automation platform"),
+                    "ping": f"{url}/healthz"
+                }
+            })
+
+    if "ghost" in services and is_service_enabled(services["ghost"]):
+        s = services["ghost"]
+        url = s.get("url") or f"http://{host}:{s.get('port', 2368)}"
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "Ghost Blog": {
+                    "icon": "si-ghost",
+                    "href": url,
+                    "description": s.get("description", "Personal and technical blog"),
+                    "ping": url
+                }
+            })
+
+    wa = services.get("whatsapp_bridge") or services.get("whatsapp")
+    if wa and is_service_enabled(wa):
+        url = wa.get("url") or f"http://{host}:{wa.get('port', 8080)}"
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "WhatsApp Bridge": {
+                    "icon": "si-whatsapp",
+                    "href": url,
+                    "description": wa.get("description", "Evolution API WhatsApp bridge"),
+                    "ping": url
+                }
+            })
+
+    tw = services.get("twenty_crm") or services.get("twenty")
+    if tw and is_service_enabled(tw):
+        url = tw.get("url") or f"http://{host}:{tw.get('port', 3000)}"
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "Twenty CRM": {
+                    "icon": "si-twenty",
+                    "href": url,
+                    "description": tw.get("description", "Open source CRM platform"),
+                    "ping": url
+                }
+            })
+
+    cw = services.get("calibre_web") or services.get("calibre")
+    if cw and is_service_enabled(cw):
+        url = cw.get("url") or f"http://{host}:{cw.get('port', 8083)}"
+        if not is_placeholder_url(url):
+            group_dev.append({
+                "Calibre Web": {
+                    "icon": "si-bookstack",
+                    "href": url,
+                    "description": cw.get("description", "E-book management platform"),
+                    "ping": url
+                }
+            })
+
     # 4. PaaS & Infrastructure
     if "coolify" in services and is_service_enabled(services["coolify"]):
         s = services["coolify"]
@@ -368,7 +447,7 @@ for node_name, node_data in nodes.items():
                     "icon": "si-docker",
                     "href": url,
                     "description": s.get("description", "PaaS manager for containerized applications"),
-                    "ping": f"{url}/api/v1/version"
+                    "ping": f"{url}/login" if "://" in url else url
                 }
             })
         
@@ -395,6 +474,72 @@ for node_name, node_data in nodes.items():
                     "href": connect_ui if not is_placeholder_url(connect_ui) else endpoint,
                     "description": s.get("description", "Unified OAuth & API integration platform"),
                     "ping": f"{endpoint}/health"
+                }
+            })
+
+    if "homepage" in services and is_service_enabled(services["homepage"]):
+        s = services["homepage"]
+        hp_url = s.get("url") or f"http://{host}:{s.get('port', 3000)}"
+        if not is_placeholder_url(hp_url):
+            group_paas.append({
+                "Homepage Control": {
+                    "icon": "si-homepage",
+                    "href": hp_url,
+                    "description": s.get("description", "Fleet control dashboard and service status monitor"),
+                    "ping": hp_url
+                }
+            })
+
+    # 5. Apps Satélites & Productos
+    if "outbid" in services and is_service_enabled(services["outbid"]):
+        s = services["outbid"]
+        url = s.get("url") or s.get("endpoint", "")
+        if not is_placeholder_url(url):
+            group_apps.append({
+                "Outbid Leaderboard": {
+                    "icon": "si-trophy",
+                    "href": url,
+                    "description": s.get("description", "Leaderboard production web application"),
+                    "ping": url
+                }
+            })
+
+    if "kanarii" in services and is_service_enabled(services["kanarii"]):
+        s = services["kanarii"]
+        url = s.get("url") or s.get("endpoint", "")
+        if not is_placeholder_url(url):
+            group_apps.append({
+                "Kanarii Web": {
+                    "icon": "si-canva",
+                    "href": url,
+                    "description": s.get("description", "Kanarii intelligent workflow satellite"),
+                    "ping": url
+                }
+            })
+
+    if "finca_adama" in services and is_service_enabled(services["finca_adama"]):
+        s = services["finca_adama"]
+        url = s.get("url") or s.get("endpoint", "")
+        if not is_placeholder_url(url):
+            group_apps.append({
+                "Finca Adama": {
+                    "icon": "si-leaf",
+                    "href": url,
+                    "description": s.get("description", "Finca Adama production website"),
+                    "ping": url
+                }
+            })
+
+    if "hd_api" in services and is_service_enabled(services["hd_api"]):
+        s = services["hd_api"]
+        url = s.get("url") or s.get("endpoint", "")
+        if not is_placeholder_url(url):
+            group_apps.append({
+                "HD-API": {
+                    "icon": "si-fastapi",
+                    "href": url,
+                    "description": s.get("description", "High-density API service"),
+                    "ping": url
                 }
             })
 
@@ -425,6 +570,8 @@ if group_dev:
     services_yaml.append({"Productividad Dev & Snippets": group_dev})
 if group_paas:
     services_yaml.append({"PaaS & Orquestación": group_paas})
+if group_apps:
+    services_yaml.append({"Aplicaciones Satélite & Productos": group_apps})
 
 # Obtener URL de Coolify si existe y no es placeholder para bookmarks
 coolify_portal_url = None
@@ -464,10 +611,11 @@ settings_yaml = {
     "headerStyle": "boxed",
     "cardBlur": "sm",
     "layout": {
-        "AI Gateways & Inferencia ($0)": {"style": "row", "columns": 3},
+        "AI Gateways & Inferencia ($0)": {"style": "row", "columns": 4},
         "Control Plane & Secretos": {"style": "row", "columns": 2},
-        "Productividad Dev & Snippets": {"style": "row", "columns": 2},
-        "PaaS & Orquestación": {"style": "row", "columns": 2}
+        "Productividad Dev & Snippets": {"style": "row", "columns": 4},
+        "PaaS & Orquestación": {"style": "row", "columns": 3},
+        "Aplicaciones Satélite & Productos": {"style": "row", "columns": 4}
     }
 }
 

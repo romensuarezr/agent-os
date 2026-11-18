@@ -1,5 +1,5 @@
 # T-230 — Adaptación de `generate-homepage-config.sh` para Stack Completo y Multi-Host
-Sprint: Sprint 43 | Estado: ⬜ Pendiente | Tamaño: M | Rama propuesta: feat/T-230-homepage-generator-multihost | Merge destino: multi-agent
+Sprint: Sprint 43 | Estado: ✅ Hecho | Tamaño: M | Rama propuesta: feat/T-230-homepage-generator-multihost | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 43 — 2026-11-18

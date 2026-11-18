@@ -6,13 +6,16 @@ cardBlur: sm
 layout:
   AI Gateways & Inferencia ($0):
     style: row
-    columns: 3
+    columns: 4
   Control Plane & Secretos:
     style: row
     columns: 2
   Productividad Dev & Snippets:
     style: row
-    columns: 2
+    columns: 4
   "PaaS & Orquestaci\xF3n":
     style: row
-    columns: 2
+    columns: 3
+  "Aplicaciones Sat\xE9lite & Productos":
+    style: row
+    columns: 4
