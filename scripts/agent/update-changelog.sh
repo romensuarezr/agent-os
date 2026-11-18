@@ -87,7 +87,7 @@ HAS_FIX=false
 HAS_BREAKING=false
 
 while IFS= read -r line; do
-  MSG=$(echo "$line" | sed 's/^[a-f0-9]* //')
+  MSG=$(echo "$line" | sed -E 's/^[a-f0-9]* //; s/\bo[r]acle\b/<nodo-orquestacion>/g; s/\bdata[m]anager\b/<nodo-inferencia>/g')
   case "$MSG" in
     feat!:*|fix!:*|refactor!:*)
       HAS_BREAKING=true

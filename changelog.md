@@ -9,6 +9,27 @@ Historial de cambios y releases del núcleo de Agent OS.
 4. **Única fuente de verdad**: `changelog.md` es la única fuente canónica de versiones; no se duplica la versión estática en ningún otro archivo.
 5. **Breaking Changes**: Los cambios breaking incrementan `MAJOR` (ej. `2.0.0`), documentándose con su correspondiente ADR en `docs/adrs/`.
 
+## [1.39.0] — sprint-43 — 2026-11-18
+
+### ✨ Features
+
+- feat(fleet): homologacion de versiones de tooling de flota (T-232)
+- feat(homepage): despliegue en vivo y verificacion en <nodo-orquestacion> vps (T-231)
+- feat(homepage): soporte multihost y stack completo en generador de dashboard (T-230)
+- feat(telemetry): despliegue de glances web en vps <nodo-inferencia> via tailscale (T-229)
+- feat(fleet): declaracion integral del stack auditado en fleet.yaml (T-228)
+- feat(workflow): blindar honestidad de fuentes y URLs en research de sprint-planning
+
+### 🐛 Bug Fixes
+
+- fix(control-plane): sanear frontera portable con marcadores genericos en sprint-43 y task files
+- fix(fleet): resolucion multinivel en cascada para searxng, nango y hermes
+- fix(tooling): deduplicar propuestas y purgar borradores de versiones obsoletas en idea-inbox
+
+### 🔧 Mantenimiento
+
+- chore(sprint): abrir sprint-43 dashboard operativo, stack coolify y telemetria <nodo-inferencia> (T-228 a T-232)
+
 ## [1.38.0] — sprint-42 — 2026-11-15
 
 ### ✨ Features
@@ -1975,6 +1996,7 @@ Historial de cambios y releases del núcleo de Agent OS.
   - `inventory-check.sh` y `update-mvp-tracker.sh`.
 - **Workflows Base**: `session-start.md`, `session-close.md`, `sprint-planning.md`, `changelog.md`, `honesto.md`.
 
+[1.39.0]: https://github.com/romensuarezr/agent-os/compare/v1.38.0...v1.39.0
 [1.38.0]: https://github.com/romensuarezr/agent-os/compare/v1.37.0...v1.38.0
 [1.37.0]: https://github.com/romensuarezr/agent-os/compare/v1.36.0...v1.37.0
 [1.35.0]: https://github.com/romensuarezr/agent-os/compare/v1.34.0...v1.35.0

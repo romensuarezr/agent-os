@@ -1,7 +1,7 @@
 # Sprint 43 — 2026-11-18 → 2026-11-22
 
 ## Estado
-🟡 En curso
+✅ Completado
 
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
