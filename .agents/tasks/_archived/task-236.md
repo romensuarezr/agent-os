@@ -1,5 +1,5 @@
 # T-236 — Optimización Reactiva de Coordinación en orca-reactive-wait.sh (Despertar Nativo sin Polling)
-Sprint: Sprint 44 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-236-orca-reactive-wait-optimization | Merge destino: multi-agent
+Sprint: Sprint 44 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-236-orca-reactive-wait-optimization | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 44 — 2026-11-23
