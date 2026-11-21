@@ -1,0 +1,17 @@
+{
+  "task_id": "T-235",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan para T-235 cumple estrictamente con el principio de determinismo y coste $0 tokens al extender 'scripts/agent/setup-profiles.sh' con el flag '--orca-bots'. La delimitaci\u00f3n en la caja de archivos autorizados es precisa y acotada (<= 3 archivos de c\u00f3digo/docs m\u00e1s control de tareas y sprint), respetando la pol\u00edtica estricta de aislamiento de secretos (MEMORY.md/SOUL.md limpios). La estrategia de mitigaci\u00f3n para exportar artefactos bajo un subdirectorio dedicado previene colisiones con las comprobaciones del control plane, garantizando compatibilidad hacia atr\u00e1s e idempotencia.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "La skill 'orca-cli' declarada es coherente y necesaria para la interoperabilidad t\u00e9cnica con el subsistema de bots de Orca IDE v1.4.268. No se declaran skills prohibidas para implementaci\u00f3n."
+  },
+  "inventory_scoped_bytes": 2317,
+  "plan_source": ".agents/context/plan-draft.md"
+}

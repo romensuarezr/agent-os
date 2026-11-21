@@ -33,3 +33,17 @@ escalation_triggers:
   - "Necesidad de modificar archivos fuera de la Caja de la sesión"
 
 human_approval_required: true
+
+# BEGIN AGENT-OS-GENERATED-STACK
+stack_context:
+  stack: "unknown"
+  package_manager: "none"
+  detected_lockfile: "none"
+  runtime: "Generic / Polyglot"
+  commands:
+    dev: ""
+    build: ""
+    test: ""
+    lint: ""
+    typecheck: ""
+# END AGENT-OS-GENERATED-STACK

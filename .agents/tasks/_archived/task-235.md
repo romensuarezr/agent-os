@@ -1,5 +1,5 @@
 # T-235 — Puente Declarativo: .agents/profiles/ a Orca Bot Identities y Standing Instructions
-Sprint: Sprint 44 | Estado: ⬜ Pendiente | Tamaño: M | Rama propuesta: feat/T-235-orca-bot-identities-bridge | Merge destino: multi-agent
+Sprint: Sprint 44 | Estado: ✅ Hecho | Tamaño: M | Rama propuesta: feat/T-235-orca-bot-identities-bridge | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 44 — 2026-11-23

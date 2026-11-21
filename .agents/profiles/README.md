@@ -35,3 +35,25 @@ Ante cualquier discrepancia entre ambos esquemas para un mismo rol:
 
 3. **Registro Central**:
    - Todo perfil operativo debe estar declarado formalmente en [`agent-registry.yaml`](../config/agent-registry.yaml).
+
+---
+
+## 🤖 Puente Declarativo a Orca Bots (v1.4.268)
+
+Para desplegar agentes en **Orca IDE** (ADE) con runtimes OpenCode, Hermes o Claude Code, los perfiles se proyectan de forma determinista mediante:
+
+```bash
+# Simular proyección
+bash scripts/agent/setup-profiles.sh --orca-bots --check
+
+# Aplicar e instanciar en .agents/profiles/orca-bots/
+bash scripts/agent/setup-profiles.sh --orca-bots --apply
+```
+
+Esta proyección genera por cada rol (`coder`, `coordinator`, `qa-judge`, `docs-researcher`):
+- `IDENTITY.md`: Nombre, rol, identificador, emoji y vibe técnico.
+- `SOUL.md`: Misión en una frase, sección `## How I work` (Caveman, DRY, Teach-while-building) y `## Never` (cero push directo a main, cero fugas de secretos).
+- `MEMORY.md`: Contexto del stack, gestor de paquetes y comandos verificados.
+
+Orca IDE puede vincular o importar estos bots orgánicamente sin requerir configuración manual. Para más detalles, consulta [`docs/runbooks/orca-bot-identities.md`](../../docs/runbooks/orca-bot-identities.md).
+

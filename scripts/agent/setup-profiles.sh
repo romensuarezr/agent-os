@@ -21,6 +21,7 @@ set -euo pipefail
 
 APPLY_MODE=false
 CHECK_MODE=true
+ORCA_BOTS_MODE=false
 TARGET_DIR=""
 OVERRIDE_STACK=""
 
@@ -34,6 +35,10 @@ while [ $# -gt 0 ]; do
     --check)
       CHECK_MODE=true
       APPLY_MODE=false
+      shift
+      ;;
+    --orca-bots)
+      ORCA_BOTS_MODE=true
       shift
       ;;
     --path)
@@ -65,11 +70,12 @@ while [ $# -gt 0 ]; do
     -h|--help)
       echo "Uso: setup-profiles.sh [opciones]"
       echo ""
-      echo "Generación y especialización determinista de perfiles adaptados al stack."
+      echo "Generación y especialización determinista de perfiles adaptados al stack y puente Orca Bots."
       echo ""
       echo "Opciones:"
       echo "  --check        Modo simulación (dry-run): muestra adaptaciones sin escribir en disco (default)"
       echo "  --apply        Escribe y actualiza los perfiles de forma idempotente"
+      echo "  --orca-bots    Genera identidades declarativas nativas para Orca Bots (SOUL.md, IDENTITY.md, MEMORY.md)"
       echo "  --path <dir>   Ruta al directorio del proyecto objetivo (default: .)"
       echo "  --stack <name> Fuerza un stack específico (ej: typescript, python, rust, go)"
       echo "  -h, --help     Muestra este mensaje de ayuda"
@@ -301,7 +307,109 @@ if [ ! -f "$DEV_YAML" ]; then
   fi
 fi
 
+# Definir exportador determinista de identidades de bots para Orca IDE
+export_orca_bots() {
+  local target_base="$1"
+  local is_apply="$2"
+  local bots_dir="$target_base/.agents/profiles/orca-bots"
+
+  echo ""
+  echo "🤖 [ORCA-BOTS] Proyección declarativa de identidades a Orca ADE (v1.4.268)"
+  echo "Directorio de destino: $bots_dir"
+
+  local bot_ids=("coder" "coordinator" "qa-judge" "docs-researcher")
+
+  for b_id in "${bot_ids[@]}"; do
+    local b_name=""
+    local b_role=""
+    local b_emoji=""
+    local b_purpose=""
+
+    case "$b_id" in
+      coder)
+        b_name="Coder"
+        b_role="Lead Software Engineer & Code Implementer"
+        b_emoji="💻"
+        b_purpose="Diseñar, implementar y refactorizar código de forma atómica y determinista según principios DRY, TDD y rituales de ciclo de vida de Agent OS."
+        ;;
+      coordinator)
+        b_name="Coordinator"
+        b_role="Multi-Agent Orchestrator & Workflow Governor"
+        b_emoji="🏛️"
+        b_purpose="Orquestar el flujo de trabajo multi-agente, despachar tareas en paralelo a worktrees aislados y supervisar la sincronización de la flota."
+        ;;
+      qa-judge)
+        b_name="QA Judge"
+        b_role="Independent Quality Judge & Code Reviewer"
+        b_emoji="⚖️"
+        b_purpose="Evaluar con objetividad desacoplada los planes de implementación, verificar contratos de metas y certificar suites de control plane."
+        ;;
+      docs-researcher)
+        b_name="Docs Researcher"
+        b_role="Documentation Maintainer & Technical Scout"
+        b_emoji="📚"
+        b_purpose="Investigar dependencias OSS mediante prospección determinista SearXNG/Scout y mantener la precisión y frescura de la documentación técnica."
+        ;;
+    esac
+
+    local b_path="$bots_dir/$b_id"
+
+    if [[ "$is_apply" == true ]]; then
+      mkdir -p "$b_path"
+
+      # 1. IDENTITY.md
+      cat << EOF > "$b_path/IDENTITY.md"
+# Identity: $b_name
+- **ID**: $b_id
+- **Role**: $b_role
+- **Emoji**: $b_emoji
+- **Vibe**: Directo, técnico, analítico y riguroso.
+- **Protocol**: Agent OS v1.4.268 Bridge
+EOF
+
+      # 2. SOUL.md
+      cat << EOF > "$b_path/SOUL.md"
+$b_purpose
+
+## How I work
+- Comunícate siempre en español. Código, identificadores y pruebas en inglés.
+- Protocolo Caveman: directo al grano, tool-first, sin saludos ni relleno innecesario.
+- Enseña mientras construyes: explica QUÉ, POR QUÉ y TRADE-OFF de cada decisión técnica.
+- Principio DRY: antes de crear una función o herramienta, inspecciona el inventario existente.
+- Autonomía acotada: opera en el régimen autorizado; no modifiques archivos fuera de la caja de la sesión.
+
+## Never
+- Nunca realices commit o push directo a main sin pasar por rama de feature y compuertas de calidad.
+- Nunca persistas credenciales, secretos, API keys o rutas personales en código ni memoria.
+- Nunca ejecutes comandos destructivos sin comprobación previa.
+- En Linux, nunca invoques '/usr/bin/orca' directamente. Usa 'orca-ide' o los clientes de la flota.
+EOF
+
+      # 3. MEMORY.md
+      cat << EOF > "$b_path/MEMORY.md"
+# Agent OS Operating Context
+- **Framework**: Agent OS Core (Ecosistema Multi-Agente Portable)
+- **Stack**: $DETECTED_STACK ($RUNTIME_NAME)
+- **Gestor de Paquetes**: $DETECTED_PM (Lockfile: $DETECTED_LOCK)
+- **Comandos del Proyecto**:
+  - Dev: $COMMAND_DEV
+  - Build: $COMMAND_BUILD
+  - Test: $COMMAND_TEST
+  - Lint: $COMMAND_LINT
+  - Typecheck: $COMMAND_TYPECHECK
+- **Reglas Globales Activas**: caveman, dry-architecture, teach-while-building, strict-workflow, response-checklist.
+EOF
+      echo "  ✅ Bot '$b_id' proyectado en $b_path/ (IDENTITY.md, SOUL.md, MEMORY.md)"
+    else
+      echo "  🔍 [CHECK] Bot '$b_id' ($b_role) proyectaría: IDENTITY.md, SOUL.md, MEMORY.md"
+    fi
+  done
+}
+
 if [[ "$CHECK_MODE" == true ]]; then
+  if [[ "$ORCA_BOTS_MODE" == true ]]; then
+    export_orca_bots "$TARGET_DIR" false
+  fi
   echo ""
   echo "🔍 [CHECK] Simulación completada. Cero archivos modificados en disco."
   echo "💡 Para persistir la especialización, ejecuta: bash scripts/agent/setup-profiles.sh --apply"
@@ -314,6 +422,10 @@ fi
 if [[ "$APPLY_MODE" == true ]]; then
   if [ ! -d "$PROFILES_DIR" ]; then
     mkdir -p "$PROFILES_DIR"
+  fi
+
+  if [[ "$ORCA_BOTS_MODE" == true ]]; then
+    export_orca_bots "$TARGET_DIR" true
   fi
 
   if [ -f "$DEV_YAML" ]; then

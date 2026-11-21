@@ -1,0 +1,11 @@
+# Agent OS Operating Context
+- **Framework**: Agent OS Core (Ecosistema Multi-Agente Portable)
+- **Stack**: unknown (Generic / Polyglot)
+- **Gestor de Paquetes**: none (Lockfile: none)
+- **Comandos del Proyecto**:
+  - Dev: 
+  - Build: 
+  - Test: 
+  - Lint: 
+  - Typecheck: 
+- **Reglas Globales Activas**: caveman, dry-architecture, teach-while-building, strict-workflow, response-checklist.
