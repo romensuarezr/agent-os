@@ -1,0 +1,17 @@
+{
+  "task_id": "T-237",
+  "verdict": "CONSENSO",
+  "role": "qa-judge",
+  "evaluator_tier": "agy",
+  "rounds_executed": 1,
+  "timeout_seconds": 5,
+  "design_summary": "El plan para T-237 cumple rigurosamente con los l\u00edmites arquitect\u00f3nicos del R\u00e9gimen Desatendido. La caja de archivos autorizados est\u00e1 estrictamente acotada a metadatos y documentaci\u00f3n (changelog.md, roadmap.md, task-237.md y sprint-44.md), respetando el playbook 'direct' sin mutaci\u00f3n de c\u00f3digo en src/ ni dependencias circulares.\n\nEl flujo de validaci\u00f3n determinista propuesto (audit-repo, sync dry-run, validate-control-plane 38/38 y close-task) garantiza el cierre limpio y auditable del Sprint 44, preservando la trazabilidad operativa y mitigando riesgos de regresi\u00f3n antes del ritual formal de close-sprint.",
+  "objections": [],
+  "corrections": [],
+  "skills_evaluation": {
+    "status": "verified",
+    "details": "La cl\u00e1usula de skills declara 'orca-cli' para alineaci\u00f3n de entorno y herramientas de control plane. No se detectan skills prohibidas para implementaci\u00f3n t\u00e9cnica (orchestrator, goal-evaluation, adr-decision-recorder) ni llamadas a skills inexistentes."
+  },
+  "inventory_scoped_bytes": 2179,
+  "plan_source": ".agents/context/plan-draft.md"
+}
