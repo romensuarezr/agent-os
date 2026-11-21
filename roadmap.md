@@ -1,14 +1,15 @@
 # Roadmap — agent-os
 
 ## En curso
-- **Sprint 43**: Dashboard Homepage Operativo, Stack Completo Coolify y Telemetría Multi-Host Glances DataManager (T-228 a T-232). En curso. Ver `docs/sprints/sprint-43.md`.
-  - [T-228] Declaración Integral del Stack Auditado en `fleet.yaml` (S).
-  - [T-229] Despliegue de Glances Web en VPS DataManager vía Tailscale (S).
-  - [T-230] Adaptación de `generate-homepage-config.sh` para Stack Completo y Multi-Host (M).
-  - [T-231] Despliegue en Vivo y Validación en Homepage (`http://g8o4sgwsw8k4c0cscoskkks8...`) (S).
-  - [T-232] Homologación de Tooling de Flota (OpenCode, Hermes, Orca, Infisical) (S).
+- **Sprint 44**: Integración Nativa con Orca 1.4.268, Gobernanza de Bots y Actualización del Stack de Flota (T-233 a T-237). En curso. Ver `docs/sprints/sprint-44.md`.
+  - [T-233] Homologación y Actualización Integral del Stack de Flota (OpenCode, Hermes, Infisical, Orca) (S).
+  - [T-234] Actualización de la Skill `orca-cli` a v1.4.268 (Bots Hermes/OpenCode, Multimodalidad y Browser Remoto) (S).
+  - [T-235] Puente Declarativo: `.agents/profiles/` a Orca Bot Identities y Standing Instructions (M).
+  - [T-236] Optimización Reactiva de Coordinación en `orca-reactive-wait.sh` (Despertar Nativo sin Polling) (S).
+  - [T-237] Validación Integral del Control Plane, Sincronización de Flota y Cierre de Sprint 44 (S).
 
 ## Próximo
+- **Sprint 43**: Dashboard Homepage Operativo, Stack Completo Coolify y Telemetría Multi-Host Glances DataManager (T-228 a T-232). Formalizado como release `v1.39.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-43.md`.
 - **Sprint 42**: Hermes VPS Autonomía Proactiva, Auto-Sincronización del Core, Recarga en Caliente de Skills y Contratos Operativos (T-224 a T-227). Formalizado como release `v1.38.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-42.md`.
 - **Sprint 41**: Orquestación, Sincronización Bidireccional Core-Satélites y Universalización de Despliegues Coolify (T-219 a T-223). Formalizado como release `v1.37.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-41.md`.
 - **Sprint 40**: Hermes Conserje (WhatsApp/Telegram), Harness Antigravity Dual Google Pro y Observabilidad Proactiva de Flota (T-214 a T-218). Formalizado como release `v1.36.0` en `multi-agent`. Ver `docs/sprints/_archived/sprint-40.md`.
