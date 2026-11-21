@@ -90,7 +90,7 @@ skills:
   orca-cli:
     scope: universal
     optional: true
-    description: "Operar worktrees gestionados por Orca IDE (v1.4.258), terminales PTY aisladas y navegador embebido."
+    description: "Operar worktrees gestionados por Orca (v1.4.268), bots nativos (Hermes/OpenCode), orquestación y navegador embebido."
 
   remote-admin:
     scope: infra
