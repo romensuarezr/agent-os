@@ -1,5 +1,5 @@
 # T-237 — Validación Integral del Control Plane, Sincronización de Flota y Cierre de Sprint 44
-Sprint: Sprint 44 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-237-control-plane-validation-sprint-44 | Merge destino: multi-agent
+Sprint: Sprint 44 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-237-control-plane-validation-sprint-44 | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 44 — 2026-11-23
