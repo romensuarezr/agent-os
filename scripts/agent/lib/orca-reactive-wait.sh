@@ -126,11 +126,50 @@ orca_reactive_wait_for_verdict() {
         # 2. Matching de dispatch: inspeccionar el payload antes de worker-read y antes de --ack
         local match_analysis
         match_analysis="$(python3 -c '
-import json, sys
+import json, sys, re
 
 raw = sys.argv[1]
 target = sys.argv[2]
-res = {"supported": False, "matched": False, "deliveryId": None, "timedOut": False}
+res = {"supported": False, "matched": False, "deliveryId": None, "timedOut": False, "earlyVerdict": None}
+
+start_delim = "<!-- VERDICT_JSON_START -->"
+end_delim = "<!-- VERDICT_JSON_END -->"
+
+def extract_verdict(text):
+    if not text:
+        return None
+    matches = []
+    pos = 0
+    while True:
+        s = text.find(start_delim, pos)
+        if s == -1:
+            break
+        e = text.find(end_delim, s + len(start_delim))
+        if e == -1:
+            break
+        matches.append((s, e))
+        pos = e + len(end_delim)
+    for s_idx, e_idx in reversed(matches):
+        raw_chunk = text[s_idx + len(start_delim):e_idx]
+        cleaned_lines = []
+        for line in raw_chunk.splitlines():
+            l = re.sub(r"^[│┃╹╻|\s]+", "", line)
+            l = re.sub(r"\s{6,}\S.*$", "", l)
+            l = re.sub(r"[│┃╹╻|\s]+$", "", l)
+            cleaned_lines.append(l)
+        cleaned = "\n".join(cleaned_lines)
+        s_brace = cleaned.find("{")
+        e_brace = cleaned.rfind("}")
+        if s_brace != -1 and e_brace > s_brace:
+            json_str = cleaned[s_brace:e_brace + 1]
+            try:
+                parsed = json.loads(json_str, strict=False)
+                v = parsed.get("verdict", "").strip().upper()
+                if v in ["CONSENSO", "REVISADO_CON_CAMBIOS", "ESCALADO_A_HUMANO", "RECHAZADO"]:
+                    return parsed
+            except Exception:
+                continue
+    return None
 
 try:
     data = json.loads(raw, strict=False)
@@ -152,18 +191,30 @@ try:
                     disp = payload.get("dispatchId")
                     if disp == target:
                         res["matched"] = True
+                        if "verdict" in payload and isinstance(payload.get("verdict"), dict):
+                            v_obj = payload.get("verdict")
+                            if v_obj.get("verdict", "").strip().upper() in ["CONSENSO", "REVISADO_CON_CAMBIOS", "ESCALADO_A_HUMANO", "RECHAZADO"]:
+                                res["earlyVerdict"] = v_obj
+                        if not res["earlyVerdict"]:
+                            for candidate_key in ["report", "summary", "output", "text"]:
+                                if candidate_key in payload and isinstance(payload[candidate_key], str):
+                                    ev = extract_verdict(payload[candidate_key])
+                                    if ev:
+                                        res["earlyVerdict"] = ev
+                                        break
                         break
 except Exception:
     pass
 
 print(json.dumps(res))
-' "$check_out" "$target_dispatch_id" 2>/dev/null || echo '{"supported":false,"matched":false,"deliveryId":null,"timedOut":false}')"
+' "$check_out" "$target_dispatch_id" 2>/dev/null || echo '{"supported":false,"matched":false,"deliveryId":null,"timedOut":false,"earlyVerdict":null}')"
 
-        local supported matched delivery_id timed_out
+        local supported matched delivery_id timed_out early_verdict
         supported="$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("supported") else "false")' "$match_analysis" 2>/dev/null || echo false)"
         matched="$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("matched") else "false")' "$match_analysis" 2>/dev/null || echo false)"
         delivery_id="$(python3 -c 'import json, sys; print(json.loads(sys.argv[1]).get("deliveryId") or "")' "$match_analysis" 2>/dev/null || true)"
         timed_out="$(python3 -c 'import json, sys; print("true" if json.loads(sys.argv[1]).get("timedOut") else "false")' "$match_analysis" 2>/dev/null || echo false)"
+        early_verdict="$(python3 -c 'import json, sys; ev = json.loads(sys.argv[1]).get("earlyVerdict"); print(json.dumps(ev) if ev else "")' "$match_analysis" 2>/dev/null || true)"
 
         if [ "$supported" != "true" ]; then
             # El runtime/stub no implementa orca orchestration check estructurado
@@ -177,31 +228,34 @@ print(json.dumps(res))
         # 3. Condición de no-coincidencia (entrega ajena o sin worker_done target)
         if [ "$matched" != "true" ]; then
             # REGLA VINCULANTE: NO ackear entregas ajenas.
-            # Dormir breve intervalo (0.5s) para ceder el socket y evitar loop de sondeo acelerado
-            # mientras la entrega no coincidente es procesada por su destinatario.
-            sleep 0.5
+            # Breve cesión reactiva (0.1s) para evitar loop de sondeo acelerado
+            sleep 0.1
             continue
         fi
 
-        # 4. Coincidencia verificada: proceder a worker-read
-        if [ -n "${ORCA_CALLS_LOG:-}" ]; then
-            echo "reactive worker-read $(date +%s%N) $target_dispatch_id" >> "$ORCA_CALLS_LOG"
-        fi
-
-        local read_out
-        read_out="$(orca_worker_read --dispatch "$target_dispatch_id" --limit 100 --json 2>/dev/null || true)"
-
-        local parsed_verdict
-        parsed_verdict="$(orca_parse_verdict_from_read "$read_out")"
-
-        if [ -z "$parsed_verdict" ]; then
-            # Breve gracia defensiva de 0.5s si el buffer de terminal tarda en consolidarse
-            sleep 0.5
+        local parsed_verdict=""
+        if [ -n "$early_verdict" ]; then
+            # Veredicto consolidado de inmediato en el evento worker_done (Orca v1.4.268)
+            parsed_verdict="$early_verdict"
+        else
+            # 4. Coincidencia verificada sin veredicto temprano: proceder a worker-read
             if [ -n "${ORCA_CALLS_LOG:-}" ]; then
                 echo "reactive worker-read $(date +%s%N) $target_dispatch_id" >> "$ORCA_CALLS_LOG"
             fi
+
+            local read_out
             read_out="$(orca_worker_read --dispatch "$target_dispatch_id" --limit 100 --json 2>/dev/null || true)"
             parsed_verdict="$(orca_parse_verdict_from_read "$read_out")"
+
+            if [ -z "$parsed_verdict" ]; then
+                # Gracia defensiva ágil de 0.1s si el buffer de terminal tarda en consolidarse
+                sleep 0.1
+                if [ -n "${ORCA_CALLS_LOG:-}" ]; then
+                    echo "reactive worker-read $(date +%s%N) $target_dispatch_id" >> "$ORCA_CALLS_LOG"
+                fi
+                read_out="$(orca_worker_read --dispatch "$target_dispatch_id" --limit 100 --json 2>/dev/null || true)"
+                parsed_verdict="$(orca_parse_verdict_from_read "$read_out")"
+            fi
         fi
 
         # 5. Acuse de recibo (--ack) de nuestra entrega

@@ -9,7 +9,7 @@
 | T-233 | Homologación y Actualización Integral del Stack de Flota (OpenCode, Hermes, Infisical, Orca) | S | ✅ Hecho | — | [.agents/tasks/task-233.md](file:///.agents/tasks/task-233.md) |
 | T-234 | Actualización de la Skill `orca-cli` a v1.4.268 (Bots Hermes/OpenCode, Multimodalidad y Browser Remoto) | S | ✅ Hecho | T-233 | [.agents/tasks/task-234.md](file:///.agents/tasks/task-234.md) |
 | T-235 | Puente Declarativo: `.agents/profiles/` a Orca Bot Identities y Standing Instructions | M | ✅ Hecho | T-234 | [.agents/tasks/task-235.md](file:///.agents/tasks/task-235.md) |
-| T-236 | Optimización Reactiva de Coordinación en `orca-reactive-wait.sh` (Despertar Nativo sin Polling) | S | ⬜ Pendiente | T-234 | [.agents/tasks/task-236.md](file:///.agents/tasks/task-236.md) |
+| T-236 | Optimización Reactiva de Coordinación en `orca-reactive-wait.sh` (Despertar Nativo sin Polling) | S | ✅ Hecho | T-234 | [.agents/tasks/task-236.md](file:///.agents/tasks/task-236.md) |
 | T-237 | Validación Integral del Control Plane, Sincronización de Flota y Cierre de Sprint 44 | S | ⬜ Pendiente | T-233, T-234, T-235, T-236 | [.agents/tasks/task-237.md](file:///.agents/tasks/task-237.md) |
 
 ## Régimen Operativo del Sprint
