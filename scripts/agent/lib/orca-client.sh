@@ -37,9 +37,12 @@ export ORCA_WORKER_ENV_WHITELIST=(
 # Prioriza binarios en PATH respetando el orden de directorios ('orca-ide' y 'orca' no-GNOME),
 # con fallback a shims estándar vía $HOME, descartando explícitamente el lector de GNOME (/usr/bin/orca).
 orca_resolve_bin() {
-    if [ -n "${ORCA_BIN_OVERRIDE:-}" ] && [ -x "${ORCA_BIN_OVERRIDE}" ]; then
-        echo "${ORCA_BIN_OVERRIDE}"
-        return 0
+    if [ -n "${ORCA_BIN_OVERRIDE:-}" ]; then
+        if [ -x "${ORCA_BIN_OVERRIDE}" ]; then
+            echo "${ORCA_BIN_OVERRIDE}"
+            return 0
+        fi
+        return 1
     fi
 
     # 1 y 2. Búsqueda a lo largo de PATH respetando el orden de precedencia de directorios.

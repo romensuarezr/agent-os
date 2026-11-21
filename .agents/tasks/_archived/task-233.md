@@ -1,5 +1,5 @@
 # T-233 — Homologación y Actualización Integral del Stack de Flota (OpenCode, Hermes, Infisical, Orca)
-Sprint: Sprint 44 | Estado: ⬜ Pendiente | Tamaño: S | Rama propuesta: feat/T-233-fleet-tooling-update | Merge destino: multi-agent
+Sprint: Sprint 44 | Estado: ✅ Hecho | Tamaño: S | Rama propuesta: feat/T-233-fleet-tooling-update | Merge destino: multi-agent
 
 ## Diseño macro aprobado en planning
 - **Sprint / Fecha**: Sprint 44 — 2026-11-23
