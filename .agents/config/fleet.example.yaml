@@ -51,7 +51,7 @@ local_environment:
       description: "Mesh VPN for secure node interconnectivity"
     infisical:
       status: "optional"
-      version: "0.45.11"
+      version: "0.45.14"
       description: "End-to-end encrypted secret manager CLI"
 
 # ------------------------------------------------------------------------------

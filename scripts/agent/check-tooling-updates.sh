@@ -171,19 +171,26 @@ except Exception:
           ver="$r_ver"
         fi
       fi
-      [ -z "$ver" ] && ver="0.23.2"
+      [ -z "$ver" ] && ver="0.23.3"
       ;;
     orca)
       if command -v orca-ide >/dev/null 2>&1; then
         ver="$(extract_semver "$(orca-ide --version 2>/dev/null || true)")"
+      elif command -v orca >/dev/null 2>&1; then
+        # Verificar que no sea el lector de pantalla de GNOME
+        local real_orca
+        real_orca="$(readlink -f "$(command -v orca)" 2>/dev/null || command -v orca)"
+        if [ "$real_orca" != "/usr/bin/orca" ] && [ "$real_orca" != "/bin/orca" ]; then
+          ver="$(extract_semver "$(orca --version 2>/dev/null || true)")"
+        fi
       fi
-      [ -z "$ver" ] && ver="1.4.262"
+      [ -z "$ver" ] && ver="1.4.268"
       ;;
     infisical)
       if command -v infisical >/dev/null 2>&1; then
         ver="$(extract_semver "$(infisical --version 2>/dev/null || true)")"
       fi
-      [ -z "$ver" ] && ver="0.45.11"
+      [ -z "$ver" ] && ver="0.45.14"
       ;;
     glances)
       if command -v glances >/dev/null 2>&1; then

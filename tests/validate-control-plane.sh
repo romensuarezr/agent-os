@@ -1261,6 +1261,7 @@ done
 # Fixture 1 (sin runtime): despacho Git + re-despacho idempotente + --force
 (
     export PATH="$DTOOLS"; hash -r
+    export ORCA_BIN_OVERRIDE="/nonexistent/orca"
     git init -q -b main "$DSAT" && git -C "$DSAT" config user.email t@t.t && git -C "$DSAT" config user.name t
     echo a > "$DSAT/f.txt" && git -C "$DSAT" add -A && git -C "$DSAT" commit -qm base
     printf 'version: "1.0"\n\nsatellites:\n  fx:\n    path: %s\n    route: auto\n' "$DSAT" > "$DSATS"
@@ -1273,6 +1274,7 @@ done
 (
     printf '#!/usr/bin/env bash\nif [ "$1" = "status" ]; then exit 0; fi\necho "{\\"dispatch_id\\":\\"stub-1\\"}"\n' > "$DSTUB/orca" && chmod +x "$DSTUB/orca"
     export PATH="$DSTUB:$DTOOLS"; hash -r
+    unset ORCA_BIN_OVERRIDE
     bash "$DISPATCH" --satellite fx --task-id T-FO --agent ag --satellites "$DSATS" --registry "$DREG" --json > "$DOUT4" 2>/dev/null
 ) 2>/dev/null || true
 if python3 -c "

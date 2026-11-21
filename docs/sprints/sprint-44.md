@@ -6,7 +6,7 @@
 ## Tareas
 | ID | Descripción | Tamaño | Estado | Dependencias | Task file |
 |---|---|:---:|:---:|:---:|:---:|
-| T-233 | Homologación y Actualización Integral del Stack de Flota (OpenCode, Hermes, Infisical, Orca) | S | ⬜ Pendiente | — | [.agents/tasks/task-233.md](file:///.agents/tasks/task-233.md) |
+| T-233 | Homologación y Actualización Integral del Stack de Flota (OpenCode, Hermes, Infisical, Orca) | S | ✅ Hecho | — | [.agents/tasks/task-233.md](file:///.agents/tasks/task-233.md) |
 | T-234 | Actualización de la Skill `orca-cli` a v1.4.268 (Bots Hermes/OpenCode, Multimodalidad y Browser Remoto) | S | ⬜ Pendiente | T-233 | [.agents/tasks/task-234.md](file:///.agents/tasks/task-234.md) |
 | T-235 | Puente Declarativo: `.agents/profiles/` a Orca Bot Identities y Standing Instructions | M | ⬜ Pendiente | T-234 | [.agents/tasks/task-235.md](file:///.agents/tasks/task-235.md) |
 | T-236 | Optimización Reactiva de Coordinación en `orca-reactive-wait.sh` (Despertar Nativo sin Polling) | S | ⬜ Pendiente | T-234 | [.agents/tasks/task-236.md](file:///.agents/tasks/task-236.md) |
