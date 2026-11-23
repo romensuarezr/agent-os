@@ -317,10 +317,10 @@ for node_name, node_data in nodes.items():
     # 2. Control & Secrets
     if "infisical" in services and is_service_enabled(services["infisical"]):
         s = services["infisical"]
-        url = s.get("admin_console") or s.get("endpoint", "")
+        url = s.get("admin_console") or s.get("url") or s.get("endpoint", "")
         # Omitir si es un placeholder ficticio *.example.com no configurado
         if not is_placeholder_url(url):
-            ping_url = f"{s.get('api_url', url)}/status" if "api_url" in s else url
+            ping_url = s.get("ping") or (f"{s.get('api_url')}/status" if "api_url" in s else (f"{url.rstrip('/')}/api/status" if "://" in url else url))
             group_control.append({
                 "Infisical Secrets Manager": {
                     "icon": "si-vault",
@@ -354,7 +354,7 @@ for node_name, node_data in nodes.items():
                     "icon": "si-gnubash",
                     "href": url,
                     "description": s.get("description", "Developer CLI commands, code snippets and notes organizer"),
-                    "ping": f"{url}/api/cards"
+                    "ping": s.get("ping") or f"{url}/api/cards"
                 }
             })
 
@@ -419,7 +419,7 @@ for node_name, node_data in nodes.items():
                     "icon": "si-twenty",
                     "href": url,
                     "description": tw.get("description", "Open source CRM platform"),
-                    "ping": url
+                    "ping": tw.get("ping") or (f"{url.rstrip('/')}/healthz" if "://" in url else url)
                 }
             })
 
@@ -539,7 +539,20 @@ for node_name, node_data in nodes.items():
                     "icon": "si-fastapi",
                     "href": url,
                     "description": s.get("description", "High-density API service"),
-                    "ping": url
+                    "ping": s.get("ping") or url
+                }
+            })
+
+    if "portfolio" in services and is_service_enabled(services["portfolio"]):
+        s = services["portfolio"]
+        url = s.get("url") or s.get("endpoint", "")
+        if not is_placeholder_url(url):
+            group_apps.append({
+                "Romen Suarez Web": {
+                    "icon": "si-nextdotjs",
+                    "href": url,
+                    "description": s.get("description", "Personal portfolio & production website"),
+                    "ping": s.get("ping") or url
                 }
             })
 
@@ -690,8 +703,10 @@ for node_name, node_data in nodes.items():
                     }
                 })
 
-total_services = sum(len(g) for g in [group_ai, group_control, group_dev, group_paas])
-print(f"✅ Parser completado: {total_services} servicios mapeados en 4 grupos de Homepage.")
+all_groups = [group_ai, group_control, group_dev, group_paas, group_apps]
+total_services = sum(len(g) for g in all_groups)
+active_groups = sum(1 for g in all_groups if g)
+print(f"✅ Parser completado: {total_services} servicios mapeados en {active_groups} grupos de Homepage.")
 
 if check_only:
     print("\n--- [DRY-RUN] services.yaml preview ---")
